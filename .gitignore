@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.ruff_cache/
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OpenClaw runtime
+.openclaw/
+bak/
+
+# Sensitive data (never commit)
+memory/alerts.txt
+*.nmap
+pentest_learning_results/
+penetration/
+
+# Logs
+*.log
