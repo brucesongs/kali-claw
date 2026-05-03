@@ -244,3 +244,165 @@ v0.1.0 的 kali-claw 是一个**攻击技术全面的渗透测试工具库**；v
 | 新增文件 | `VERSION` (0.1.1) |
 | 新增文件 | `CLAUDE.md` (Claude Code 工作区指引) |
 | 更新文件 | `README.md` (25→31 技能域, 版本号) |
+
+---
+
+# kali-claw v0.1.2 技能补充调研报告
+
+*Generated: 2026-05-04 | Version: 0.1.1 → 0.1.2 | New Skills: 5 | Total: 36*
+
+---
+
+## 摘要
+
+kali-claw v0.1.1 通过新增 6 个技能建立了从侦察到报告的全流程能力闭环。但在**操作质量保障、自主执行能力、经验积累、测试环境、安全边界**五个维度存在空白。v0.1.2 新增的 5 个技能正是针对这些空白进行补充，同时将 9 个未来技能按优先级纳入路线图。
+
+---
+
+## 一、v0.1.1 能力空白分析
+
+| 空白维度 | 具体问题 | 影响场景 |
+|----------|----------|----------|
+| **验证保障** | 漏洞发现后缺少系统化的确认流程，假阳性和假阴性无法有效过滤 | 提交的赏金报告被退回；渗透测试报告出现不可重现的发现 |
+| **自主执行** | 重复性任务（批量扫描、迭代爆破）缺少安全的自动化框架 | 效率低下；手动重复操作引入人为错误 |
+| **经验积累** | 每次渗透测试的经验无法结构化沉淀，跨会话知识流失 | 相同错误重复出现；工具使用经验无法复用 |
+| **测试环境** | 缺少标准化的本地靶场环境，无法安全验证攻击技术 | 无法离线练习；无法在隔离环境中验证工具行为 |
+| **安全边界** | 缺少操作安全护栏，自动化或批量操作时可能越界 | 超出授权范围测试；对目标系统造成意外影响 |
+
+---
+
+## 二、新增技能定位分析（v0.1.2，+5 个技能）
+
+### `verification-loop` — 多阶段验证协议
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 系统化的发现验证和假阳性消除 |
+| **与现有技能的关系** | 是 `security-bounty-hunter` 和 `vulnerability-assessment` 的质量保障层。赏金猎手在提交前必须通过验证循环；漏洞评估结果必须经过假阳性消除 |
+| **核心价值** | 六阶段验证流程（前置条件→执行观察→后置条件→独立确认→假阳性消除→证据文档），要求每个发现至少通过两种独立方法确认 |
+
+**协同示例：** `vulnerability-assessment` 扫描发现 10 个 SQL 注入点，`verification-loop` 对每个点执行独立确认，最终确认 3 个为真实漏洞，7 个为误报。
+
+---
+
+### `autonomous-loops` — 安全自主执行
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 重复性任务的安全自动化框架 |
+| **与现有技能的关系** | 横切所有技能。为 `network-pentest`、`osint`、`vulnerability-assessment` 等提供批量执行能力 |
+| **核心价值** | 四种循环模式（顺序管道、监控循环、批处理、学习循环），每种都内建范围锁、速率限制、证据日志和错误处理 |
+
+**协同示例：** 对 C 段目标执行 `network-pentest` 的端口扫描时，使用 `autonomous-loops` 的顺序管道模式逐主机扫描，每步记录证据，遇到关键错误自动停止。
+
+---
+
+### `continuous-learning` — 持续学习
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 跨会话经验积累和知识结构化 |
+| **与现有技能的关系** | 与 `chronicle` 知识管理系统互补。chronicle 记录事件，continuous-learning 提取可复用的知识模式 |
+| **核心价值** | 学习循环（模式检测→结构化提取→置信度评分→分层存储→交叉引用），三级记忆层（短期战术/中期技术/长期战略） |
+
+**协同示例：** 在多次渗透测试中发现某 WAF 对特定 SQL 注入绕过技术的拦截规律，`continuous-learning` 将此模式提取并存储为高置信度知识，下次遇到相同 WAF 时可直接调用。
+
+---
+
+### `docker-patterns` — 安全测试实验室
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 标准化的本地靶场和隔离测试环境 |
+| **与现有技能的关系** | 为所有攻击技术技能提供安全的练习环境。`web-sqli` 可以在 DVWA 中练习，`network-pentest` 可以在多服务网络靶场中练习 |
+| **核心价值** | 五种 Docker 模式（脆弱 Web 应用靶场、网络渗透靶场、多阶段攻击链靶场、一次性测试、工具校准），所有环境仅绑定 127.0.0.1 |
+
+**协同示例：** 学习 `web-sqli` 时，使用 `docker-patterns` 的 DVWA 靶场搭建本地练习环境，在隔离环境中安全地实践注入技术。
+
+---
+
+### `safety-guard` — 安全护栏
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 操作安全边界和紧急响应机制 |
+| **与现有技能的关系** | 横切所有技能，为每个操作提供安全前置检查。与 `autonomous-loops` 的范围锁配合，确保自动化操作不越界 |
+| **核心价值** | 三级安全模式（谨慎/冻结/守卫），危险命令拦截表，参与规则模板，事件响应协议 |
+
+**协同示例：** `autonomous-loops` 执行批量扫描前，`safety-guard` 检查每个目标是否在授权范围内，拦截超出范围的命令，遇到异常行为触发冻结模式。
+
+---
+
+## 三、技能类型更新
+
+v0.1.2 的 36 个技能三层分类：
+
+### 第一层：攻击技术技能（17 个）
+`api-security`, `binary-reverse`, `cloud-security`, `container-security`, `crypto-attacks`, `mobile-security`, `network-pentest`, `password-attack`, `post-exploitation`, `web-access-control`, `web-auth-bypass`, `web-sqli`, `web-ssrf`, `web-xss`, `wifi-pentest`, `social-engineering`, `security-bounty-hunter`
+
+### 第二层：安全分析技能（10 个）
+`vulnerability-assessment`, `osint`, `recon-osint`, `digital-forensics`, `insecure-design`, `security-misconfiguration`, `logging-monitoring`, `supply-chain-security`, `security-review`, `repo-scan`
+
+### 第三层：元技能（6 个）
+`deep-research`, `terminal-ops`, `search-first`, `verification-loop`, `autonomous-loops`, `continuous-learning`
+
+### 基础设施技能（3 个）
+`chronicle`, `docker-patterns`, `safety-guard`
+
+---
+
+## 四、未来路线图
+
+### 第一梯队 — 高优先级（v0.1.3+）
+
+| 技能 | 定位 | 填补空白 |
+|------|------|----------|
+| `codebase-onboarding` | 快速代码库理解 | 白盒审计前的架构理解和依赖映射 |
+| `knowledge-ops` | 知识图谱管理 | 跨会话知识持久化和关系维护 |
+
+### 第二梯队 — 中优先级（v0.1.4+）
+
+| 技能 | 定位 | 填补空白 |
+|------|------|----------|
+| `article-writing` | 安全报告撰写 | 标准化渗透测试报告和安全文章产出 |
+| `browser-qa` | 浏览器安全测试 | 客户端漏洞验证和 JavaScript 调试 |
+| `data-scraper-agent` | 结构化数据提取 | CVE 数据库和威胁情报自动化收集 |
+| `exa-search` | 高级网络搜索 | 安全研究专用搜索能力 |
+
+### 第三梯队 — 未来探索
+
+| 技能 | 定位 | 填补空白 |
+|------|------|----------|
+| `mcp-server-patterns` | MCP 服务器集成 | 安全工具 API 封装和自定义集成 |
+| `council` | 多视角分析 | 安全决策的多专家视角评估 |
+| `strategic-compact` | 战略上下文管理 | 长期项目的上下文压缩和优先级信息保留 |
+
+---
+
+## 五、结论
+
+v0.1.2 新增的 5 个技能从五个维度强化了 kali-claw 的操作能力：
+
+1. **质量保障** — `verification-loop` 确保每个发现都经过独立验证
+2. **自动化能力** — `autonomous-loops` 提供安全的批量执行框架
+3. **经验沉淀** — `continuous-learning` 将操作经验转化为可复用知识
+4. **训练环境** — `docker-patterns` 提供标准化的本地靶场
+5. **安全边界** — `safety-guard` 为所有操作提供安全护栏
+
+v0.1.1 建立了全流程能力闭环；v0.1.2 通过质量保障、自动化、经验积累和安全边界，将 kali-claw 从"能做"提升为"做得好、做得安全"。
+
+---
+
+## 附录：v0.1.2 变更清单
+
+| 变更类型 | 内容 |
+|----------|------|
+| 新增技能 | `verification-loop` (SKILL.md) |
+| 新增技能 | `autonomous-loops` (SKILL.md) |
+| 新增技能 | `continuous-learning` (SKILL.md) |
+| 新增技能 | `docker-patterns` (SKILL.md) |
+| 新增技能 | `safety-guard` (SKILL.md) |
+| 更新文件 | `VERSION` (0.1.1 → 0.1.2) |
+| 更新文件 | `README.md` (31→36 技能域, 路线图, 版本号) |
+| 更新文件 | `CHANGELOG.md` (新增 v0.1.2 条目) |
+| 更新文件 | `UPDATELOG.md` (新增 v0.1.2 调研报告) |

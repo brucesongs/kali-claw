@@ -4,6 +4,22 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.2] - 2026-05-04
+
+### Added
+
+- `verification-loop` skill — multi-phase finding verification with false positive elimination and evidence documentation
+- `autonomous-loops` skill — safe autonomous execution patterns with scope locks, rate limiting, and evidence logging
+- `continuous-learning` skill — engagement knowledge extraction with pattern detection, confidence scoring, and memory layering
+- `docker-patterns` skill — Docker Compose configurations for isolated security testing labs (DVWA, SQLi-Labs, Juice Shop, network labs)
+- `safety-guard` skill — safety enforcement layer with scope checking, dangerous command interception, and incident response protocol
+- Future roadmap section in README.md — 9 planned skills organized by priority tier
+
+### Changed
+
+- `VERSION` — 0.1.1 → 0.1.2
+- `README.md` — updated skill domain count (31 → 36), added 5 new skills to table, added roadmap section, updated project info version
+
 ## [0.1.1] - 2026-05-04
 
 ### Added
