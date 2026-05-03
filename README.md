@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 25 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 31 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **25 Security Skill Domains** — From OSINT and web exploitation to cloud security and digital forensics, each with structured payloads, test cases, and learning guides
+- **31 Security Skill Domains** — From OSINT and web exploitation to cloud security and digital forensics, each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -79,7 +79,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 25 security skill domains
+├── skills/              # 31 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -88,7 +88,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (25 domains total)
+│   └── ... (31 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -120,7 +120,7 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 
 ## Security Skills
 
-25 domains organized by the OWASP and MITRE frameworks:
+31 domains organized by the OWASP and MITRE frameworks:
 
 | Domain | Description | Key Topics |
 |--------|-------------|------------|
@@ -149,6 +149,12 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 | `web-xss` | Cross-Site Scripting | Reflected, stored, DOM-based, CSP bypass |
 | `wifi-pentest` | WiFi penetration testing | WPA cracking, WPS attacks, evil twin |
 | `chronicle` | Chronicle system | Event logging, milestone tracking |
+| `deep-research` | Multi-source intelligence research | CVE deep-dive, threat actor profiling, attack technique investigation, cited reports |
+| `security-bounty-hunter` | Bug bounty vulnerability hunting | Exploitable vulnerability discovery, PoC development, responsible disclosure reporting |
+| `terminal-ops` | Evidence-first terminal operations | Structured command execution, evidence chain protocol, verified state tracking |
+| `search-first` | Research before exploit | Exploit/tool search workflow, existing solution discovery, decision matrix |
+| `security-review` | Comprehensive security review | OWASP Top 10 checklist, source code audit, configuration review, dependency scanning |
+| `repo-scan` | Cross-stack source code audit | File classification, library detection, module verdicts, security hotspot analysis |
 
 Each skill contains:
 - **SKILL.md** — Description, use cases, tools, and workflow
@@ -209,7 +215,7 @@ rm -rf chronicle/
 The following are universal and reusable as-is:
 - **Hacker Laws** in `SOUL.md` — applies to all security agents
 - **Heartbeat framework** in `HEARTBEAT.md`
-- **All 25 skills** in `skills/`
+- **All 31 skills** in `skills/`
 - **All guides** in `skills/*/guides/`
 
 ### Example: Web Security Agent
@@ -266,9 +272,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
+| **Version** | 0.1.1 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 25 |
+| **Skill Domains** | 31 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 
