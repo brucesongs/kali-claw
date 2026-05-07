@@ -39,6 +39,8 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | Mobile Security | 4 | Learning | guides/mobile_security_complete_guide.md |
 | Network Analysis | 12 | Learning | memory/tshark.md, memory/bettercap.md |
 | Social Engineering | 4 | Learning | memory/2026-03-21-social-engineering-tools.md |
+| Social Intelligence | 6 | Learning | skills/social-intelligence/SKILL.md |
+| Deep Research | 8 | Learning | skills/deep-research/SKILL.md |
 
 ---
 

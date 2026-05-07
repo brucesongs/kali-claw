@@ -406,3 +406,137 @@ v0.1.1 建立了全流程能力闭环；v0.1.2 通过质量保障、自动化、
 | 更新文件 | `README.md` (31→36 技能域, 路线图, 版本号) |
 | 更新文件 | `CHANGELOG.md` (新增 v0.1.2 条目) |
 | 更新文件 | `UPDATELOG.md` (新增 v0.1.2 调研报告) |
+
+---
+
+# kali-claw v0.1.3 技能补充调研报告
+
+*Generated: 2026-05-06 | Version: 0.1.2 → 0.1.3 | New Skills: 1 | Enhanced: 1 | Updated: 2 | Total: 37*
+
+---
+
+## 摘要
+
+kali-claw v0.1.2 建立了质量保障、自动化、经验积累和安全边界能力。但在**社交平台实时情报收集**和**持续性情报运营**两个维度存在空白。v0.1.3 通过新建 `social-intelligence` 技能域和深度增强 `deep-research` 技能，补强了从"社交雷达"到"情报分析台"的完整情报能力链。
+
+---
+
+## 一、v0.1.2 能力空白分析
+
+| 空白维度 | 具体问题 | 影响场景 |
+|----------|----------|----------|
+| **社交情报** | 缺少社交平台（Reddit、HN、X、YouTube）的系统化情报收集方法论 | 无法获取目标员工社交画像、技术栈泄露、安全事件舆情 |
+| **持续监控** | deep-research 仅支持单次研究，缺少持续监控和变化检测 | 无法追踪 CVE feed、代码泄露、暗网提及的持续变化 |
+| **情报关联** | 缺少跨源 IOC 关联和置信度评分框架 | 多源情报无法汇聚成统一视图，无法评估情报可靠性 |
+| **迭代精化** | 研究过程为单次通过，缺少基于发现自动生成新问题的迭代能力 | 研究深度受限，无法自动发现和填补知识空白 |
+
+---
+
+## 二、调研背景
+
+本次升级源于对行业 "Deep Research" 能力的系统调研（详见 `memory/2026-05-05-deep-research-migration-report.md`），核心发现：
+
+1. **行业趋势**：Google Deep Research Max（2026-04-21发布）、OpenAI o3-deep-research、Perplexity Deep Research 均采用"自主搜索循环 + MCP + 扩展推理"架构
+2. **last30days 技能**：开源 Claude Code 技能，专注社交平台最近30天讨论的实时收集与聚类分析
+3. **核心区别**：last30days = "人们在说什么"（社交雷达）；deep-research = "事实是什么"（情报分析台）
+4. **结论**：两者互补，应同时纳入 kali-claw
+
+---
+
+## 三、新增技能定位分析
+
+### `social-intelligence` — 社交平台实时情报
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 社交平台系统化情报收集（Reddit、HN、X、YouTube、暗网论坛、paste 站点） |
+| **与现有技能的关系** | 补充 `osint`（被动工具驱动）和 `deep-research`（权威源深度分析），专注**非结构化社区讨论** |
+| **差异** | osint = "目标有什么资产" → social-intelligence = "人们在讨论目标什么" → deep-research = "关于这个话题的权威事实是什么" |
+| **核心价值** | 五阶段方法论（定义目标 → 平台选择 → 并行检索 → 去重重排序 → 聚类报告），覆盖 7 大平台类型 |
+
+**协同示例：** 渗透测试前，先用 `social-intelligence` 发现目标员工在 Reddit 上抱怨新 VPN 系统，再用 `deep-research` 深入研究该 VPN 产品的已知 CVE，最后用 `social-engineering` 利用员工对 VPN 的不满设计钓鱼方案。
+
+---
+
+### `deep-research` 增强 — 持续监控 + 情报关联 + 迭代精化
+
+| 维度 | 分析 |
+|------|------|
+| **Phase 7: Continuous Monitoring** | 定义监控目标（CVE feed、代码仓库、paste 站点、暗网），设定轮询频率，快照 diff 对比，告警触发 |
+| **Phase 8: Intelligence Correlation** | IOC 提取 → 跨源合并去重 → 置信度评分（5级） → MITRE ATT&CK 映射 → 实体关系图 |
+| **Phase 9: Adaptive Refinement** | 基于 Phase 6 报告识别知识空白 → 生成新子问题 → 定向搜索 → 更新报告 → 收敛检测 |
+| **4 个新 guides** | 迭代搜索模式、持续监控、情报关联、MCP 工具接入 |
+
+---
+
+## 四、技能协同矩阵更新
+
+```
+                    ┌──────────────────┐
+                    │ social-intelligence │ ← "人们在说什么"
+                    └────────┬─────────┘
+                             │ 发现线索
+                             ▼
+┌──────────┐    ┌────────────────────────┐    ┌────────────────┐
+│  osint   │───→│    deep-research        │───→│ social-        │
+│  recon   │    │ (情报分析 + 持续监控)    │    │  engineering   │
+└──────────┘    └────────────────────────┘    └────────────────┘
+                         │ Phase 8
+                         ▼
+                ┌────────────────────┐
+                │ Intelligence       │
+                │ Correlation        │ ← IOC 关联 + 置信度评分
+                └────────────────────┘
+```
+
+### 完整情报收集流水线
+
+```
+social-intelligence（社交雷达：发现目标讨论和泄露）
+  → osint（被动收集：域名、邮件、子域）
+    → deep-research（深度分析：CVE、攻击技术、威胁情报）
+      → deep-research Phase 7（持续监控：变化检测 + 告警）
+        → deep-research Phase 8（情报关联：IOC + ATT&CK 映射）
+          → social-engineering（利用情报：精准社工攻击）
+```
+
+---
+
+## 五、文件变更清单
+
+### 新建文件（11 个）
+
+| 文件 | 说明 |
+|------|------|
+| `skills/social-intelligence/SKILL.md` | 社交情报技能定义：5 阶段方法论、工具表、报告模板 |
+| `skills/social-intelligence/payloads.md` | 7 大平台搜索查询模板 |
+| `skills/social-intelligence/test-cases.md` | 5 个测试用例（TC-SI-001 ~ TC-SI-005） |
+| `skills/social-intelligence/guides/reddit-hackernews-osint.md` | Reddit + HN 情报收集实操 |
+| `skills/social-intelligence/guides/twitter-youtube-osint.md` | X + YouTube 情报收集实操 |
+| `skills/social-intelligence/guides/sentiment-analysis.md` | 安全情绪分析 → 社工向量映射 |
+| `skills/deep-research/guides/iterative-search-patterns.md` | 迭代搜索循环、查询精化、收敛检测 |
+| `skills/deep-research/guides/continuous-monitoring.md` | 持续监控架构、快照 diff、告警触发 |
+| `skills/deep-research/guides/intelligence-correlation.md` | IOC 关联、置信度评分、MITRE ATT&CK 映射 |
+| `skills/deep-research/guides/mcp-integration.md` | MCP 工具链配置、API 接入模式 |
+| `memory/2026-05-05-deep-research-migration-report.md` | Deep Research 能力迁移调研报告 |
+
+### 修改文件（7 个）
+
+| 文件 | 变更 |
+|------|------|
+| `skills/deep-research/SKILL.md` | +Phase 7/8/9、+2 个 Use Case、+Hacker Laws、+Learning Resources |
+| `skills/deep-research/payloads.md` | +Section 9（持续监控查询）+ Section 10（情报关联命令） |
+| `skills/deep-research/test-cases.md` | +TC-DR-011/012/013（总数 10→13） |
+| `IDENTITY.md` | +Social Intelligence、+Deep Research 技能域行 |
+| `TOOLS.md` | +Social Intelligence（6 tools）、+Deep Research（8 tools）分类 |
+| `skills/osint/SKILL.md` | +social-intelligence、+deep-research 交叉引用 |
+| `skills/social-engineering/SKILL.md` | +social-intelligence、+deep-research 交叉引用 |
+
+### 版本文件（4 个）
+
+| 文件 | 变更 |
+|------|------|
+| `VERSION` | 0.1.2 → 0.1.3 |
+| `README.md` | 36→37 技能域、版本号、技能表 |
+| `CHANGELOG.md` | +v0.1.3 条目 |
+| `UPDATELOG.md` | +v0.1.3 调研报告 |

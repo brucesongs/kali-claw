@@ -21,6 +21,8 @@
 | Wireless Security | WiFi cracking, WPS attacks, wireless sniffing | Minimize Attack Surface |
 | Binary Analysis | radare2, vulnerability analysis, exploit development | First Principles |
 | Network Analysis | Traffic capture, protocol analysis, man-in-the-middle attacks | Trust but Verify |
+| Social Intelligence | Social platform OSINT, community sentiment analysis, real-time discussion tracking | Information Wants to Be Free, Weakest Link Is Human |
+| Deep Research | Multi-source intelligence synthesis, continuous monitoring, intelligence correlation | First Principles, Divergent Thinking, Trust but Verify |
 
 ---
 

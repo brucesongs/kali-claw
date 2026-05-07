@@ -12,7 +12,8 @@
 | B. Threat Actor Profiling | 3 | MEDIUM - HIGH |
 | C. Attack Technique Investigation | 2 | MEDIUM - HIGH |
 | D. Technology Security Assessment | 2 | MEDIUM - HIGH |
-| **Total** | **10** | **LOW - HIGH** |
+| E. Continuous Monitoring & Correlation | 3 | MEDIUM - HIGH |
+| **Total** | **13** | **LOW - HIGH** |
 
 ---
 
@@ -206,3 +207,58 @@
 | TC-DR-008 | Defense Evasion Technique Research | HIGH | Attack Technique Investigation |
 | TC-DR-009 | Pre-Engagement Technology Research | MEDIUM | Technology Security Assessment |
 | TC-DR-010 | Open-Source Dependency Audit Research | MEDIUM | Technology Security Assessment |
+| TC-DR-011 | Continuous CVE Monitoring Pipeline | MEDIUM | Continuous Monitoring |
+| TC-DR-012 | Multi-Source Intelligence Correlation | HIGH | Intelligence Correlation |
+| TC-DR-013 | Adaptive Research Iteration Loop | MEDIUM | Adaptive Refinement |
+
+---
+
+## E. Continuous Monitoring & Correlation
+
+### TC-DR-011: Continuous CVE Monitoring
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-DR-011 |
+| **Name** | Continuous CVE Monitoring Pipeline |
+| **Severity** | MEDIUM |
+| **Category** | Continuous Monitoring |
+| **Objective** | Establish and validate an ongoing CVE monitoring pipeline for a target technology stack |
+| **Prerequisites** | Defined technology stack (3+ components), NVD API access, internet access |
+| **Test Steps** | 1. Define monitored technologies with CPE names<br>2. Query NVD for CVEs published in the last 24 hours matching each CPE<br>3. Query CISA KEV for newly added entries<br>4. Check Exploit-DB for new public exploits<br>5. Compare results against previous day's snapshot (diff)<br>6. Generate change report highlighting new findings |
+| **Expected Results** | Daily monitoring report with: new CVEs per technology, severity breakdown, exploit availability status, delta from previous day, and recommended actions |
+| **False Positive Risk** | LOW - CVE data is authoritative; main risk is CPE mismatch causing irrelevant alerts |
+| **Remediation** | Tune CPE filters; add version constraints to reduce noise; whitelist known-acceptable CVEs |
+| **Related Tools** | NVD API, CISA KEV, searchsploit, diff |
+
+### TC-DR-012: Multi-Source Intelligence Correlation
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-DR-012 |
+| **Name** | Multi-Source Intelligence Correlation |
+| **Severity** | HIGH |
+| **Category** | Intelligence Correlation |
+| **Objective** | Correlate IOCs and findings from 3+ independent sources to build a coherent threat picture with confidence scoring |
+| **Prerequisites** | Research reports from at least 3 independent sources (vendor reports, blog posts, MITRE ATT&CK), IOC extraction tools |
+| **Test Steps** | 1. Extract IOCs (IPs, hashes, domains, CVEs) from each source<br>2. Merge and deduplicate across all sources<br>3. Count source overlap per IOC (appears in N sources)<br>4. Assign confidence: HIGH (3+), MEDIUM (2), LOW (1)<br>5. Cross-reference IPs against AbuseIPDB and VirusTotal<br>6. Map techniques to MITRE ATT&CK IDs<br>7. Build entity relationship summary (Actor ↔ Campaign ↔ IOC) |
+| **Expected Results** | Correlation report with: merged IOC list with confidence scores, ATT&CK technique mapping, entity relationship diagram, and intelligence gaps identified |
+| **False Positive Risk** | MEDIUM - Shared infrastructure (CDNs, cloud IPs) may create false correlations; different naming conventions across vendors may cause missed links |
+| **Remediation** | Exclude known benign infrastructure (cloud provider IP ranges); normalize vendor-specific names using alias tables; weight infrastructure overlap higher than technique similarity |
+| **Related Tools** | grep, jq, AbuseIPDB API, VirusTotal API, MITRE ATT&CK |
+
+### TC-DR-013: Adaptive Research Iteration
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-DR-013 |
+| **Name** | Adaptive Research Iteration Loop |
+| **Severity** | MEDIUM |
+| **Category** | Adaptive Refinement |
+| **Objective** | Validate the iterative refinement process: initial research → gap identification → targeted follow-up → report update |
+| **Prerequisites** | A complex research topic with expected knowledge gaps, internet access |
+| **Test Steps** | 1. Complete Phase 1-6 (standard deep research) on a complex topic<br>2. Review report for unverified claims (single-source) and unanswered sub-questions<br>3. Generate 2-3 new sub-questions from discovered gaps<br>4. Execute targeted searches for new sub-questions<br>5. Deep-read new sources and update the report<br>6. Verify: all key claims now have 2+ source confirmation<br>7. Confirm: 3 consecutive follow-up searches added no significant new information (convergence) |
+| **Expected Results** | Updated report with: all key claims verified (2+ sources), original gaps filled, new discoveries integrated, convergence evidence (diminishing returns log) |
+| **False Positive Risk** | LOW - The process itself is sound; risk is premature convergence (stopping too early) or infinite loops (never converging) |
+| **Remediation** | Set hard limits: max 3 iteration rounds, max 5 new sub-questions per round; log each iteration's new information count to track convergence |
+| **Related Tools** | All search tools from Phase 3, cross-reference tools from Phase 8 |

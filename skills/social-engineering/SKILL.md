@@ -177,7 +177,7 @@ recon-ng
 
   **This skill's supplementary files**: payloads.md, test-cases.md
 
-  **Related skills**: skills/recon-osint/SKILL.md, skills/web-xss/SKILL.md
+  **Related skills**: skills/recon-osint/SKILL.md, skills/social-intelligence/SKILL.md, skills/deep-research/SKILL.md, skills/web-xss/SKILL.md
 
   **External resources**:
   - **SET Official Repository**: [github.com/trustedsec/social-engineer-toolkit](https://github.com/trustedsec/social-engineer-toolkit)

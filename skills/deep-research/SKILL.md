@@ -19,6 +19,8 @@ Difference from the `osint` skill: osint focuses on tool-driven passive reconnai
 - Competitive intelligence: analyzing security products, frameworks, or defensive tools for evaluation purposes
 - Regulatory and compliance research: investigating security requirements for specific industries or jurisdictions
 - Post-exploitation context: researching internal technologies discovered during a pentest to find associated vulnerabilities
+- Continuous threat monitoring: tracking CVE feeds, dark web mentions, and code leaks over time for ongoing engagements
+- Social intelligence correlation: combining deep-research findings with social platform intelligence (see `skills/social-intelligence/SKILL.md`) for comprehensive target profiling
 
 ## Core Tools
 
@@ -109,6 +111,100 @@ Fetch full content from the 3-5 most promising sources per sub-question. Do not 
 
 Structure findings into a cited report with executive summary, themed sections, key takeaways, and full source list.
 
+**Phase 7: Continuous Monitoring**
+
+Establish ongoing intelligence collection for time-sensitive topics.
+
+```
+Monitoring Setup:
+  1. Define monitoring targets (CVE feeds, code repos, paste sites, dark web)
+  2. Set polling frequency per source:
+     - CVE feeds (NVD, CISA KEV): daily
+     - GitHub commit/issue watch: daily
+     - Pastebin/paste sites: every 6 hours
+     - Shodan exposure diff: weekly
+  3. Define change triggers:
+     - New CVE matching target technology
+     - New PoC code published
+     - Target mentioned in paste/leak
+     - Attack surface change detected
+  4. Generate diff reports comparing current vs. previous snapshot
+```
+
+Key commands for continuous monitoring:
+
+```bash
+# NVD new CVE feed (last 24 hours)
+curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=$(date -d '1 day ago' +%Y-%m-%dT00:00:00.000)&pubEndDate=$(date +%Y-%m-%dT23:59:59.999)" | jq '.vulnerabilities[] | {id: .cve.id, description: .cve.descriptions[0].value}'
+
+# CISA KEV catalog check
+curl -s "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json" | jq '.vulnerabilities[-10:]'
+
+# Shodan diff (compare saved vs current)
+shodan search "org:TargetCorp" --limit 100 > current_exposure.json
+diff previous_exposure.json current_exposure.json
+
+# GitHub repo watch for security-relevant commits
+gh api "/repos/{owner}/{repo}/commits?since=$(date -d '1 day ago' +%Y-%m-%dT00:00:00Z)" | jq '.[].commit.message'
+```
+
+**Phase 8: Intelligence Correlation**
+
+Cross-reference findings from multiple sources to build a coherent intelligence picture.
+
+```
+Correlation Process:
+  1. Entity extraction: pull IOCs (IPs, domains, hashes), CVEs, tool names,
+     threat actor names from all collected sources
+  2. Cross-source linking: same IOC appearing in 2+ independent sources
+     increases confidence from LOW to MEDIUM/HIGH
+  3. MITRE ATT&CK mapping: map observed techniques to ATT&CK IDs,
+     identify coverage gaps in detection
+  4. Confidence scoring:
+     - HIGH: 3+ independent authoritative sources confirm
+     - MEDIUM: 2 sources or 1 authoritative + corroborating evidence
+     - LOW: single source or unverified claim
+  5. Entity relationship mapping:
+     Threat Actor ↔ Campaign ↔ Malware ↔ IOC ↔ Vulnerability ↔ Target
+```
+
+```bash
+# Extract IOCs from a collected report
+grep -oP '\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b' report.txt | sort -u > iocs_ip.txt
+grep -oP '\b[a-fA-F0-9]{64}\b' report.txt | sort -u > iocs_sha256.txt
+grep -oP 'CVE-\d{4}-\d{4,}' report.txt | sort -u > iocs_cve.txt
+
+# Cross-reference IPs against threat intel
+while read ip; do
+  echo "=== $ip ==="
+  curl -s "https://www.abuseipdb.com/check/$ip" | grep -oP 'confidence.*?%'
+done < iocs_ip.txt
+
+# Map CVEs to MITRE ATT&CK techniques
+# Use ATT&CK Navigator or manual mapping via attack.mitre.org
+```
+
+**Phase 9: Adaptive Refinement**
+
+Iteratively refine research based on emerging findings — the research loop.
+
+```
+Adaptive Loop:
+  1. Review Phase 6 report for gaps and unverified claims
+  2. Generate new sub-questions from discoveries:
+     - Unexpected finding → "Why does this exist? What else is affected?"
+     - Conflicting sources → "Which is correct? What's the latest data?"
+     - Partial answer → "What's missing? Where else can I find this?"
+  3. Execute targeted searches for new sub-questions
+  4. Deep-read new sources, update the report
+  5. Repeat until:
+     - All key claims have 2+ source confirmation
+     - No significant gaps remain
+     - Diminishing returns on new queries (3 consecutive searches add no new info)
+```
+
+This phase transforms deep research from a single-pass process into an iterative intelligence cycle, similar to the OODA loop (Observe-Orient-Decide-Act) used in military intelligence.
+
 ### Defense Perspective
 
 - **Intelligence hygiene**: Verify sources before acting on findings; outdated exploits may waste time
@@ -175,3 +271,24 @@ Searched [N] queries across [engines used].
 Analyzed [M] sources in depth.
 Sub-questions investigated: [list]
 ```
+
+## Hacker Laws
+
+1. **First Principles Thinking** — Don't just search; understand how search engines index, how CVE databases correlate, how threat intelligence is produced. Design your research strategy from the ground up for each topic.
+2. **Divergent Thinking First** — Use at least 3 source types per sub-question (official databases, security blogs, community forums, code repositories). Single-source research has blind spots.
+3. **Trust but Verify** — Every key claim requires 2+ independent sources. Vendor reports may overstate threats; blog posts may be outdated; forum posts may be fabricated.
+
+## Learning Resources
+
+  **This skill's supplementary files**: payloads.md, test-cases.md
+
+  **Guides**: guides/iterative-search-patterns.md, guides/continuous-monitoring.md, guides/intelligence-correlation.md, guides/mcp-integration.md
+
+  **Related skills**: skills/osint/SKILL.md, skills/social-intelligence/SKILL.md, skills/social-engineering/SKILL.md, skills/autonomous-loops/SKILL.md, skills/continuous-learning/SKILL.md
+
+  **External resources**:
+  - **MITRE ATT&CK**: [attack.mitre.org](https://attack.mitre.org/)
+  - **CISA Known Exploited Vulnerabilities**: [cisa.gov/known-exploited-vulnerabilities-catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
+  - **NVD**: [nvd.nist.gov](https://nvd.nist.gov/)
+  - **Exploit-DB**: [exploit-db.com](https://www.exploit-db.com/)
+  - **OSINT Framework**: [osintframework.com](https://osintframework.com/)

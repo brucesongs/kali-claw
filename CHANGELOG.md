@@ -4,6 +4,39 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.3] - 2026-05-06
+
+### Added
+
+- `social-intelligence` skill — new skill domain: real-time social platform intelligence gathering (Reddit, HackerNews, Twitter/X, YouTube, dark web), community sentiment analysis, and target profiling for security engagements
+  - SKILL.md — 5-phase methodology, tools table, report template
+  - payloads.md — 7 sections: Reddit, HN, Twitter/X, YouTube, forums/paste, sentiment, cross-platform correlation
+  - test-cases.md — 5 structured test cases (TC-SI-001 to TC-SI-005)
+  - guides/reddit-hackernews-osint.md — Reddit + HN intelligence gathering
+  - guides/twitter-youtube-osint.md — X + YouTube intelligence gathering
+  - guides/sentiment-analysis.md — Security sentiment analysis for social engineering
+- `deep-research` Phase 7 (Continuous Monitoring) — CVE feed monitoring, attack surface change detection, code leak monitoring, alert triggers
+- `deep-research` Phase 8 (Intelligence Correlation) — multi-source IOC correlation, confidence scoring, MITRE ATT&CK mapping, entity relationship mapping
+- `deep-research` Phase 9 (Adaptive Refinement) — iterative research loop, query refinement, convergence detection
+- `deep-research` guides/iterative-search-patterns.md — query refinement strategies, source tracing, keyword expansion, convergence detection
+- `deep-research` guides/continuous-monitoring.md — monitoring architecture, snapshot/diff pattern, alert trigger conditions
+- `deep-research` guides/intelligence-correlation.md — entity extraction, deduplication, confidence scoring framework, ATT&CK integration
+- `deep-research` guides/mcp-integration.md — MCP server configuration for Shodan, VirusTotal, GreyNoise, Firecrawl
+- `deep-research` payloads.md Section 9 (Continuous Monitoring Queries) and Section 10 (Intelligence Correlation Commands)
+- `deep-research` test-cases.md TC-DR-011 to TC-DR-013 (continuous monitoring, correlation, adaptive iteration)
+- `deep-research` Hacker Laws section and Learning Resources section in SKILL.md
+- `RELEASE-v0.1.3.md` — release announcement article
+- `memory/2026-05-05-deep-research-migration-report.md` — deep research capability migration research report
+
+### Changed
+
+- `VERSION` — 0.1.2 → 0.1.3
+- `README.md` — updated skill domain count (36 → 37), added social-intelligence to skills table, updated version info
+- `IDENTITY.md` — added Social Intelligence and Deep Research rows to skill domain mapping
+- `TOOLS.md` — added Social Intelligence (6 tools) and Deep Research (8 tools) categories
+- `skills/osint/SKILL.md` — added social-intelligence and deep-research cross-references
+- `skills/social-engineering/SKILL.md` — added social-intelligence and deep-research cross-references
+
 ## [0.1.2] - 2026-05-04
 
 ### Added

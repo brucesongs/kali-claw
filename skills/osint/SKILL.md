@@ -328,7 +328,7 @@ recon-ng
 ## Learning Resources
 
 - **Supplementary files for this skill**: payloads.md, test-cases.md
-- **Related skills**: skills/recon-osint/SKILL.md, skills/social-engineering/SKILL.md, skills/password-attack/SKILL.md
+- **Related skills**: skills/recon-osint/SKILL.md, skills/social-engineering/SKILL.md, skills/social-intelligence/SKILL.md, skills/deep-research/SKILL.md, skills/password-attack/SKILL.md
 - **Tool memory files**: osint/learning/OSINT_TOOLS_GUIDE.md, memory/maltego.md, memory/recon-ng.md
 - **External resources**:
   - OSINT Framework: https://osintframework.com
