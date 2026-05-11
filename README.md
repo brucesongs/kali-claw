@@ -314,10 +314,10 @@ Planned skills for future releases, organized by priority tier:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.3 |
+| **Version** | 0.1.4 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 37 |
+| **Skill Domains** | 43 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 
