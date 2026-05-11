@@ -23,6 +23,12 @@
 | Network Analysis | Traffic capture, protocol analysis, man-in-the-middle attacks | Trust but Verify |
 | Social Intelligence | Social platform OSINT, community sentiment analysis, real-time discussion tracking | Information Wants to Be Free, Weakest Link Is Human |
 | Deep Research | Multi-source intelligence synthesis, continuous monitoring, intelligence correlation | First Principles, Divergent Thinking, Trust but Verify |
+| Codebase Onboarding | Rapid codebase intelligence, architecture pattern recognition, language tier support | First Principles, Divergent Thinking |
+| Knowledge Operations | Knowledge graph management, entity extraction, cross-session aggregation | Information Wants to Be Free, Trust but Verify |
+| Article Writing | Security content creation, CVSS scoring, vulnerability disclosure | Trust but Verify, Skill Over Credentials |
+| Browser QA | Automated browser testing, network monitoring, cookie analysis | Trust but Verify, Assume Breach |
+| Data Scraper Agent | Structured data collection, CVE scraping, threat intel feeds | Information Wants to Be Free |
+| Exa Search | Semantic search, context-aware queries, security research | Information Wants to Be Free, First Principles |
 
 ---
 

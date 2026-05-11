@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 37 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 43 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **37 Security Skill Domains** — From OSINT and web exploitation to cloud security and digital forensics, each with structured payloads, test cases, and learning guides
+- **43 Security Skill Domains** — From OSINT and web exploitation to cloud security and digital forensics, each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -79,7 +79,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 37 security skill domains
+├── skills/              # 43 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -88,7 +88,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (37 domains total)
+│   └── ... (43 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -120,7 +120,7 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 
 ## Security Skills
 
-37 domains organized by the OWASP and MITRE frameworks:
+37 domains organized by the OWASP and MITRE frameworks + 6 new knowledge operations domains:
 
 | Domain | Description | Key Topics |
 |--------|-------------|------------|
@@ -157,6 +157,12 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 | `security-review` | Comprehensive security review | OWASP Top 10 checklist, source code audit, configuration review, dependency scanning |
 | `repo-scan` | Cross-stack source code audit | File classification, library detection, module verdicts, security hotspot analysis |
 | `verification-loop` | Multi-phase finding verification | Exploit confirmation, false positive elimination, independent reproduction, evidence documentation |
+| **`codebase-onboarding`** | **Rapid codebase intelligence** | **3 scope modes (Targeted/Exploratory/Comprehensive), language tier matrix, confidence scoring, architecture pattern recognition, 100M+ LOC strategy** |
+| **`knowledge-ops`** | **Knowledge graph management** | **Entity extraction, cross-session aggregation, confidence tracking, graph visualization, pattern intelligence** |
+| **`article-writing`** | **Security content creation** | **Pentest reports, CVE disclosures, blog posts, CVSS scoring, sanitization, evidence documentation** |
+| **`browser-qa`** | **Automated browser testing** | **Playwright/Puppeteer, network monitoring, cookie analysis, CSRF detection, XSS payload injection** |
+| **`data-scraper-agent`** | **Structured data collection** | **CVE scraping, exploit DB search, threat intel feeds, GitHub advisories, HTML parsing** |
+| **`exa-search`** | **Semantic security research** | **Context-aware queries, date filtering, domain filtering, full-text extraction, API integration** |
 | `autonomous-loops` | Safe autonomous execution patterns | Sequential pipeline, watch loop, batch processing, learning cycle, scope locks |
 | `continuous-learning` | Engagement knowledge extraction | Pattern detection, confidence scoring, cross-reference linking, memory layering |
 | `docker-patterns` | Docker security testing labs | Vulnerable app labs, network labs, attack chain labs, disposable testing |

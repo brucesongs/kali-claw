@@ -41,6 +41,12 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | Social Engineering | 4 | Learning | memory/2026-03-21-social-engineering-tools.md |
 | Social Intelligence | 6 | Learning | skills/social-intelligence/SKILL.md |
 | Deep Research | 8 | Learning | skills/deep-research/SKILL.md |
+| Codebase Onboarding | 5 | Learning | skills/codebase-onboarding/SKILL.md |
+| Knowledge Operations | 3 | Learning | skills/knowledge-ops/SKILL.md |
+| Article Writing | 4 | Learning | skills/article-writing/SKILL.md |
+| Browser QA | 2 | Learning | skills/browser-qa/SKILL.md |
+| Data Scraper Agent | 4 | Learning | skills/data-scraper-agent/SKILL.md |
+| Exa Search | 1 | Learning | skills/exa-search/SKILL.md |
 
 ---
 

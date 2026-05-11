@@ -540,3 +540,397 @@ social-intelligence（社交雷达：发现目标讨论和泄露）
 | `README.md` | 36→37 技能域、版本号、技能表 |
 | `CHANGELOG.md` | +v0.1.3 条目 |
 | `UPDATELOG.md` | +v0.1.3 调研报告 |
+
+---
+
+# kali-claw v0.1.4 知识运营能力增强报告
+
+*Generated: 2026-05-11 | Version: 0.1.3 → 0.1.4 | New Skills: 6 | Total: 43*
+
+---
+
+## 摘要
+
+kali-claw v0.1.2 建立了质量保障、自动化、经验积累和安全边界能力。但在**社交平台实时情报收集**和**持续性情报运营**两个维度存在空白。v0.1.3 通过新建 `social-intelligence` 技能域和深度增强 `deep-research` 技能，补强了从"社交雷达"到"情报分析台"的完整情报能力链。
+
+---
+
+## 一、v0.1.2 能力空白分析
+
+| 空白维度 | 具体问题 | 影响场景 |
+|----------|----------|----------|
+| **社交情报** | 缺少社交平台（Reddit、HN、X、YouTube）的系统化情报收集方法论 | 无法获取目标员工社交画像、技术栈泄露、安全事件舆情 |
+| **持续监控** | deep-research 仅支持单次研究，缺少持续监控和变化检测 | 无法追踪 CVE feed、代码泄露、暗网提及的持续变化 |
+| **情报关联** | 缺少跨源 IOC 关联和置信度评分框架 | 多源情报无法汇聚成统一视图，无法评估情报可靠性 |
+| **迭代精化** | 研究过程为单次通过，缺少基于发现自动生成新问题的迭代能力 | 研究深度受限，无法自动发现和填补知识空白 |
+
+---
+
+## 二、调研背景
+
+本次升级源于对行业 "Deep Research" 能力的系统调研（详见 `memory/2026-05-05-deep-research-migration-report.md`），核心发现：
+
+1. **行业趋势**：Google Deep Research Max（2026-04-21发布）、OpenAI o3-deep-research、Perplexity Deep Research 均采用"自主搜索循环 + MCP + 扩展推理"架构
+2. **last30days 技能**：开源 Claude Code 技能，专注社交平台最近30天讨论的实时收集与聚类分析
+3. **核心区别**：last30days = "人们在说什么"（社交雷达）；deep-research = "事实是什么"（情报分析台）
+4. **结论**：两者互补，应同时纳入 kali-claw
+
+---
+
+## 三、新增技能定位分析
+
+### `social-intelligence` — 社交平台实时情报
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 社交平台系统化情报收集（Reddit、HN、X、YouTube、暗网论坛、paste 站点） |
+| **与现有技能的关系** | 补充 `osint`（被动工具驱动）和 `deep-research`（权威源深度分析），专注**非结构化社区讨论** |
+| **差异** | osint = "目标有什么资产" → social-intelligence = "人们在讨论目标什么" → deep-research = "关于这个话题的权威事实是什么" |
+| **核心价值** | 五阶段方法论（定义目标 → 平台选择 → 并行检索 → 去重重排序 → 聚类报告），覆盖 7 大平台类型 |
+
+**协同示例：** 渗透测试前，先用 `social-intelligence` 发现目标员工在 Reddit 上抱怨新 VPN 系统，再用 `deep-research` 深入研究该 VPN 产品的已知 CVE，最后用 `social-engineering` 利用员工对 VPN 的不满设计钓鱼方案。
+
+---
+
+### `deep-research` 增强 — 持续监控 + 情报关联 + 迭代精化
+
+| 维度 | 分析 |
+|------|------|
+| **Phase 7: Continuous Monitoring** | 定义监控目标（CVE feed、代码仓库、paste 站点、暗网），设定轮询频率，快照 diff 对比，告警触发 |
+| **Phase 8: Intelligence Correlation** | IOC 提取 → 跨源合并去重 → 置信度评分（5级） → MITRE ATT&CK 映射 → 实体关系图 |
+| **Phase 9: Adaptive Refinement** | 基于 Phase 6 报告识别知识空白 → 生成新子问题 → 定向搜索 → 更新报告 → 收敛检测 |
+| **4 个新 guides** | 迭代搜索模式、持续监控、情报关联、MCP 工具接入 |
+
+---
+
+## 四、技能协同矩阵更新
+
+```
+                    ┌──────────────────┐
+                    │ social-intelligence │ ← "人们在说什么"
+                    └────────┬─────────┘
+                             │ 发现线索
+                             ▼
+┌──────────┐    ┌────────────────────────┐    ┌────────────────┐
+│  osint   │───→│    deep-research        │───→│ social-        │
+│  recon   │    │ (情报分析 + 持续监控)    │    │  engineering   │
+└──────────┘    └────────────────────────┘    └────────────────┘
+                         │ Phase 8
+                         ▼
+                ┌────────────────────┐
+                │ Intelligence       │
+                │ Correlation        │ ← IOC 关联 + 置信度评分
+                └────────────────────┘
+```
+
+### 完整情报收集流水线
+
+```
+social-intelligence（社交雷达：发现目标讨论和泄露）
+  → osint（被动收集：域名、邮件、子域）
+    → deep-research（深度分析：CVE、攻击技术、威胁情报）
+      → deep-research Phase 7（持续监控：变化检测 + 告警）
+        → deep-research Phase 8（情报关联：IOC + ATT&CK 映射）
+          → social-engineering（利用情报：精准社工攻击）
+```
+
+---
+
+## 五、文件变更清单
+
+### 新建文件（11 个）
+
+| 文件 | 说明 |
+|------|------|
+| `skills/social-intelligence/SKILL.md` | 社交情报技能定义：5 阶段方法论、工具表、报告模板 |
+| `skills/social-intelligence/payloads.md` | 7 大平台搜索查询模板 |
+| `skills/social-intelligence/test-cases.md` | 5 个测试用例（TC-SI-001 ~ TC-SI-005） |
+| `skills/social-intelligence/guides/reddit-hackernews-osint.md` | Reddit + HN 情报收集实操 |
+| `skills/social-intelligence/guides/twitter-youtube-osint.md` | X + YouTube 情报收集实操 |
+| `skills/social-intelligence/guides/sentiment-analysis.md` | 安全情绪分析 → 社工向量映射 |
+| `skills/deep-research/guides/iterative-search-patterns.md` | 迭代搜索循环、查询精化、收敛检测 |
+| `skills/deep-research/guides/continuous-monitoring.md` | 持续监控架构、快照 diff、告警触发 |
+| `skills/deep-research/guides/intelligence-correlation.md` | IOC 关联、置信度评分、MITRE ATT&CK 映射 |
+| `skills/deep-research/guides/mcp-integration.md` | MCP 工具链配置、API 接入模式 |
+| `memory/2026-05-05-deep-research-migration-report.md` | Deep Research 能力迁移调研报告 |
+
+### 修改文件（7 个）
+
+| 文件 | 变更 |
+|------|------|
+| `skills/deep-research/SKILL.md` | +Phase 7/8/9、+2 个 Use Case、+Hacker Laws、+Learning Resources |
+| `skills/deep-research/payloads.md` | +Section 9（持续监控查询）+ Section 10（情报关联命令） |
+| `skills/deep-research/test-cases.md` | +TC-DR-011/012/013（总数 10→13） |
+| `IDENTITY.md` | +Social Intelligence、+Deep Research 技能域行 |
+| `TOOLS.md` | +Social Intelligence（6 tools）、+Deep Research（8 tools）分类 |
+| `skills/osint/SKILL.md` | +social-intelligence、+deep-research 交叉引用 |
+| `skills/social-engineering/SKILL.md` | +social-intelligence、+deep-research 交叉引用 |
+
+### 版本文件（4 个）
+
+| 文件 | 变更 |
+|------|------|
+| `VERSION` | 0.1.2 → 0.1.3 |
+| `README.md` | 36→37 技能域、版本号、技能表 |
+| `CHANGELOG.md` | +v0.1.3 条目 |
+| `UPDATELOG.md` | +v0.1.3 调研报告 |
+
+---
+
+## 摘要
+
+v0.1.3 建立了社交情报（social-intelligence）和深度研究的持续监控能力。v0.1.4 将路线图 Tier 1 和 Tier 2 合并实施，新增 **6 个知识运营技能域**，从"代码库快速理解"到"知识图谱管理"再到"安全内容产出"，建立完整的知识运营闭环。
+
+v0.1.4 的核心突破：**从"即时操作"到"知识沉淀"**，从"单次审计"到"跨会话情报积累"，从"发现漏洞"到"产出专业报告"。
+
+---
+
+## 一、v0.1.3 能力空白分析
+
+| 空白维度 | 具体问题 | 影响场景 |
+|----------|----------|----------|
+| **代码库理解** | 白盒审计前缺少快速代码库理解方法论，无法在巨型代码库（100M+ LOC）中快速定位攻击面 | 代码审计效率低下，无法快速识别关键入口点和安全热点 |
+| **知识持久化** | 跨会话情报无法结构化存储，发现的实体、模式、关系会话结束后丢失 | 每次审计重新发现相同问题，无法积累目标情报库 |
+| **报告产出** | 缺少结构化的安全报告撰写能力，从发现到报告需要手动整理 | 报告质量不稳定，CVSS 评分不一致，数据脱敏不规范 |
+| **自动化测试** | 浏览器端安全测试依赖手工操作，无法自动化验证 XSS、CSRF、Cookie 配置 | 测试覆盖不全面，重复性测试效率低 |
+| **情报收集** | CVE、Exploit-DB、GitHub advisory 数据收集依赖手工搜索 | 情报收集速度慢，数据格式不统一 |
+| **深度搜索** | 缺少语义搜索能力，传统 Google 搜索无法精准定位安全研究资料 | 研究效率受限，无法快速找到上下文相关的技术文档 |
+
+---
+
+## 二、新增技能定位分析（v0.1.4，+6 个技能）
+
+### 核心能力：codebase-onboarding — 代码库快速理解
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 白盒审计前的代码库快速理解，支持 100M+ LOC 巨型代码库 |
+| **与现有技能的关系** | 是 `repo-scan` 和 `security-review` 的前置技能。repo-scan 专注文件分类和依赖检测，codebase-onboarding 专注架构理解和攻击面映射 |
+| **核心价值** | **3 种scope模式**（Targeted/Exploratory/Comprehensive）、**Phase 0 Search-First** 策略、**语言分级支持**（Tier 1: Python/JS/TS/Java/Go/PHP 75-90%自动化；Tier 2: C/C++/Rust/Ruby/C# 50-70%；Tier 3: 其他 20-40%）、**置信度评分系统**（0-100）、**100M+ LOC 策略**（Index First + Smart Sampling + Divide & Conquer） |
+
+**协同示例：** 白盒审计 Django 项目前，先用 `codebase-onboarding` Targeted 模式快速定位认证入口点（urls.py → views.py → middleware），输出结构化 JSON 和 Mermaid 架构图，再用 `security-review` 审计认证逻辑漏洞。
+
+---
+
+### 核心能力：knowledge-ops — 知识图谱管理
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 跨会话知识持久化、实体关系管理、情报聚合 |
+| **与现有技能的关系** | 与 `continuous-learning` 互补。continuous-learning 专注模式提取和经验沉淀，knowledge-ops 专注结构化知识存储和图谱管理 |
+| **核心价值** | **Knowledge Unit (KU)** 标准格式（frontmatter: id, type, confidence, tags, linked, source, expires）、**5 种知识类型**（entity, finding, relationship, pattern, hypothesis, intelligence）、**置信度模型**（0-25 speculation, 26-50 unconfirmed, 51-75 probable, 76-90 high confidence, 91-100 verified）、**知识图谱可视化**（DOT/Mermaid）、**置信度历史追踪** |
+
+**协同示例：** 使用 `osint` 发现目标域名、使用 `social-intelligence` 发现员工社交账号、使用 `deep-research` 发现 CVE，所有发现通过 `knowledge-ops` 存储为 Knowledge Units，下次审计时直接加载历史情报，实现跨会话情报积累。
+
+---
+
+### 核心能力：article-writing — 安全内容产出
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 结构化的安全报告撰写：渗透测试报告、CVE 披露、技术博客 |
+| **与现有技能的关系** | 是 `security-bounty-hunter` 和 `verification-loop` 的下游技能。从验证后的发现生成专业报告 |
+| **核心价值** | **3 种文章类型**（Pentest Report 10-50页、Vulnerability Disclosure 2-5页、Security Blog Post 1000-3000词）、**CVSS 3.1 评分指南**、**数据脱敏标准**（真实 IP → RFC 5737 IP, 域名 → example.com）、**Markdown → PDF 转换** |
+
+**协同示例：** `vulnerability-assessment` 发现 SQL 注入，`verification-loop` 验证确认，`knowledge-ops` 存储为 KU，最后用 `article-writing` 生成带 CVSS 评分和 PoC 的渗透测试报告，所有真实 IP 和域名自动脱敏。
+
+---
+
+### 支持技能：browser-qa — 浏览器自动化测试
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 浏览器端安全测试自动化（Playwright/Puppeteer） |
+| **与现有技能的关系** | 为 `web-xss`、`web-auth-bypass`、`web-access-control` 提供自动化验证能力 |
+| **核心价值** | **网络监控**、**Cookie 分析**（HttpOnly/Secure/SameSite）、**CSRF 检测**、**XSS payload 注入** |
+
+---
+
+### 支持技能：data-scraper-agent — 结构化数据采集
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | CVE、Exploit-DB、GitHub advisory 自动化数据采集 |
+| **与现有技能的关系** | 为 `deep-research` 提供数据源，为 `knowledge-ops` 提供结构化输入 |
+| **核心价值** | **NVD API 采集**、**searchsploit 自动化**、**GitHub advisory API**、**BeautifulSoup HTML 解析** |
+
+---
+
+### 支持技能：exa-search — 语义搜索
+
+| 维度 | 分析 |
+|------|------|
+| **填补空白** | 安全研究专用的语义搜索，超越传统 Google 搜索 |
+| **与现有技能的关系** | 为 `deep-research` Phase 2（搜索策略）提供语义搜索能力 |
+| **核心价值** | **上下文感知查询**、**日期过滤**、**域名过滤**、**全文提取**、**Exa API 集成** |
+
+---
+
+## 三、技能协同矩阵更新
+
+### 代码审计流水线
+
+```
+codebase-onboarding（快速理解架构和入口点）
+  → repo-scan（文件分类和依赖检测）
+    → security-review（OWASP Top 10 系统审计）
+      → verification-loop（假阳性消除）
+        → knowledge-ops（发现存储为 KU）
+          → article-writing（生成渗透测试报告）
+```
+
+### 情报运营流水线
+
+```
+osint + social-intelligence（被动收集 + 社交情报）
+  → deep-research（深度分析 + 持续监控）
+    → data-scraper-agent（结构化数据采集）
+      → exa-search（语义搜索补充）
+        → knowledge-ops（情报聚合 + 图谱管理）
+          → article-writing（CVE 披露 / 技术博客）
+```
+
+### 自动化测试流水线
+
+```
+browser-qa（浏览器自动化测试）
+  → verification-loop（验证和确认）
+    → knowledge-ops（测试结果存储）
+      → article-writing（测试报告生成）
+```
+
+---
+
+## 四、技能类型更新
+
+v0.1.4 的 43 个技能四层分类：
+
+### 第一层：攻击技术技能（17 个）
+`api-security`, `binary-reverse`, `cloud-security`, `container-security`, `crypto-attacks`, `mobile-security`, `network-pentest`, `password-attack`, `post-exploitation`, `web-access-control`, `web-auth-bypass`, `web-sqli`, `web-ssrf`, `web-xss`, `wifi-pentest`, `social-engineering`, `security-bounty-hunter`
+
+### 第二层：安全分析技能（10 个）
+`vulnerability-assessment`, `osint`, `recon-osint`, `digital-forensics`, `insecure-design`, `security-misconfiguration`, `logging-monitoring`, `supply-chain-security`, `security-review`, `repo-scan`
+
+### 第三层：元技能（9 个）
+`deep-research`, `terminal-ops`, `search-first`, `verification-loop`, `autonomous-loops`, `continuous-learning`, `codebase-onboarding`, `exa-search`, `browser-qa`
+
+### 第四层：知识运营技能（4 个）
+`knowledge-ops`, `article-writing`, `data-scraper-agent`, `chronicle`
+
+### 基础设施技能（3 个）
+`docker-patterns`, `safety-guard`, `social-intelligence`
+
+---
+
+## 五、文件变更清单
+
+### 新建文件（35 个）
+
+#### codebase-onboarding（6 个）
+- `skills/codebase-onboarding/SKILL.md` — 3 scope模式、Phase 0-5、语言分级、100M+ LOC 策略
+- `skills/codebase-onboarding/payloads.md` — Phase 0-4 命令、模式特定序列
+- `skills/codebase-onboarding/test-cases.md` — TC-CO-001~005（Django/Go/Node/PHP/Java）
+- `skills/codebase-onboarding/guides/web-framework-onboarding.md` — Django/Express/Spring Boot/FastAPI/Gin
+- `skills/codebase-onboarding/guides/microservice-onboarding.md` — 服务发现、API 契约、网关分析
+- `skills/codebase-onboarding/guides/architecture-pattern-recognition.md` — MVC/REST+SPA/微服务/事件驱动/Serverless/GraphQL
+- `skills/codebase-onboarding/guides/legacy-codebase-onboarding.md` — PHP/Perl CGI/ASP 遗留代码策略
+
+#### knowledge-ops（7 个）
+- `skills/knowledge-ops/SKILL.md` — KU 格式、5种类型、置信度模型、存储格式
+- `skills/knowledge-ops/payloads.md` — 会话启动、KU 捕获模板、图谱查询、维护脚本
+- `skills/knowledge-ops/test-cases.md` — TC-KO-001~005（跨会话上下文、置信度演化、模式识别、交接、过期）
+- `skills/knowledge-ops/guides/entity-extraction-and-tagging.md` — 10 种实体类型、提取源、标签策略
+- `skills/knowledge-ops/guides/cross-session-intelligence-aggregation.md` — 聚合工作流、报告模板、查询模式
+- `skills/knowledge-ops/guides/knowledge-graph-visualization-and-querying.md` — DOT/Mermaid 图、路径查找、中心性分析
+
+#### article-writing（7 个）
+- `skills/article-writing/SKILL.md` — 3 种文章类型、模板、方法论
+- `skills/article-writing/payloads.md` — CVSS 计算、脱敏清单、发现描述模板
+- `skills/article-writing/test-cases.md` — TC-AW-001~003（渗透报告/CVE披露/博客）
+- `skills/article-writing/guides/cvss-scoring.md` — CVSS 3.1 向量分解、常见漏洞评分、决策树
+- `skills/article-writing/guides/report-structure.md` — 7 个章节顺序、格式标准、常见错误
+- `skills/article-writing/guides/vulnerability-writing.md` — 90天披露周期、CVE 申请、CWE 参考
+
+#### browser-qa（3 个）
+- `skills/browser-qa/SKILL.md` — Playwright/Puppeteer 自动化、网络监控、Cookie 分析
+- `skills/browser-qa/payloads.md` — Playwright Python 命令参考
+- `skills/browser-qa/test-cases.md` — TC-BQ-001~003（认证流程/CSRF/XSS）
+
+#### data-scraper-agent（3 个）
+- `skills/data-scraper-agent/SKILL.md` — CVE 采集、Exploit-DB、威胁情报 feeds
+- `skills/data-scraper-agent/payloads.md` — NVD API、searchsploit、GitHub advisory、BeautifulSoup
+- `skills/data-scraper-agent/test-cases.md` — TC-DSA-001~002（CVE采集/Exploit可用性）
+
+#### exa-search（3 个）
+- `skills/exa-search/SKILL.md` — Exa API 语义搜索、日期/域名过滤
+- `skills/exa-search/payloads.md` — CVE 研究、Exploit 技术、工具研究、威胁情报查询示例
+- `skills/exa-search/test-cases.md` — TC-ES-001~002（CVE 研究/Exploit 技术研究）
+
+#### 发布文件（1 个）
+- `RELEASE-v0.1.4.md` — v0.1.4 中文发布公告
+
+### 修改文件（6 个）
+
+| 文件 | 变更 |
+|------|------|
+| `VERSION` | 0.1.3 → 0.1.4 |
+| `README.md` | 37→43 技能域、技能表新增 6 行、版本号 |
+| `CHANGELOG.md` | +v0.1.4 条目（35 个新文件 + 6 个修改文件） |
+| `IDENTITY.md` | +6 个新技能域行（待更新） |
+| `TOOLS.md` | +6 个新技能分类（待更新） |
+| `UPDATELOG.md` | +v0.1.4 知识运营能力增强报告（本文件） |
+
+---
+
+## 六、核心突破点
+
+### 1. 代码库理解能力飞跃
+
+- **v0.1.3**: repo-scan 仅支持文件分类和依赖检测
+- **v0.1.4**: codebase-onboarding 支持 100M+ LOC 代码库快速理解，语言分级支持，置信度评分
+
+### 2. 知识持久化能力飞跃
+
+- **v0.1.3**: continuous-learning 仅支持模式提取，知识无法跨会话持久化
+- **v0.1.4**: knowledge-ops 建立标准化 KU 格式，知识图谱可视化，置信度历史追踪
+
+### 3. 报告产出能力飞跃
+
+- **v0.1.3**: security-bounty-hunter 仅支持赏金报告模板
+- **v0.1.4**: article-writing 支持 3 种报告类型（渗透报告/CVE披露/博客），CVSS 评分，数据脱敏
+
+### 4. 自动化测试能力飞跃
+
+- **v0.1.3**: 浏览器端测试依赖手工操作
+- **v0.1.4**: browser-qa 支持 Playwright/Puppeteer 自动化，网络监控，Cookie 分析
+
+### 5. 情报采集能力飞跃
+
+- **v0.1.3**: deep-research 依赖手工搜索
+- **v0.1.4**: data-scraper-agent + exa-search 自动化数据采集和语义搜索
+
+---
+
+## 七、结论
+
+v0.1.4 新增的 6 个知识运营技能从六个维度强化了 kali-claw 的知识闭环能力：
+
+1. **代码理解** — `codebase-onboarding` 支持 100M+ LOC 代码库快速理解
+2. **知识持久化** — `knowledge-ops` 建立跨会话知识图谱管理
+3. **报告产出** — `article-writing` 规范化渗透报告和 CVE 披露
+4. **自动化测试** — `browser-qa` 自动化浏览器端安全测试
+5. **情报采集** — `data-scraper-agent` 自动化结构化数据采集
+6. **深度搜索** — `exa-search` 语义搜索能力
+
+v0.1.3 建立了"社交雷达"到"情报分析台"的情报能力链；v0.1.4 通过知识运营闭环，将 kali-claw 从"即时操作型代理"升级为"知识积累型情报平台"。
+
+---
+
+## 附录：v0.1.4 变更清单
+
+| 变更类型 | 数量 | 文件列表 |
+|----------|------|----------|
+| 新增技能 | 6 | codebase-onboarding, knowledge-ops, article-writing, browser-qa, data-scraper-agent, exa-search |
+| 新增文件 | 35 | 6 个技能目录 × (SKILL.md + payloads.md + test-cases.md + guides/) + RELEASE-v0.1.4.md |
+| 更新文件 | 6 | VERSION, README.md, CHANGELOG.md, IDENTITY.md, TOOLS.md, UPDATELOG.md |
+| 总技能域 | 43 | 37 → 43 (+6) |

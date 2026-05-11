@@ -4,6 +4,53 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.4] - 2026-05-11
+
+### Added
+
+- `codebase-onboarding` skill — rapid codebase intelligence acquisition for security research
+  - SKILL.md — 3 scope modes (Targeted/Exploratory/Comprehensive), Phase 0 Search-First, language tier matrix (Tier 1/2/3), confidence scoring, 100M+ LOC strategy, structured JSON output, Mermaid architecture diagrams
+  - payloads.md — discovery by phase: orientation, architecture mapping, security surface analysis, large codebase tactics, mode-specific sequences
+  - test-cases.md — TC-CO-001 to TC-CO-005 (Django, Go microservice, TypeScript monorepo, legacy PHP, large-scale Java)
+  - guides/web-framework-onboarding.md — Django, Express.js, Spring Boot, FastAPI, Gin framework onboarding patterns
+  - guides/microservice-onboarding.md — multi-service architecture mapping, inter-service auth, API gateway analysis
+  - guides/architecture-pattern-recognition.md — MVC monolith, REST+SPA, microservices, event-driven, serverless, GraphQL detection
+  - guides/legacy-codebase-onboarding.md — PHP/CGI/Perl legacy patterns, SQL injection, XSS, LFI detection
+- `knowledge-ops` skill — knowledge graph management for cross-session intelligence persistence
+  - SKILL.md — knowledge unit format, confidence model (0-100), storage format, entity/finding/pattern/hypothesis/intelligence types
+  - payloads.md — session startup context loading, knowledge unit capture templates (entity/finding/relationship/pattern), maintenance commands
+  - test-cases.md — TC-KO-001 to TC-KO-005 (cross-session context, confidence evolution, pattern recognition, handoff, expiration)
+  - guides/entity-extraction-and-tagging.md — entity types, extraction sources, tagging strategy, relationship mapping, deduplication
+  - guides/cross-session-intelligence-aggregation.md — aggregation workflow, report templates, query patterns, automation helpers
+  - guides/knowledge-graph-visualization-and-querying.md — DOT/Mermaid graph generation, path finding, centrality analysis, export formats
+- `article-writing` skill — technical security content creation
+  - SKILL.md — pentest reports, vulnerability disclosures, blog posts, advisory format, methodology
+  - payloads.md — CVSS calculator reference, sanitization checklist, severity classification, finding description templates
+  - test-cases.md — TC-AW-001 to TC-AW-003 (pentest report, CVE disclosure, blog post)
+  - guides/cvss-scoring.md — CVSS 3.1 vector breakdown, common vulnerability scores, scoring decision trees, justification templates
+  - guides/report-structure.md — pentest report section order, formatting standards, common mistakes
+  - guides/vulnerability-writing.md — responsible disclosure timeline, vendor contact process, CVE request, CWE reference
+- `browser-qa` skill — automated browser-based security testing
+  - SKILL.md — Playwright/Puppeteer automation, auth flow testing, CSRF detection, cookie analysis
+  - payloads.md — Playwright commands for navigation, network monitoring, XSS injection, cookie analysis
+  - test-cases.md — TC-BQ-001 to TC-BQ-003 (auth flow, CSRF, XSS)
+- `data-scraper-agent` skill — structured security data collection
+  - SKILL.md — CVE scraping, exploit database collection, threat intel feeds
+  - payloads.md — NVD API, searchsploit, GitHub advisory API, BeautifulSoup scraping
+  - test-cases.md — TC-DSA-001 to TC-DSA-002 (CVE collection, exploit availability)
+- `exa-search` skill — semantic search for security research
+  - SKILL.md — Exa API usage, semantic queries, date/domain filtering
+  - payloads.md — API examples for CVE research, exploit techniques, threat intelligence
+  - test-cases.md — TC-ES-001 to TC-ES-002 (CVE research, exploit technique research)
+- `RELEASE-v0.1.4.md` — release announcement article
+
+### Changed
+
+- `VERSION` — 0.1.3 → 0.1.4
+- `README.md` — updated skill domain count (37 → 43), added 6 new skill rows to skills table
+- `IDENTITY.md` — added 6 new skill domains to skill mapping
+- `TOOLS.md` — added tool categories for new skills
+
 ## [0.1.3] - 2026-05-06
 
 ### Added
