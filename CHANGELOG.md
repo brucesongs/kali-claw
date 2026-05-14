@@ -4,6 +4,48 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.5] - 2026-05-14
+
+### Added
+
+- `ai-fuzzing` skill — AI-assisted automated vulnerability discovery
+  - SKILL.md — coverage-guided fuzzing, AI seed generation, crash triage, 6-phase methodology, ECC Learning Cycle orchestration
+  - payloads.md — AFL++, libFuzzer, Honggfuzz, radare2 crash analysis, Web API fuzzing, protocol fuzzing commands
+  - test-cases.md — TC-AF-001 to TC-AF-004 (binary, Web API, protocol, file format fuzzing)
+  - guides/coverage-guided-fuzzing.md — AFL++ internals, corpus management, mutation operators, parallel fuzzing, crash triage
+  - guides/web-api-fuzzing.md — OpenAPI schema fuzzing (Schemathesis, RESTler), GraphQL fuzzing, REST boundary testing, auth fuzzing, Burp Suite integration
+  - guides/protocol-fuzzing.md — TCP/UDP state machine fuzzing, TLS/SSL fuzzing, custom protocol analysis, BooFuzz framework
+- `council` skill — multi-perspective security analysis
+  - SKILL.md — Attack/Defense/Audit three-perspective framework, decision matrix, risk assessment, ECC Sequential Pipeline orchestration
+  - payloads.md — attacker/defender/auditor checklists, risk scoring matrix, decision record templates
+  - test-cases.md — TC-CL-001 to TC-CL-004 (Web app, cloud architecture, mobile app, incident response)
+  - guides/multi-perspective-analysis.md — role-playing framework, bias mitigation, dissent encouragement, consensus building
+  - guides/security-decision-framework.md — risk-benefit matrix, impact analysis, degradation planning, decision under uncertainty
+- `mobile-security` skill enhanced with cross-platform and cloud-integration testing
+  - guides/react-native-flutter-security.md — React Native bundle analysis, Flutter Dart snapshot, WebView vulnerabilities
+  - guides/mobile-api-security-testing.md — advanced cert pinning bypass, GraphQL mobile, WebSocket security
+  - guides/mobile-cloud-integration.md — Firebase audit, AWS Amplify, OAuth 2.0/OIDC mobile flaws
+  - SKILL.md updated — cross-platform testing table, mobile-cloud integration, ECC Orchestration
+- `cloud-security` skill enhanced with K8s, serverless, and IaC security
+  - guides/kubernetes-security-deep-dive.md — RBAC audit, Pod Security, network policy bypass, Secrets management
+  - guides/serverless-security.md — Lambda injection, Azure/GCP Functions, event injection, cold start leakage
+  - guides/infrastructure-as-code-security.md — Terraform/CloudFormation audit, Helm Chart security, CI/CD attacks
+  - SKILL.md updated — K8s attack tree, serverless attack chain, IaC risk table, ECC Orchestration
+- `security-bounty-hunter` skill enhanced with full supplementary files
+  - payloads.md — semgrep rules, Nuclei templates, SQLi/SSRF/XSS/auth bypass payloads, PoC/report templates
+  - test-cases.md — TC-BH-001 to TC-BH-004 (HackerOne bounty, scope validation, disclosure, report quality)
+  - guides/bounty-hunting-methodology.md — target selection, recon pipeline, vulnerability priority P0-P3, ROI
+  - guides/responsible-disclosure-workflow.md — vendor contact, CVE request, 90-day timeline, legal considerations
+  - guides/bug-bounty-automation.md — automated recon, ECC Watch Loop, automated triage, safety guardrails
+  - SKILL.md updated — ECC Orchestration (Watch Loop + Sequential Pipeline)
+
+### Changed
+
+- `VERSION` — 0.1.4 → 0.1.5
+- `README.md` — updated skill domain count (43 → 45), added 2 new skill rows, roadmap updated
+- `IDENTITY.md` — added AI Fuzzing and Council skill tags
+- `TOOLS.md` — added AI Fuzzing and Council tool categories
+
 ## [0.1.4] - 2026-05-11
 
 ### Added

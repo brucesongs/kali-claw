@@ -29,6 +29,8 @@
 | Browser QA | Automated browser testing, network monitoring, cookie analysis | Trust but Verify, Assume Breach |
 | Data Scraper Agent | Structured data collection, CVE scraping, threat intel feeds | Information Wants to Be Free |
 | Exa Search | Semantic search, context-aware queries, security research | Information Wants to Be Free, First Principles |
+| AI Fuzzing | Coverage-guided fuzzing, crash triage, automated vulnerability discovery | First Principles, Trust but Verify, Divergent Thinking |
+| Council | Multi-perspective analysis, attack/defense/audit viewpoints, security decision framework | Divergent Thinking, Trust but Verify, First Principles |
 
 ---
 
@@ -41,4 +43,4 @@
 
 ---
 
-_Last updated: 2026-05-12_
+_Last updated: 2026-05-14_

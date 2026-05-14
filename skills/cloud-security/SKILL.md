@@ -90,6 +90,56 @@ Use ScoutSuite for comprehensive security audits of AWS/Azure/GCP, with focus on
 
 Use trivy to scan image vulnerabilities and IaC configurations, use kubeaudit to audit RBAC rules and Pod security contexts. Detect privileged containers and anonymous bindings.
 
+### Kubernetes Attack Tree
+
+```
+K8s Cluster
+├── API Server
+│   ├── Unauthenticated access (anonymous auth)
+│   ├── Service account token theft
+│   ├── RBAC privilege escalation
+│   └── Webhook bypass
+├── etcd
+│   ├── Unauthenticated access (default port 2379)
+│   └── Keyspace enumeration
+├── Kubelet
+│   ├── Exec into pods (10250)
+│   ├── Running pods enumeration
+│   └── Container logs access
+├── Pods
+│   ├── Privileged container escape
+│   ├── hostPath mount escape
+│   ├── hostPID/hostNetwork abuse
+│   └── Service account token mount
+└── Network
+    ├── No network policy (default allow)
+    ├── Service mesh bypass
+    └── Ingress controller misconfig
+```
+
+### Serverless Attack Chain
+
+Serverless functions introduce unique attack vectors through event sources:
+
+1. **Event Injection**: Malicious data in trigger events (S3 object names, SQS messages, HTTP bodies)
+2. **Permission Chain**: Function -> Service Account -> Cross-service access
+3. **Data Flow**: Sensitive data processed by functions without encryption
+4. **Cold Start Leak**: Residual data from previous invocations
+
+### Infrastructure as Code Risks
+
+IaC templates define cloud infrastructure -- vulnerabilities here are infrastructure-scale:
+
+| Risk | Impact | Detection Tool |
+|------|--------|---------------|
+| Public S3 buckets | Data exposure | tfsec, checkov |
+| Open security groups | Network exposure | scoutsuite |
+| Hardcoded secrets | Credential theft | git-secrets, trufflehog |
+| Overprivileged IAM | Privilege escalation | pmapper |
+| Unencrypted resources | Data at rest exposure | cfsec |
+
+See `guides/kubernetes-security-deep-dive.md`, `guides/serverless-security.md`, and `guides/infrastructure-as-code-security.md`.
+
 ---
 
 ## Hacker Laws
@@ -105,6 +155,25 @@ Use trivy to scan image vulnerabilities and IaC configurations, use kubeaudit to
 
 ---
 
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Batch Processing
+- **Rationale**: Cloud environments typically have many resources (instances, buckets, functions) that can be audited in parallel batches
+- **Integration**: codebase-onboarding (IaC template analysis), data-scraper-agent (CVE collection), verification-loop (finding confirmation)
+
+### Cross-Skill Pipeline
+```
+codebase-onboarding -> cloud-security -> verification-loop -> article-writing
+```
+
+### Quality Gate
+- Pre-condition: Cloud credentials configured, scope defined (which accounts/subscriptions)
+- Post-condition: All resources audited, misconfigurations documented with evidence
+- Verification: Use verification-loop Phase 4 (confirm with different tool -- e.g., ScoutSuite + Prowler cross-check)
+
+---
+
 ## Learning Resources
 
 - [Pacu Official Repository](https://github.com/RhinoSecurityLabs/pacu) - AWS penetration testing framework, modular attack tools
@@ -116,6 +185,6 @@ Use trivy to scan image vulnerabilities and IaC configurations, use kubeaudit to
 
 ---
 
-**Supplementary files for this skill**: payloads.md, test-cases.md
+**Supplementary files for this skill**: payloads.md, test-cases.md, guides/kubernetes-security-deep-dive.md, guides/serverless-security.md, guides/infrastructure-as-code-security.md
 **Related skills**: skills/container-security/SKILL.md, skills/network-pentest/SKILL.md
 **External resources**: https://github.com/RhinoSecurityLabs/pacu, https://github.com/nccgroup/ScoutSuite, https://aquasecurity.github.io/trivy/, https://cloudsecurityalliance.org/

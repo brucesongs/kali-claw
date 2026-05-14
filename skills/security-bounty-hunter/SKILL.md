@@ -130,6 +130,27 @@ Draft a clear, reproducible report.
 [How to fix it]
 ```
 
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Watch Loop (continuous monitoring) + Sequential Pipeline (per-finding flow)
+- **Rationale**: Bounty hunting benefits from continuous target monitoring (new attack surfaces appear over time) combined with a structured per-finding pipeline from discovery to report
+- **Integration**: recon-osint (surface discovery), verification-loop (finding confirmation), knowledge-ops (cross-session pattern tracking), article-writing (report generation)
+
+### Cross-Skill Pipeline
+```
+recon-osint → security-bounty-hunter → verification-loop → article-writing
+                                         ↓
+                                    knowledge-ops (persist patterns)
+```
+
+### Quality Gate
+- Pre-condition: Scope verified, target authorized for testing
+- Post-condition: Finding independently reproduced with different method
+- Verification: Use verification-loop Phase 4 (independent confirmation)
+
+---
+
 ## Quality Gate
 
 Before submitting any report:

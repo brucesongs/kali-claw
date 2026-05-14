@@ -47,6 +47,8 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | Browser QA | 2 | Learning | skills/browser-qa/SKILL.md |
 | Data Scraper Agent | 4 | Learning | skills/data-scraper-agent/SKILL.md |
 | Exa Search | 1 | Learning | skills/exa-search/SKILL.md |
+| AI Fuzzing | 4 | Learning | skills/ai-fuzzing/SKILL.md |
+| Council | 2 | Learning | skills/council/SKILL.md |
 
 ---
 
@@ -71,4 +73,4 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 
 ---
 
-_Last updated: 2026-05-12_
+_Last updated: 2026-05-14_

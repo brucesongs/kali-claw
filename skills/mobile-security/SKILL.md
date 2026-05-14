@@ -99,6 +99,51 @@ Use drozer to discover exported components, construct malicious Intents via adb 
 
 ---
 
+### Cross-Platform Mobile Testing
+
+Modern mobile apps increasingly use cross-platform frameworks that introduce unique attack surfaces:
+
+| Framework | Key Attack Surface | Primary Tools |
+|-----------|-------------------|---------------|
+| React Native | JS bundle extraction, WebView bridges, AsyncStorage | jadx, Frida, Burp |
+| Flutter | Dart snapshot, libapp.so, platform channels | Ghidra, Frida, reFlutter |
+| Xamarin | DLL extraction, AOT compilation | dnSpy, ILDasm |
+| Capacitor/Ionic | WebView exposure, plugin API | Chrome DevTools, Burp |
+
+See `guides/react-native-flutter-security.md` for framework-specific testing methodology.
+
+### Mobile-Cloud Integration Testing
+
+Mobile apps connect to cloud backends (Firebase, AWS Amplify, custom APIs). Key test areas:
+
+1. **Backend API exposure**: Enumerate and test all API endpoints accessible from the app
+2. **Cloud service misconfiguration**: Firebase rules, Cognito pools, Storage buckets
+3. **Authentication flow**: OAuth 2.0/OIDC implementation flaws on mobile
+4. **Third-party SDK security**: Data collection, tracking, insecure defaults
+
+See `guides/mobile-api-security-testing.md` and `guides/mobile-cloud-integration.md`.
+
+---
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Sequential Pipeline
+- **Rationale**: Mobile security testing follows a sequential approach — decompile → analyze → hook → verify — where each phase builds on the previous
+- **Integration**: codebase-onboarding (app structure understanding), browser-qa (WebView testing), verification-loop (finding confirmation)
+
+### Cross-Skill Pipeline
+```
+codebase-onboarding → mobile-security → verification-loop → article-writing
+```
+
+### Quality Gate
+- Pre-condition: Target APK/IPA available, testing environment configured
+- Post-condition: All attack surfaces documented, findings independently verified
+- Verification: Use verification-loop Phase 4 (independent confirmation with different tool)
+
+---
+
 ## Hacker Laws
 
 | Law | Application in Mobile Security |
