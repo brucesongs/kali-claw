@@ -1,5 +1,10 @@
 # Autonomous Loops
 
+> **Supplementary Files**:
+> - `payloads.md` — Scope Lock templates, rate limit configurations, loop command templates, and error handling response templates
+> - `test-cases.md` — Structured test cases for sequential pipeline, watch loop, batch processing, learning cycle, scope violation, and rate limit backoff
+> - `guides/safe-autonomous-pentest.md` — Deep-dive guide on autonomous vs manual decision making, scope lock construction, loop composition, and monitoring
+
 Controlled autonomous execution patterns for repetitive security tasks. Provides safe, supervised loop constructs with scope locks, rate limiting, and evidence logging.
 
 ## Activation
@@ -203,3 +208,24 @@ Notify the operator when:
 - **Unbounded parallelism** — Always set and respect concurrency limits
 - **Skipping evidence** — Even failed attempts must be logged
 - **Ignoring rate limits** — Target stability is more important than speed
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Meta-Skill (defines loop patterns consumed by all other skills)
+- **Rationale**: Autonomous loops is not an end-user skill but a meta-skill that provides loop constructs for all other security skills — every skill that needs iterative or batch operations consumes one of the four loop patterns
+- **Integration**: All security skills that need repetitive operations consume loop patterns from this skill. Each skill selects the appropriate pattern based on its workflow needs.
+
+### Cross-Skill Pipeline
+```
+autonomous-loops (provides loop patterns)
+    ├── Sequential Pipeline → network-pentest, terminal-ops, verification-loop
+    ├── Watch Loop → security-bounty-hunter, deep-research
+    ├── Batch Processing → repo-scan, osint, vulnerability-assessment
+    └── Learning Cycle → search-first, continuous-learning, password-attack
+```
+
+### Quality Gate
+- Pre-condition: Scope Lock defined with allowed targets, operations, and abort conditions
+- Post-condition: Evidence chain complete for every iteration, all results logged
+- Verification: Scope not widened during execution, iteration/iteration limits respected, rate limits maintained

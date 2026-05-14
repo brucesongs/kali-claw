@@ -1,5 +1,9 @@
 # Skill: Repository Scan — Cross-Stack Source Code Audit
 
+> **Supplementary Files**:
+> - `payloads.md` — Repository scanning commands, classification scripts, and analysis payloads organized by scan phase
+> - `test-cases.md` — Structured test cases for surface classification, dependency detection, hotspot mapping, and complete audit workflows
+
 ## Description
 
 Cross-stack source code asset audit that classifies every file, detects embedded third-party libraries, and delivers actionable verdicts per module. This skill is used during white-box penetration testing and security code reviews to understand what code is present, what's third-party, and where security risks may hide.
@@ -149,3 +153,22 @@ Assign verdicts per module:
 ## Recommendations
 [Prioritized action items based on verdicts and findings]
 ```
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Batch Processing (classify → detect → map → scan → verdict across multiple files/modules)
+- **Rationale**: Repository scanning processes many files in batch — classification, dependency detection, and hotspot analysis all operate across the entire codebase simultaneously
+- **Integration**: security-review (consumes repo-scan output for targeted review), terminal-ops (evidence capture), continuous-learning (pattern extraction from scan results)
+
+### Cross-Skill Pipeline
+```
+repo-scan → security-review → verification-loop → chronicle
+    ↓                                                          ↑
+search-first (find tools)                continuous-learning (persist patterns)
+```
+
+### Quality Gate
+- Pre-condition: Repository accessible, scanning tools installed
+- Post-condition: All files classified, dependencies inventoried, hotspots mapped, verdicts assigned
+- Verification: Third-party ratio calculated, secret scan completed, report generated

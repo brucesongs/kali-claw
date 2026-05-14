@@ -243,3 +243,24 @@ Target system crashed, data loss occurred, unauthorized access to production dat
 - **Not having a rollback plan** — If you can't undo it, don't do it
 - **Ignoring rate limits** — Target stability is always more important than test speed
 - **Testing without ROE** — Never test without defined rules of engagement
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Cross-cutting Interceptor (pre-action check on every operation across all skills)
+- **Rationale**: Safety is not a sequential step but a cross-cutting concern — it must intercept every operation from every skill, acting as a gate that blocks, pauses, or allows each action
+- **Integration**: All skills (pre-action safety checks), autonomous-loops (scope lock enforcement, rate limiting), terminal-ops (pre-execution safety verification), docker-patterns (localhost-only binding verification)
+
+### Cross-Skill Pipeline
+```
+[any skill] → safety-guard → [proceed / freeze / block]
+                   ↓
+              autonomous-loops (abort conditions)
+                   ↓
+              chronicle (incident logging)
+```
+
+### Quality Gate
+- Pre-condition: Every operation passes through scope check and danger pattern matching
+- Post-condition: Operation classified as safe (proceed), risky (freeze for confirmation), or dangerous (blocked)
+- Verification: No operation executes without passing safety classification

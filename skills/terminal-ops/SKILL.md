@@ -2,6 +2,7 @@
 
 > **Supplementary Files**:
 > - `payloads.md` — Common pentest terminal command patterns organized by task (recon, exploitation, post-exploitation, reporting)
+> - `test-cases.md` — Structured test scenarios for terminal operations workflow
 
 ## Description
 
@@ -117,6 +118,39 @@ STATUS
 FILES
 - [any output files generated]
 ```
+
+## Orchestration
+
+### ECC Loop Pattern
+
+**Sequential Pipeline**: execute -> capture evidence -> verify -> report
+
+Terminal operations are inherently sequential — each command builds on the previous result. The pipeline does not proceed to the next step until the current step's evidence is captured and verified.
+
+### Integration
+
+All skills that execute terminal commands use terminal-ops for evidence capture. When any skill (network-pentest, web-xss, post-exploitation, etc.) runs a command, it follows the Evidence Chain Protocol defined here to ensure traceability and reproducibility.
+
+### Cross-Skill Pipeline
+
+Terminal-ops provides the evidence protocol consumed by all other skills:
+
+```text
+[terminal-ops] -- evidence protocol --> [all skills executing commands]
+                                      --> [network-pentest, web-xss, web-sqli,
+                                           post-exploitation, password-attack,
+                                           cloud-security, ...]
+```
+
+Every skill that runs shell commands uses the timestamp, output file, and hash conventions defined in this skill.
+
+### Quality Gate
+
+| Gate | Check | Criteria |
+|------|-------|----------|
+| Pre-condition | Scope confirmed | Target verified within authorized range |
+| Post-condition | Evidence chain complete | Every action has START, metadata, STATUS, END markers |
+| Verification | Output files valid | All output files exist and are non-empty |
 
 ## Pitfalls
 

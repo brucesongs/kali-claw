@@ -196,3 +196,22 @@ When logs in memory/ exceed 30 days:
 ---
 
 _Based on CHRONICLE_SYSTEM.md, condensed and rewritten_
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Sequential Pipeline (record event → index in chronicle → distill to MEMORY.md)
+- **Rationale**: Chronicle follows a strict three-layer progression — raw events are recorded first, then indexed for navigation, then selectively distilled into long-term knowledge
+- **Integration**: continuous-learning (feeds knowledge extraction), safety-guard (incident events), HEARTBEAT.md (periodic maintenance triggers), TOOLS.md (tool mastery milestones)
+
+### Cross-Skill Pipeline
+```
+[any skill event] → chronicle (record) → CHRONICLE.md (index) → MEMORY.md (distill)
+                          ↓                                      ↑
+                   safety-guard (incidents)          continuous-learning (patterns)
+```
+
+### Quality Gate
+- Pre-condition: Event meets recording threshold (P0-P2 priority classification)
+- Post-condition: Event recorded in chronicle/YYYY-MM/, indexed in CHRONICLE.md, lessons distilled to MEMORY.md if applicable
+- Verification: CHRONICLE.md index matches detail files, MEMORY.md reflects distilled knowledge

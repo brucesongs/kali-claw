@@ -1,7 +1,9 @@
 # Skill: Security Review
 
 > **Supplementary Files**:
+> - `payloads.md` — Security review commands, test payloads, and audit scripts organized by OWASP category
 > - `test-cases.md` — Structured test cases for security review checklists covering secrets, input validation, injection, authentication, and data exposure
+> - `guides/` — Deep-dive methodology guides for systematic security auditing
 
 ## Description
 
@@ -161,6 +163,32 @@ trivy image target-image:tag
 - **Least privilege**: Grant minimum necessary permissions
 - **Secure defaults**: Default configurations should be secure, not permissive
 - **Fail closed**: Errors should deny access, not grant it
+
+## Orchestration
+
+**ECC Loop Pattern**: Sequential Pipeline
+
+```
+surface map → prioritized review → evidence collection → report
+```
+
+**Rationale**: Security reviews require systematic coverage following a defined checklist order. Each phase builds on the previous one — surface mapping identifies entry points, prioritized review allocates effort by risk, evidence collection captures reproducible findings, and report generation delivers actionable results.
+
+**Integration**:
+- `repo-scan` — codebase classification and attack surface identification (provides input for surface mapping phase)
+- `terminal-ops` — evidence capture via curl, nmap, and tool output recording
+- `verification-loop` — finding confirmation through independent retesting
+
+**Cross-Skill Pipeline**:
+```
+repo-scan → security-review → verification-loop → chronicle
+```
+repo-san classifies the codebase and identifies high-value targets, security-review performs systematic OWASP audit, verification-loop confirms findings independently, chronicle archives the final report.
+
+**Quality Gate**:
+- **Pre-condition**: Target scope defined with rules of engagement documented
+- **Post-condition**: All OWASP Top 10 categories assessed with findings documented
+- **Verification**: Findings independently confirmed through reproduction and retesting
 
 ## Report Template
 

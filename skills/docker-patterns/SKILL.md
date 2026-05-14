@@ -1,5 +1,9 @@
 # Docker Patterns for Security Testing
 
+> **Supplementary Files**:
+> - `payloads.md` — Quick launch commands, additional lab configurations, evidence extraction patterns, and cleanup commands
+> - `test-cases.md` — Structured test cases for lab deployment, attack chain setup, evidence extraction, and safety verification
+
 Pre-built Docker Compose configurations for safe, isolated security testing labs. Provides standardized environments for practicing and verifying attack techniques without affecting production systems.
 
 ## Activation
@@ -279,3 +283,22 @@ docker compose -f configs/docker-compose.dvwa.yml down -v
 - **Running without resource limits** — Containers can consume all host resources
 - **Mixing lab and production networks** — Keep lab traffic isolated
 - **Skipping cleanup** — Always remove containers and volumes after testing
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Sequential Pipeline (create lab → deploy → test → extract evidence → cleanup)
+- **Rationale**: Lab environments follow a strict lifecycle — each phase must complete before the next begins, and cleanup is mandatory
+- **Integration**: All security skills that need practice environments (web-sqli, web-xss, network-pentest, post-exploitation), terminal-ops (evidence capture), safety-guard (localhost-only enforcement)
+
+### Cross-Skill Pipeline
+```
+docker-patterns → [any attack skill] → verification-loop → terminal-ops (evidence)
+       ↓                                                          ↑
+  safety-guard (verify isolation)                autonomous-loops (disposable targets)
+```
+
+### Quality Gate
+- Pre-condition: Docker available, ports free, no public interface bindings
+- Post-condition: All containers removed, all volumes cleaned, no ports listening
+- Verification: `docker ps` returns empty, no lab ports in `ss -tlnp`

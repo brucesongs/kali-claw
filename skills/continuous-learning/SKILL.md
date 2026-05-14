@@ -168,3 +168,22 @@ Automatic pattern extraction should occur when:
 - **Knowledge hoarding** — Store structured patterns, not raw data dumps
 - **Never pruning** — Review and update stored knowledge periodically
 - **Confidence inflation** — Be honest about confidence levels
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Learning Cycle (detect pattern → extract & structure → score confidence → store → cross-reference)
+- **Rationale**: Learning is inherently iterative — each observation refines understanding, confidence scores evolve with more evidence, and cross-referencing with existing knowledge prevents contradictions
+- **Integration**: All skills (consumes observations from every engagement), verification-loop (learns which verification methods are most reliable), search-first (learns which sources have best results per topic), terminal-ops (learns optimal evidence formats)
+
+### Cross-Skill Pipeline
+```
+[all skills] → continuous-learning → MEMORY.md / chronicle
+                       ↓                         ↑
+              verification-loop (FP patterns)   deep-research (context enrichment)
+```
+
+### Quality Gate
+- Pre-condition: Observation from real engagement or verified research
+- Post-condition: Structured knowledge entry with confidence level and source attribution
+- Verification: Entry cross-referenced against existing knowledge, no contradictions

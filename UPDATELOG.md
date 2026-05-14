@@ -1,3 +1,81 @@
+# kali-claw v0.1.6 基础设施技能补强报告
+
+*Generated: 2026-05-14 | Version: 0.1.5 → 0.1.6 | Enhanced Skills: 10 | Total: 45*
+
+---
+
+## 摘要
+
+v0.1.5 完成后，kali-claw 拥有 45 个技能域，其中 10 个仅有 SKILL.md（无 payloads.md / test-cases.md / guides/）。这些是 kali-claw 的基础设施技能——代理行为层（循环、验证、学习、安全）和工具层（终端操作、搜索、扫描、Docker、记录）。v0.1.6 为这 10 个技能补充操作手册，从"理解"升级到"可执行"。
+
+---
+
+## 一、补强策略
+
+| 层级 | 技能 | 补充内容 | 新建文件数 |
+|------|------|---------|-----------|
+| **FULL** | `autonomous-loops`, `security-review` | payloads + test-cases + guides | 4×2=8 |
+| **PARTIAL** | `repo-scan`, `terminal-ops`, `verification-loop`, `docker-patterns`, `search-first` | payloads + test-cases | 3×5=15 |
+| **MINIMAL** | `continuous-learning`, `safety-guard`, `chronicle` | SKILL.md ECC Orchestration | 1×3=3 |
+
+**新建 16 个文件** + **更新 15 个文件** = 31 次操作。技能数不变（45→45）。
+
+---
+
+## 二、FULL 补强详情
+
+### autonomous-loops（元技能）
+
+- `payloads.md` — Scope Lock 模板×4、速率限制配置、4种循环命令模板、错误处理响应模板
+- `test-cases.md` — TC-AL-001~006（顺序管道、监控循环、批量扫描、学习循环、范围违规、速率回退）
+- `guides/safe-autonomous-pentest.md` — 自主vs手动决策矩阵、Scope Lock 构建、循环模式组合、监控干预
+- SKILL.md — 添加 Supplementary Files 引用 + Meta-Skill Orchestration
+
+### security-review（安全审计）
+
+- `payloads.md` — 秘密检测命令、注入测试载荷（SQLi/命令/LDAP/SSTI）、认证测试、安全头验证、依赖审计
+- `test-cases.md` — TC-SR-001~007（秘密管理、输入验证、注入、认证、安全头、依赖、完整 OWASP）
+- `guides/owasp-audit-methodology.md` — 审计规划、攻击面映射、优先级排序、证据文档、报告撰写
+- SKILL.md — 添加 Supplementary Files 引用 + Sequential Pipeline Orchestration
+
+---
+
+## 三、PARTIAL 补强详情
+
+| 技能 | payloads.md 内容 | test-cases.md 内容 | ECC 模式 |
+|------|-----------------|-------------------|---------|
+| repo-scan | 分类命令、库检测、热点grep、秘密扫描、判定辅助 | TC-RS-001~004 | Batch Processing |
+| terminal-ops | 侦察/利用/后渗透命令、证据捕获、调试排错 | TC-TO-001~004 | Sequential Pipeline |
+| verification-loop | SQLi/XSS/认证/网络验证载荷、误报消除清单、补丁验证 | TC-VL-001~005 | Sequential Pipeline |
+| docker-patterns | 快速启动、额外实验室、证据提取、清理命令 | TC-DP-001~004 | Sequential Pipeline |
+| search-first | searchsploit/gh/msf/nuclei 模板、评估评分矩阵 | TC-SF-001~004 | Learning Cycle |
+
+---
+
+## 四、MINIMAL 补强详情
+
+| 技能 | Orchestration 模式 | 角色定位 |
+|------|-------------------|---------|
+| continuous-learning | Learning Cycle 消费者 | 从所有技能消费观察结果，提取结构化知识 |
+| safety-guard | Cross-cutting Interceptor | 拦截所有技能操作，执行 scope 检查和危险命令检测 |
+| chronicle | Sequential Pipeline (record → index → distill) | 记录事件 → 建立索引 → 蒸馏知识 |
+
+---
+
+## 五、ECC 编排覆盖
+
+v0.1.6 完成后，45 个技能中所有技能的 SKILL.md 都包含 Orchestration 章节：
+
+- Sequential Pipeline: terminal-ops, security-review, verification-loop, docker-patterns, chronicle
+- Watch Loop: security-bounty-hunter
+- Batch Processing: repo-scan
+- Learning Cycle: search-first, continuous-learning
+- Meta-Skill: autonomous-loops
+- Cross-cutting Interceptor: safety-guard
+- Learning Cycle (已有): ai-fuzzing, deep-research
+
+---
+
 # kali-claw v0.1.1 技能补充调研报告
 
 *Generated: 2026-05-04 | Version: 0.1.0 → 0.1.1 | New Skills: 6 | Total: 31*

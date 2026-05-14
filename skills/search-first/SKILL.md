@@ -1,5 +1,9 @@
 # Skill: Search First — Research Before You Exploit
 
+> **Supplementary Files**:
+> - `payloads.md` — Search templates for ExploitDB, GitHub, Metasploit, Nuclei, and Kali packages with evaluation scoring
+> - `test-cases.md` — Structured test cases for CVE discovery, tool discovery, technique research, and custom build decisions
+
 ## Description
 
 Systematizes the "search for existing tools, exploits, and techniques before writing custom ones" workflow. In penetration testing, this means: before developing a custom exploit or tool, search for existing solutions in exploit databases, security tools, GitHub repositories, and community resources.
@@ -146,3 +150,22 @@ Found: Several TLS-encrypted shell tools
 Action: MODIFY — adapt existing TLS shell for constraint
 Result: Minimal custom wrapper around existing tool
 ```
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Learning Cycle (search → evaluate → decide → refine search if needed)
+- **Rationale**: Searching is iterative — initial searches inform subsequent queries, and results are refined based on relevance scoring until a suitable solution is found or the decision is made to build custom
+- **Integration**: deep-research (broad topic investigation), terminal-ops (execute found tools), continuous-learning (remember which sources are reliable per topic), docker-patterns (lab verification of found exploits)
+
+### Cross-Skill Pipeline
+```
+search-first → [any attack skill] → verification-loop
+      ↓                                     ↑
+deep-research (broader context)    continuous-learning (persist tool knowledge)
+```
+
+### Quality Gate
+- Pre-condition: Need clearly defined (service/version/technique)
+- Post-condition: At least one result evaluated with scoring matrix, or documented decision to build custom
+- Verification: Selected tool/exploit tested against lab or verified against documentation

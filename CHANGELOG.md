@@ -4,6 +4,47 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.6] - 2026-05-14
+
+### Enhanced
+
+10 infrastructure skills enriched from "understand" to "executable" with payloads, test cases, guides, and ECC Orchestration.
+
+**FULL enrichment (2 skills):**
+
+- `autonomous-loops` — added payloads.md, test-cases.md, guides/safe-autonomous-pentest.md, SKILL.md Orchestration (meta-skill)
+  - payloads.md — Scope Lock templates ×4, rate limit configs, loop command templates, error handling response templates
+  - test-cases.md — TC-AL-001 to TC-AL-006 (pipeline, watch, batch, learning, scope violation, rate backoff)
+  - guides/safe-autonomous-pentest.md — autonomous vs manual matrix, scope lock construction, loop composition, monitoring, recovery
+- `security-review` — added payloads.md, test-cases.md, guides/owasp-audit-methodology.md, SKILL.md Orchestration (Sequential Pipeline)
+  - payloads.md — secret detection, injection payloads, auth testing, security headers, dependency audit, API sensitive field detection
+  - test-cases.md — TC-SR-001 to TC-SR-007 (secrets, input validation, injection, auth, headers, dependencies, full OWASP)
+  - guides/owasp-audit-methodology.md — audit planning, attack surface mapping, priority ranking, evidence collection, report writing
+
+**PARTIAL enrichment (5 skills):**
+
+- `repo-scan` — added payloads.md (classification, library detection, hotspot grep, secret scan, verdict aid), test-cases.md (TC-RS-001~004), SKILL.md Orchestration (Batch Processing)
+- `terminal-ops` — added payloads.md (recon/exploit/post-exploit commands, evidence capture, debugging), test-cases.md (TC-TO-001~004), SKILL.md Orchestration (Sequential Pipeline)
+- `verification-loop` — added payloads.md (SQLi/XSS/auth/network verification payloads, FP elimination checklists, remediation verification), test-cases.md (TC-VL-001~005), SKILL.md Orchestration (Sequential Pipeline)
+- `docker-patterns` — added payloads.md (quick launch, additional labs, evidence extraction, cleanup), test-cases.md (TC-DP-001~004), SKILL.md Orchestration (Sequential Pipeline)
+- `search-first` — added payloads.md (searchsploit/gh/msf/nuclei templates, evaluation scoring), test-cases.md (TC-SF-001~004), SKILL.md Orchestration (Learning Cycle)
+
+**MINIMAL enrichment (3 skills):**
+
+- `continuous-learning` — SKILL.md added Orchestration (Learning Cycle consumer)
+- `safety-guard` — SKILL.md added Orchestration (Cross-cutting Interceptor)
+- `chronicle` — SKILL.md added Orchestration (Sequential Pipeline: record → index → distill)
+
+### Changed Files
+
+- `VERSION` — 0.1.5 → 0.1.6
+- `README.md` — Version 0.1.6
+- `CHANGELOG.md` — v0.1.6 entry
+- `UPDATELOG.md` — v0.1.6 report
+- `RELEASE-v0.1.6.md` — release announcement
+- 16 new files created (7 payloads + 7 test-cases + 2 guides)
+- 13 SKILL.md files updated (header + Orchestration)
+
 ## [0.1.5] - 2026-05-14
 
 ### Added

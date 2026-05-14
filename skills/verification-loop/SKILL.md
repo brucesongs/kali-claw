@@ -1,5 +1,9 @@
 # Verification Loop
 
+> **Supplementary Files**:
+> - `payloads.md` — Verification payloads, confirmation commands, and false positive elimination checklists organized by finding type
+> - `test-cases.md` — Structured test cases for SQL injection, XSS, authentication bypass, scanner results, and remediation verification
+
 Multi-phase verification protocol for penetration testing findings, exploits, and remediations. Ensures every claim is independently confirmed before reporting.
 
 ## Activation
@@ -201,3 +205,22 @@ Phase 6: Document: PATCHED / PARTIALLY PATCHED / NOT PATCHED
 - **Skipping Phase 5** — False positive elimination is never optional
 - **Over-reporting** — If it's not confirmed, it doesn't go in the report
 - **Under-evidence** — "It worked on my machine" is not evidence
+
+## Orchestration
+
+### ECC Loop Pattern
+- **Pattern**: Sequential Pipeline (pre-check → execute → post-check → confirm → eliminate FP → document)
+- **Rationale**: Verification is inherently sequential — each phase depends on the previous phase's results, and skipping steps invalidates the verification
+- **Integration**: terminal-ops (evidence capture during verification), security-bounty-hunter (pre-submission verification), autonomous-loops (loop result verification)
+
+### Cross-Skill Pipeline
+```
+[any skill] → verification-loop → security-bounty-hunter (report)
+                    ↓                        ↑
+              terminal-ops (evidence)   continuous-learning (FP patterns)
+```
+
+### Quality Gate
+- Pre-condition: Finding identified, scope authorized, success criteria defined
+- Post-condition: Finding independently confirmed with different method, false positives eliminated
+- Verification: Evidence chain complete with timestamps, reproducible by third party
