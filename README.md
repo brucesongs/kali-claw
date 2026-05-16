@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 45 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 49 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **45 Security Skill Domains** — From OSINT and web exploitation to cloud security and digital forensics, each with structured payloads, test cases, and learning guides
+- **49 Security Skill Domains** — From OSINT and web exploitation to cloud security, AI/LLM security, and hardware/embedded systems, each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -281,9 +281,7 @@ TOOLS.md:
 
 | Skill | Description |
 |-------|-------------|
-| `mcp-server-patterns` | MCP server integration — security tool API wrapping, custom tool integration patterns |
 | `strategic-compact` | Strategic context management — long engagement context compression, priority-based information retention |
-| `multi-agent-collaboration` | Multi-agent coordinated penetration testing |
 | `ai-assisted-exploit-dev` | AI-driven exploit development and payload customization |
 
 ---
@@ -307,10 +305,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.6 |
+| **Version** | 0.1.7 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 45 |
+| **Skill Domains** | 49 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 

@@ -1,3 +1,103 @@
+# kali-claw v0.1.7 New Skill Domains Report
+
+*Generated: 2026-05-16 | Version: 0.1.6 → 0.1.7 | New Skills: 4 | Total: 49*
+
+---
+
+## Summary
+
+v0.1.7 adds 4 new FULL skill domains to kali-claw, expanding coverage into AI/LLM security, hardware/embedded systems, multi-agent coordination, and MCP tool integration. All 4 domains follow the FULL tier: SKILL.md + payloads.md + test-cases.md + guides/. IDENTITY.md is updated with 14 new Skill Tags rows (10 backfilled from v0.1.6 + 4 new).
+
+---
+
+## New Skill Domains
+
+### 1. ai-security — AI/LLM System Attack and Defense
+
+**ECC Pattern**: Learning Cycle  
+**Files**: SKILL.md (283 lines) + payloads.md (648 lines) + test-cases.md (362 lines) + guides/llm-attack-methodology.md (476 lines)
+
+**Coverage**:
+- Direct prompt injection (8 payload variants: instruction override, delimiter confusion, role-play, token smuggling, zero-width spaces, base64, nested, continuation hijacking)
+- Indirect injection via document/web/tool output poisoning
+- Jailbreaking (DAN, developer mode, many-shot 20-pair, fictional framing, research framing)
+- Model extraction probe sequences and training data extraction
+- RAG poisoning document templates (3 variants)
+- AI API fuzzing (parameter tampering, multimodal injection, rate limit probing)
+- Attack surface enumeration with bash commands and STRIDE threat model applied to LLMs
+- OWASP LLM Top 10 mapped to each test case (TC-AS-001 through TC-AS-006)
+
+### 2. hardware-security — Hardware and Embedded System Security
+
+**ECC Pattern**: Sequential Pipeline (Physical → Interface → Extract → Analyze → Exploit)  
+**Files**: SKILL.md (192 lines) + payloads.md (580 lines) + test-cases.md (357 lines) + guides/embedded-firmware-analysis.md (404 lines)
+
+**Coverage**:
+- UART baud rate enumeration and serial connection commands
+- JTAG discovery with JTAGulator + OpenOCD target configs for ARM Cortex/MIPS/AVR
+- SPI/I2C logic analyzer capture procedures
+- Firmware extraction: flashrom (CH341A/Bus Pirate), JTAG dump, U-Boot serial exfil, OTA interception
+- Firmware analysis: binwalk -e, unsquashfs, jefferson (JFFS2), cramfsck, entropy analysis
+- RFID/NFC attacks: Proxmark3 EM4100 and MIFARE Classic cloning + UID spoofing
+- Fault injection setup with ChipWhisperer
+- Credential/service hunting patterns in extracted firmware
+- 5 test cases (TC-HS-001 to TC-HS-005), 4 rated Critical
+- Firmware extraction decision tree (6 methods ranked by speed/reliability)
+
+### 3. multi-agent-collaboration — Coordinated Multi-Agent Penetration Testing
+
+**ECC Pattern**: Batch Processing (dispatch → parallel workers → aggregate)  
+**Files**: SKILL.md (234 lines) + payloads.md (610 lines) + test-cases.md (371 lines) + guides/coordinated-pentest-playbook.md (339 lines)
+
+**Coverage**:
+- 4 collaboration models: attack phase decomposition, target parallelization, tool specialization, coordinator-worker
+- Task decomposition templates with `{PLACEHOLDER}` variables for all 3 models
+- 5 agent role prompts: Recon, Web Tester, Network Scanner, Binary Analyst, Report Writer
+- Coordinator dispatch template covering all 6 lifecycle phases
+- Standardized finding JSON schema for cross-agent aggregation
+- 5-step deduplication checklist + 7-step conflict resolution decision tree
+- Coverage verification matrix template
+- 7 common failure modes with mitigations
+- 5 test cases (TC-MC-001 to TC-MC-005) from simple parallel recon to full 7-agent coordinated pentest
+
+### 4. mcp-server-patterns — MCP Security Tool Integration
+
+**ECC Pattern**: Sequential Pipeline (analyze → design → implement → test → deploy)  
+**Files**: SKILL.md (205 lines) + payloads.md (682 lines) + test-cases.md (446 lines) + guides/security-mcp-server-design.md (406 lines)
+
+**Coverage**:
+- Complete minimal MCP server scaffold (Python SDK, ~40 lines working code)
+- 3 full tool implementations: nmap wrapper, nikto wrapper, generic safe command pattern
+- Input validation snippets: IP/CIDR, URL, port range, file path allowlist, scope enforcement
+- Authentication middleware with `hmac.compare_digest` constant-time comparison
+- Thread-safe sliding-window rate limiter class
+- JSON schemas for scan results, vulnerability findings, host enumeration
+- Security testing commands: schema bypass, injection, auth bypass, rate limit testing
+- 7 non-negotiable secure wrapping rules (no shell=True, allowlists, timeout, output sanitization, etc.)
+- 5 test cases (TC-MP-001 to TC-MP-005) from basic wrapping to full security audit
+
+---
+
+## IDENTITY.md Update
+
+14 new rows added to Skill Tags table:
+
+| Row | Domain |
+|-----|--------|
+| Backfilled | Security Review, Repo Scan, Terminal Ops, Verification Loop, Docker Patterns, Search First, Autonomous Loops, Safety Guard, Chronicle, Continuous Learning |
+| New (v0.1.7) | AI/LLM Security, Hardware Security, Multi-Agent Collaboration, MCP Server Patterns |
+
+---
+
+## Statistics
+
+| Metric | v0.1.6 | v0.1.7 | Delta |
+|--------|--------|--------|-------|
+| Skill Domains | 45 | 49 | +4 |
+| New Files Created | — | 16 | +16 |
+| IDENTITY.md Rows | 18 | 32 | +14 |
+| Total Lines Added | — | ~6,596 | — |
+
 # kali-claw v0.1.6 基础设施技能补强报告
 
 *Generated: 2026-05-14 | Version: 0.1.5 → 0.1.6 | Enhanced Skills: 10 | Total: 45*

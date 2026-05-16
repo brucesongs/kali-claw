@@ -4,6 +4,23 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.7] - 2026-05-16
+
+### Added
+
+4 new FULL skill domains added (45 → 49 total). Each includes SKILL.md, payloads.md, test-cases.md, and a guides/ deep-dive.
+
+- `ai-security` — AI/LLM system attack and defense: prompt injection, jailbreaking (DAN, many-shot, fictional framing), model extraction, RAG poisoning, adversarial inputs, supply chain attacks. ECC: Learning Cycle. Guide: `guides/llm-attack-methodology.md`.
+- `hardware-security` — Hardware and embedded system security: UART/JTAG debugging, SPI firmware extraction, firmware analysis with binwalk, RFID/NFC cloning with Proxmark3, fault injection basics. ECC: Sequential Pipeline. Guide: `guides/embedded-firmware-analysis.md`.
+- `multi-agent-collaboration` — Coordinated multi-agent penetration testing: task decomposition (by phase/target/tool), coordinator-worker pattern, result aggregation, deduplication, conflict resolution, coverage verification. ECC: Batch Processing. Guide: `guides/coordinated-pentest-playbook.md`.
+- `mcp-server-patterns` — MCP security tool integration: wrapping Kali tools as MCP servers, input validation, command injection prevention, authentication, rate limiting; also security auditing of MCP server implementations. ECC: Sequential Pipeline. Guide: `guides/security-mcp-server-design.md`.
+
+### Changed
+
+- `IDENTITY.md` — Skill Tags table expanded: 14 new rows added (10 infrastructure skills missing from v0.1.6 + 4 new domains)
+- `VERSION` — 0.1.6 → 0.1.7
+- `README.md` — Skill count 45 → 49; Future Exploration table updated (removed 2 now-implemented domains)
+
 ## [0.1.6] - 2026-05-14
 
 ### Enhanced

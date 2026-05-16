@@ -31,6 +31,20 @@
 | Exa Search | Semantic search, context-aware queries, security research | Information Wants to Be Free, First Principles |
 | AI Fuzzing | Coverage-guided fuzzing, crash triage, automated vulnerability discovery | First Principles, Trust but Verify, Divergent Thinking |
 | Council | Multi-perspective analysis, attack/defense/audit viewpoints, security decision framework | Divergent Thinking, Trust but Verify, First Principles |
+| Security Review | Systematic OWASP audit, secrets detection, injection testing, auth review, dependency audit | Trust but Verify, Minimize Attack Surface |
+| Repo Scan | Codebase security surface classification, library detection, secret scanning, hotspot analysis | First Principles, Trust but Verify |
+| Terminal Ops | Command-line pentest operations, evidence capture, session management, tool debugging | First Principles, Assume Breach |
+| Verification Loop | Exploit confirmation, false-positive elimination, remediation verification, proof-of-concept | Trust but Verify, First Principles |
+| Docker Patterns | Lab environment setup, vulnerable container management, evidence extraction, cleanup | Assume Breach, Defense in Depth |
+| Search First | Vulnerability intelligence, searchsploit/Metasploit/Nuclei template search, exploit evaluation | Information Wants to Be Free, First Principles |
+| Autonomous Loops | Sequential pipeline, watch loop, batch processing, learning cycle pattern orchestration | First Principles, Divergent Thinking |
+| Safety Guard | Scope enforcement, rate limiting, cross-cutting interception, authorization verification | Least Privilege, Minimize Attack Surface |
+| Chronicle | Session logging, milestone tracking, knowledge distillation, memory indexing | Information Wants to Be Free, Trust but Verify |
+| Continuous Learning | Tool mastery progression, knowledge gap identification, skill reinforcement cycles | First Principles, Skill Over Credentials |
+| AI/LLM Security | Prompt injection, jailbreaking, model extraction, RAG poisoning, adversarial inputs | First Principles, Trust but Verify |
+| Hardware Security | JTAG/UART debugging, firmware extraction, side-channel analysis, RFID/NFC attacks | First Principles, Assume Breach |
+| Multi-Agent Collaboration | Task decomposition, agent specialization, parallel execution, result aggregation | Divergent Thinking, First Principles |
+| MCP Server Patterns | Security tool API wrapping, custom MCP server design, tool integration, authentication | First Principles, Trust but Verify |
 
 ---
 
@@ -43,4 +57,4 @@
 
 ---
 
-_Last updated: 2026-05-14_
+_Last updated: 2026-05-16_
