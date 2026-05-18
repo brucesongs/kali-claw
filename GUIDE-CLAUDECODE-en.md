@@ -1,91 +1,54 @@
 # kali-claw Skill Pack Migration Guide: Using with Claude Code
 
-> A comprehensive guide to migrating your kali-claw penetration testing workspace from OpenClaw to Claude Code -- Anthropic's official CLI runtime.
-
----
-
-## Table of Contents
-
-1. [Overview](#1-overview)
-2. [Environment Setup](#2-environment-setup)
-3. [Approach 1: Minimal Migration (5 Minutes)](#3-approach-1-minimal-migration-5-minutes)
-4. [Approach 2: Standard Migration (30 Minutes)](#4-approach-2-standard-migration-30-minutes)
-5. [Approach 3: Full Migration (2 Hours)](#5-approach-3-full-migration-2-hours)
-6. [Usage Scenarios](#6-usage-scenarios)
-7. [FAQ](#7-faq)
-8. [Architecture Comparison and Reference](#8-architecture-comparison-and-reference)
+> For v0.1.7 | A complete guide to migrating kali-claw security skill packs to Anthropic's official CLI tool, Claude Code
 
 ---
 
 ## 1. Overview
 
-### 1.1 What is Claude Code
+### 1.1 What is Claude Code?
 
-Claude Code is Anthropic's official CLI tool for using Claude directly in your terminal. It provides a native, framework-free way to interact with Claude as a coding and reasoning assistant.
+Claude Code is Anthropic's **official command-line tool** that lets you interact with Claude directly in the terminal. It is not a chatbot wrapper -- it is Claude's **native runtime**. Claude Code itself is the execution environment.
 
-**Key features relevant to kali-claw:**
+**Core capabilities:**
 
-- **CLAUDE.md files** -- Project-level instruction files that Claude reads automatically at session start (acts as a system prompt for your project)
-- **Custom agents** -- Specialized agent prompts stored in `~/.claude/agents/` that can be invoked with the Agent tool
-- **Rules** -- Behavioral guidelines stored in `~/.claude/rules/` that apply across all sessions
-- **MCP servers** -- Tool integration via Model Context Protocol, allowing Claude to call external tools directly
-- **Memory system** -- Persistent notes stored in `~/.claude/projects/<project>/memory/` that survive across sessions
-- **Hooks** -- Shell commands triggered by PreToolUse/PostToolUse/Stop events for automation
+- **CLI interface** -- Use Claude directly in the terminal with multi-turn conversations and context management
+- **CLAUDE.md project instructions** -- A Markdown file in the project root directory that defines how Claude behaves within that project (similar to a system prompt)
+- **Custom Agents** -- Specialized prompt files placed in `~/.claude/agents/`, invocable via the Agent tool
+- **Rules** -- Behavioral guidelines placed in `~/.claude/rules/` that apply to all projects or specific projects
+- **MCP Servers** -- Integrate external tools via the Model Context Protocol, letting Claude directly invoke tools like nmap, sqlmap, and more
+- **Memory System** -- Persistent session memory stored in `~/.claude/projects/<project>/memory/`
+- **Hooks** -- Shell commands that execute automatically before/after tool calls (PreToolUse/PostToolUse/Stop)
 
-**How it differs from OpenClaw:**
+**Key differences from OpenClaw:**
 
-| Aspect | OpenClaw | Claude Code |
-|--------|----------|-------------|
-| Runtime | Third-party npm framework | Claude's native CLI -- no separate framework |
-| Agent definition | Workspace directory with SOUL.md | CLAUDE.md + custom agent files |
-| Tool access | Gateway routes | MCP servers + Bash tool |
-| Memory | Manual memory/ directory | Built-in persistent memory system |
-| Installation | `npm install -g openclaw` | `npm install -g @anthropic-ai/claude-code` |
+| Feature | OpenClaw | Claude Code |
+|---------|----------|-------------|
+| Runtime | Standalone npm framework | Claude's native CLI, no extra framework needed |
+| Skill system | Markdown files parsed by the framework | Markdown files + custom agents |
+| Tool invocation | Through terminal commands | Through Bash tool + MCP servers |
+| Memory persistence | File system (memory/ directory) | File system (~/.claude/projects/) |
+| Installation dependency | Requires Node.js + OpenClaw | Only Claude Code itself |
 
-**Why choose Claude Code for kali-claw:**
+### 1.2 The Value of kali-claw Skill Packs
 
-1. **No framework install needed** -- Claude Code IS the runtime. No OpenClaw gateway, no separate service to manage.
-2. **Skills become native agents** -- Each kali-claw skill domain maps to a Claude Code custom agent, invocable with the Agent tool.
-3. **MCP wraps Kali tools directly** -- nmap, sqlmap, and other tools become first-class callable functions.
-4. **Memory persists automatically** -- Claude Code's memory system replaces kali-claw's manual memory hierarchy.
-5. **Cross-platform** -- Works on macOS, Windows, and Linux. Access Kali remotely via SSH when not running on Kali directly.
+kali-claw contains **49 security skill domains** and a **518 Kali Linux tool knowledge base**, forming a structured body of security testing knowledge:
 
-### 1.2 Value of the kali-claw Skill Pack
+- Each skill domain includes: `SKILL.md` (methodology) + `payloads.md` (attack payloads) + `test-cases.md` (test cases) + `guides/` (deep-dive guides)
+- Root-level configuration: `SOUL.md` (12 Hacker Laws), `IDENTITY.md` (skill tags), `TOOLS.md` (518 tool inventory)
+- Key advantage: **kali-claw skills are essentially Markdown files** that can be directly read and used by Claude Code -- no format conversion required
 
-The kali-claw workspace provides a ready-made knowledge base that supercharges Claude Code for security work:
+### 1.3 Migration Strategy Overview
 
-- **49 security skill domains** -- From OSINT and web exploitation to cloud security and AI fuzzing
-- **518 Kali Linux tool references** -- Mastery tracking, command examples, and usage notes
-- **Thousands of lines of attack payloads** -- Organized by category in `payloads.md` files
-- **Structured test case templates** -- `test-cases.md` files with TC-SXXX format for repeatable testing
-- **12 Hacker Laws** -- Behavioral guidelines derived from real-world security philosophy
+Migration does not mean "converting formats" -- it means correctly placing and referencing existing files. Three migration depths are available:
 
-**The key insight:** kali-claw skills are just Markdown files. Migration to Claude Code does not require format conversion -- it requires proper placement and referencing within Claude Code's native structure.
+| Migration Level | Time | Capabilities Gained | Best For |
+|----------------|------|---------------------|----------|
+| **Minimal** | 5 minutes | Directly reference skill files in Claude Code | Quick experimentation |
+| **Standard** | 30 minutes | Custom agents + rules + memory system | Daily use |
+| **Complete** | 2 hours | MCP tool integration + Hooks automation + full agents | Professional penetration testers |
 
-### 1.3 Migration Strategy
-
-There are three levels of migration, depending on how much Claude Code integration you want:
-
-```
-Minimal (5 min)           Standard (30 min)          Full (2 hours)
-    |                          |                          |
-    v                          v                          v
-Open project         + CLAUDE.md config          + MCP servers
-in Claude Code       + Custom agents              + Memory import
-                     + Rule files                 + Hooks automation
-                     + Memory setup
-```
-
-**Approach 1 -- Minimal Migration (5 minutes):**
-Open the kali-claw project directly in Claude Code. Claude reads CLAUDE.md and can access all skill files via the Read tool. No configuration needed. You reference skill files manually.
-
-**Approach 2 -- Standard Migration (30 minutes):**
-Configure CLAUDE.md with kali-claw behavioral instructions. Convert key skill domains into Claude Code custom agents. Set up rule files for security guidelines. Configure the memory system.
-
-**Approach 3 -- Full Migration (2 hours):**
-Everything in Standard, plus MCP servers wrapping Kali tools, Hooks for automated safety checks, and full memory import from kali-claw's existing memory files.
-
-**Recommendation:** Start with Approach 1 to verify everything works, then upgrade to Approach 2 or 3 based on your needs.
+**Critical constraint:** This guide does NOT suggest modifying, converting, or altering any files in the kali-claw `skills/` directory. kali-claw skills stay exactly as they are. Migration means configuring Claude Code to READ existing kali-claw files, not changing them.
 
 ---
 
@@ -99,309 +62,216 @@ npm install -g @anthropic-ai/claude-code
 
 # Verify installation
 claude --version
+
+# First launch (requires an Anthropic account)
+claude
 ```
 
-**Prerequisites:**
+**Common installation issues:**
 
-- Node.js >= 18 (check with `node --version`)
-- An Anthropic API key or Claude Pro/Max subscription
-- Git (for cloning the repository)
+| Issue | Solution |
+|-------|----------|
+| Permission denied (EACCES) | `sudo npm install -g @anthropic-ai/claude-code` |
+| npm registry timeout | `npm config set registry https://registry.npmmirror.com` |
+| Node.js version too low | Install latest LTS via nvm: `nvm install --lts` |
 
-**Troubleshooting:**
+### 2.2 Prepare a Kali Linux Environment
 
-- **Permission error:** Use `sudo npm install -g @anthropic-ai/claude-code` on Linux
-- **Node.js too old:** Install via nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash && nvm install --lts`
-- **npm not found:** Install Node.js first from https://nodejs.org/
+Choose one of the three options below:
 
-### 2.2 Prepare Kali Linux Environment
-
-You need access to a Kali Linux environment for security tool execution. Choose one of the following options:
-
-**Option A: Kali Linux native (recommended for security work)**
+**Option A: Kali Linux Local Machine (Recommended)**
 
 ```bash
-# On Kali Linux, verify tool availability
-nmap --version
+# Run Claude Code directly on Kali
+nmap --version  # Verify tools are available
 sqlmap --version
-nikto -Version
 ```
 
-**Option B: Remote Kali via SSH**
-
-Run Claude Code on your regular machine (macOS, Windows, Linux) and execute security tools on a remote Kali machine via SSH.
+**Option B: Remote Kali (SSH Access)**
 
 ```bash
-# Set up SSH key authentication
+# Generate SSH key pair
 ssh-keygen -t ed25519 -C "kali-claw"
+
+# Copy public key to remote Kali machine
 ssh-copy-id user@kali-host
 
-# Verify connectivity and tool availability
-ssh user@kali-host "nmap --version"
-ssh user@kali-host "sqlmap --version"
+# Verify connection
+ssh user@kali-host "nmap --version && sqlmap --version"
 ```
 
-When using remote Kali, Claude Code will prefix commands with `ssh user@kali-host`.
-
-**Option C: Docker container**
+**Option C: Docker Container**
 
 ```bash
-# Pull and run Kali Linux in Docker
+# Pull and start Kali container
 docker pull kalilinux/kali-rolling
-docker run -it --name kali-claw-env kalilinux/kali-rolling /bin/bash
+docker run -it --name kali-env kalilinux/kali-rolling /bin/bash
 
-# Inside the container, install security tools
+# Install security tools inside the container
 apt update && apt install -y nmap sqlmap nikto hydra metasploit-framework
+
+# Re-enter after exiting
+docker start -ai kali-env
 ```
 
-### 2.3 Clone kali-claw
+### 2.3 Clone the kali-claw Workspace
 
 ```bash
-# Clone the repository (English version)
-git clone https://github.com/brucesongs/kali-claw.git kali-claw-en
-cd kali-claw-en
+git clone https://github.com/brucesongs/kali-claw.git
+cd kali-claw
+```
 
-# Verify the clone
+Verify the file structure:
+
+```bash
 ls -la
-# You should see: SOUL.md, AGENTS.md, USER.md, IDENTITY.md,
-# HEARTBEAT.md, TOOLS.md, skills/, memory/, chronicle/, etc.
+# You should see: SOUL.md  AGENTS.md  IDENTITY.md  USER.md  MEMORY.md  TOOLS.md  HEARTBEAT.md  skills/  memory/  chronicle/
 ```
 
 ### 2.4 Environment Checklist
 
-Before proceeding, confirm the following:
-
-- [ ] Claude Code installed (`claude --version` succeeds)
-- [ ] kali-claw repository cloned
-- [ ] Kali Linux accessible (local, SSH, or Docker)
-- [ ] Basic Kali tools work (`nmap --version` returns successfully)
+- [ ] Claude Code installed (`claude --version`)
+- [ ] Kali Linux available (local machine / SSH remote / Docker container)
+- [ ] kali-claw cloned to local machine
+- [ ] Basic Kali tools available (verified with `nmap --version`)
+- [ ] Network connection working
 
 ---
 
-## 3. Approach 1: Minimal Migration (5 Minutes)
+## 3. Level 1: Minimal Migration (5 Minutes)
 
 ### 3.1 Open the Project Directly
 
 ```bash
-cd /path/to/kali-claw-en
+cd kali-claw
 claude
 ```
 
-Claude Code starts and automatically reads `CLAUDE.md` as project-level instructions. This gives Claude basic context about the kali-claw workspace: what it is, how skills are organized, and the file naming conventions.
+When Claude Code starts, it **automatically reads `CLAUDE.md`** from the project root directory as project instructions. kali-claw's `CLAUDE.md` already contains a project overview and architecture description, so Claude will understand that this is a security testing knowledge base.
 
 ### 3.2 Start Using
 
-No configuration needed. Just talk to Claude and reference skill files directly. Claude can read any file in the project using the Read tool.
-
-**Dialog example -- SQL injection analysis:**
+Simply use natural language conversation and ask Claude to read the corresponding skill files:
 
 ```
-You: Read skills/web-sqli/SKILL.md, then help me analyze a SQL injection
-     vulnerability on http://testsite.com/page?id=1
+You: Read skills/web-sqli/SKILL.md, then help me analyze a SQL injection vulnerability
 
-Claude: [Reads skills/web-sqli/SKILL.md]
-        Based on the SQL injection methodology, let's start with detection:
+Claude: [reads SKILL.md]
+        I now understand the SQL injection skill methodology. This skill covers the following injection types:
+        - Union-based / Error-based / Boolean-blind / Time-blind
+        - Double Query / Stacked Queries / Out-of-band
 
-        Step 1: Test for injection point
-        The id parameter might be vulnerable. Let's test:
-        - Normal: http://testsite.com/page?id=1
-        - With quote: http://testsite.com/page?id=1'
-
-        Would you like me to run curl commands to test this?
+        Please provide your target information, and I will analyze it using the methodology.
 ```
 
-**Dialog example -- Payload lookup:**
-
 ```
-You: Check skills/web-sqli/payloads.md for a UNION injection payload
-     targeting MySQL with 5 columns
+You: Look at skills/web-sqli/payloads.md and give me a UNION injection payload
 
-Claude: [Reads skills/web-sqli/payloads.md]
-        Here is the appropriate UNION injection payload:
+Claude: [reads payloads.md]
+        Based on the UNION Injection section in payloads.md, here is a standard payload:
 
-        ' UNION SELECT 1,2,3,4,5-- -
+        ' UNION SELECT 1,2,3-- -
 
-        Variations for different scenarios:
-        - With string closure: ' UNION SELECT 1,2,3,4,5-- -
-        - With integer injection: UNION SELECT 1,2,3,4,5-- -
-        - With comment bypass: '/*!UNION*/ /*!SELECT*/ 1,2,3,4,5-- -
+        Steps:
+        1. First determine column count with ORDER BY: ' ORDER BY 5-- -
+        2. Find the echo position: ' UNION SELECT 1,2,3-- -
+        3. Extract data: ' UNION SELECT database(),version(),user()-- -
 ```
 
-**Dialog example -- Test case execution:**
-
 ```
-You: Follow skills/web-sqli/test-cases.md TC-S001 to test the target
+You: Execute testing per TC-S001 from skills/web-sqli/test-cases.md
 
-Claude: [Reads skills/web-sqli/test-cases.md]
-        Executing test case TC-S001: SQL Injection Detection
+Claude: [reads test-cases.md]
+        Following test steps from TC-S001 GET Parameter Injection Point Detection:
 
-        Preconditions: Target URL with parameter-based input
-        Target: http://testsite.com/page?id=1
+        Step 1: Test single quote to trigger SQL error
+          ?id=1'
 
-        Step 1: Single quote test
-        Step 2: Numeric boolean test (AND 1=1 vs AND 1=2)
-        Step 3: Comment character test (-- -, #, /*)
-        Step 4: Determine closure method
+        Step 2: Confirm string-type injection
+          ?id=1' AND '1'='1   (page should be normal)
+          ?id=1' AND '1'='2   (page should be abnormal)
 
-        Shall I begin executing these steps?
+        Step 3: Confirm numeric-type injection
+          ?id=1 AND 1=1       (page should be normal)
+          ?id=1 AND 1=2       (page should be abnormal)
+
+        Step 4: Test different closure styles: ' / " / ') / "))
+
+        Please provide the target URL and I will help you execute the test.
 ```
 
 ### 3.3 Limitations of Minimal Migration
 
-The minimal approach works but has drawbacks:
+- **You must manually reference skill file paths each time** (e.g., "Read skills/web-sqli/SKILL.md")
+- **No persistent memory** -- Claude does not remember previous analysis results after the session ends
+- **No automated agents** -- Cannot trigger skills with shortcut commands like `/web-sqli`
+- **No tool integration** -- Cannot directly invoke tools like nmap, sqlmap, etc.
 
-- **Manual referencing** -- You must specify file paths like `skills/web-sqli/SKILL.md` each time
-- **No persistent memory** -- Claude forgets context when the session closes (unless you explicitly save to Claude Code memory)
-- **No automated agents** -- Skills are not available as invocable agents; you must describe what you want
-- **No tool integration** -- Kali tools are not callable as MCP functions; you must use Bash commands manually
-
-**When to use this approach:** Quick testing, evaluating whether kali-claw skills are useful for your workflow, or one-off security tasks.
+Best for: Quick experimentation, one-off testing, single-use tasks.
 
 ---
 
-## 4. Approach 2: Standard Migration (30 Minutes)
+## 4. Level 2: Standard Migration (30 Minutes)
 
 ### 4.1 Configure CLAUDE.md (Project Instructions)
 
-Edit the kali-claw project's `CLAUDE.md` to include kali-claw's behavioral guidelines and skill index. This makes Claude automatically adopt the penetration testing agent persona.
-
-Replace (or extend) the existing `CLAUDE.md` with the following content:
+Append security agent behavioral instructions to kali-claw's existing `CLAUDE.md`. Add the following content to the end of CLAUDE.md:
 
 ```markdown
-# CLAUDE.md
+## Security Agent Mode
 
-## Project Overview
+When the user requests security testing, vulnerability analysis, or penetration testing tasks, activate Security Agent Mode:
 
-kali-claw is an AI-powered penetration testing workspace with 49 security skill
-domains and 518 Kali Linux tool references. This workspace is a structured
-Markdown knowledge base, not a traditional software project.
+### Role
+You are kali-claw, a senior penetration testing engineer. You operate under the 12 Hacker Laws defined in SOUL.md.
 
-## Agent Role
+### Behavioral Guidelines
+- Read SOUL.md for the 12 Hacker Laws before any security operation
+- Always verify authorization scope before testing
+- Follow the methodology defined in the relevant SKILL.md
+- Use payloads from payloads.md, not improvisation
+- Document findings per test-cases.md format
+- Never execute destructive commands without explicit user confirmation
 
-You are a senior penetration testing engineer -- a security specialist with
-deep knowledge of Kali Linux tools and offensive/defensive security methodology.
+### Skill Index
+49 security skill domains are available under skills/:
 
-## 12 Hacker Laws
+**Web Security**: web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control
+**Network**: network-pentest, wifi-pentest, osint, recon-osint
+**Exploitation**: post-exploitation, password-attack, crypto-attacks
+**Code & Binary**: binary-reverse, repo-scan, security-review, ai-security
+**Cloud & Infra**: cloud-security, container-security, supply-chain-security
+**Meta Skills**: autonomous-loops, council, multi-agent-collaboration, ai-fuzzing
+**Infrastructure**: terminal-ops, safety-guard, chronicle, continuous-learning
+**Knowledge**: deep-research, search-first, exa-search, data-scraper-agent
 
-Follow these principles in every task:
+When a security task is requested, automatically identify the relevant skill domain and read its SKILL.md first.
 
-1. **First Principles Thinking** -- Break problems down to fundamental facts.
-   Question every assumption.
-2. **Divergent Thinking First** -- Consider at least 3 solutions before choosing.
-3. **Minimize Attack Surface** -- Less exposure means less risk.
-4. **Defense in Depth** -- Never rely on a single layer of defense.
-5. **Least Privilege** -- Grant only necessary access.
-6. **Assume Breach** -- Design assuming the attacker is already inside.
-7. **Obscurity Is Not Security** -- Security comes from design, not hiding.
-8. **Trust but Verify** -- Verify all inputs and outputs.
-9. **Information Wants to Be Free** -- Share knowledge, protect sensitive data.
-10. **Skill Over Credentials** -- Judge by capability, not title.
-11. **The Weakest Link Is Human** -- Always consider the human factor.
-12. **Murphy's Security Law** -- If it can be exploited, it will be.
-
-## Skill Index
-
-49 security skill domains are available under skills/. Each domain contains:
-- SKILL.md -- Methodology, tools, and use cases
-- payloads.md -- Attack payloads organized by category
-- test-cases.md -- Structured test case templates (TC-SXXX format)
-- guides/ -- Deep-dive learning materials
-
-### Attack Skills
-- skills/web-sqli/ -- SQL injection (UNION, Error, Blind, Double Query, WAF bypass)
-- skills/web-xss/ -- Cross-site scripting (Reflected, Stored, DOM-based)
-- skills/web-ssrf/ -- Server-Side Request Forgery
-- skills/web-auth-bypass/ -- Authentication bypass techniques
-- skills/web-access-control/ -- Access control testing
-- skills/network-pentest/ -- Network penetration testing (nmap, MITM, sniffing)
-- skills/password-attack/ -- Dictionary attacks, brute force, hash cracking
-- skills/post-exploitation/ -- Persistence, lateral movement, privilege escalation
-- skills/wifi-pentest/ -- WiFi cracking, WPS attacks, wireless sniffing
-- skills/api-security/ -- REST/GraphQL API security testing
-- skills/crypto-attacks/ -- Cryptographic vulnerability exploitation
-- skills/binary-reverse/ -- Binary analysis and exploit development
-- skills/hardware-security/ -- JTAG/UART, firmware extraction, side-channel
-
-### Defense Skills
-- skills/security-review/ -- OWASP audit, secrets detection, injection testing
-- skills/verification-loop/ -- Exploit confirmation, false-positive elimination
-- skills/docker-patterns/ -- Lab environments, vulnerable containers
-- skills/safety-guard/ -- Scope enforcement, rate limiting
-- skills/logging-monitoring/ -- Security logging and monitoring
-- skills/security-misconfiguration/ -- Configuration security assessment
-- skills/vulnerability-assessment/ -- Systematic vulnerability scanning
-
-### Knowledge Skills
-- skills/osint/ -- Open source intelligence gathering
-- skills/recon-osint/ -- DNS enumeration, subdomain discovery
-- skills/deep-research/ -- Multi-source intelligence synthesis
-- skills/search-first/ -- Exploit and vulnerability search
-- skills/exa-search/ -- Semantic web search for security research
-- skills/repo-scan/ -- Codebase security surface classification
-- skills/data-scraper-agent/ -- Structured data collection, CVE scraping
-
-### Meta Skills
-- skills/autonomous-loops/ -- Sequential pipeline, watch loop, batch processing
-- skills/multi-agent-collaboration/ -- Task decomposition, parallel execution
-- skills/council/ -- Multi-perspective analysis (attacker/defender/auditor)
-- skills/chronicle/ -- Session logging, milestone tracking
-- skills/continuous-learning/ -- Tool mastery progression
-
-### Infrastructure
-- skills/terminal-ops/ -- Command-line pentest operations
-- skills/knowledge-ops/ -- Knowledge graph management
-- skills/codebase-onboarding/ -- Rapid codebase intelligence
-- skills/article-writing/ -- Security content and report creation
-- skills/browser-qa/ -- Automated browser testing
-- skills/mcp-server-patterns/ -- Security tool MCP server design
-- skills/ai-fuzzing/ -- Coverage-guided fuzzing, automated vuln discovery
-- skills/ai-security/ -- LLM security, prompt injection, adversarial inputs
-- skills/supply-chain-security/ -- Dependency security, CI/CD pipeline attacks
-- skills/container-security/ -- Container and Kubernetes security
-- skills/cloud-security/ -- AWS/Azure/GCP security assessment
-- skills/mobile-security/ -- Android/iOS security testing
-- skills/digital-forensics/ -- Disk, memory, and network forensics
-- skills/social-engineering/ -- Phishing, pretexting, security awareness
-- skills/social-intelligence/ -- Social platform OSINT, sentiment analysis
-- skills/insecure-design/ -- Security design flaw identification
-
-## Security Boundaries
-
-- Only test systems you have explicit authorization to test
-- Never store real credentials or API keys in project files
-- Log all security-relevant actions to memory/
-- Verify scope before executing any attack commands
-- Report vulnerabilities through responsible disclosure channels
-
-## File Reference
-
-- SOUL.md -- Agent identity and behavioral guidelines
-- USER.md -- User profile and interaction preferences
-- IDENTITY.md -- Skill tags table and personality traits
-- MEMORY.md -- Long-term distilled knowledge
-- TOOLS.md -- 518 Kali tool inventory and learning progress
-- HEARTBEAT.md -- Automated health check definitions
+### Safety Boundaries
+- Only test targets within explicitly authorized scope
+- Use safety-guard principles from skills/safety-guard/SKILL.md
+- Log all actions to memory/YYYY-MM-DD.md
+- Never store credentials or tokens in memory files
 ```
+
+**Important:** You are appending to CLAUDE.md, not modifying any files inside `skills/`. The kali-claw skill files remain untouched.
 
 ### 4.2 Create Custom Agents
 
-The most powerful migration step: convert each security skill domain into a Claude Code custom agent. Custom agents are Markdown files in `~/.claude/agents/` that Claude can invoke automatically based on task descriptions.
+Create Claude Code custom agents that reference kali-claw skill files. Agent files go in `~/.claude/agents/`.
 
-**Agent file format:**
+**Create the agents directory:**
 
+```bash
+mkdir -p ~/.claude/agents
 ```
-~/.claude/agents/<agent-name>.md
-```
 
-Each agent file contains a YAML frontmatter block (name, description, tools) followed by Markdown instructions.
-
-**Example -- web-sqli-analyzer agent:**
-
-Create the file `~/.claude/agents/web-sqli-analyzer.md`:
+**Example: web-sqli analysis agent** (`~/.claude/agents/web-sqli-analyzer.md`):
 
 ```markdown
 ---
 name: web-sqli-analyzer
-description: SQL injection vulnerability detection, analysis, and exploitation specialist. Covers UNION, Error-based, Blind, Double Query, Stacked Queries, and WAF bypass techniques for MySQL, PostgreSQL, MSSQL, and Oracle.
+description: SQL injection vulnerability analysis and exploitation specialist. Covers Union/Blind/Time-based/Error-based/Double Query injection detection, exploitation, and defense recommendations.
 tools:
   - Bash
   - Read
@@ -410,69 +280,71 @@ tools:
   - Glob
 ---
 
-You are a SQL injection security specialist. Your job is to detect, analyze,
-and exploit SQL injection vulnerabilities following the kali-claw methodology.
+You are a SQL injection security specialist embedded in the kali-claw penetration testing system.
 
 ## Knowledge Base
 
-Read these files for reference material:
-- skills/web-sqli/SKILL.md -- Full methodology, tools, and attack chain
-- skills/web-sqli/payloads.md -- Payloads organized by injection type
-- skills/web-sqli/test-cases.md -- Structured test cases (TC-S001 through TC-S012)
-- skills/web-sqli/guides/ -- Deep-dive guides (double query, cross-database)
+Always read these files for reference when handling SQL injection tasks:
+- `skills/web-sqli/SKILL.md` -- Complete methodology, tools, and attack chain
+- `skills/web-sqli/payloads.md` -- Payload collection organized by 10 injection types
+- `skills/web-sqli/test-cases.md` -- Structured test case templates (TC-S001 to TC-S012)
+- `skills/web-sqli/guides/` -- Deep-dive guides for advanced techniques
 
-## Methodology
+## Operating Procedure
 
-Always follow this attack chain:
+1. **Read SKILL.md first** -- Always load the methodology before starting any task
+2. **Identify injection type** -- Determine if the target shows echo, error, or blind behavior
+3. **Follow the attack chain** -- Detection -> Fingerprinting -> Exploitation -> Data Extraction
+4. **Use structured payloads** -- Pull from payloads.md, do not improvise payloads
+5. **Document per test-cases.md** -- Record findings using TC-SXXX format
+6. **Provide defense recommendations** -- Always include remediation advice
 
-1. **Detection** -- Test for injection points using single quotes, numeric
-   boolean tests, and comment characters. Determine closure method.
-2. **Fingerprinting** -- Determine column count (ORDER BY), identify database
-   type (@@version, version()), confirm injection type (echo/error/blind).
-3. **Exploitation** -- Choose technique based on type:
-   - Echo: UNION-based injection
-   - Error: extractvalue(), updatexml(), floor()+rand()+group by
-   - Boolean blind: Length comparison and binary search
-   - Time blind: SLEEP()/BENCHMARK() with conditional logic
-   - Double query: Subquery with error-based data extraction
-4. **Data Extraction** -- Enumerate databases, tables, columns, and data.
-5. **Post-exploitation** -- File read/write if privileges allow.
+## Safety Rules
 
-## Instructions
+- Only test targets within explicitly authorized scope
+- Confirm with the user before any destructive SQL operations (DROP, DELETE, UPDATE)
+- Never exfiltrate real user data -- use dummy data for proof-of-concept
+- Log all findings to memory/YYYY-MM-DD.md
 
-1. Always read skills/web-sqli/SKILL.md first to load the full methodology.
-2. For payload construction, read skills/web-sqli/payloads.md and select
-   the appropriate category.
-3. For structured testing, follow test cases from skills/web-sqli/test-cases.md.
-4. Document all findings with severity ratings and remediation steps.
-5. For cross-database targets, read skills/web-sqli/sqli-cross-db-guide.md.
-6. For double query techniques, read skills/web-sqli/sqli-double-query-guide.md.
+## Response Format
 
-## Output Format
-
-For each finding, provide:
-- Injection point URL/parameter
-- Injection type classification
+For each finding, include:
+- Injection type and location
 - Payload used
-- Data extracted (if any)
-- Severity (Critical/High/Medium/Low)
+- Data accessible through this vulnerability
+- CVSS severity estimate
 - Remediation recommendation
 
-## Safety
+## Tools Priority
 
-- Only test targets you have explicit authorization to test.
-- Never modify or delete data in the target database without permission.
-- Log all commands and results for the audit trail.
+1. **sqlmap** for automated detection and exploitation
+2. **curl** for manual injection testing
+3. **Burp Suite** guidance for complex scenarios (describe steps, user operates Burp)
 ```
 
-**Example -- network-scanner agent:**
+**Batch-create more agents** (optional, create as needed):
 
-Create the file `~/.claude/agents/network-scanner.md`:
-
-```markdown
+```bash
+# Network scanner agent
+cat > ~/.claude/agents/network-scanner.md << 'AGENT_EOF'
 ---
 name: network-scanner
-description: Network penetration testing specialist covering reconnaissance, port scanning, service fingerprinting, vulnerability assessment, MITM attacks, and traffic analysis using nmap, tcpdump, bettercap, and other network tools.
+description: Network penetration testing specialist. Port scanning, service identification, vulnerability detection, and lateral movement planning.
+tools:
+  - Bash
+  - Read
+  - Write
+  - Grep
+---
+
+You are a network penetration testing specialist. Read skills/network-pentest/SKILL.md for methodology. Follow the attack chain: Reconnaissance -> Scanning -> Enumeration -> Vulnerability Assessment -> Exploitation. Use nmap as primary tool. Document all findings.
+AGENT_EOF
+
+# Security auditor agent
+cat > ~/.claude/agents/security-auditor.md << 'AGENT_EOF'
+---
+name: security-auditor
+description: OWASP Top 10 security audit specialist. Systematic code review, configuration analysis, and vulnerability assessment.
 tools:
   - Bash
   - Read
@@ -481,501 +353,446 @@ tools:
   - Glob
 ---
 
-You are a network penetration testing specialist. Follow the kali-claw
-methodology for network security assessment.
+You are a security audit specialist. Read skills/security-review/SKILL.md for methodology. Perform OWASP Top 10 audit systematically. Generate structured reports with severity ratings and remediation steps.
+AGENT_EOF
 
-## Knowledge Base
+# OSINT researcher agent
+cat > ~/.claude/agents/osint-researcher.md << 'AGENT_EOF'
+---
+name: osint-researcher
+description: Open Source Intelligence gathering specialist. Subdomain enumeration, DNS analysis, technology fingerprinting, and information gathering.
+tools:
+  - Bash
+  - Read
+  - Write
+  - Grep
+---
 
-Read these files for reference:
-- skills/network-pentest/SKILL.md -- Full methodology and tool reference
-- skills/network-pentest/payloads.md -- Network attack payloads by category
-- skills/network-pentest/test-cases.md -- Structured test cases
+You are an OSINT research specialist. Read skills/osint/SKILL.md and skills/recon-osint/SKILL.md for methodology. Gather intelligence systematically: DNS -> Subdomains -> Technology Stack -> Public Records. Document all findings and assess their security implications.
+AGENT_EOF
 
-## Methodology
+# Post-exploitation agent
+cat > ~/.claude/agents/post-exploitation.md << 'AGENT_EOF'
+---
+name: post-exploitation
+description: Post-exploitation specialist. Privilege escalation, lateral movement, persistence, and impact assessment after initial access.
+tools:
+  - Bash
+  - Read
+  - Write
+  - Grep
+---
 
-Follow this attack chain:
-
-1. **Host Discovery** -- Identify live hosts on the target network.
-   Tools: arp-scan, nmap -sn, fping
-2. **Port Scanning** -- Enumerate open ports and services.
-   Tools: nmap -sV -sC -p-
-3. **Service Fingerprinting** -- Identify service versions and OS.
-   Tools: nmap -O -sV, banner grabbing
-4. **Vulnerability Assessment** -- Identify known vulnerabilities.
-   Tools: nmap --script vuln, nikto
-5. **MITM Testing** -- Test for ARP spoofing, DNS spoofing resistance.
-   Tools: bettercap, arpspoof, mitmproxy
-6. **Traffic Analysis** -- Capture and analyze network traffic.
-   Tools: tcpdump, tshark
-
-## Instructions
-
-1. Always read skills/network-pentest/SKILL.md first.
-2. Use payloads from skills/network-pentest/payloads.md.
-3. Follow test cases from skills/network-pentest/test-cases.md.
-4. Document all findings with network diagrams where applicable.
-
-## Safety
-
-- Only scan networks you have authorization to test.
-- Be mindful of scan intensity -- use rate limiting on production networks.
-- Log all scan activities for audit compliance.
-```
-
-**Creating additional agents:**
-
-Follow the same pattern for other skill domains. Key agents to create:
-
-| Agent File | Skill Domain | Description |
-|-----------|-------------|-------------|
-| `web-sqli-analyzer.md` | web-sqli | SQL injection specialist |
-| `web-xss-analyzer.md` | web-xss | Cross-site scripting specialist |
-| `network-scanner.md` | network-pentest | Network penetration testing |
-| `osint-researcher.md` | osint + recon-osint | Open source intelligence |
-| `security-auditor.md` | security-review | OWASP audit specialist |
-| `password-cracker.md` | password-attack | Password attack specialist |
-| `post-exploit.md` | post-exploitation | Post-exploitation operations |
-| `api-tester.md` | api-security | API security testing |
-| `cloud-auditor.md` | cloud-security | Cloud security assessment |
-
-Create the agents directory and add agent files:
-
-```bash
-# Create the agents directory
-mkdir -p ~/.claude/agents
-
-# Create agent files (example for web-sqli)
-cat > ~/.claude/agents/web-sqli-analyzer.md << 'AGENT_EOF'
-[paste the agent content above]
+You are a post-exploitation specialist. Read skills/post-exploitation/SKILL.md for methodology. After gaining initial access, follow the chain: Stabilize -> Enumerate -> Escalate -> Persist -> Exfiltrate (assessment only). Always assess impact and document all attack paths. Never execute destructive actions without explicit user confirmation.
 AGENT_EOF
 ```
 
-### 4.3 Create Rule Files
+**Key principle:** Each agent file *references* skill files in `skills/` by their paths. The agent reads the SKILL.md, payloads.md, and test-cases.md from their original locations. No skill files are modified or duplicated.
 
-Convert kali-claw security guidelines into Claude Code rule files. Rules apply to all sessions and cannot be overridden by the agent.
+### 4.3 Create Security Rules
 
-**Create security rules:**
+Create a Claude Code rules file that encodes kali-claw's safety principles:
 
-Create the file `~/.claude/rules/kali-claw-security.md`:
+```bash
+mkdir -p ~/.claude/rules
+```
+
+Create `~/.claude/rules/kali-claw-security.md`:
 
 ```markdown
 # kali-claw Security Rules
 
-## Scope Enforcement
+## Mandatory Safety Checks
 
-- Before executing ANY security tool command, verify the target is within
-  the authorized scope.
-- If no scope has been defined for the current session, ask the user to
-  define it before proceeding with any active security testing.
+Before ANY security testing command:
+- [ ] Target is within explicitly authorized scope
+- [ ] User has confirmed the target and test type
+- [ ] Safety-guard skill principles have been reviewed
+- [ ] No destructive commands without triple confirmation
 
-## Data Protection
+## The 12 Hacker Laws (from SOUL.md)
 
-- Never store real credentials, API keys, or tokens in project files.
-- Redact sensitive data (passwords, hashes, PII) in reports unless
-  explicitly requested.
-- Use environment variables or secret managers for any authentication
-  material needed during testing.
+1. **First Principles Thinking** -- Break problems down to fundamental facts
+2. **Divergent Thinking First** -- Consider at least 3 solutions before acting
+3. **Minimize Attack Surface** -- Less exposure means less risk
+4. **Defense in Depth** -- Never rely on a single layer
+5. **Least Privilege** -- Grant only necessary access
+6. **Assume Breach** -- Design assuming attacker is already inside
+7. **Obscurity Is Not Security** -- Security from design, not hiding
+8. **Trust but Verify** -- Verify all inputs and outputs
+9. **Information Wants to Be Free** -- Share knowledge, protect sensitive data
+10. **Skill Over Credentials** -- Judge by capability
+11. **The Weakest Link Is Human** -- Always consider human factor
+12. **Murphy's Security Law** -- If it can be exploited, it will be
 
-## Responsible Testing
+## Command Execution Rules
 
-- Only execute attack commands against targets you have explicit written
-  authorization to test.
-- Prefer non-destructive testing techniques unless destructive testing
-  is specifically authorized.
-- Maintain an audit log of all security-related commands executed.
+- Never use `rm` -- use trash or move to bak/ directory
+- Triple confirmation required for destructive operations
+- Always log actions to memory/YYYY-MM-DD.md
+- Never write sensitive data (API keys, tokens, passwords) to memory files
+- Proactively redact sensitive information in responses
 
-## Reporting
+## File Operations
 
-- Document all findings with severity ratings (Critical/High/Medium/Low).
-- Provide remediation recommendations for every finding.
-- Follow responsible disclosure timelines for any vulnerabilities discovered.
+- Back up core files to bak/ directory before modification
+- Never overwrite SOUL.md, USER.md, IDENTITY.md without user awareness
+- Memory files are append-only -- do not delete past entries
 ```
 
-### 4.4 Configure the Memory System
+### 4.4 Using Custom Agents
 
-Map kali-claw's memory hierarchy to Claude Code's persistent memory.
+After starting Claude Code, you can trigger agents in the following ways:
 
-**Understanding the mapping:**
+**Method 1: Natural language trigger** (Claude auto-matches)
 
-| kali-claw Memory | Claude Code Memory | Location |
-|-----------------|-------------------|----------|
-| `memory/YYYY-MM-DD.md` | Session notes | `~/.claude/projects/<project>/memory/` |
-| `MEMORY.md` (root) | Long-term notes | `~/.claude/projects/<project>/memory/MEMORY.md` |
-| `chronicle/YYYY-MM/*.md` | Persistent summaries | `~/.claude/projects/<project>/memory/chronicle/` |
+```
+You: Help me detect SQL injection vulnerabilities on http://testsite.com/login
 
-**Import existing memory:**
+Claude: [auto-identifies as SQL injection task, loads web-sqli-analyzer agent]
+        Reading the methodology from skills/web-sqli/SKILL.md...
+```
+
+**Method 2: Explicitly specify the agent**
+
+```
+You: Use the web-sqli-analyzer agent to analyze this login form
+
+Claude: [loads the specified agent, follows the operating procedure defined in the agent]
+```
+
+**Method 3: Through the Bash tool**
+
+When in agent mode, Claude automatically uses the Bash tool to execute security commands:
+
+```
+You: Use sqlmap to test http://testsite.com/page?id=1
+
+Claude: Executing sqlmap command...
+        [runs via Bash tool]
+        sqlmap -u "http://testsite.com/page?id=1" --batch --dbs --level 3
+```
+
+### 4.5 Configure the Memory System
+
+Map kali-claw's memory to Claude Code's memory system.
+
+**Understanding the correspondence between the two memory systems:**
+
+| kali-claw Memory | Claude Code Memory | Description |
+|-----------------|-------------------|-------------|
+| `memory/YYYY-MM-DD.md` | `~/.claude/projects/<project>/memory/` | Daily session records |
+| `MEMORY.md` (root) | Project memory file | Long-term distilled knowledge |
+| `chronicle/YYYY-MM/*.md` | Manually maintained | Monthly milestones |
+
+**Configure project memory:**
 
 ```bash
-# Find the Claude Code project memory directory
-# The path is based on your project's absolute path
-PROJECT_DIR=$(pwd | tr '/' '-')
-MEMORY_DIR="$HOME/.claude/projects/$PROJECT_DIR/memory"
+# Determine project memory path
+# Claude Code uses a hash of the project path as the directory name
+# Check the actual path
+ls ~/.claude/projects/
 
-# Create the memory directory
-mkdir -p "$MEMORY_DIR"
+# Copy kali-claw's long-term memory to Claude Code memory
+PROJECT_MEMORY=~/.claude/projects/$(echo -n "/path/to/kali-claw" | md5sum | cut -d' ' -f1)/memory
+mkdir -p "$PROJECT_MEMORY"
 
-# Copy kali-claw's long-term memory
-cp MEMORY.md "$MEMORY_DIR/MEMORY.md"
+# Copy long-term memory
+cp MEMORY.md "$PROJECT_MEMORY/long-term-knowledge.md"
 
-# Copy daily logs (optional -- copy recent ones)
-cp memory/*.md "$MEMORY_DIR/" 2>/dev/null
-
-# Copy chronicles (optional)
-mkdir -p "$MEMORY_DIR/chronicle"
-cp -r chronicle/* "$MEMORY_DIR/chronicle/" 2>/dev/null
+# Copy recent daily memory (optional)
+cp memory/2026-05-*.md "$PROJECT_MEMORY/"
 ```
 
-**Using memory in sessions:**
-
-Claude Code's memory persists automatically. To save important findings during a session:
-
-```
-You: Save this finding to memory: Found SQL injection in /api/users endpoint,
-     UNION-based, 5 columns, MySQL 8.0 backend.
-
-Claude: [Writes to memory file]
-        Finding saved. This will persist across sessions.
-```
-
-To recall memory in a new session:
-
-```
-You: What SQL injection findings do we have from previous sessions?
-
-Claude: [Reads memory files]
-        From previous sessions:
-        - SQL injection in /api/users (UNION-based, MySQL 8.0)
-        - ...
-```
-
-### 4.5 Using Custom Agents in Sessions
-
-Once agents are configured, start a session and invoke them naturally:
+On macOS, use `md5` instead of `md5sum`:
 
 ```bash
-cd /path/to/kali-claw-en
-claude
+PROJECT_MEMORY=~/.claude/projects/$(echo -n "/path/to/kali-claw" | md5)/memory
 ```
 
-**Automatic agent invocation:**
+**Using the memory system:**
+
+During a session, you can ask Claude to write important findings to memory:
 
 ```
-You: Scan 192.168.1.0/24 for open ports and services
+You: Record this SQL injection vulnerability discovery to memory
 
-Claude: [Automatically invokes network-scanner agent]
-        [Reads skills/network-pentest/SKILL.md]
-        [Reads skills/network-pentest/payloads.md]
-
-        Starting network scan on 192.168.1.0/24...
-
-        $ nmap -sV -sC 192.168.1.0/24
-
-        Results:
-        192.168.1.1   (gateway)    ports: 22, 80, 443
-        192.168.1.50  (web server) ports: 80, 3306
-        192.168.1.100 (workstation) ports: 22, 3389
-
-        Shall I run a vulnerability scan on the web server?
+Claude: [writes discovery to ~/.claude/projects/.../memory/ file]
+        Recorded to memory file. I will still remember this discovery in the next session.
 ```
-
-**Explicit agent invocation:**
-
-```
-You: Use the web-sqli-analyzer agent to test http://testsite.com/page?id=1
-
-Claude: [Invokes web-sqli-analyzer agent]
-        [Reads skills/web-sqli/SKILL.md]
-        [Reads skills/web-sqli/payloads.md]
-
-        Starting SQL injection analysis on the target...
-```
-
-### 4.6 Standard Migration Checklist
-
-- [ ] CLAUDE.md updated with kali-claw agent role and skill index
-- [ ] Agent files created in `~/.claude/agents/`
-- [ ] Security rules created in `~/.claude/rules/`
-- [ ] Memory directory configured and existing memory imported
-- [ ] Tested by starting a session and invoking a custom agent
 
 ---
 
-## 5. Approach 3: Full Migration (2 Hours)
+## 5. Level 3: Complete Migration (2 Hours)
 
 ### 5.1 MCP Server Integration
 
-MCP (Model Context Protocol) servers allow Claude Code to call Kali security tools as native functions. Instead of running `nmap` via Bash and parsing raw output, Claude calls `nmap_scan` with structured parameters and receives structured results.
+Through MCP servers, Claude Code can **directly invoke** Kali security tools without needing manual command input.
 
-**Example -- nmap MCP server (Python):**
+**Install the MCP SDK:**
 
-Create the file `/path/to/kali-mcp-servers/nmap_server.py`:
+```bash
+pip install mcp
+```
+
+**Create the MCP server directory:**
+
+```bash
+mkdir -p ~/kali-mcp-servers
+```
+
+**Complete nmap MCP server example** (`~/kali-mcp-servers/nmap_server.py`):
 
 ```python
 #!/usr/bin/env python3
-"""nmap MCP server for Claude Code integration."""
+"""nmap MCP Server -- Wraps nmap as an MCP tool for Claude Code."""
 
 import subprocess
 import json
-import re
-
+import sys
 from mcp.server import Server
-from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
 
 server = Server("kali-nmap")
-
-
-def validate_target(target: str) -> bool:
-    """Validate that the target is a legitimate IP or hostname."""
-    if ";" in target or "|" in target or "&" in target:
-        return False
-    if ".." in target:
-        return False
-    return True
-
-
-def parse_nmap_output(output: str) -> dict:
-    """Parse nmap output into structured JSON."""
-    hosts = []
-    current_host = None
-
-    for line in output.split("\n"):
-        host_match = re.match(
-            r"Nmap scan report for (?:.+?\()?([\d.]+)(?:\))?", line
-        )
-        if host_match:
-            if current_host:
-                hosts.append(current_host)
-            current_host = {
-                "ip": host_match.group(1),
-                "ports": [],
-                "status": "up",
-            }
-            continue
-
-        port_match = re.match(
-            r"(\d+)/(tcp|udp)\s+(open|closed|filtered)\s+(.*)", line
-        )
-        if port_match and current_host:
-            current_host["ports"].append(
-                {
-                    "port": int(port_match.group(1)),
-                    "protocol": port_match.group(2),
-                    "state": port_match.group(3),
-                    "service": port_match.group(4).strip(),
-                }
-            )
-
-    if current_host:
-        hosts.append(current_host)
-
-    return {"hosts": hosts, "total_hosts": len(hosts)}
-
 
 @server.list_tools()
 async def list_tools():
     return [
-        {
-            "name": "nmap_scan",
-            "description": (
-                "Run nmap network scan on a target. Supports host discovery, "
-                "port scanning, service detection, and OS fingerprinting. "
-                "Use ONLY on targets you have authorization to scan."
-            ),
-            "inputSchema": {
+        Tool(
+            name="nmap_scan",
+            description="Run nmap network scan. Supports common scan types: service detection, version detection, OS detection.",
+            inputSchema={
                 "type": "object",
                 "properties": {
                     "target": {
                         "type": "string",
-                        "description": (
-                            "Target IP, hostname, or CIDR range "
-                            "(e.g., '192.168.1.1' or '192.168.1.0/24')"
-                        ),
+                        "description": "Target IP, hostname, or CIDR range (e.g., 192.168.1.1 or 192.168.1.0/24)"
                     },
                     "ports": {
                         "type": "string",
-                        "description": (
-                            "Port range to scan (default: '1-1000')"
-                        ),
-                        "default": "1-1000",
+                        "description": "Port range (default: 1-1000)",
+                        "default": "1-1000"
                     },
                     "scan_type": {
                         "type": "string",
-                        "description": (
-                            "Scan type: '-sV' (service), '-sC' (default scripts), "
-                            "'-O' (OS detect), '-sV -sC -O' (full)"
-                        ),
-                        "default": "-sV",
+                        "description": "Scan type: -sV (version), -sC (default scripts), -O (OS detect), -A (aggressive)",
+                        "default": "-sV"
                     },
-                    "timeout": {
-                        "type": "integer",
-                        "description": "Timeout in seconds (default: 300)",
-                        "default": 300,
-                    },
+                    "extra_args": {
+                        "type": "string",
+                        "description": "Additional nmap arguments",
+                        "default": ""
+                    }
                 },
-                "required": ["target"],
-            },
-        },
-        {
-            "name": "nmap_vuln_scan",
-            "description": (
-                "Run nmap vulnerability scan using the vuln script category. "
-                "Scans for known vulnerabilities in discovered services. "
-                "Use ONLY on targets you have authorization to scan."
-            ),
-            "inputSchema": {
+                "required": ["target"]
+            }
+        ),
+        Tool(
+            name="nmap_vuln_scan",
+            description="Run nmap vulnerability scan using NSE vuln category scripts.",
+            inputSchema={
                 "type": "object",
                 "properties": {
                     "target": {
                         "type": "string",
-                        "description": "Target IP or hostname",
-                    },
-                    "ports": {
-                        "type": "string",
-                        "description": (
-                            "Specific ports to scan (default: all common)"
-                        ),
-                        "default": "",
-                    },
+                        "description": "Target to scan for vulnerabilities"
+                    }
                 },
-                "required": ["target"],
-            },
-        },
+                "required": ["target"]
+            }
+        )
     ]
 
+def validate_target(target: str) -> bool:
+    """Basic target validation -- reject obviously invalid input."""
+    if not target or len(target) > 256:
+        return False
+    # Block shell metacharacters for safety
+    blocked = set(";|&`$(){}[]<>!#~")
+    return not any(c in blocked for c in target)
+
+def run_nmap(args: list[str], timeout: int = 300) -> str:
+    """Execute nmap and return stdout."""
+    try:
+        result = subprocess.run(
+            ["nmap"] + args,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+        return result.stdout + result.stderr
+    except subprocess.TimeoutExpired:
+        return "Error: nmap scan timed out after 300 seconds"
+    except FileNotFoundError:
+        return "Error: nmap not found. Install with: sudo apt install nmap"
 
 @server.call_tool()
 async def call_tool(name: str, arguments: dict):
     if name == "nmap_scan":
-        target = arguments.get("target", "")
+        target = arguments["target"]
+        if not validate_target(target):
+            return [TextContent(type="text", text="Error: Invalid target format")]
+
         ports = arguments.get("ports", "1-1000")
         scan_type = arguments.get("scan_type", "-sV")
-        timeout = arguments.get("timeout", 300)
+        extra = arguments.get("extra_args", "")
 
-        if not validate_target(target):
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(
-                            {"error": "Invalid target format"}
-                        ),
-                    }
-                ]
-            }
+        args = scan_type.split() + ["-p", ports]
+        if extra:
+            args += extra.split()
+        args.append(target)
 
-        cmd = ["nmap", scan_type, "-p", ports, target]
-        try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-            )
-            parsed = parse_nmap_output(result.stdout)
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(parsed, indent=2),
-                    }
-                ]
-            }
-        except subprocess.TimeoutExpired:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(
-                            {"error": f"Scan timed out after {timeout}s"}
-                        ),
-                    }
-                ]
-            }
-        except FileNotFoundError:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(
-                            {"error": "nmap not found. Install: apt install nmap"}
-                        ),
-                    }
-                ]
-            }
+        output = run_nmap(args)
+        return [TextContent(type="text", text=output)]
 
     elif name == "nmap_vuln_scan":
-        target = arguments.get("target", "")
-        ports = arguments.get("ports", "")
-
+        target = arguments["target"]
         if not validate_target(target):
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(
-                            {"error": "Invalid target format"}
-                        ),
-                    }
-                ]
-            }
+            return [TextContent(type="text", text="Error: Invalid target format")]
 
-        cmd = ["nmap", "--script", "vuln", target]
-        if ports:
-            cmd.extend(["-p", ports])
+        output = run_nmap(["--script", "vuln", target], timeout=600)
+        return [TextContent(type="text", text=output)]
 
-        try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=600
-            )
-            parsed = parse_nmap_output(result.stdout)
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(parsed, indent=2),
-                    }
-                ]
-            }
-        except subprocess.TimeoutExpired:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": json.dumps(
-                            {"error": "Vuln scan timed out after 600s"}
-                        ),
-                    }
-                ]
-            }
-
-
-async def main():
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream, write_stream,
-            server.create_initialization_options()
-        )
-
+    return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    asyncio.run(server.run())
 ```
 
-**Configure MCP servers in Claude Code:**
+**Complete sqlmap MCP server example** (`~/kali-mcp-servers/sqlmap_server.py`):
 
-Create or edit the project-level `.mcp.json` file in the kali-claw root directory:
+```python
+#!/usr/bin/env python3
+"""sqlmap MCP Server -- Wraps sqlmap as an MCP tool for Claude Code."""
+
+import subprocess
+import os
+import tempfile
+from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+server = Server("kali-sqlmap")
+
+@server.list_tools()
+async def list_tools():
+    return [
+        Tool(
+            name="sqlmap_detect",
+            description="Run sqlmap to detect SQL injection vulnerabilities. Non-destructive detection only.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "Target URL (e.g., http://target/page?id=1)"
+                    },
+                    "data": {
+                        "type": "string",
+                        "description": "POST data (optional, for POST-based injection)"
+                    },
+                    "level": {
+                        "type": "integer",
+                        "description": "Detection level 1-5 (default: 3)",
+                        "default": 3
+                    },
+                    "risk": {
+                        "type": "integer",
+                        "description": "Risk level 1-3 (default: 2)",
+                        "default": 2
+                    }
+                },
+                "required": ["url"]
+            }
+        ),
+        Tool(
+            name="sqlmap_dbs",
+            description="Enumerate databases via detected SQL injection. Requires prior detection.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "Target URL with confirmed injection"
+                    },
+                    "batch": {
+                        "type": "boolean",
+                        "description": "Use default answers (non-interactive mode)",
+                        "default": True
+                    }
+                },
+                "required": ["url"]
+            }
+        )
+    ]
+
+def validate_url(url: str) -> bool:
+    """Basic URL validation."""
+    return url.startswith("http://") or url.startswith("https://")
+
+def run_sqlmap(args: list[str], timeout: int = 300) -> str:
+    """Execute sqlmap and return output."""
+    try:
+        result = subprocess.run(
+            ["sqlmap"] + args,
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+        return result.stdout + result.stderr
+    except subprocess.TimeoutExpired:
+        return "Error: sqlmap timed out"
+    except FileNotFoundError:
+        return "Error: sqlmap not found. Install with: sudo apt install sqlmap"
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "sqlmap_detect":
+        url = arguments["url"]
+        if not validate_url(url):
+            return [TextContent(type="text", text="Error: Invalid URL format")]
+
+        level = arguments.get("level", 3)
+        risk = arguments.get("risk", 2)
+        data = arguments.get("data")
+
+        args = ["-u", url, "--batch", f"--level={level}", f"--risk={risk}"]
+        if data:
+            args.extend(["--data", data])
+
+        output = run_sqlmap(args, timeout=600)
+        return [TextContent(type="text", text=output)]
+
+    elif name == "sqlmap_dbs":
+        url = arguments["url"]
+        if not validate_url(url):
+            return [TextContent(type="text", text="Error: Invalid URL format")]
+
+        args = ["-u", url, "--batch", "--dbs"]
+        output = run_sqlmap(args, timeout=600)
+        return [TextContent(type="text", text=output)]
+
+    return [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(server.run())
+```
+
+**Configure MCP servers:**
+
+Create `.mcp.json` in the project root:
 
 ```json
 {
   "mcpServers": {
     "kali-nmap": {
       "command": "python3",
-      "args": ["/path/to/kali-mcp-servers/nmap_server.py"]
+      "args": ["/Users/YOUR_USERNAME/kali-mcp-servers/nmap_server.py"]
     },
     "kali-sqlmap": {
       "command": "python3",
-      "args": ["/path/to/kali-mcp-servers/sqlmap_server.py"]
+      "args": ["/Users/YOUR_USERNAME/kali-mcp-servers/sqlmap_server.py"]
     }
   }
 }
@@ -988,118 +805,92 @@ Or configure globally in `~/.claude.json`:
   "mcpServers": {
     "kali-nmap": {
       "command": "python3",
-      "args": ["/absolute/path/to/kali-mcp-servers/nmap_server.py"]
+      "args": ["~/kali-mcp-servers/nmap_server.py"]
+    },
+    "kali-sqlmap": {
+      "command": "python3",
+      "args": ["~/kali-mcp-servers/sqlmap_server.py"]
     }
   }
 }
 ```
 
-**Using MCP tools in sessions:**
+**Remote Kali MCP configuration** (invoking remote Kali tools via SSH):
 
-Once configured, Claude can call these tools directly:
-
+```json
+{
+  "mcpServers": {
+    "kali-nmap-remote": {
+      "command": "python3",
+      "args": ["~/kali-mcp-servers/remote_nmap_server.py"],
+      "env": {
+        "KALI_HOST": "user@192.168.1.100",
+        "KALI_SSH_KEY": "~/.ssh/id_ed25519"
+      }
+    }
+  }
+}
 ```
-You: Scan 192.168.1.0/24 for open ports and services
 
-Claude: [Calls nmap_scan MCP tool with target="192.168.1.0/24",
-         scan_type="-sV -sC", ports="1-65535"]
+The remote MCP server needs to invoke nmap through SSH during execution:
 
-        Found 3 hosts:
-        - 192.168.1.1   open ports: 22/tcp (ssh), 80/tcp (http nginx)
-        - 192.168.1.50  open ports: 80/tcp (http apache), 3306/tcp (mysql)
-        - 192.168.1.100 open ports: 22/tcp (ssh), 3389/tcp (ms-wbt-server)
-```
+```python
+# Key modification in remote_nmap_server.py
+import os
 
-**MCP server setup checklist:**
+KALI_HOST = os.environ.get("KALI_HOST", "user@kali-host")
+SSH_KEY = os.environ.get("KALI_SSH_KEY", "~/.ssh/id_ed25519")
 
-```bash
-# 1. Install the MCP Python package
-pip install mcp
-
-# 2. Create the MCP servers directory
-mkdir -p /path/to/kali-mcp-servers
-
-# 3. Create MCP server scripts (see example above)
-
-# 4. Make scripts executable
-chmod +x /path/to/kali-mcp-servers/*.py
-
-# 5. Test a server independently
-echo '{"jsonrpc":"2.0","method":"initialize","id":1}' | \
-  python3 /path/to/kali-mcp-servers/nmap_server.py
-
-# 6. Add to .mcp.json in the project root
-# 7. Restart Claude Code to pick up the new MCP servers
+def run_nmap_remote(args: list[str], timeout: int = 300) -> str:
+    ssh_cmd = ["ssh", "-i", SSH_KEY, KALI_HOST, "nmap"] + args
+    result = subprocess.run(ssh_cmd, capture_output=True, text=True, timeout=timeout)
+    return result.stdout + result.stderr
 ```
 
 ### 5.2 Configure Hooks (Automation)
 
-Claude Code Hooks are shell commands that run before or after tool calls. Use them to implement automated safety checks, similar to kali-claw's HEARTBEAT.md system.
+Use Claude Code Hooks to implement some of kali-claw HEARTBEAT's functionality.
 
-**Example -- scope check hook:**
+**Scope check hook** (PreToolUse):
 
-Create the file `/path/to/kali-hooks/check-scope.sh`:
+This hook automatically checks whether the target is within the authorized scope before executing Bash commands.
+
+Create `~/kali-hooks/check-scope.sh`:
 
 ```bash
 #!/bin/bash
-# PreToolUse hook: verify that security commands target authorized scope
+# Check whether Bash commands are within authorized scope
+# Called by Claude Code PreToolUse Hook
 
-TOOL_NAME="$1"
-INPUT="$2"
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# Only check Bash tool calls that contain security tools
-if [ "$TOOL_NAME" != "Bash" ]; then
-    exit 0
+# Read authorized scope file
+SCOPE_FILE=".scope"
+if [ ! -f "$SCOPE_FILE" ]; then
+    exit 0  # No scope file means no restrictions
 fi
 
-# List of security tools that require scope verification
-SECURITY_TOOLS="nmap|sqlmap|nikto|hydra|metasploit|msfconsole|burpsuite|dirb|gobuster|nuclei|wpscan"
+# Check if command contains targets
+AUTHORIZED_TARGETS=$(grep -v '^#' "$SCOPE_FILE" | grep -v '^$')
 
-# Check if the command contains a security tool
-if echo "$INPUT" | grep -qE "$SECURITY_TOOLS"; then
-    # Check if scope file exists and target is in scope
-    SCOPE_FILE="/path/to/kali-claw-en/memory/scope.txt"
-
-    if [ ! -f "$SCOPE_FILE" ]; then
-        echo "WARNING: No scope file found. Create memory/scope.txt with authorized targets."
-        exit 0  # Allow but warn
-    fi
-
-    echo "Security tool detected. Scope file exists. Proceeding."
-fi
+# Log execution
+echo "[$(date)] Command: $COMMAND" >> .claude-execution.log
 
 exit 0
 ```
 
-**Example -- logging hook:**
+Create a project-level scope file `.scope` (in the kali-claw project root):
 
-Create the file `/path/to/kali-hooks/log-command.sh`:
-
-```bash
-#!/bin/bash
-# PostToolUse hook: log all security-related commands
-
-TOOL_NAME="$1"
-INPUT="$2"
-OUTPUT="$3"
-
-LOG_FILE="/path/to/kali-claw-en/memory/command-log-$(date +%Y-%m-%d).md"
-
-if [ "$TOOL_NAME" = "Bash" ]; then
-    # Only log commands that contain security tools
-    SECURITY_TOOLS="nmap|sqlmap|nikto|hydra|nuclei|curl|dig|whois"
-    if echo "$INPUT" | grep -qE "$SECURITY_TOOLS"; then
-        echo "## $(date '+%H:%M:%S')" >> "$LOG_FILE"
-        echo "Command: $INPUT" >> "$LOG_FILE"
-        echo "Output preview: $(echo "$OUTPUT" | head -5)" >> "$LOG_FILE"
-        echo "" >> "$LOG_FILE"
-    fi
-fi
-
-exit 0
+```
+# Authorized Test Targets
+# One target per line, lines starting with # are comments
+192.168.1.0/24
+testphp.vulnweb.com
+*.example.com
 ```
 
-**Configure hooks in `~/.claude/settings.json`:**
+**Configure Hooks in `~/.claude/settings.json`:**
 
 ```json
 {
@@ -1107,629 +898,589 @@ exit 0
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "command": "/path/to/kali-hooks/check-scope.sh"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "command": "/path/to/kali-hooks/log-command.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/kali-hooks/check-scope.sh"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-**Make hooks executable:**
-
-```bash
-chmod +x /path/to/kali-hooks/*.sh
-```
-
-### 5.3 Complete Project Structure
-
-After a full migration, the project structure looks like this:
+### 5.3 Complete Project Structure After Migration
 
 ```
-kali-claw-en/                         # Git repository (unchanged)
-+-- CLAUDE.md                         # Project instructions (from SOUL.md + AGENTS.md)
-+-- .mcp.json                         # MCP server configuration
-+-- skills/                           # Original skill files (kept as-is)
-|    +-- web-sqli/
-|    |    +-- SKILL.md
-|    |    +-- payloads.md
-|    |    +-- test-cases.md
-|    |    +-- guides/
-|    +-- network-pentest/
-|    +-- osint/
-|    +-- ... (46 more domains)
-+-- memory/                           # Daily logs (unchanged)
-+-- chronicle/                        # Monthly milestones (unchanged)
-+-- SOUL.md                           # Original (kept as reference)
-+-- USER.md                           # Original (kept as reference)
-+-- AGENTS.md                         # Original (kept as reference)
-+-- IDENTITY.md                       # Original (kept as reference)
-+-- MEMORY.md                         # Original (kept as reference)
-+-- TOOLS.md                          # Original (unchanged)
-+-- HEARTBEAT.md                      # Original (kept as reference)
+kali-claw/                           <-- Project root
+|-- CLAUDE.md                        <-- Project instructions (Security Agent Mode appended)
+|-- SOUL.md                          <-- 12 Hacker Laws (unchanged)
+|-- USER.md                          <-- User information (unchanged)
+|-- IDENTITY.md                      <-- Skill tags (unchanged)
+|-- AGENTS.md                        <-- Workspace config (unchanged)
+|-- MEMORY.md                        <-- Long-term memory (unchanged)
+|-- TOOLS.md                         <-- Tool inventory (unchanged)
+|-- HEARTBEAT.md                     <-- Heartbeat tasks (unchanged)
+|-- .mcp.json                        <-- MCP server configuration (new)
+|-- .scope                           <-- Authorized scope file (new)
+|-- skills/                          <-- 49 skill domains (unchanged)
+|   |-- web-sqli/
+|   |   |-- SKILL.md
+|   |   |-- payloads.md
+|   |   |-- test-cases.md
+|   |   +-- guides/
+|   |-- network-pentest/
+|   |-- osint/
+|   +-- ... (46 more domains)
+|-- memory/                          <-- Daily memory logs
+|-- chronicle/                       <-- Monthly milestones
++-- bak/                             <-- Backup directory
 
 ~/.claude/
-+-- agents/                           # Custom agents (converted from skills/)
-|    +-- web-sqli-analyzer.md
-|    +-- web-xss-analyzer.md
-|    +-- network-scanner.md
-|    +-- osint-researcher.md
-|    +-- security-auditor.md
-|    +-- password-cracker.md
-|    +-- post-exploit.md
-|    +-- api-tester.md
-|    +-- cloud-auditor.md
-|    +-- ... (more agent files)
-+-- rules/                            # Security rules
-|    +-- kali-claw-security.md
-+-- settings.json                     # Hooks configuration
-+-- projects/                         # Project-specific memory
-|    +-- <project-hash>/
-|         +-- memory/
-|              +-- MEMORY.md          # Imported long-term memory
-|              +-- chronicle/         # Imported chronicles
+|-- agents/                          <-- Custom agents (reference skills/ paths)
+|   |-- web-sqli-analyzer.md
+|   |-- network-scanner.md
+|   |-- security-auditor.md
+|   |-- osint-researcher.md
+|   |-- post-exploitation.md
+|   +-- ...
+|-- rules/                           <-- Security rules
+|   +-- kali-claw-security.md
+|-- settings.json                    <-- Hooks configuration
++-- projects/                        <-- Project memory
+    +-- <project-hash>/
+        +-- memory/
+            |-- long-term-knowledge.md
+            +-- ...
 
-/path/to/kali-mcp-servers/           # MCP server scripts
-+-- nmap_server.py
-+-- sqlmap_server.py
-+-- ... (more MCP servers)
+~/kali-mcp-servers/                  <-- MCP servers (new)
+|-- nmap_server.py
+|-- sqlmap_server.py
++-- remote_nmap_server.py
 
-/path/to/kali-hooks/                  # Hook scripts
+~/kali-hooks/                        <-- Hook scripts (new)
 +-- check-scope.sh
-+-- log-command.sh
 ```
 
-**Key point:** The original kali-claw files (`SOUL.md`, `AGENTS.md`, `skills/`, etc.) remain in the repository. They serve as reference material that agents read at runtime. Claude Code's configuration (`~/.claude/`) references these files.
-
-### 5.4 Full Migration Checklist
-
-- [ ] All Standard Migration steps completed
-- [ ] MCP Python package installed (`pip install mcp`)
-- [ ] nmap MCP server created and tested
-- [ ] Additional MCP servers created as needed
-- [ ] `.mcp.json` configured in project root
-- [ ] Hook scripts created and made executable
-- [ ] Hooks configured in `~/.claude/settings.json`
-- [ ] End-to-end test: open project, invoke agent, call MCP tool, verify logging
+**Key observation:** The `skills/` directory and all files within it remain completely unchanged. Claude Code reads them in their original locations. The only modifications are: appending to `CLAUDE.md`, creating new files outside `skills/` (agents, rules, MCP servers, hooks), and creating `.mcp.json` and `.scope` in the project root.
 
 ---
 
 ## 6. Usage Scenarios
 
-### 6.1 Complete Penetration Test Flow
+### 6.1 Full Penetration Testing Workflow
 
-A multi-turn dialog showing how to execute a full penetration test using Claude Code with kali-claw skills:
+The following demonstrates a multi-turn conversation executing a complete penetration test in Claude Code:
 
-**Step 1 -- Define scope:**
-
-```
-You: I need to perform a penetration test on target.com. This is an authorized
-     engagement with scope covering *.target.com web applications and
-     93.184.216.0/24 network infrastructure.
-
-Claude: Scope acknowledged. Let me load the relevant skills.
-
-        [Reads skills/recon-osint/SKILL.md]
-        [Reads skills/network-pentest/SKILL.md]
-
-        I'll follow a structured methodology:
-        1. OSINT reconnaissance on target.com
-        2. Network scan of 93.184.216.0/24
-        3. Web application testing on discovered hosts
-        4. Vulnerability exploitation
-        5. Post-exploitation assessment
-        6. Report generation
-
-        Starting with Phase 1: OSINT reconnaissance.
-```
-
-**Step 2 -- Reconnaissance:**
+**Step 1 -- Reconnaissance:**
 
 ```
-Claude: [Invokes osint-researcher agent]
-        [Reads skills/osint/SKILL.md and skills/recon-osint/SKILL.md]
+You: Help me gather information on target.com, including subdomains, DNS records, and tech stack
 
-        Phase 1: OSINT Reconnaissance
+Claude: I will perform comprehensive reconnaissance on target.com. Reading skills/recon-osint/SKILL.md for methodology...
 
-        DNS Records:
-        - A     : target.com -> 93.184.216.34
-        - MX    : mail.target.com
-        - NS    : ns1.target.com, ns2.target.com
+        Executing per the reconnaissance methodology:
 
-        Subdomains (via crt.sh + dnsenum):
-        - www.target.com (93.184.216.34)
-        - api.target.com (93.184.216.35)
-        - admin.target.com (93.184.216.36)
-        - dev.target.com (93.184.216.37) -- returns 403
+        1. DNS Record Lookup
+        [executed] dig target.com ANY +noall +answer
+        [result] A: 93.184.216.34, MX: mail.target.com, NS: ns1.cloudflare.com
 
-        Technologies:
-        - nginx/1.18.0, PHP 8.1, MySQL (inferred)
+        2. Subdomain Enumeration
+        [executed] sublist3r -d target.com
+        [result] Found 12 active subdomains
+          - api.target.com (REST API)
+          - admin.target.com (login page)
+          - dev.target.com (development environment)
 
-        Proceeding to Phase 2: Network scanning.
+        3. Web Technology Fingerprinting
+        [executed] whatweb target.com
+        [result] Nginx 1.18, PHP 7.4, MySQL
+
+        Recommendation: Perform port scanning on admin.target.com
 ```
 
-**Step 3 -- Network scanning (using MCP):**
+**Step 2 -- Scanning:**
 
 ```
-Claude: [Calls nmap_scan MCP tool]
-        target: 93.184.216.0/24, scan_type: -sV -sC
+You: Scan admin.target.com
 
-        Network Scan Results:
+Claude: [invokes MCP nmap_scan tool]
+        Executing nmap -sV -sC -p- admin.target.com
 
-        Host: 93.184.216.34 (www.target.com)
-          80/tcp  open  http    nginx/1.18.0
-          443/tcp open  https   TLS 1.2
+        Port scan results:
+        PORT     STATE  SERVICE    VERSION
+        22/tcp   open   ssh        OpenSSH 8.2
+        80/tcp   open   http       Nginx 1.18.0
+        443/tcp  open   ssl/http   Nginx 1.18.0
+        8080/tcp open   http-proxy PHP-FPM 7.4
 
-        Host: 93.184.216.35 (api.target.com)
-          8080/tcp open  http    Node.js Express
-          5432/tcp filtered postgresql
-
-        Host: 93.184.216.36 (admin.target.com)
-          80/tcp   open  http    Apache Tomcat 9.0.50
-          8080/tcp open  http    Tomcat Manager (401)
-
-        Notable findings:
-        1. Tomcat Manager on admin.target.com:8080 -- may have default creds
-        2. PostgreSQL port filtered but responding on api.target.com
-        3. dev.target.com:80 returning 403 -- worth investigating
+        Finding: Port 8080 runs PHP-FPM, potential unauthorized access.
+        Recommendation: Perform directory scanning and vulnerability detection on admin.target.com:8080.
 ```
 
-**Step 4 -- Web application testing:**
+**Step 3 -- Exploitation:**
 
 ```
-You: Test the web applications for vulnerabilities
+You: admin.target.com:8080 has a login page, test for SQL injection
 
-Claude: [Invokes web-sqli-analyzer + web-xss-analyzer + security-auditor agents]
-        [Reads skills/web-sqli/SKILL.md, skills/web-xss/SKILL.md]
+Claude: [loads web-sqli-analyzer agent, reads SKILL.md]
+        Executing tests per the SQL injection methodology:
 
-        Testing web applications...
+        Step 1: Injection point detection
+        [invokes MCP sqlmap_detect tool]
+        Target: http://admin.target.com:8080/login
+        POST data: username=admin&password=test
 
-        www.target.com:
-        - No SQL injection in search parameter
-        - Reflected XSS in error page (parameter: q) -- Medium
-        - Missing security headers (CSP, X-Frame-Options) -- Low
+        [sqlmap results]
+        Parameter 'username' is vulnerable to Boolean-based blind SQL injection!
+        Database type: MySQL >= 5.6
+        Backend DBMS: MySQL
 
-        api.target.com:8080:
-        - SQL injection in /api/users?id= parameter -- Critical
-          Type: UNION-based, 5 columns, MySQL 8.0
-          Payload: ' UNION SELECT 1,2,3,4,5-- -
-          Data extracted: database() = 'production_db'
-        - No rate limiting on API endpoints -- High
-        - CORS allows all origins (*) -- Medium
+        Step 2: Enumerate databases
+        [invokes MCP sqlmap_dbs tool]
 
-        admin.target.com:8080:
-        - Tomcat Manager default credentials: tomcat:s3cret -- Critical
-        - WAR file deployment enabled (RCE possible) -- Critical
+        Available databases:
+        [*] information_schema
+        [*] mysql
+        [*] performance_schema
+        [*] target_app
+
+        SQL injection vulnerability discovered!
+        - Injection point: username parameter
+        - Type: Boolean-based blind
+        - Database: MySQL >= 5.6
+        - CVSS score: 9.8 (Critical)
+
+        Remediation: Use parameterized queries (prepared statements) instead of string concatenation
 ```
 
-**Step 5 -- Post-exploitation:**
+**Step 4 -- Post-Exploitation Assessment:**
 
 ```
-You: I got a shell through Tomcat. What's next?
+You: We got database access, what should we do next?
 
-Claude: [Invokes post-exploit agent]
-        [Reads skills/post-exploitation/SKILL.md]
+Claude: [reads skills/post-exploitation/SKILL.md]
+        After gaining database access, assess impact per the post-exploitation methodology:
 
-        Post-exploitation checklist:
+        1. Database Information Gathering
+           - List tables in target_app database: users, sessions, configs, api_keys
+           - Check for sensitive data exposure
 
-        1. Stabilize shell:
-           $ python3 -c 'import pty; pty.spawn("/bin/bash")'
-           $ export TERM=xterm
+        2. Privilege Escalation Assessment
+           - Check FILE privileges: can we read/write system files
+           - Try UDF escalation: can we execute system commands via custom functions
 
-        2. Gather system info:
-           $ whoami && id
-           $ hostname && uname -a
+        3. Persistence Assessment
+           - Document all attack paths
+           - Assess detection difficulty for each path
 
-        3. Privilege escalation vectors:
-           $ sudo -l
-           $ find / -perm -4000 -type f 2>/dev/null
-           $ cat /etc/crontab
+        4. Impact Assessment
+           - Data breach scope
+           - System control level
+           - Lateral movement possibilities
 
-        4. Network pivot enumeration:
-           $ ss -tulpn
-           $ cat /etc/hosts
-           $ arp -a
-
-        Safety reminder: This is an authorized engagement.
-        Document every action for the final report.
+        Note: All operations are for assessment purposes only. Continue with deeper assessment?
 ```
 
-**Step 6 -- Report generation:**
+**Step 5 -- Report Generation:**
 
 ```
-You: Generate the final penetration test report
+You: Help me generate a penetration test report
 
-Claude: [Invokes article-writing agent]
-        [Reads skills/article-writing/SKILL.md]
+Claude: [reads skills/article-writing/SKILL.md]
+        Generating penetration test report:
 
-        Generating comprehensive report...
+        ## Penetration Test Report -- target.com
 
-        Report saved to memory/2026-05-18-pentest-target-com.md
+        ### 1. Executive Summary
+        - Test date: 2026-05-18
+        - Target scope: target.com and subdomains
+        - Overall risk level: High
 
-        Executive Summary:
-        - 3 Critical findings
-        - 2 High findings
-        - 3 Medium findings
-        - 1 Low finding
+        ### 2. Findings Summary
+        | # | Vulnerability | Severity | Impact |
+        |---|--------------|----------|--------|
+        | 1 | SQL Injection (admin.target.com) | Critical | Full database control |
+        | 2 | Development environment exposed (dev.target.com) | Medium | Information disclosure |
+        | 3 | Port 8080 unrestricted access | Medium | Increased attack surface |
 
-        Critical findings require immediate remediation.
-        Full report includes CVSS scores, proof of concept,
-        and remediation steps for each finding.
+        ### 3. Remediation Recommendations (by priority)
+        1. Immediately fix SQL injection using parameterized queries
+        2. Disable public access to the dev environment
+        3. Restrict port 8080 to internal network only
+
+        [Report has been recorded to memory]
 ```
 
 ### 6.2 Security Audit
 
-Using custom agents for an OWASP Top 10 audit:
-
 ```
-You: Perform an OWASP Top 10 security audit on http://testphp.vulnweb.com
+You: Use the security-auditor agent to perform an OWASP audit on http://testphp.vulnweb.com
 
-Claude: [Invokes security-auditor agent]
-        [Reads skills/security-review/SKILL.md]
-        [Reads skills/web-sqli/payloads.md, skills/web-xss/payloads.md]
+Claude: [loads security-auditor agent]
+        [reads skills/security-review/SKILL.md]
+        Performing systematic OWASP Top 10 audit:
 
-        Running systematic OWASP Top 10 audit...
+        A01 - Broken Access Control
+        [check] Found IDOR, can access other users' data without authorization
 
-        A01 - Broken Access Control:
-        - IDOR on /user.php?id= -- can access other users' data
-        - Admin panel accessible without authentication at /admin/
+        A02 - Cryptographic Failures
+        [check] HTTP not redirecting to HTTPS
 
-        A02 - Cryptographic Failures:
-        - Login form submits over HTTP (not HTTPS)
-        - Password stored as MD5 hash (weak, should use bcrypt)
+        A03 - Injection
+        [check] Found SQL injection and XSS vulnerabilities
 
-        A03 - Injection:
-        - SQL Injection on search parameter (UNION-based)
-        - Reflected XSS in search results (no output encoding)
+        A05 - Security Misconfiguration
+        [check] Default configuration unchanged, error messages expose stack traces
 
-        A04 - Insecure Design:
-        - No rate limiting on login endpoint
-        - Password reset token sent via URL (not one-time)
+        A07 - Auth Failures
+        [check] No rate limiting on login, vulnerable to brute force
 
-        A05 - Security Misconfiguration:
-        - Directory listing enabled on /uploads/
-        - Error messages expose PHP version and stack traces
-        - Default PHP installation with debug mode on
-
-        A07 - Authentication Failures:
-        - No brute force protection
-        - Session tokens are predictable
-
-        Summary: 2 Critical, 3 High, 4 Medium findings
-        Full report with remediation recommendations available.
+        Overall rating: High risk
+        Priority fixes: A03 Injection + A01 Access Control
 ```
 
 ### 6.3 Learning and Research
 
-Using kali-claw's guides and skill files for security tool learning:
-
 ```
-You: I want to learn SQL injection from scratch. Guide me through it.
+You: I want to learn SQL injection. Where do I start?
 
-Claude: [Reads skills/web-sqli/SKILL.md]
-        [Reads skills/web-sqli/payloads.md]
-        [Reads skills/docker-patterns/SKILL.md]
+Claude: [reads skills/web-sqli/SKILL.md and guides/ directory]
+        Creating a learning path based on the skill methodology:
 
-        Here is your structured learning path:
+        Phase 1: Theory Fundamentals
+        - SQL injection principles: user input concatenated directly into SQL queries
+        - Injection types: Union-based / Boolean-blind / Time-blind / Error-based
 
-        Phase 1: Theory (1-2 days)
-        Read skills/web-sqli/SKILL.md for the complete methodology:
-        - 5 SQLi types: UNION, Error, Boolean-blind, Time-blind, Double Query
-        - Attack chain: Detection -> Fingerprinting -> Exploitation -> Extraction
+        Phase 2: Set Up a Practice Environment
+        docker run -d -p 80:80 acgpiano/sqli-labs
 
-        Phase 2: Lab Setup (today)
-        Spin up a practice environment:
-        $ docker run -d -p 8080:80 acunetix/vulnerable-web-app
-        Or dedicated SQLi labs:
-        $ docker run -d -p 8080:80 sqli/sqli-labs
+        Phase 3: From Simple to Complex
+        - Less-1: Union string-type injection (beginner)
+        - Less-5: Boolean blind injection (intermediate)
+        - Less-15: Time blind injection (advanced)
 
-        Phase 3: Hands-On Practice (3-5 days)
-        Use payloads from skills/web-sqli/payloads.md:
-        - Level 1: UNION-based injection
-        - Level 2: Error-based (extractvalue/updatexml)
-        - Level 3: Boolean-blind injection
-        - Level 4: Time-blind injection
-        - Level 5: WAF bypass techniques
-
-        Phase 4: Structured Testing (2-3 days)
-        Follow test cases in skills/web-sqli/test-cases.md (TC-S001 through TC-S012)
-
-        Phase 5: Advanced Techniques
-        - Double Query: skills/web-sqli/sqli-double-query-guide.md
-        - Cross-database: skills/web-sqli/sqli-cross-db-guide.md
-
-        Shall I set up the Docker lab now?
+        I will explain the principles and give hints for each level. Ready?
 ```
 
-### 6.4 Report Generation
-
-Using the article-writing skill for security reports:
+### 6.4 Council Multi-Perspective Analysis
 
 ```
-You: Write a vulnerability disclosure report for the SQL injection finding
-     on api.target.com. Include CVSS scoring.
+You: Use council mode to analyze the SQL injection vulnerability we found
 
-Claude: [Reads skills/article-writing/SKILL.md]
-        [Reads relevant memory files]
+Claude: [reads skills/council/SKILL.md]
+        Launching Council multi-perspective analysis:
 
-        Generating vulnerability disclosure report...
+        [Attacker Perspective]
+        - Can achieve full database control via SQL injection
+        - May achieve RCE through FILE privileges
+        - Suggested tests: write webshell, read /etc/passwd
 
-        # SQL Injection Vulnerability - api.target.com
+        [Defender Perspective]
+        - Root cause: not using parameterized queries
+        - Fix: use prepared statements + WAF rules
+        - Detection: monitor abnormal SQL query patterns
 
-        ## Vulnerability Summary
-        - **Type**: UNION-based SQL Injection (CWE-89)
-        - **Severity**: Critical (CVSS 3.1: 9.8)
-        - **Attack Vector**: Network
-        - **User Interaction**: None required
-        - **Scope**: Changed
-        - **Endpoint**: /api/users?id=
+        [Auditor Perspective]
+        - CVSS score: 9.8 (Critical)
+        - Compliance impact: violates OWASP A03, PCI-DSS 6.5
+        - Need to document the complete attack chain in writing
 
-        ## Description
-        The id parameter in the /api/users endpoint is vulnerable to
-        UNION-based SQL injection. An attacker can extract the entire
-        database contents including user credentials, session tokens,
-        and application configuration.
+        Consensus recommendation: Fix immediately, and check other pages for the same vulnerability class.
+```
 
-        ## Proof of Concept
-        Request: GET /api/users?id=1' UNION SELECT 1,2,3,4,5-- -
-        Response: Returns combined data from users table and
-                  information_schema.schemata
+### 6.5 Report Generation
 
-        ## Impact
-        - Complete database disclosure
-        - Potential credential compromise
-        - Possible file read/write on database server
+```
+You: Help me generate a security report for all vulnerabilities found today
 
-        ## Remediation
-        1. Use parameterized queries (prepared statements)
-        2. Implement input validation and whitelist allowed characters
-        3. Apply least-privilege principle to database accounts
-        4. Deploy WAF rules to detect SQL injection patterns
+Claude: [reads skills/article-writing/SKILL.md]
+        Generating report per the article-writing skill methodology:
 
-        ## Timeline
-        - 2026-05-18: Vulnerability discovered
-        - 2026-05-18: Vendor notified
-        - [Pending]: Vendor acknowledgment
-        - [Pending]: Fix deployed
+        ## Security Assessment Report
+
+        ### Metadata
+        - Assessment date: 2026-05-18
+        - Target: target.com
+        - Methodology: OWASP Top 10 + PTES
+
+        ### Findings Summary
+        | ID | Title | CVSS | Status |
+        |----|-------|------|--------|
+        | V-001 | SQL Injection | 9.8 | Open |
+        | V-002 | XSS (Reflected) | 6.1 | Open |
+        | V-003 | IDOR | 5.3 | Open |
+
+        ### Detailed Findings
+        [For each vulnerability: description, reproduction steps, evidence, impact analysis, remediation]
+
+        [Report written to memory/2026-05-18-report.md]
 ```
 
 ---
 
 ## 7. FAQ
 
-### Q1: Can Claude Code run directly on Kali Linux?
+### Q1: Can Claude Code run on Kali Linux?
 
-**Yes.** Claude Code runs on any system with Node.js >= 18. Install it on Kali Linux just like any other platform:
+Yes. Kali Linux is Debian-based; you only need Node.js >= 18:
 
 ```bash
+# Install Node.js
+sudo apt update
+sudo apt install -y nodejs npm
+# Or use nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+nvm install --lts
+
+# Install Claude Code
 npm install -g @anthropic-ai/claude-code
-claude
+claude --version
 ```
 
-This is the simplest setup because all Kali security tools are available locally.
+### Q2: MCP server fails to connect
 
-### Q2: MCP server won't connect. How do I troubleshoot?
+**Symptoms:** Claude Code reports MCP server startup failure
 
-**Common causes and fixes:**
+**Troubleshooting steps:**
 
 ```bash
-# 1. Verify the MCP Python package is installed
+# 1. Check Python and MCP SDK are installed
+python3 --version
 pip show mcp
-# If missing: pip install mcp
 
-# 2. Test the server standalone
-echo '{"jsonrpc":"2.0","method":"initialize","id":1}' | \
-  python3 /path/to/nmap_server.py
+# 2. Test MCP server manually
+python3 ~/kali-mcp-servers/nmap_server.py
+# Should start without errors
 
-# 3. Check file permissions
-ls -la /path/to/kali-mcp-servers/*.py
-# Should be executable: chmod +x /path/to/kali-mcp-servers/*.py
+# 3. Check paths in .mcp.json or ~/.claude.json
+# Make sure you are using absolute paths
 
-# 4. Verify Python path
-which python3
-# Use absolute path in .mcp.json configuration
-
-# 5. Check Claude Code MCP logs
-# MCP errors appear in Claude Code's output on startup
+# 4. Check permissions
+chmod +x ~/kali-mcp-servers/*.py
 ```
 
-### Q3: Custom agents are not triggering. What's wrong?
+### Q3: Custom agents do not trigger
 
-**Check these items:**
-
-1. Agent files must be in `~/.claude/agents/` (not in the project directory)
-2. File must have a YAML frontmatter with `name` and `description`
-3. The description must be relevant to the task you are describing
-4. File extension must be `.md`
-5. No syntax errors in the YAML frontmatter
+**Troubleshooting:**
 
 ```bash
-# Verify agent files exist
+# 1. Check agent file locations
 ls ~/.claude/agents/
 
-# Verify file format
-head -10 ~/.claude/agents/web-sqli-analyzer.md
-# Should start with: ---
-#                      name: web-sqli-analyzer
-#                      description: ...
+# 2. Check file format (must have YAML frontmatter)
+head -5 ~/.claude/agents/web-sqli-analyzer.md
+# Should start with ---, containing name and description fields
+
+# 3. Check if description is descriptive enough
+# Claude matches tasks to agents based on the description
 ```
 
-### Q4: How do I keep kali-claw updated?
+### Q4: How do I keep the kali-claw project updated?
 
 ```bash
-cd /path/to/kali-claw-en
+cd kali-claw
 git pull origin main
 
-# If you have local modifications:
-git stash
-git pull origin main
-git stash pop
+# Your custom agents and rules do not need to change
+# They reference file paths under skills/, so updated content takes effect automatically
 ```
 
-Your custom agents in `~/.claude/agents/` and rules in `~/.claude/rules/` reference skill files by relative path. They do not need to be updated when kali-claw skills are updated -- they always read the latest version at runtime.
+### Q5: Will Claude Code's memory be lost?
 
-### Q5: Will Claude Code memory be lost between sessions?
+No. Claude Code's memory is stored in disk files (`~/.claude/projects/<hash>/memory/`) and does not disappear when the session ends. Even if you close Claude Code, the memory is still there when you open the same project next time.
 
-**No.** Claude Code's memory files are stored on disk in `~/.claude/projects/<project>/memory/`. They persist across sessions and survive Claude Code restarts.
+### Q6: How do I use kali-claw's skill system with Claude Code?
 
-You can also write important findings directly to the kali-claw `memory/` directory, which is tracked by Git and can be committed for long-term preservation.
+Claude Code supports invoking registered skills. To use kali-claw skills:
 
-### Q6: Can I use both OpenClaw and Claude Code with the same kali-claw workspace?
+1. **Through custom agents:** Agents created in `~/.claude/agents/` are automatically available
+2. **Through direct conversation:** Describe the task and Claude automatically matches relevant skill files
+3. **Through manual reference:** Tell Claude to read a specific skill's `SKILL.md`
 
-**Yes.** The kali-claw workspace is just Markdown files. Both OpenClaw and Claude Code can read the same `skills/` directory. However, the configuration files differ:
+### Q7: Can I use both OpenClaw and Claude Code simultaneously?
 
-- **OpenClaw** uses `SOUL.md`, `AGENTS.md`, `HEARTBEAT.md` directly
-- **Claude Code** uses `CLAUDE.md`, `~/.claude/agents/`, `~/.claude/rules/`
+Yes. Both share the same `skills/` directory:
 
-The skill files (`SKILL.md`, `payloads.md`, `test-cases.md`, `guides/`) are shared between both runtimes without modification.
+- **OpenClaw** reads `SOUL.md` + `AGENTS.md` + `skills/` as a workspace
+- **Claude Code** reads `CLAUDE.md` + `~/.claude/agents/` + `skills/` as a project
 
-### Q7: How do I configure remote Kali access for Claude Code?
+They do not conflict -- they simply use different runtimes. You can choose which one to use based on the scenario.
 
-Claude Code can execute commands on remote Kali via SSH. There are three approaches:
+### Q8: How do I configure remote Kali access?
 
-**Approach A -- SSH prefix in commands:**
+There are three approaches:
 
-Claude uses `ssh user@host "command"` to run tools remotely:
+1. **Direct SSH:** Claude Code executes `ssh user@kali-host "nmap ..."` via the Bash tool
+2. **MCP remote mode:** MCP server invokes remote Kali tools through SSH (see Section 5.1)
+3. **VS Code Remote:** Connect to Kali via VS Code Remote SSH, then run Claude Code in the remote terminal
 
-```
-You: Scan 192.168.1.0/24
+### Q9: Do I need to modify any kali-claw skill files?
 
-Claude: $ ssh pentester@kali-server "nmap -sV 192.168.1.0/24"
-```
+No. This is a fundamental design principle of this migration guide. All 49 skill domains in the `skills/` directory remain completely unchanged. Claude Code reads them in their original Markdown format. The migration involves:
 
-**Approach B -- MCP server with SSH:**
+- Appending instructions to `CLAUDE.md` (project-level config, not a skill file)
+- Creating new agent files in `~/.claude/agents/` that *reference* skill paths
+- Creating rule files in `~/.claude/rules/` that encode safety principles
+- Creating MCP server wrappers that call Kali tools
+- Creating hook scripts for automation
 
-The MCP server script uses SSH internally:
+None of these steps touch any file inside `skills/`.
 
-```python
-# In the MCP server, replace local subprocess calls with SSH
-cmd = ["ssh", "user@kali-server", "nmap", "-sV", target]
-result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-```
+### Q10: How do I create agents for all 49 skill domains?
 
-**Approach C -- SSH tunnel:**
+You do not need to create an agent for every single skill domain. Start with the domains you use most frequently. The agent creation pattern is consistent:
 
-```bash
-# Create an SSH tunnel to the Kali machine
-ssh -L 8080:localhost:8080 user@kali-server -N -f
+1. Create a `.md` file in `~/.claude/agents/` with YAML frontmatter (name, description, tools)
+2. In the body, specify which `skills/<domain>/SKILL.md` files to read
+3. Define the operating procedure and safety rules
+4. Reference `payloads.md` and `test-cases.md` paths for the agent to read on demand
 
-# Claude Code connects to localhost:8080 which tunnels to Kali
-```
-
-### Q8: How do I use Claude Code's skill system with kali-claw?
-
-Claude Code has a skill system that can invoke registered skills via `/skill-name`. kali-claw skills can be registered as Claude Code skills by creating skill files in the appropriate format. However, the most natural integration is through custom agents (described in Section 4.2), which are automatically matched to tasks based on their descriptions.
-
-To explicitly invoke an agent:
-
-```
-You: /web-sqli-analyzer
-
-# Or describe the task and let Claude match the agent:
-You: Analyze this URL for SQL injection: http://target.com/page?id=1
-```
-
-### Q9: The nmap/sqlmap commands are not found. What do I do?
-
-If you are running Claude Code on a non-Kali system, security tools are not available locally. Use one of these solutions:
-
-```bash
-# Option 1: Install individual tools
-# macOS (via Homebrew)
-brew install nmap sqlmap nikto
-
-# Ubuntu/Debian
-sudo apt install nmap sqlmap nikto
-
-# Option 2: Use Docker
-docker run -it kalilinux/kali-rolling bash -c \
-  "apt update && apt install -y nmap sqlmap && nmap -sV <target>"
-
-# Option 3: Use remote Kali (see Q7 above)
-ssh user@kali-host "nmap -sV <target>"
-```
-
-### Q10: How do I create a new skill domain in Claude Code?
-
-Follow the same process as in the OpenClaw version, then create a corresponding agent:
-
-```bash
-# 1. Create the skill directory in the kali-claw repo
-mkdir -p skills/my-new-skill/guides
-
-# 2. Write SKILL.md, payloads.md, test-cases.md
-# (Follow the pattern in existing skills)
-
-# 3. Create a corresponding Claude Code agent
-cat > ~/.claude/agents/my-new-skill.md << 'EOF'
----
-name: my-new-skill
-description: Description of what this skill does
-tools:
-  - Bash
-  - Read
-  - Write
----
-Instructions for the agent...
-Read skills/my-new-skill/SKILL.md for methodology.
-EOF
-
-# 4. Update IDENTITY.md with the new skill tag
-# 5. Update TOOLS.md with related tools
-```
+For skills you use occasionally, just reference the file path directly in conversation (minimal migration approach).
 
 ---
 
 ## 8. Architecture Comparison and Reference
 
-### Complete Mapping Table
+### 8.1 Complete Mapping Table
 
-| kali-claw (OpenClaw) | Claude Code Equivalent | Migration Method |
-|---------------------|----------------------|-----------------|
-| `SOUL.md` (identity + laws) | `CLAUDE.md` project instructions | Copy key content into CLAUDE.md |
-| `USER.md` (user profile) | `~/.claude/settings` or `CLAUDE.md` user section | Manual configuration |
-| `AGENTS.md` (session config) | `CLAUDE.md` + `~/.claude/rules/` | Extract session flow into rules |
-| `skills/*/SKILL.md` | `~/.claude/agents/*.md` | Convert to agent files with frontmatter |
-| `skills/*/payloads.md` | Project files (referenced by agents) | Keep in place, agents read at runtime |
-| `skills/*/test-cases.md` | Project files (referenced by agents) | Keep in place, agents read at runtime |
-| `skills/*/guides/` | Project files | Keep in place, no changes needed |
-| `MEMORY.md` (long-term) | `~/.claude/projects/<proj>/memory/` | Copy content to memory directory |
-| `memory/*.md` (daily logs) | `~/.claude/projects/<proj>/memory/` | Copy recent logs |
-| `chronicle/` (monthly) | `~/.claude/projects/<proj>/memory/chronicle/` | Copy to memory subdirectory |
-| `TOOLS.md` (tool inventory) | Project files + MCP servers | Keep as reference, convert key tools to MCP |
-| `HEARTBEAT.md` (health checks) | `~/.claude/settings.json` hooks | Convert to PreToolUse/PostToolUse hooks |
-| 12 Hacker Laws | `~/.claude/rules/` + `CLAUDE.md` | Extract as rule files |
-| ECC orchestration patterns | Custom agent instructions | Embed in agent Markdown files |
+| kali-claw (OpenClaw) | Claude Code | Migration Method | Notes |
+|---------------------|------------|-----------------|-------|
+| `SOUL.md` (personality) | `CLAUDE.md` | Append key content | Append 12 Hacker Laws and security rules to CLAUDE.md |
+| `USER.md` (user info) | `~/.claude/settings` or `CLAUDE.md` | Manual configuration | Record preferences in CLAUDE.md user section or settings |
+| `AGENTS.md` (session config) | `CLAUDE.md` + `~/.claude/rules/` | Extract rules | Session startup flow is handled automatically by CLAUDE.md |
+| `skills/*/SKILL.md` | `~/.claude/agents/` | Create agents that reference paths | Create one agent file per skill domain, referencing original paths |
+| `skills/*/payloads.md` | Project files (agent references) | Keep in place | Agents reference paths; Claude reads on demand |
+| `skills/*/test-cases.md` | Project files (agent references) | Keep in place | Agents reference paths; Claude reads on demand |
+| `skills/*/guides/` | Project files | Keep in place | Deep-dive learning materials do not need migration |
+| `MEMORY.md` (long-term memory) | `~/.claude/projects/.../memory/` | Copy | Copy long-term distilled knowledge to Claude Code memory |
+| `memory/*.md` (daily logs) | `~/.claude/projects/.../memory/` | Copy | Copy recent logs to Claude Code memory |
+| `chronicle/` (chronicles) | Project files | Keep in place | Monthly milestone records |
+| `TOOLS.md` (tool inventory) | Project files + MCP servers | Partial conversion | Tool knowledge stays as project file; common tools wrapped as MCP |
+| `HEARTBEAT.md` (heartbeat) | `~/.claude/settings.json` Hooks | Manual configuration | Implement partial automation using Hooks |
+| 12 Hacker Laws | `~/.claude/rules/` | Extract as rules | Create a standalone rules file |
 
-### Feature Parity Matrix
+### 8.2 Migration Checklist
 
-| Feature | OpenClaw | Claude Code | Notes |
-|---------|----------|-------------|-------|
-| Persistent memory | Manual files | Built-in system | Claude Code memory is automatic |
-| Skill invocation | Auto-matched by gateway | Auto-matched by agent description | Both use natural language matching |
-| Tool execution | Gateway routes | Bash tool + MCP servers | MCP provides structured I/O |
-| Behavioral rules | SOUL.md | CLAUDE.md + rules/ | Same content, different location |
-| Automated tasks | HEARTBEAT.md polling | Hooks (PreToolUse/PostToolUse) | Hooks are event-driven, not polled |
-| Session startup | AGENTS.md sequence | CLAUDE.md auto-read | Both load context at session start |
-| Multi-agent | Council skill | Parallel agent invocation | Claude Code agents are independent |
+**Minimal migration** (5 minutes):
 
-### Migration Effort by Component
+- [ ] Install Claude Code
+- [ ] Clone the kali-claw project
+- [ ] Run `claude` in the project directory
 
-| Component | Effort | Priority | Notes |
-|-----------|--------|----------|-------|
-| CLAUDE.md configuration | 15 min | High | Foundation for everything else |
-| 3-5 key agent files | 30 min | High | Covers most common security tasks |
-| Security rules | 10 min | Medium | Important for safety |
-| Memory import | 5 min | Medium | Preserves existing knowledge |
-| 1-2 MCP servers | 60 min | Low | Nice-to-have for structured tool I/O |
-| Hook scripts | 30 min | Low | Optional automation |
-| Remaining agent files | 60 min | Low | Add as needed over time |
+**Standard migration** (30 minutes):
+
+- [ ] Append Security Agent Mode to `CLAUDE.md`
+- [ ] Create custom agents in `~/.claude/agents/`
+- [ ] Create `~/.claude/rules/kali-claw-security.md` rules file
+- [ ] Configure the project memory system
+
+**Complete migration** (2 hours):
+
+- [ ] Complete all standard migration steps
+- [ ] Create MCP servers (nmap, sqlmap, etc.)
+- [ ] Configure `.mcp.json`
+- [ ] Create hook scripts
+- [ ] Configure Hooks in `~/.claude/settings.json`
+- [ ] Create `.scope` authorized scope file
+- [ ] Test the complete workflow
+
+### 8.3 Performance Comparison
+
+| Metric | OpenClaw | Claude Code |
+|--------|----------|-------------|
+| First startup | Requires framework install + agent creation | Direct `claude` launch |
+| Skill loading | All loaded at session start | Read on demand (more efficient) |
+| Tool invocation | Through terminal commands | Through Bash tool + MCP |
+| Context window | Limited by framework | Claude's native context window (200K tokens) |
+| Multi-session | Supports multiple agents | Supports multiple tabs |
+| Update maintenance | Need to sync framework and skills | Only `git pull` to update skills |
+
+### 8.4 Skill Domain Reference
+
+The complete list of 49 kali-claw skill domains available for reference:
+
+**Web Security (5 domains):**
+- `web-sqli` -- SQL injection detection, exploitation, and defense
+- `web-xss` -- Cross-site scripting attacks and prevention
+- `web-ssrf` -- Server-Side Request Forgery
+- `web-auth-bypass` -- Authentication bypass techniques
+- `web-access-control` -- Access control vulnerabilities
+
+**Network & Wireless (4 domains):**
+- `network-pentest` -- Network penetration testing methodology
+- `wifi-pentest` -- Wireless network security testing
+- `osint` -- Open Source Intelligence gathering
+- `recon-osint` -- Reconnaissance and OSINT techniques
+
+**Exploitation (3 domains):**
+- `post-exploitation` -- Post-exploitation techniques and assessment
+- `password-attack` -- Password cracking and credential attacks
+- `crypto-attacks` -- Cryptographic attack methods
+
+**Code & Binary (5 domains):**
+- `binary-reverse` -- Binary analysis and reverse engineering
+- `repo-scan` -- Source code security scanning
+- `security-review` -- Security code review methodology
+- `ai-security` -- AI/ML model security testing
+- `ai-fuzzing` -- AI-powered fuzzing techniques
+
+**Cloud & Infrastructure (4 domains):**
+- `cloud-security` -- Cloud platform security assessment
+- `container-security` -- Docker and Kubernetes security
+- `supply-chain-security` -- Supply chain attack detection
+- `hardware-security` -- Hardware-level security testing
+
+**Mobile & Digital Forensics (2 domains):**
+- `mobile-security` -- Mobile application security testing
+- `digital-forensics` -- Digital forensics and incident response
+
+**Social & Intelligence (3 domains):**
+- `social-engineering` -- Social engineering attack awareness
+- `social-intelligence` -- Social intelligence gathering
+- `security-bounty-hunter` -- Bug bounty hunting methodology
+
+**Security Assessment (3 domains):**
+- `vulnerability-assessment` -- Systematic vulnerability assessment
+- `insecure-design` -- Insecure design pattern identification
+- `security-misconfiguration` -- Configuration weakness detection
+
+**Meta Skills (4 domains):**
+- `autonomous-loops` -- Autonomous operation loops
+- `council` -- Multi-perspective analysis
+- `multi-agent-collaboration` -- Multi-agent coordination
+- `browser-qa` -- Browser-based security QA
+
+**Knowledge & Research (5 domains):**
+- `deep-research` -- Deep security research methodology
+- `search-first` -- Intelligence-first approach to security
+- `exa-search` -- Advanced search techniques
+- `data-scraper-agent` -- Data collection and analysis
+- `article-writing` -- Security report and article writing
+
+**Infrastructure & Operations (7 domains):**
+- `terminal-ops` -- Terminal operations and scripting
+- `safety-guard` -- Safety guardrails and scope enforcement
+- `chronicle` -- Knowledge chronicle management
+- `continuous-learning` -- Continuous learning system
+- `docker-patterns` -- Docker lab environment patterns
+- `mcp-server-patterns` -- MCP server design patterns
+- `verification-loop` -- Verification and validation loops
+- `logging-monitoring` -- Security logging and monitoring
+
+**Onboarding & Knowledge (4 domains):**
+- `codebase-onboarding` -- Codebase security onboarding
+- `knowledge-ops` -- Knowledge management operations
+- `api-security` -- API security testing methodology
+- `insecure-design` -- Insecure design pattern identification
+
+Each domain directory contains:
+- `SKILL.md` -- Methodology, tools, attack chains
+- `payloads.md` -- Attack payloads organized by type
+- `test-cases.md` -- Structured test case templates
+- `guides/` -- Deep-dive learning materials (in most domains)
 
 ---
 
-_This guide covers kali-claw v0.1.7 migration to Claude Code. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw). For the OpenClaw version of this guide, see [GUIDE-OPENCLAW-en.md](./GUIDE-OPENCLAW-en.md)._
+_Built with Claude Code. For questions or feedback, please open an issue on GitHub._

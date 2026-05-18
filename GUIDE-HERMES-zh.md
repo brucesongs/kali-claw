@@ -936,17 +936,14 @@ hermes config set tools.custom.sqli-automation "/path/to/kali-claw/skills/web-sq
 hermes claw migrate
 hermes skills remove cloud-security  # 删除不需要的技能
 
-# 方法二：只使用存根生成脚本生成指定技能
-# （手动编辑 TRIGGER_MAP，只保留需要的技能名，然后运行脚本）
-python3 generate_skill_stubs.py \
-    --source ./skills \
-    --target ~/.hermes/skills \
-    --kali-claw-path $(pwd)
-
-# 方法三：手动创建单个技能存根
-# 参考 4.3 节的示例，为需要的技能创建存根文件
+# 方法二：手动为指定技能创建存根
+# 参考 4.3 节的示例，只为需要的技能创建存根文件
 vim ~/.hermes/skills/web-sqli.md
 hermes skills validate web-sqli
+
+# 方法三：修改批量脚本，只处理指定目录
+# 在 create-hermes-stubs.sh 的循环中添加条件过滤
+# for skill_dir in "$SOURCE_DIR"/{web-sqli,web-xss,network-pentest}/; do
 ```
 
 ### Q10：迁移后性能有差异吗
