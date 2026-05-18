@@ -18,12 +18,25 @@
 
 ## Guides
 
+### Usage Guide
+
 | Language | File |
 |----------|------|
 | 中文 | [GUIDE-OPENCLAW-zh.md](GUIDE-OPENCLAW-zh.md) |
 | English | [GUIDE-OPENCLAW-en.md](GUIDE-OPENCLAW-en.md) |
 
-> New to OpenClaw? Start with the guide — it covers everything from installation to your first penetration test.
+### Migration Guides
+
+kali-claw is a portable skill package — you can use it with multiple AI agent platforms:
+
+| Platform | 中文 | English |
+|----------|------|---------|
+| Hermes Agent | [GUIDE-HERMES-zh.md](GUIDE-HERMES-zh.md) | [GUIDE-HERMES-en.md](GUIDE-HERMES-en.md) |
+| Claude Code | [GUIDE-CLAUDECODE-zh.md](GUIDE-CLAUDECODE-zh.md) | [GUIDE-CLAUDECODE-en.md](GUIDE-CLAUDECODE-en.md) |
+| OpenAI Codex CLI | [GUIDE-CODEX-zh.md](GUIDE-CODEX-zh.md) | [GUIDE-CODEX-en.md](GUIDE-CODEX-en.md) |
+| OpenCode | [GUIDE-OPENCODE-zh.md](GUIDE-OPENCODE-zh.md) | [GUIDE-OPENCODE-en.md](GUIDE-OPENCODE-en.md) |
+
+> New to OpenClaw? Start with the usage guide — it covers everything from installation to your first penetration test.
 
 ---
 
