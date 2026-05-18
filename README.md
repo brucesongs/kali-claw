@@ -16,6 +16,17 @@
 
 ---
 
+## Guides
+
+| Language | File |
+|----------|------|
+| 中文 | [GUIDE-OPENCLAW-zh.md](GUIDE-OPENCLAW-zh.md) |
+| English | [GUIDE-OPENCLAW-en.md](GUIDE-OPENCLAW-en.md) |
+
+> New to OpenClaw? Start with the guide — it covers everything from installation to your first penetration test.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
