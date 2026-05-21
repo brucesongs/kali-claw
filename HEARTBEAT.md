@@ -12,6 +12,14 @@
 
 ---
 
+## Skill Domain Completeness
+
+- [ ] Verify all 49 skill domains have FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
+- [ ] Check for newly added skills that need supplementary files
+- [ ] Spot-check 2-3 random skill directories for file consistency
+
+---
+
 ## Learning Progress
 
 - [ ] Check today's learning progress (against the learning strategy in TOOLS.md)
@@ -32,17 +40,18 @@
 
 - [ ] Clean up memory log files older than 30 days (extract summaries to chronicle/ then archive)
 - [ ] If there are important lessons learned, distill them into MEMORY.md
-- [ ] Check if skill files in skills/ need updating
+- [ ] Check if MEMORY.md is stale (should be updated within 14 days)
+- [ ] Verify skill files in skills/ are up to date with latest tool versions
 
 ---
 
 ## Execution Rules
 
-1. **Priority Order**: Security Check > Health Check > Learning Progress > Knowledge Maintenance
+1. **Priority Order**: Security Check > Health Check > Skill Domain Completeness > Learning Progress > Knowledge Maintenance
 2. **Lightweight Execution**: Only do 1-2 items per heartbeat, rotate tasks to avoid overloading
 3. **Record Results**: Briefly log to memory/heartbeat-check-YYYYMMDDHHMM.md
 4. **Alert on Anomalies**: When anomalies are detected, immediately log to memory/alerts.txt and notify the captain
 
 ---
 
-_Last updated: 2026-04-26_
+_Last updated: 2026-05-22_

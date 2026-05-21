@@ -4,6 +4,36 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.8] - 2026-05-22
+
+### Added
+
+All 49 skill domains brought to FULL enrichment status (SKILL.md + payloads.md + test-cases.md + guides/).
+
+**3 MINIMAL skills upgraded (payloads.md + test-cases.md + guides/ added):**
+
+- `chronicle` — payloads.md (event recording templates, distillation commands, archive patterns), test-cases.md (TC-CH-001 to TC-CH-006), guides/event-recording-best-practices.md
+- `continuous-learning` — payloads.md (pattern detection, knowledge entry templates, confidence scoring rubrics), test-cases.md (TC-CL-001 to TC-CL-006), guides/knowledge-extraction-workflow.md
+- `safety-guard` — payloads.md (scope lock templates, dangerous command patterns, rate limiting, incident response playbooks), test-cases.md (TC-SG-001 to TC-SG-007), guides/scope-enforcement-operations.md
+
+**7 PARTIAL skills upgraded (guides/ added):**
+
+- `api-security` — guides/api-security-complete-guide.md (relocated from root), guides/graphql-security-testing.md (new)
+- `web-auth-bypass` — guides/auth-bypass-complete-guide.md (relocated from root), guides/jwt-attack-methodology.md (new)
+- `docker-patterns` — guides/lab-environment-management.md
+- `repo-scan` — guides/codebase-security-audit-workflow.md
+- `search-first` — guides/exploit-research-methodology.md
+- `terminal-ops` — guides/evidence-first-execution.md
+- `verification-loop` — guides/finding-verification-methodology.md
+
+### Changed
+
+- `MEMORY.md` — Updated with v0.1.5-v0.1.8 key decisions, refreshed current status and lessons learned
+- `HEARTBEAT.md` — Added Skill Domain Completeness check section, added MEMORY.md staleness check, updated priority order
+- `VERSION` — 0.1.7 → 0.1.8
+- `CHANGELOG.md` — v0.1.8 entry
+- `RELEASE-v0.1.8.md` — release announcement
+
 ## [0.1.7] - 2026-05-16
 
 ### Added

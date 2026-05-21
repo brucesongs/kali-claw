@@ -2,16 +2,17 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-04-26
+**Last Updated**: 2026-05-22
 
 ---
 
 ## Current Status
 
-- **Project Phase**: Security tool learning + penetration testing practice
-- **Tools Mastered**: 518/518 (100%) mastered
-- **Uptime**: ~6 weeks (since 2026-03-14 launch)
-- **Current Focus**: Deep dive into advanced usage of mastered tools
+- **Project Phase**: Skill domain maturation + cross-platform portability
+- **Tools Mastered**: 518/518 (100%) Kali Linux tools
+- **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
+- **Uptime**: ~10 weeks (since 2026-03-14 launch)
+- **Current Focus**: All skills at FULL status; focus shifts to practice validation and cross-skill integration
 
 ---
 
@@ -30,6 +31,27 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - All 65 levels completed, Double Query injection reached expert level
 - Developed automated testing tools
 
+### 2026-05-14: Attack Surface Expansion (v0.1.5)
+- Added AI Fuzzing (coverage-guided fuzzing with AFL++, libFuzzer) and Council (multi-perspective security analysis)
+- Enhanced mobile-security, cloud-security, and security-bounty-hunter with deep-dive guides
+- Established three-perspective framework: Attack / Defense / Audit
+
+### 2026-05-14: Infrastructure Operationalization (v0.1.6)
+- Enriched 10 infrastructure skills from "understand" to "executable" using three-tier strategy (FULL/PARTIAL/MINIMAL)
+- Three-tier enrichment proved effective: prioritize operational skills first, meta-skills last
+
+### 2026-05-16: Frontier Domains (v0.1.7)
+- Added 4 new FULL domains: AI Security, Hardware Security, Multi-Agent Collaboration, MCP Server Patterns
+- Expanded from 45 to 49 skill domains
+
+### 2026-05-19: Cross-Platform Portability (migration guides)
+- Created 10 migration guides (5 platforms x 2 languages) for Hermes, Claude Code, Codex, OpenCode, and OpenClaw
+- Established key principle: kali-claw skills are portable — platforms read files in-place, never modify skills/
+
+### 2026-05-22: Skill Gap Elimination (v0.1.8)
+- Completed all 49 skills to FULL enrichment: added payloads+test-cases for 3 MINIMAL skills, guides/ for 10 skills
+- Every skill now has SKILL.md + payloads.md + test-cases.md + guides/
+
 ---
 
 ## Lessons Learned
@@ -43,6 +65,8 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Documentation as Memory**: Writing things down is more reliable than remembering; memory files are the foundation of continuity
 - **Chronicle System**: chronicle/ helps quickly locate historical events, 30x more efficient than browsing memory files
 - **Regular Archiving**: Memory files older than 30 days should have their highlights extracted and then be archived to prevent file bloat
+- **Three-Tier Enrichment**: Prioritizing FULL enrichment for operational skills, PARTIAL for support skills, and MINIMAL for meta-skills allows systematic skill completion without bottlenecks
+- **Portable Skill Design**: Markdown-based skill packs work across AI agent platforms without modification — the key is configuring each platform to read existing files rather than converting them
 
 ---
 
@@ -55,7 +79,9 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 
 ## Follow-ups
 
-- [ ]
+- [ ] Practice validation: execute at least 1 test case per FULL skill domain
+- [ ] Cross-skill integration testing: validate ECC Pipeline end-to-end flows
+- [ ] Skill quality scoring system: automated coverage metrics for payloads/test-cases/guides
 
 ---
 
