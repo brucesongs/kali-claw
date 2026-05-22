@@ -1,0 +1,27 @@
+=== TC-SG-001: In-Scope Operation Proceeds in Careful Mode ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation:
+1. Command received: nmap -sV -T3 -p 1-1000 192.168.1.50
+2. Scope check:
+   a. Target 192.168.1.50 ∈ 192.168.1.0/24 — PASS
+   b. "active scanning" authorized in ROE — PASS
+   c. Current time within authorized window — PASS
+3. Danger pattern check:
+   a. Guard patterns — no match
+   b. Freeze patterns — no match
+   c. Careful patterns — matches "active_port_scan"
+4. Classification: Careful mode, proceed with warning logged
+5. Pre-action log: [2026-05-22T22:40:00+0800] CAREFUL | target=192.168.1.50 | cmd=nmap -sV -T3 -p 1-1000 | class=active_port_scan
+6. Operation executes normally (nmap confirmed working in TC-NP-001)
+7. Post-action: evidence logged, no incidents
+
+Verification against Expected Outcomes:
+- Scope check: PASS (target within authorized range)
+- Danger classification: Careful (correct — not Guard/Freeze)
+- Operation allowed: Yes (not blocked)
+- Logging: Pre-action check logged with timestamp, target, command, classification
+- Mode: Careful (default, as expected)
+
+RESULT: PASS — safety guard workflow correctly allows in-scope operations in Careful mode

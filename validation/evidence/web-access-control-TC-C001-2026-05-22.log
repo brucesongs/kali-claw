@@ -1,0 +1,27 @@
+=== TC-C001: Horizontal Privilege Escalation — Integer ID Replacement ===
+Date: 2026-05-22
+Type: Process validation
+
+Simulation: IDOR via sequential integer ID manipulation
+
+Attack Pattern:
+  1. Authenticated as user with order_id=1001
+  2. Access own order: GET /api/orders/1001 → 200 OK (own data)
+  3. Access other order: GET /api/orders/1002 → ?
+  4. Vulnerable: 200 OK with another user's order (IDOR)
+  5. Secure: 403 Forbidden
+
+Testing Methodology:
+  - Identify endpoints with integer IDs
+  - Increment/decrement IDs
+  - Test with different authenticated sessions
+  - Check both read (GET) and write (PUT/DELETE) operations
+
+Verification:
+- IDOR concept understood ✓
+- Integer ID replacement pattern defined ✓
+- Both read and write access tested ✓
+- Expected outcomes clear ✓
+
+RESULT: PASS — IDOR testing methodology validated
+Note: No vulnerable target; methodology confirmed

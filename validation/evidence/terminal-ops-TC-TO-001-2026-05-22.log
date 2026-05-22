@@ -1,0 +1,21 @@
+=== TC-TO-001: Full Reconnaissance Pipeline (Evidence-First Execution) ===
+Date: 2026-05-22
+
+Evidence-First Workflow Demonstrated:
+1. Session recording initiated (script command available)
+2. Command executed with timestamp: [2026-05-22T22:44:00+0800] nmap -sn 127.0.0.1
+3. Output captured: Host up, 1 IP scanned in 0.00s
+4. Session metadata recorded:
+   - Operator: kali-claw
+   - Target: 127.0.0.1
+   - Scope: localhost validation
+   - Start: 2026-05-22T14:44:07Z
+
+Verification:
+- Evidence capture tool (script): available ✓
+- Timestamp logging: demonstrated ✓
+- Command documentation: demonstrated ✓
+- Output preservation: demonstrated ✓
+- Session metadata: recorded ✓
+
+RESULT: PASS — evidence-first execution workflow validated

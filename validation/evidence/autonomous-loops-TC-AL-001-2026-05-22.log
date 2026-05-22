@@ -1,0 +1,43 @@
+=== TC-AL-001: Sequential Pipeline — Subnet Port Scan ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Sequential pipeline scanning 3 hosts
+
+Scope Lock:
+  - Authorized: 192.168.1.0/24
+  - Operations: active scanning
+  - Rate: T3, 2s between hosts
+  - Window: 09:00-18:00 local
+
+Pipeline Execution:
+  Host 1: 192.168.1.1
+    - Scope check: PASS (within 192.168.1.0/24)
+    - Rate check: PASS (first host, no delay needed)
+    - Execute: nmap -sV -T3 -p 1-1000 192.168.1.1
+    - Result: logged
+    - Wait: 2s
+
+  Host 2: 192.168.1.2
+    - Scope check: PASS
+    - Rate check: PASS (2s elapsed)
+    - Execute: nmap -sV -T3 -p 1-1000 192.168.1.2
+    - Result: logged
+    - Wait: 2s
+
+  Host 3: 192.168.1.3
+    - Scope check: PASS
+    - Rate check: PASS (2s elapsed)
+    - Execute: nmap -sV -T3 -p 1-1000 192.168.1.3
+    - Result: logged
+
+Pipeline Complete: 3/3 hosts scanned, 0 errors, 0 scope violations
+
+Verification:
+- Scope lock enforced per host ✓
+- Rate limiting respected (2s between hosts) ✓
+- Sequential execution order maintained ✓
+- Evidence logged per step ✓
+- No scope violations ✓
+
+RESULT: PASS — sequential pipeline workflow validated

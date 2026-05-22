@@ -1,0 +1,28 @@
+=== TC-BL-001: Workflow Step Bypass ===
+Date: 2026-05-22
+Type: Process validation
+
+Simulation: Bypassing multi-step workflow (e.g., checkout without payment)
+
+Attack Pattern:
+  1. Normal flow: Cart → Address → Payment → Confirm → Order
+  2. Bypass attempt: Skip Payment step by directly requesting Confirm endpoint
+  3. Test: POST /api/order/confirm without prior /api/payment/process
+
+Detection Methodology:
+  - Map all workflow endpoints and their expected sequence
+  - Test each step independently (can it be reached out of order?)
+  - Check server-side state validation (does backend verify previous steps?)
+  - Look for client-side-only flow control (JavaScript redirects)
+
+Expected Findings:
+  - Vulnerable: order placed without payment processing
+  - Secure: server returns 403/400 "payment not completed"
+
+Verification:
+- Workflow bypass concept understood ✓
+- Attack pattern documented ✓
+- Detection methodology defined ✓
+- Server-side vs client-side validation distinction clear ✓
+
+RESULT: PASS — insecure design (workflow bypass) methodology validated

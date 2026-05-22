@@ -1,0 +1,15 @@
+=== TC-CRYPTO-001: SSL/TLS Weak Protocol Version Detection ===
+Date: 2026-05-22
+Target: example.com:443
+
+Findings:
+- TLSv1.0 ENABLED (deprecated, weak)
+  - TLS_RSA_WITH_3DES_EDE_CBC_SHA rated C — vulnerable to SWEET32 attack
+- TLSv1.1 ENABLED (deprecated)
+- TLSv1.2 ENABLED (acceptable, strong ciphers including CHACHA20_POLY1305)
+- TLSv1.3 likely supported (not enumerated by this scan)
+
+Weak protocols detected: TLSv1.0, TLSv1.1
+Weak ciphers detected: 3DES_EDE_CBC (64-bit block, SWEET32)
+
+RESULT: PASS — weak protocol versions and ciphers successfully identified

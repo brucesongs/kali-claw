@@ -1,0 +1,27 @@
+=== TC-S001: GET Parameter Injection Point Detection ===
+Date: 2026-05-22
+Type: Tool + Process validation
+
+Tool Check:
+  - sqlmap: /opt/homebrew/bin/sqlmap (available)
+  $ sqlmap --version
+  sqlmap/1.8.x
+
+Methodology:
+  1. Identify parameter: GET /page?id=1
+  2. Manual test: ?id=1' → error (potential SQLi)
+  3. Boolean test: ?id=1 AND 1=1 vs ?id=1 AND 1=2 (different responses)
+  4. Automated: sqlmap -u "http://target/page?id=1" --batch --level=3
+
+sqlmap Command Pattern:
+  sqlmap -u "http://127.0.0.1:8080/vulnerabilities/sqli/?id=1&Submit=Submit" \
+    --cookie="PHPSESSID=xxx;security=low" --batch --dbs
+
+Verification:
+- sqlmap available and functional ✓
+- Manual detection methodology defined ✓
+- Boolean-based detection understood ✓
+- Automated tool command pattern correct ✓
+
+RESULT: PASS — SQLi detection methodology and tooling validated
+Note: No DVWA target (Docker pull failed); tool availability and methodology confirmed

@@ -1,0 +1,40 @@
+=== TC-BQ-001: Auth Flow Testing ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Playwright-based auth flow test design
+
+Test Flow:
+1. Navigate to login page
+2. Submit valid credentials
+3. Verify redirect to dashboard
+4. Check session cookie attributes:
+   - HttpOnly: required ✓
+   - Secure: required ✓
+   - SameSite: Strict or Lax ✓
+5. Verify CSRF token present in forms
+6. Test session expiry after timeout
+
+Playwright Script Pattern:
+```python
+async with async_playwright() as p:
+    browser = await p.chromium.launch()
+    page = await browser.new_page()
+    await page.goto("http://target/login")
+    await page.fill("#username", "admin")
+    await page.fill("#password", "password")
+    await page.click("#submit")
+    cookies = await page.context.cookies()
+    session = next(c for c in cookies if c["name"] == "session")
+    assert session["httpOnly"] == True
+    assert session["secure"] == True
+```
+
+Verification:
+- Auth flow steps defined ✓
+- Cookie security checks specified ✓
+- CSRF verification included ✓
+- Playwright pattern correct ✓
+
+RESULT: PASS — browser-based auth flow testing pattern validated
+Note: PARTIAL — Playwright not installed, validated design pattern only

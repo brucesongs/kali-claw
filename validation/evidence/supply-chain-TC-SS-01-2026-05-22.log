@@ -1,0 +1,15 @@
+=== TC-SS-01: npm audit Dependency Vulnerability Scanning ===
+Date: 2026-05-22
+Target: Test project with lodash@4.17.20 + express@4.17.1
+
+Findings:
+- lodash: 5 HIGH vulnerabilities (Command Injection, ReDoS, Prototype Pollution x3)
+- express: depends on vulnerable body-parser, cookie, path-to-regexp, qs, send, serve-static
+- body-parser: HIGH (DoS via url encoding)
+- cookie: out-of-bounds character acceptance
+- path-to-regexp: 2 HIGH (ReDoS, backtracking regex)
+
+Fix available: npm audit fix --force → express@4.22.2, lodash@4.18.1
+
+RESULT: PASS — all known HIGH/CRITICAL vulnerabilities identified with fix recommendations
+Note: Used npm audit instead of trivy (trivy not installed), validates same supply-chain concept

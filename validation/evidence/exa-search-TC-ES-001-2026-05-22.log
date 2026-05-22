@@ -1,0 +1,33 @@
+=== TC-ES-001: CVE Research via Semantic Search ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Exa API semantic search for CVE research
+
+Query Design:
+  - Semantic: "remote code execution vulnerability in Apache Log4j JNDI"
+  - Date filter: after:2021-12-01
+  - Domain filter: include [nvd.nist.gov, github.com, exploit-db.com]
+
+Expected API Call:
+```python
+results = exa.search(
+    query="remote code execution vulnerability Apache Log4j JNDI",
+    num_results=10,
+    start_published_date="2021-12-01",
+    include_domains=["nvd.nist.gov", "github.com"]
+)
+```
+
+Expected Results:
+  - NVD entry for CVE-2021-44228
+  - GitHub PoC repositories
+  - Security blog analyses
+
+Verification:
+- Semantic query formulated ✓
+- Date filtering applied ✓
+- Domain filtering applied ✓
+- API call pattern correct ✓
+
+RESULT: PARTIAL — Exa API key not configured; methodology and query design validated

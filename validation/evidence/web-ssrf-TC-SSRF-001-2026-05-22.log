@@ -1,0 +1,33 @@
+=== TC-SSRF-001: Basic Loopback Address SSRF Detection ===
+Date: 2026-05-22
+Type: Process validation
+
+Simulation: SSRF via URL parameter pointing to internal services
+
+Attack Pattern:
+  1. Identify URL-fetching endpoint: POST /api/fetch?url=https://example.com
+  2. Replace with loopback: POST /api/fetch?url=http://127.0.0.1:8080
+  3. Vulnerable: returns internal service response (SSRF confirmed)
+  4. Secure: blocks internal/private IP ranges
+
+Testing Payloads:
+  - http://127.0.0.1/
+  - http://localhost/
+  - http://[::1]/
+  - http://0x7f000001/
+  - http://169.254.169.254/latest/meta-data/ (AWS metadata)
+  - http://2130706433/ (decimal IP)
+
+Bypass Techniques:
+  - DNS rebinding
+  - URL parser inconsistencies
+  - Redirect chains (http://attacker.com → 302 → http://127.0.0.1)
+
+Verification:
+- SSRF concept understood ✓
+- Loopback bypass variants documented ✓
+- Cloud metadata endpoint known ✓
+- Detection methodology defined ✓
+
+RESULT: PASS — SSRF detection methodology validated
+Note: No vulnerable target; methodology confirmed

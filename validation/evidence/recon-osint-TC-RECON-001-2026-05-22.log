@@ -1,0 +1,16 @@
+=== TC-RECON-001: WHOIS Domain Registration Information Complete Extraction ===
+Date: 2026-05-22
+Target: example.com
+
+WHOIS Results:
+- Domain: EXAMPLE.COM
+- Organisation: Internet Assigned Numbers Authority
+- Created: 1992-01-01
+- Source: IANA
+
+DNS Records:
+- A: 104.20.23.154, 172.66.147.243
+- MX: 0 .
+- NS: hera.ns.cloudflare.com, elliott.ns.cloudflare.com
+
+RESULT: PASS — WHOIS registration info and DNS records successfully extracted

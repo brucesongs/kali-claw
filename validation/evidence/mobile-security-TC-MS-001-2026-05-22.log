@@ -1,0 +1,10 @@
+=== TC-MS-001: APK Manifest Security Audit ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: jadx/apktool not installed; no APK sample available
+Environment: macOS ARM64
+
+To validate: install jadx, obtain test APK, then run:
+  jadx -d output/ target.apk
+  cat output/resources/AndroidManifest.xml
+  grep -E "exported|permission|debuggable" output/resources/AndroidManifest.xml

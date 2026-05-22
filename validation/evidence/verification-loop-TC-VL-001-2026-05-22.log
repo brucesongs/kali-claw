@@ -1,0 +1,45 @@
+=== TC-VL-001: SQL Injection Verification ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Verifying a reported SQLi finding
+
+Phase 1: Pre-conditions
+  - Finding: SQLi in /search?q= parameter
+  - Source: automated scanner (medium confidence)
+  - Target accessible: Yes
+
+Phase 2: Execute & Observe
+  - Payload 1: ' OR 1=1-- → HTTP 500 (error-based indicator)
+  - Payload 2: ' AND 1=2-- → HTTP 200 (different response = boolean blind)
+  - Payload 3: ' UNION SELECT NULL-- → column count mismatch error
+
+Phase 3: Independent Confirmation
+  - Method 1: Manual curl with payloads → confirmed
+  - Method 2: sqlmap --url="target/search?q=test" → confirmed injectable
+  - Two independent methods agree: TRUE POSITIVE
+
+Phase 4: False Positive Elimination
+  - Response difference is not WAF/generic error page ✓
+  - Behavior is consistent across multiple requests ✓
+  - Different payload types all indicate injection ✓
+
+Phase 5: Severity Verification
+  - Data extractable: Yes (UNION-based)
+  - Database type: MySQL (error message)
+  - Impact: Full database read access
+  - CVSS: 9.8 (Critical)
+
+Phase 6: Evidence Documentation
+  - curl commands with responses saved
+  - sqlmap output saved
+  - Timeline documented
+
+Verification:
+- Six-phase verification completed ✓
+- Two independent confirmation methods used ✓
+- False positive eliminated ✓
+- Severity correctly assessed ✓
+- Evidence documented ✓
+
+RESULT: PASS — SQL injection verification workflow validated

@@ -1,0 +1,26 @@
+=== TC-B001: Binary File Type and Architecture Identification ===
+Date: 2026-05-22
+Type: Tool validation
+
+Demonstration using system binary:
+  $ file /usr/bin/curl
+  /usr/bin/curl: Mach-O universal binary with 2 architectures:
+    arm64, x86_64
+
+  $ file /bin/ls
+  /bin/ls: Mach-O universal binary with 2 architectures:
+    arm64, x86_64
+
+Methodology:
+  1. file <binary> — identify type and architecture
+  2. checksec (if available) — security mechanisms
+  3. strings <binary> | grep -i "version\|password\|key" — quick intel
+  4. hexdump -C <binary> | head — magic bytes verification
+
+Verification:
+- file command available and functional ✓
+- Architecture identification works ✓
+- Binary type detection works ✓
+
+RESULT: PASS — binary file type identification validated
+Note: Full reverse engineering (radare2/ghidra) not tested; basic identification confirmed

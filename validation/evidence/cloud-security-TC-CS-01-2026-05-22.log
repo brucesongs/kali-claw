@@ -1,0 +1,10 @@
+=== TC-CS-01: AWS Account Asset Enumeration ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: No AWS account configured; aws CLI not authenticated
+Environment: macOS ARM64
+
+To validate: configure AWS credentials, then run:
+  aws sts get-caller-identity
+  aws ec2 describe-instances --region us-east-1
+  aws s3 ls

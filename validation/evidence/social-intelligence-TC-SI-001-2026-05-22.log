@@ -1,0 +1,40 @@
+=== TC-SI-001: Target Employee Social Profile ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Social intelligence gathering methodology
+
+Phase 1: Define Target
+  - Organization: [REDACTED Corp]
+  - Focus: IT/Security team members
+  - Platforms: LinkedIn, GitHub, Twitter/X, Reddit
+
+Phase 2: Platform Selection
+  - LinkedIn: professional profiles, job titles, tech stack mentions
+  - GitHub: code contributions, email addresses, project involvement
+  - Twitter/X: security opinions, conference attendance, tool preferences
+  - Reddit: r/netsec, r/sysadmin posts about work challenges
+
+Phase 3: Parallel Retrieval (simulated)
+  - LinkedIn: 5 IT staff identified, 2 mention "migrating to AWS"
+  - GitHub: 3 public repos from employees, 1 contains internal tool name
+  - Twitter: 1 employee complains about "legacy VPN issues"
+  - Reddit: 1 post asking about Fortinet configuration
+
+Phase 4: Deduplication & Ranking
+  - Cross-platform identity correlation: 2 employees matched across 3 platforms
+  - Relevance ranking: VPN complaint (HIGH), AWS migration (MEDIUM)
+
+Phase 5: Intelligence Report
+  - Key finding: Organization migrating to AWS, has legacy VPN issues
+  - Social engineering vector: VPN upgrade phishing pretext
+  - Confidence: 72 (multiple corroborating sources)
+
+Verification:
+- Five-phase methodology followed ✓
+- Multiple platforms covered ✓
+- Cross-platform correlation performed ✓
+- Actionable intelligence produced ✓
+- Data properly redacted ✓
+
+RESULT: PASS — social intelligence gathering workflow validated

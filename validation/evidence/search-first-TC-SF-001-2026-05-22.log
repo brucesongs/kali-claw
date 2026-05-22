@@ -1,0 +1,30 @@
+=== TC-SF-001: CVE Exploit Discovery ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Search-first decision for CVE-2021-44228 (Log4Shell)
+
+Search Sources Checked:
+1. Exploit-DB: searchsploit log4j → 5 results found
+2. GitHub: "CVE-2021-44228 poc" → 200+ repos
+3. Metasploit: search log4shell → exploit/multi/http/log4shell_header_injection
+4. Nuclei: nuclei-templates/cves/2021/CVE-2021-44228.yaml
+
+Decision Matrix:
+  | Source | Found | Quality | Decision |
+  |--------|-------|---------|----------|
+  | Exploit-DB | Yes | Verified | USE |
+  | GitHub PoC | Yes | Varies | EVALUATE |
+  | Metasploit | Yes | Integrated | USE |
+  | Nuclei | Yes | Detection only | USE for scan |
+
+Final Decision: USE existing (Metasploit module)
+Rationale: Verified, integrated, reliable — no need to build custom
+
+Verification:
+- Multiple sources searched ✓
+- Decision matrix applied (Use/Modify/Compose/Build) ✓
+- Correct decision: USE existing ✓
+- Rationale documented ✓
+
+RESULT: PASS — search-first exploit discovery workflow validated

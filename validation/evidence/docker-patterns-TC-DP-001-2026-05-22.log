@@ -1,0 +1,11 @@
+=== TC-DP-001: Vulnerable Web App Lab Deployment ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: Docker image pull fails — proxy at 192.168.5.2:8888 not running (Colima proxy misconfiguration)
+
+Attempted:
+  docker run --rm -d --name dvwa -p 127.0.0.1:8080:80 vulnerables/web-dvwa:latest
+  → Error: proxyconnect tcp: dial tcp 192.168.5.2:8888: connect: connection refused
+
+Docker daemon is running, but cannot pull images from registry.
+To validate: fix Colima proxy settings or use pre-pulled images.

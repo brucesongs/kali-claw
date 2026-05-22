@@ -1,0 +1,8 @@
+=== TC-SE-001: GoPhish Phishing Campaign ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: No mail infrastructure (GoPhish/SMTP) configured
+Environment: macOS ARM64 (not Kali Linux)
+
+This test case requires resources not available in the current environment.
+To validate, execute in a full Kali Linux environment with appropriate hardware/software.

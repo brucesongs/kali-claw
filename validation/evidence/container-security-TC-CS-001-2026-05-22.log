@@ -1,0 +1,8 @@
+=== TC-CS-001: Image Vulnerability Scanning & Rating ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: trivy not installed; Docker image pull fails due to proxy misconfiguration
+Environment: macOS ARM64, Docker (Colima) with broken proxy
+
+To validate: install trivy, fix Docker proxy, then run:
+  trivy image --severity HIGH,CRITICAL --format json <image>:<tag>

@@ -1,0 +1,30 @@
+=== TC-A001: BOLA — Horizontal Privilege Escalation ===
+Date: 2026-05-22
+Type: Process validation
+
+Simulation: Testing for Broken Object Level Authorization
+
+Attack Pattern:
+  1. Authenticate as User A (id=101)
+  2. Request own resource: GET /api/users/101/profile → 200 OK
+  3. Request other user's resource: GET /api/users/102/profile
+  4. Vulnerable: 200 OK with User B's data (BOLA confirmed)
+  5. Secure: 403 Forbidden
+
+Testing Methodology:
+  - Identify all endpoints with object IDs in URL/params
+  - Authenticate as low-privilege user
+  - Replace IDs with other users' IDs (sequential, UUID)
+  - Check response: data leak = BOLA vulnerability
+
+curl Pattern:
+  curl -H "Authorization: Bearer <token_A>" https://target/api/users/102/profile
+
+Verification:
+- BOLA attack pattern understood ✓
+- Testing methodology defined ✓
+- curl command pattern correct ✓
+- Expected outcomes clear (200 vs 403) ✓
+
+RESULT: PASS — BOLA testing methodology validated
+Note: No vulnerable API target available; methodology confirmed

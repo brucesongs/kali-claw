@@ -1,0 +1,19 @@
+=== TC-SM-001: Security Response Header Missing Detection ===
+Date: 2026-05-22
+Target: example.com (HTTPS)
+
+Response Headers Present:
+- server: cloudflare
+
+Missing Security Headers:
+- Strict-Transport-Security (HSTS)
+- X-Frame-Options (clickjacking protection)
+- X-Content-Type-Options (MIME sniffing prevention)
+- Content-Security-Policy (XSS/injection mitigation)
+- Referrer-Policy (referrer leakage prevention)
+- Permissions-Policy (feature restriction)
+
+Assessment: 6 of 6 recommended security headers are missing.
+Server exposes "cloudflare" in Server header (information disclosure).
+
+RESULT: PASS — security header misconfiguration successfully detected

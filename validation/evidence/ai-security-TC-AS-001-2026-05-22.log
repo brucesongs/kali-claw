@@ -1,0 +1,8 @@
+=== TC-AS-001: Direct Prompt Injection ===
+Date: 2026-05-22
+Status: BLOCKED
+Reason: No LLM target endpoint configured for testing
+Environment: macOS ARM64 (not Kali Linux)
+
+This test case requires resources not available in the current environment.
+To validate, execute in a full Kali Linux environment with appropriate hardware/software.

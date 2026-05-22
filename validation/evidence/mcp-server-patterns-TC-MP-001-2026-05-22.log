@@ -1,0 +1,40 @@
+=== TC-MP-001: Basic Tool Wrapping — nmap MCP Server ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Wrapping nmap as MCP server tool
+
+Design Validated:
+1. Input Schema:
+   - target: string (IP/hostname, validated against allowlist)
+   - ports: string (port range, validated format)
+   - scan_type: enum ["sV", "sS", "sT"] (allowlist only)
+
+2. Security Rules (7 non-negotiable):
+   - No shell=True ✓ (use subprocess with list args)
+   - Input allowlist ✓ (IP regex + port range validation)
+   - Timeout enforced ✓ (max 300s)
+   - Output sanitized ✓ (strip ANSI, limit size)
+   - Scope enforcement ✓ (target must be in authorized list)
+   - Rate limiting ✓ (sliding window, 10 req/min)
+   - Auth required ✓ (HMAC token validation)
+
+3. Implementation Pattern:
+   ```python
+   @server.tool("nmap_scan")
+   async def nmap_scan(target: str, ports: str = "1-1000"):
+       validate_target(target)  # raises on invalid
+       validate_ports(ports)    # raises on invalid
+       result = subprocess.run(
+           ["nmap", "-sV", "-p", ports, target],
+           capture_output=True, text=True, timeout=300
+       )
+       return sanitize_output(result.stdout)
+   ```
+
+4. Testing:
+   - Valid input: nmap_scan("127.0.0.1", "80,443") → success
+   - Invalid target: nmap_scan("10.0.0.1") → blocked (not in scope)
+   - Injection attempt: nmap_scan("127.0.0.1; rm -rf /") → blocked (validation)
+
+RESULT: PASS — MCP server tool wrapping pattern validated

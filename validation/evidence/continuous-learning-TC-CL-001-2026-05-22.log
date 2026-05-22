@@ -1,0 +1,39 @@
+=== TC-CL-001: Attack Pattern Learning — SQL Injection Discovery ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Learning cycle after discovering SQLi pattern
+
+Step 1: Pattern Detection
+  - Observation: SQLi in GET parameter id= on target
+  - Pattern type: ATK (Attack)
+  - Confidence: 85 (confirmed via sqlmap)
+
+Step 2: Knowledge Entry Creation
+  - ID: ATK-SQLI-GET-001
+  - Type: ATK
+  - Description: GET parameter integer-based SQLi via error-based detection
+  - Confidence: 85
+  - Tags: [sqli, get-param, error-based, integer]
+  - Source: engagement-2026-05-22
+
+Step 3: Storage
+  - Layer: mid-term (technical knowledge)
+  - Format: structured knowledge entry with frontmatter
+
+Step 4: Cross-reference
+  - Linked to: web-sqli skill domain
+  - Related patterns: ATK-SQLI-POST, ATK-SQLI-COOKIE
+
+Step 5: Confidence Evolution
+  - Initial: 85 (single observation)
+  - After 2nd confirmation: 92 (multiple engagements)
+
+Verification against Expected Outcomes:
+- Pattern detected from engagement observation ✓
+- Knowledge entry created with correct format ✓
+- Confidence score assigned (85) ✓
+- Storage layer correct (mid-term/technical) ✓
+- Cross-references established ✓
+
+RESULT: PASS — learning cycle workflow validated

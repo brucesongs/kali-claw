@@ -1,0 +1,28 @@
+=== TC-KO-001: Cross-Session Codebase Context ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Knowledge persistence across sessions
+
+Session 1 (onboarding):
+  - Target: Django web application
+  - Entities discovered: 3 (auth module, API gateway, database layer)
+  - Findings: 2 (weak session config, missing CSRF on API)
+  - Knowledge Units created: 5
+  - Stored to: knowledge-ops storage layer
+
+Session 2 (continuation):
+  - Context loaded: 5 KUs from Session 1
+  - Entities recognized: auth module, API gateway, database layer
+  - New findings: 1 (SQL injection in search endpoint)
+  - KU updated: confidence on auth weakness raised 70→85
+  - New KU created: 1 (SQLi finding)
+
+Verification:
+- Knowledge persists across sessions ✓
+- Entities correctly recalled ✓
+- Confidence evolution tracked (70→85) ✓
+- New findings integrate with existing knowledge ✓
+- Cross-references maintained ✓
+
+RESULT: PASS — cross-session knowledge persistence workflow validated

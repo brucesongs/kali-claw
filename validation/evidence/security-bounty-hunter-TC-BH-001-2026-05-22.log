@@ -1,0 +1,41 @@
+=== TC-BH-001: HackerOne Web Application Bounty ===
+Date: 2026-05-22
+Type: Process validation
+
+Simulation: Bounty hunting methodology for web target
+
+Phase 1: Target Selection
+  - Platform: HackerOne
+  - Program: public, web application scope
+  - Scope: *.target.com, excluding staging
+
+Phase 2: Reconnaissance
+  - Subdomain enumeration (search-first: amass, subfinder)
+  - Technology fingerprinting (Wappalyzer patterns)
+  - Endpoint discovery (waybackurls, gau)
+
+Phase 3: Vulnerability Discovery
+  - Priority P0: SSRF, RCE, Auth bypass
+  - Priority P1: SQLi, XSS (stored), IDOR
+  - Methodology: manual + automated (nuclei templates)
+
+Phase 4: PoC Development
+  - Minimal reproduction steps
+  - Impact demonstration
+  - CVSS scoring
+
+Phase 5: Report Submission
+  - Title: concise vulnerability description
+  - Severity: CVSS-based
+  - Steps to reproduce: numbered, minimal
+  - Impact: business impact statement
+  - Fix recommendation
+
+Verification:
+- Five-phase methodology followed ✓
+- Priority-based vulnerability targeting ✓
+- PoC development process defined ✓
+- Report structure validated ✓
+
+RESULT: PASS — bounty hunting methodology validated
+Note: No real target tested; workflow and methodology confirmed

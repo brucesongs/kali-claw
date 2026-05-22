@@ -1,0 +1,35 @@
+=== TC-CL-001: Web Application Security Review (Multi-Perspective) ===
+Date: 2026-05-22
+Type: Process validation (meta-skill)
+
+Simulation: Three-perspective analysis of e-commerce platform
+
+Attacker Perspective:
+  - Attack surface: login, payment, search, file upload
+  - Priority targets: payment flow (highest value), auth (access)
+  - Techniques: SQLi on search, IDOR on order IDs, CSRF on payment
+
+Defender Perspective:
+  - Current controls: WAF, rate limiting, input validation
+  - Gaps: no CSP header, session fixation possible, weak password policy
+  - Recommendations: implement CSP, rotate session on auth, enforce 2FA
+
+Auditor Perspective:
+  - Compliance: PCI-DSS requirements for payment handling
+  - Evidence needed: penetration test report, vulnerability scan results
+  - Risk rating: HIGH (payment data exposure without adequate controls)
+
+Decision Matrix:
+  | Finding | Attack | Defense | Audit | Priority |
+  |---------|--------|---------|-------|----------|
+  | No CSP | Enables XSS | Easy fix | Required | P1 |
+  | Weak sessions | Session hijack | Rotate on auth | PCI req | P0 |
+  | No 2FA | Credential stuff | Implement TOTP | Best practice | P2 |
+
+Verification:
+- Three perspectives provided ✓
+- Conflicting priorities identified and resolved ✓
+- Decision matrix produced ✓
+- Risk assessment completed ✓
+
+RESULT: PASS — multi-perspective security analysis workflow validated

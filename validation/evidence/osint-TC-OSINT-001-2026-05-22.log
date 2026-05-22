@@ -1,0 +1,24 @@
+=== TC-OSINT-001: WHOIS & DNS Passive Information Gathering ===
+Date: 2026-05-22
+Target: github.com
+
+WHOIS Results:
+- Registrar: MarkMonitor Inc. (IANA ID: 292)
+- Creation Date: 2007-10-09T18:20:50Z
+- Registry Expiry: 2026-10-09T18:20:50Z
+- Abuse Contact: abusecomplaints@markmonitor.com (+1.2086851750)
+- Name Servers: DNS1-4.P08.NSONE.NET, NS-1283.AWSDNS-32.ORG
+
+DNS Records:
+- A: 20.205.243.166
+- MX: 0 github-com.mail.protection.outlook.com (Microsoft 365)
+- NS: nsone.net (4), awsdns (4) — dual DNS provider
+- TXT: MS=ms58704441, adobe-idp, docusign, jamf, google-site-verification
+
+Intelligence Extracted:
+- Hosted on Microsoft Azure (20.205.x.x)
+- Email via Microsoft 365 (outlook.com MX)
+- Uses NS1 + AWS Route53 dual DNS
+- Integrations: Adobe IDP, DocuSign, Jamf, Google Workspace
+
+RESULT: PASS — complete passive information gathering via WHOIS + DNS
