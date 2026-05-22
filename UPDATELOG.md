@@ -1,3 +1,132 @@
+# kali-claw v0.1.9 技能实践验证报告
+
+*Generated: 2026-05-22 | Version: 0.1.8 → 0.1.9 | New: Validation System | Total Skills: 49*
+
+---
+
+## 摘要
+
+v0.1.8 将全部 49 个技能域提升至 FULL 级别（SKILL.md + payloads.md + test-cases.md + guides/）。v0.1.9 建立实践验证基础设施，为每个技能域选取 1 个代表性测试用例，提供结构化执行手册和证据追踪系统，证明技能在真实 Kali 环境中可执行。
+
+---
+
+## 一、验证系统设计
+
+### 1.1 核心组件
+
+| 组件 | 文件 | 用途 |
+|------|------|------|
+| 验证追踪器 | `validation/VALIDATION-TRACKER.md` | 49 行主表，追踪每个技能的验证状态 |
+| 执行手册 | `validation/VALIDATION-GUIDE.md` | 环境要求、工作流、证据标准、执行顺序 |
+| 证据目录 | `validation/evidence/` | 终端日志、录制、截图、pcap 存储 |
+
+### 1.2 状态模型
+
+| 状态 | 含义 |
+|------|------|
+| PASS | 所有预期结果验证通过，证据已捕获 |
+| FAIL | 已执行但预期结果未达成，根因记录在备注 |
+| PARTIAL | 部分结果验证通过，其余因环境限制无法测试 |
+| BLOCKED | 无法执行（硬件/软件/环境约束） |
+| PENDING | 尚未尝试 |
+
+### 1.3 测试用例选取策略
+
+每个技能域选取第一个（最基础的）测试用例，代表该技能的核心能力：
+
+| 类别 | 示例 | TC ID |
+|------|------|-------|
+| Web 攻击 | web-sqli | TC-S001: GET 参数注入点检测 |
+| 网络 | network-pentest | TC-NP-001: 主机发现与拓扑映射 |
+| 漏洞利用 | password-attack | TC-PA-001: SSH 字典暴力破解 |
+| 元/流程 | chronicle | TC-CH-001: P0 事件记录 |
+| 专项 | wifi-pentest | TC-WIFI-001: 全频段被动扫描 |
+
+---
+
+## 二、执行手册要点
+
+### 2.1 环境需求
+
+- Kali Linux 2025-2（ARM64 或 x86_64）
+- Docker CE + Docker Compose v2
+- 8 GB RAM（推荐 16 GB）
+- 50 GB 磁盘空间
+- 可选：监听模式无线网卡、USB-UART 适配器、Android 设备
+
+### 2.2 推荐执行顺序（8 批次）
+
+1. **基础设施**：docker-patterns → terminal-ops
+2. **Web 技能**：web-sqli → web-xss → web-ssrf → web-auth-bypass → web-access-control → api-security
+3. **网络/侦察**：network-pentest → recon-osint → osint → vulnerability-assessment
+4. **漏洞利用**：password-attack → post-exploitation → binary-reverse → crypto-attacks
+5. **专项领域**：cloud-security → container-security → supply-chain-security → mobile-security
+6. **研究/OSINT**：deep-research → social-intelligence → social-engineering → exa-search
+7. **元/流程技能**：chronicle → continuous-learning → safety-guard → autonomous-loops → 其余
+8. **硬件依赖**（可能 BLOCKED）：wifi-pentest → hardware-security → ai-fuzzing → ai-security
+
+### 2.3 证据标准
+
+- 命名规范：`evidence/{skill-domain}-{TC-ID}-{YYYY-MM-DD}.{ext}`
+- 最低要求：PASS 需终端日志；FAIL 需日志+偏差说明；BLOCKED 仅需备注说明
+- 工具：`script`、`asciinema`、`scrot`、`tcpdump`
+
+---
+
+## 三、预期挑战与缓解
+
+| 技能 | 挑战 | 缓解方案 |
+|------|------|---------|
+| wifi-pentest | 需要监听模式无线网卡 | 标记 BLOCKED |
+| hardware-security | 需要物理 UART/JTAG | binwalk 固件分析 → PARTIAL |
+| mobile-security | 需要 Android 设备/模拟器 | jadx/apktool 静态分析 → PARTIAL |
+| cloud-security | 需要 AWS/GCP 账户 | LocalStack 模拟 → PARTIAL |
+| social-engineering | 需要邮件基础设施 | Mailhog 本地 SMTP |
+| 元技能 | 无工具输出 | 验证流程产物（文件创建、状态转换） |
+
+---
+
+## 四、统计数据
+
+| 指标 | 数量 |
+|------|------|
+| 新增文件 | 3（追踪器、指南、.gitkeep） |
+| 新增目录 | 2（validation/、validation/evidence/） |
+| 选取测试用例 | 49 |
+| 可直接验证 | ~40（基础 Kali + Docker） |
+| 预计 BLOCKED | ~4 |
+| 预计 PARTIAL | ~5 |
+
+---
+
+## 五、与前序版本的关系
+
+```
+v0.1.6: 基础设施技能从"理解"升级到"可执行"（payloads + test-cases）
+v0.1.7: 新增 4 个前沿领域技能域（AI/硬件/多代理/MCP）
+v0.1.8: 全部 49 技能达到 FULL 级别（补全 guides/）
+v0.1.9: 建立验证体系，证明技能在实际环境中可执行 ← 当前
+```
+
+---
+
+## 六、文件变更清单
+
+| 变更类型 | 内容 |
+|----------|------|
+| 新增目录 | `validation/`、`validation/evidence/` |
+| 新增文件 | `validation/VALIDATION-TRACKER.md`（49 行追踪表） |
+| 新增文件 | `validation/VALIDATION-GUIDE.md`（执行手册） |
+| 新增文件 | `validation/evidence/.gitkeep` |
+| 新增文件 | `RELEASE-v0.1.9.md`（发布公告） |
+| 更新文件 | `VERSION`（0.1.8 → 0.1.9） |
+| 更新文件 | `README.md`（版本号 0.1.7 → 0.1.9） |
+| 更新文件 | `CHANGELOG.md`（+v0.1.9 条目） |
+| 更新文件 | `MEMORY.md`（当前焦点 + 关键决策 + 跟进事项） |
+| 更新文件 | `UPDATELOG.md`（+v0.1.9 报告） |
+
+---
+
 # kali-claw v0.1.7 New Skill Domains Report
 
 *Generated: 2026-05-16 | Version: 0.1.6 → 0.1.7 | New Skills: 4 | Total: 49*

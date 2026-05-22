@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - **Uptime**: ~10 weeks (since 2026-03-14 launch)
-- **Current Focus**: All skills at FULL status; focus shifts to practice validation and cross-skill integration
+- **Current Focus**: Practice validation — executing 1 test case per skill domain in Kali environment
 
 ---
 
@@ -52,6 +52,11 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Completed all 49 skills to FULL enrichment: added payloads+test-cases for 3 MINIMAL skills, guides/ for 10 skills
 - Every skill now has SKILL.md + payloads.md + test-cases.md + guides/
 
+### 2026-05-22: Practice Validation Infrastructure (v0.1.9)
+- Created validation/ directory with tracker (49 test cases) and execution playbook
+- Selected 1 representative test case per skill domain (first/most fundamental)
+- Designed 5-level status system (PASS/FAIL/PARTIAL/BLOCKED/PENDING) and 8-batch execution order
+
 ---
 
 ## Lessons Learned
@@ -79,7 +84,8 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 
 ## Follow-ups
 
-- [ ] Practice validation: execute at least 1 test case per FULL skill domain
+- [x] Practice validation: execute at least 1 test case per FULL skill domain — infrastructure created (v0.1.9)
+- [ ] Execute validation: run all 49 test cases in Kali environment
 - [ ] Cross-skill integration testing: validate ECC Pipeline end-to-end flows
 - [ ] Skill quality scoring system: automated coverage metrics for payloads/test-cases/guides
 

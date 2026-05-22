@@ -4,6 +4,21 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.9] - 2026-05-22
+
+### Added
+
+- `validation/VALIDATION-TRACKER.md` — Master validation tracking table (49 skills, 1 test case each)
+- `validation/VALIDATION-GUIDE.md` — Execution playbook: environment setup, workflow, evidence standards, execution order
+- `validation/evidence/` — Evidence storage directory for validation artifacts
+- `RELEASE-v0.1.9.md` — Release announcement
+
+### Changed
+
+- `VERSION` — 0.1.8 → 0.1.9
+- `MEMORY.md` — Updated current focus to validation, added v0.1.9 key decision
+- `CHANGELOG.md` — v0.1.9 entry
+
 ## [0.1.8] - 2026-05-22
 
 ### Added
