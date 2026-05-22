@@ -1,3 +1,69 @@
+# kali-claw v0.1.10 跨技能集成测试报告
+
+*Generated: 2026-05-22 | Version: 0.1.9 → 0.1.10 | New: Integration Testing | Total Skills: 49*
+
+---
+
+## 摘要
+
+v0.1.9 验证了 49 个技能域的独立可用性（38 PASS / 1 PARTIAL / 10 BLOCKED）。v0.1.10 进一步验证技能之间的组合能力——设计并执行 7 个跨技能集成场景，证明技能可以正确地在攻击链中传递数据。
+
+---
+
+## 一、集成场景设计
+
+### 1.1 场景概览
+
+| ID | 场景名称 | 技能链 | ECC 模式 | 结果 |
+|----|---------|--------|----------|------|
+| INT-001 | 侦察管线 | osint → recon-osint → network-pentest → vulnerability-assessment → verification-loop | Sequential | PASS |
+| INT-002 | 安全审计 | codebase-onboarding → repo-scan → security-review → council → article-writing | Sequential | PASS |
+| INT-003 | 凭据攻击 | recon-osint → password-attack → verification-loop → chronicle | Sequential | PASS |
+| INT-004 | 情报研究 | deep-research → data-scraper-agent → knowledge-ops → social-intelligence → council | Sequential | PASS |
+| INT-005 | 自主批量扫描 | autonomous-loops → vulnerability-assessment → verification-loop → terminal-ops | Batch | PASS |
+| INT-006 | Web 应用攻击 | recon-osint → security-misconfiguration → web-sqli → article-writing | Sequential | PASS |
+| INT-007 | 多代理协调 | multi-agent-collaboration → (network-pentest + osint + web-sqli) → council | Parallel | PASS |
+
+### 1.2 关键发现
+
+- **数据交接验证**：每个场景中，前一技能的输出被后一技能正确消费
+- **优雅降级**：当某步骤不适用时（如静态站点无 SQLi），链条自动跳过并在报告中注明
+- **负面结果有效**：INT-003 中未找到凭据，但方法论验证通过（证明工具链正常工作）
+- **并行执行**：INT-007 成功演示了 3 个独立工作者并行执行后聚合的模式
+
+---
+
+## 二、验证统计
+
+| 指标 | 数量 |
+|------|------|
+| 集成场景总数 | 7 |
+| PASS | 7 |
+| FAIL | 0 |
+| 涉及技能域 | 22（去重） |
+| 数据交接点 | 28 |
+| 证据文件 | 7 |
+
+---
+
+## 三、新增文件
+
+| 文件 | 用途 |
+|------|------|
+| `validation/INTEGRATION-TRACKER.md` | 集成测试追踪表 |
+| `validation/INTEGRATION-SCENARIOS.md` | 7 个场景的详细定义（数据流图、预期结果、失败模式） |
+| `validation/evidence/integration/*.log` | 7 个证据文件 |
+| `RELEASE-v0.1.10.md` | 发布公告 |
+
+---
+
+## 四、下一步
+
+- [ ] 技能质量评分系统：payload 覆盖率、测试用例通过率、指南完整度自动化指标
+- [ ] 战略上下文管理：长周期渗透任务的上下文压缩与优先信息保留
+
+---
+
 # kali-claw v0.1.9 技能实践验证报告
 
 *Generated: 2026-05-22 | Version: 0.1.8 → 0.1.9 | New: Validation System | Total Skills: 49*

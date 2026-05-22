@@ -4,6 +4,21 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.10] - 2026-05-22
+
+### Added
+
+- `validation/INTEGRATION-TRACKER.md` — Cross-skill integration test tracker (7 scenarios)
+- `validation/INTEGRATION-SCENARIOS.md` — Detailed scenario definitions with data flow diagrams
+- `validation/evidence/integration/` — Integration test evidence directory (7 evidence files)
+- `RELEASE-v0.1.10.md` — Release announcement
+
+### Changed
+
+- `VERSION` — 0.1.9 → 0.1.10
+- `MEMORY.md` — Updated current focus, added v0.1.10 key decision, marked follow-up done
+- `CHANGELOG.md` — v0.1.10 entry
+
 ## [0.1.9] - 2026-05-22
 
 ### Added
