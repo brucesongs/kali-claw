@@ -1,0 +1,30 @@
+{
+  "skill": "browser-qa",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 130,
+    "payload_section_count": 1,
+    "payload_code_blocks": 6,
+    "test_case_count": 0,
+    "field_completeness_score": 0.29,
+    "guide_file_count": 2,
+    "skill_section_score": 0.25
+  },
+  "normalized_scores": {
+    "payload_word": 5.2,
+    "payload_section": 5.7,
+    "payload_code": 6.9,
+    "test_case": 0.0,
+    "field": 29.0,
+    "guide": 40.0,
+    "skill_section": 25.0
+  },
+  "component_scores": {
+    "skill_md": 25.00,
+    "payloads_md": 5.93,
+    "test_cases_md": 14.50,
+    "guides": 40.0
+  },
+  "overall_score": 19.9,
+  "tier": "Weak"
+}

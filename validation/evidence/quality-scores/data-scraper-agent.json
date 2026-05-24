@@ -1,0 +1,30 @@
+{
+  "skill": "data-scraper-agent",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 116,
+    "payload_section_count": 3,
+    "payload_code_blocks": 4,
+    "test_case_count": 0,
+    "field_completeness_score": 0.14,
+    "guide_file_count": 2,
+    "skill_section_score": 0.25
+  },
+  "normalized_scores": {
+    "payload_word": 4.6,
+    "payload_section": 17.1,
+    "payload_code": 4.6,
+    "test_case": 0.0,
+    "field": 14.0,
+    "guide": 40.0,
+    "skill_section": 25.0
+  },
+  "component_scores": {
+    "skill_md": 25.00,
+    "payloads_md": 8.77,
+    "test_cases_md": 7.00,
+    "guides": 40.0
+  },
+  "overall_score": 18.5,
+  "tier": "Weak"
+}

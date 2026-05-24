@@ -1,0 +1,30 @@
+{
+  "skill": "council",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 2021,
+    "payload_section_count": 18,
+    "payload_code_blocks": 7,
+    "test_case_count": 0,
+    "field_completeness_score": 0.43,
+    "guide_file_count": 2,
+    "skill_section_score": 0.88
+  },
+  "normalized_scores": {
+    "payload_word": 80.2,
+    "payload_section": 100.0,
+    "payload_code": 8.0,
+    "test_case": 0.0,
+    "field": 43.0,
+    "guide": 40.0,
+    "skill_section": 88.0
+  },
+  "component_scores": {
+    "skill_md": 88.00,
+    "payloads_md": 62.73,
+    "test_cases_md": 21.50,
+    "guides": 40.0
+  },
+  "overall_score": 48.5,
+  "tier": "Adequate"
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "continuous-learning",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 2626,
+    "payload_section_count": 15,
+    "payload_code_blocks": 24,
+    "test_case_count": 0,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "skill_section_score": 0.19
+  },
+  "normalized_scores": {
+    "payload_word": 86.3,
+    "payload_section": 93.3,
+    "payload_code": 27.4,
+    "test_case": 0.0,
+    "field": 86.0,
+    "guide": 20.0,
+    "skill_section": 19.0
+  },
+  "component_scores": {
+    "skill_md": 19.00,
+    "payloads_md": 69.00,
+    "test_cases_md": 43.00,
+    "guides": 20.0
+  },
+  "overall_score": 41.5,
+  "tier": "Adequate"
+}

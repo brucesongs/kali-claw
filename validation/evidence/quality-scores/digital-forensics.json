@@ -1,0 +1,30 @@
+{
+  "skill": "digital-forensics",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 1300,
+    "payload_section_count": 10,
+    "payload_code_blocks": 19,
+    "test_case_count": 10,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 2,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 46.0,
+    "payload_section": 82.2,
+    "payload_code": 21.7,
+    "test_case": 85.0,
+    "field": 71.0,
+    "guide": 40.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 49.97,
+    "test_cases_md": 78.00,
+    "guides": 40.0
+  },
+  "overall_score": 63.4,
+  "tier": "Strong"
+}

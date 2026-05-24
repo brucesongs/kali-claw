@@ -1,0 +1,30 @@
+{
+  "skill": "insecure-design",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 1009,
+    "payload_section_count": 8,
+    "payload_code_blocks": 22,
+    "test_case_count": 10,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 1,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 40.2,
+    "payload_section": 50.0,
+    "payload_code": 25.1,
+    "test_case": 85.0,
+    "field": 71.0,
+    "guide": 20.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 38.43,
+    "test_cases_md": 78.00,
+    "guides": 20.0
+  },
+  "overall_score": 54.9,
+  "tier": "Adequate"
+}

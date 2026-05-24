@@ -1,0 +1,30 @@
+{
+  "skill": "cloud-security",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 1038,
+    "payload_section_count": 8,
+    "payload_code_blocks": 19,
+    "test_case_count": 11,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 4,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 40.8,
+    "payload_section": 50.0,
+    "payload_code": 21.7,
+    "test_case": 87.5,
+    "field": 86.0,
+    "guide": 53.3,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 37.50,
+    "test_cases_md": 86.75,
+    "guides": 53.3
+  },
+  "overall_score": 65.6,
+  "tier": "Strong"
+}

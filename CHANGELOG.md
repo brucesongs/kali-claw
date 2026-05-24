@@ -4,6 +4,71 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.12] - 2026-05-23
+
+### Added
+
+- 16 new practical guides across 13 skills:
+  - `data-scraper-agent/guides/nvd-api-scraping-guide.md` — NVD API methodology
+  - `data-scraper-agent/guides/data-extraction-patterns-guide.md` — Data extraction patterns
+  - `browser-qa/guides/playwright-auth-testing-guide.md` — Auth testing with Playwright
+  - `browser-qa/guides/network-interception-guide.md` — Network request interception
+  - `exa-search/guides/semantic-search-query-design-guide.md` — Query design methodology
+  - `exa-search/guides/exa-api-configuration-guide.md` — API configuration guide
+  - `docker-patterns/guides/docker-vulnerability-patterns-guide.md` — Docker vulnerability patterns
+  - `repo-scan/guides/secret-detection-patterns-guide.md` — Secret detection patterns
+  - `terminal-ops/guides/terminal-session-management-guide.md` — Session management
+  - `verification-loop/guides/remediation-verification-patterns-guide.md` — Patch verification
+  - `mcp-server-patterns/guides/mcp-tool-implementation-guide.md` — MCP tool implementation
+  - `autonomous-loops/guides/autonomous-pentest-orchestration-guide.md` — Orchestration guide
+  - `hardware-security/guides/hardware-exploitation-patterns-guide.md` — Hardware exploitation
+  - `security-review/guides/code-review-security-patterns-guide.md` — Code review patterns
+  - `multi-agent-collaboration/guides/agent-failure-handling-and-recovery-guide.md` — Failure handling
+  - `search-first/guides/tool-evaluation-and-selection-guide.md` — Tool evaluation
+- `RELEASE-v0.1.12.md` — Release announcement (Chinese)
+
+### Fixed
+
+- `validation/SCORE.sh` — SKILL.md section detection: added `-E` flag for extended regex matching
+- `validation/SCORE.sh` — grep -c handling: fixed exit code handling for zero matches (returns 1, not 0)
+
+### Changed
+
+- `VERSION` — 0.1.11 → 0.1.12
+- `README.md` — Version 0.1.12
+- `QUALITY-SCORE-TRACKER.md` — Updated with new scores and tier distribution
+- `WEAK-SKILL-IMPROVEMENT-PLANS.md` — Marked complete, recorded progress
+
+### Quality Improvement Results
+
+- **Tier distribution**: 9 Weak (18%), 18 Adequate (37%), 20 Strong (41%), 2 Excellent (4%)
+- **18 skills promoted to Strong tier**: ai-fuzzing, api-security, binary-reverse, cloud-security, container-security, crypto-attacks, deep-research, digital-forensics, mobile-security, network-pentest, osint, password-attack, post-exploitation, social-engineering, supply-chain-security, vulnerability-assessment, web-access-control, web-auth-bypass
+- **2 skills promoted to Excellent tier**: recon-osint, web-sqli
+- **Average score**: 40.5 → 50.5 (+10)
+
+## [0.1.11] - 2026-05-23
+
+### Added
+
+- `validation/SCORE.sh` — Bash script to compute quality metrics for all 49 skills
+- `validation/QUALITY-SCORE-TRACKER.md` — Master quality score tracker (all 49 skills)
+- `validation/QUALITY-SCORE-GUIDE.md` — Metric definitions + tier definitions + analysis findings
+- `validation/evidence/quality-scores/` — Per-skill JSON score data (49 files)
+- `RELEASE-v0.1.11.md` — Release announcement
+
+### Changed
+
+- `VERSION` — 0.1.10 → 0.1.11
+- `MEMORY.md` — Marked quality scoring follow-up done, added v0.1.11 key decision
+- `CHANGELOG.md` — v0.1.11 entry
+
+### Analysis Results
+
+- **Tier distribution**: 22 Weak (45%), 25 Adequate (51%), 2 Strong (4%), 0 Excellent
+- **Top skill**: web-sqli (76.1) — 24 guides, strong payloads and test cases
+- **Bottom skill**: data-scraper-agent (4.7) — no guides, minimal test cases
+- **Key insight**: Guide poverty is the primary weakness (22 skills with 0 guides)
+
 ## [0.1.10] - 2026-05-22
 
 ### Added

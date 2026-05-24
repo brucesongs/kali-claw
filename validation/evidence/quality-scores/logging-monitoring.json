@@ -1,0 +1,30 @@
+{
+  "skill": "logging-monitoring",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 1933,
+    "payload_section_count": 8,
+    "payload_code_blocks": 25,
+    "test_case_count": 10,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 58.7,
+    "payload_section": 50.0,
+    "payload_code": 28.6,
+    "test_case": 85.0,
+    "field": 86.0,
+    "guide": 20.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 45.77,
+    "test_cases_md": 85.50,
+    "guides": 20.0
+  },
+  "overall_score": 59.4,
+  "tier": "Adequate"
+}

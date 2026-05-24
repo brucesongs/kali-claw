@@ -1,0 +1,30 @@
+{
+  "skill": "docker-patterns",
+  "timestamp": "2026-05-22T22:28:32Z",
+  "metrics": {
+    "payload_word_count": 856,
+    "payload_section_count": 7,
+    "payload_code_blocks": 15,
+    "test_case_count": 0,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 3,
+    "skill_section_score": 0.19
+  },
+  "normalized_scores": {
+    "payload_word": 34.2,
+    "payload_section": 40.0,
+    "payload_code": 17.1,
+    "test_case": 0.0,
+    "field": 71.0,
+    "guide": 46.7,
+    "skill_section": 19.0
+  },
+  "component_scores": {
+    "skill_md": 19.00,
+    "payloads_md": 30.43,
+    "test_cases_md": 35.50,
+    "guides": 46.7
+  },
+  "overall_score": 34.3,
+  "tier": "Weak"
+}
