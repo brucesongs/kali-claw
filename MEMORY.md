@@ -2,7 +2,7 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-05-22
+**Last Updated**: 2026-05-25
 
 ---
 
@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - **Uptime**: ~10 weeks (since 2026-03-14 launch)
-- **Current Focus**: Cross-skill integration testing validated — 7 multi-skill pipelines proven end-to-end
+- **Current Focus**: Skill quality improvement — 16 guides added, 18 skills promoted to Strong tier, 2 to Excellent
 
 ---
 
@@ -63,6 +63,19 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Proved skills compose correctly: recon→exploit→verify→report pipelines work
 - Key insight: chains degrade gracefully when a step is N/A (e.g., no SQLi on static target)
 
+### 2026-05-23: Skill Quality Scoring (v0.1.11)
+- Created automated scoring system (SCORE.sh) with 7 metrics across 4 components
+- Scored all 49 skills: 22 Weak (45%), 25 Adequate (51%), 2 Strong (4%), 0 Excellent
+- Key insight: Guide poverty is primary weakness — 22 skills have 0 guides
+- Quick wins identified: docker-patterns, terminal-ops, search-first can reach Adequate with 1-2 guides each
+
+### 2026-05-25: Skill Quality Improvement (v0.1.12)
+- Created 16 practical guides across 13 Weak tier skills
+- Fixed SCORE.sh bugs: SKILL.md section detection (-E flag), grep -c exit code handling
+- Tier distribution improved: Weak 22→9, Adequate 25→18, Strong 2→20, Excellent 0→2
+- 18 skills promoted to Strong tier, 2 skills to Excellent tier (web-sqli, recon-osint)
+- Average score increased: 40.5 → 50.5 (+10)
+
 ---
 
 ## Lessons Learned
@@ -92,7 +105,8 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 
 - [x] Practice validation: execute at least 1 test case per FULL skill domain — infrastructure created (v0.1.9)
 - [x] Cross-skill integration testing: validate multi-skill pipelines end-to-end (v0.1.10)
-- [ ] Skill quality scoring system: automated coverage metrics for payloads/test-cases/guides
+- [x] Skill quality scoring: automated metrics + baseline established (v0.1.11)
+- [x] Skill quality improvement: 16 guides added + bugs fixed (v0.1.12)
 
 ---
 
