@@ -1,30 +1,30 @@
 {
   "skill": "browser-qa",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
-    "payload_word_count": 130,
-    "payload_section_count": 1,
-    "payload_code_blocks": 6,
-    "test_case_count": 0,
-    "field_completeness_score": 0.29,
+    "payload_word_count": 708,
+    "payload_section_count": 7,
+    "payload_code_blocks": 17,
+    "test_case_count": 5,
+    "field_completeness_score": 0.71,
     "guide_file_count": 2,
-    "skill_section_score": 0.25
+    "skill_section_score": 0.40
   },
   "normalized_scores": {
-    "payload_word": 5.2,
-    "payload_section": 5.7,
-    "payload_code": 6.9,
-    "test_case": 0.0,
-    "field": 29.0,
+    "payload_word": 28.3,
+    "payload_section": 40.0,
+    "payload_code": 19.4,
+    "test_case": 40.0,
+    "field": 71.0,
     "guide": 40.0,
-    "skill_section": 25.0
+    "skill_section": 40.0
   },
   "component_scores": {
-    "skill_md": 25.00,
-    "payloads_md": 5.93,
-    "test_cases_md": 14.50,
+    "skill_md": 40.00,
+    "payloads_md": 29.23,
+    "test_cases_md": 55.50,
     "guides": 40.0
   },
-  "overall_score": 19.9,
-  "tier": "Weak"
+  "overall_score": 41.4,
+  "tier": "Adequate"
 }

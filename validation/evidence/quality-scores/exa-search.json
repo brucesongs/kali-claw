@@ -1,30 +1,30 @@
 {
   "skill": "exa-search",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
-    "payload_word_count": 211,
-    "payload_section_count": 6,
-    "payload_code_blocks": 6,
-    "test_case_count": 0,
-    "field_completeness_score": 0.14,
+    "payload_word_count": 823,
+    "payload_section_count": 10,
+    "payload_code_blocks": 17,
+    "test_case_count": 2,
+    "field_completeness_score": 0.57,
     "guide_file_count": 2,
-    "skill_section_score": 0.19
+    "skill_section_score": 0.40
   },
   "normalized_scores": {
-    "payload_word": 8.4,
-    "payload_section": 34.3,
-    "payload_code": 6.9,
-    "test_case": 0.0,
-    "field": 14.0,
+    "payload_word": 32.9,
+    "payload_section": 82.2,
+    "payload_code": 19.4,
+    "test_case": 16.0,
+    "field": 57.0,
     "guide": 40.0,
-    "skill_section": 19.0
+    "skill_section": 40.0
   },
   "component_scores": {
-    "skill_md": 19.00,
-    "payloads_md": 16.53,
-    "test_cases_md": 7.00,
+    "skill_md": 40.00,
+    "payloads_md": 44.83,
+    "test_cases_md": 36.50,
     "guides": 40.0
   },
-  "overall_score": 19.9,
-  "tier": "Weak"
+  "overall_score": 40.4,
+  "tier": "Adequate"
 }

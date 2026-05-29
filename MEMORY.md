@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - **Uptime**: ~10 weeks (since 2026-03-14 launch)
-- **Current Focus**: Skill quality improvement — 16 guides added, 18 skills promoted to Strong tier, 2 to Excellent
+- **Current Focus**: Zero Weak achieved — all 49 skills at Adequate+, average score 59.4
 
 ---
 
@@ -75,6 +75,12 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Tier distribution improved: Weak 22→9, Adequate 25→18, Strong 2→20, Excellent 0→2
 - 18 skills promoted to Strong tier, 2 skills to Excellent tier (web-sqli, recon-osint)
 - Average score increased: 40.5 → 50.5 (+10)
+
+### 2026-05-29: Zero Weak Achieved (v0.1.13)
+- Fixed SCORE.sh: section matching (heading-count vs name-match), TC pattern, field completeness
+- Expanded 3 zero-content skills (data-scraper-agent, browser-qa, exa-search) with payloads + guides + test cases
+- All 49 skills now Adequate or above — zero Weak remaining
+- Average score: 50.5 → 59.4 (+8.9), median: 45.9 → 59.2 (+13.3)
 
 ---
 

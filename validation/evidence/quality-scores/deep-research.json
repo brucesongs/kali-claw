@@ -1,30 +1,30 @@
 {
   "skill": "deep-research",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
     "payload_word_count": 1604,
     "payload_section_count": 10,
     "payload_code_blocks": 23,
     "test_case_count": 13,
-    "field_completeness_score": 0.86,
+    "field_completeness_score": 1.00,
     "guide_file_count": 4,
-    "skill_section_score": 0.94
+    "skill_section_score": 0.92
   },
   "normalized_scores": {
     "payload_word": 52.1,
     "payload_section": 82.2,
     "payload_code": 26.3,
     "test_case": 92.5,
-    "field": 86.0,
+    "field": 100.0,
     "guide": 53.3,
-    "skill_section": 94.0
+    "skill_section": 92.0
   },
   "component_scores": {
-    "skill_md": 94.00,
+    "skill_md": 92.00,
     "payloads_md": 53.53,
-    "test_cases_md": 89.25,
+    "test_cases_md": 96.25,
     "guides": 53.3
   },
-  "overall_score": 70.3,
+  "overall_score": 72.1,
   "tier": "Strong"
 }

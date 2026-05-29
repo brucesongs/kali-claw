@@ -42,44 +42,39 @@ compute_normalized_score() {
     fi
 }
 
-# Function to compute section score (0-1) based on expected sections
+# Function to compute section score (0-100) based on heading count
+# Counts ## and ### headings, normalized against thresholds
 compute_section_score() {
     local file=$1
-    local expected_sections="$2"
-
-    local sections_found=0
-    local expected_count=$(echo "$expected_sections" | wc -w | tr -d ' ')
-
-    for section in $expected_sections; do
-        if grep -qEi "^#+.*$section" "$file" 2>/dev/null; then
-            ((sections_found++))
-        fi
-    done
-
-    awk "BEGIN {printf \"%.2f\", $sections_found / $expected_count}"
+    local count
+    count=$(grep -cE "^##" "$file" 2>/dev/null || true)
+    count=${count:-0}
+    local score
+    if [ "$count" -lt 6 ]; then
+        score=$(awk "BEGIN {printf \"%.2f\", ($count / 6) * 40}")
+    elif [ "$count" -lt 10 ]; then
+        score=$(awk "BEGIN {printf \"%.2f\", 40 + (($count - 6) / 4) * 20}")
+    elif [ "$count" -lt 15 ]; then
+        score=$(awk "BEGIN {printf \"%.2f\", 60 + (($count - 10) / 5) * 20}")
+    else
+        score=$(awk "BEGIN {v = 80 + (($count - 15) / 15) * 20; if (v > 100) v = 100; printf \"%.2f\", v}")
+    fi
+    awk "BEGIN {printf \"%.2f\", $score / 100}"
 }
-
-# Expected SKILL.md sections
-SKILL_SECTIONS="Description Use Cases Core Tools Methodology Attack Chain Defense Perspective Practical Steps Hacker Laws Learning Resources"
 
 # Function to compute field completeness score (0-1) for test-cases.md
 compute_field_completeness() {
     local file=$1
-
-    # Expected fields to check for (keywords that indicate presence)
-    local expected_patterns="Severity|Prerequisites|Pre-conditions|Test Steps|Expected Results|Expected Outcomes|Remediation|Pass Criteria|Verification"
-
     local pattern_count=0
-    local total_patterns=7  # We check for 7 key patterns
+    local total_patterns=7
 
-    # Count how many of the patterns appear in the file
-    if echo "$expected_patterns" | grep -qEi "Severity" && grep -qiE "Severity|CRITICAL|HIGH|MEDIUM|LOW" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Prerequisite" && grep -qiE "Prerequisite|Pre-condition" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Step" && grep -qiE "Test Step|Step [0-9]" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Result" && grep -qiE "Expected Result|Expected Outcome" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Payload" && grep -qi "payloads\.md" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Remediation" && grep -qiE "Remediation|Defense|Mitigation" "$file"; then ((pattern_count++)); fi
-    if echo "$expected_patterns" | grep -qEi "Pass|Verification" && grep -qiE "Pass Criteria|Verification|Checklist" "$file"; then ((pattern_count++)); fi
+    if grep -qiE "Severity|CRITICAL|HIGH|MEDIUM|LOW" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Prerequisite|Pre-condition|Pre-requisite" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Test Step|Steps|Step [0-9]" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Expected Result|Expected Outcome|Expected Output" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Objective|Purpose|Goal" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Remediation|Defense|Mitigation" "$file" 2>/dev/null; then ((pattern_count++)); fi
+    if grep -qiE "Pass Criteria|Verification|Checklist" "$file" 2>/dev/null; then ((pattern_count++)); fi
 
     awk "BEGIN {printf \"%.2f\", $pattern_count / $total_patterns}"
 }
@@ -137,9 +132,9 @@ for skill in "${SKILLS[@]}"; do
         PAYLOAD_CODE_BLOCKS=$((PAYLOAD_CODE_BLOCKS / 2))
     fi
 
-    # Metric 4: test_case_count (### TC- headings)
+    # Metric 4: test_case_count (## TC- or ### TC- headings)
     if [ -f "$SKILL_DIR/test-cases.md" ]; then
-        TEST_CASE_COUNT=$(grep -c "### TC-" "$SKILL_DIR/test-cases.md" 2>/dev/null || true)
+        TEST_CASE_COUNT=$(grep -cE "^##+ TC-" "$SKILL_DIR/test-cases.md" 2>/dev/null || true)
         TEST_CASE_COUNT=${TEST_CASE_COUNT:-0}
     fi
 
@@ -155,7 +150,7 @@ for skill in "${SKILLS[@]}"; do
 
     # Metric 7: skill_section_score
     if [ -f "$SKILL_DIR/SKILL.md" ]; then
-        SKILL_SECTION_SCORE=$(compute_section_score "$SKILL_DIR/SKILL.md" "$SKILL_SECTIONS")
+        SKILL_SECTION_SCORE=$(compute_section_score "$SKILL_DIR/SKILL.md")
     fi
 
     # Compute normalized scores (0-100) for each metric

@@ -1,30 +1,30 @@
 {
   "skill": "data-scraper-agent",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
-    "payload_word_count": 116,
-    "payload_section_count": 3,
-    "payload_code_blocks": 4,
-    "test_case_count": 0,
-    "field_completeness_score": 0.14,
+    "payload_word_count": 647,
+    "payload_section_count": 8,
+    "payload_code_blocks": 16,
+    "test_case_count": 5,
+    "field_completeness_score": 0.86,
     "guide_file_count": 2,
-    "skill_section_score": 0.25
+    "skill_section_score": 0.40
   },
   "normalized_scores": {
-    "payload_word": 4.6,
-    "payload_section": 17.1,
-    "payload_code": 4.6,
-    "test_case": 0.0,
-    "field": 14.0,
+    "payload_word": 25.9,
+    "payload_section": 50.0,
+    "payload_code": 18.3,
+    "test_case": 40.0,
+    "field": 86.0,
     "guide": 40.0,
-    "skill_section": 25.0
+    "skill_section": 40.0
   },
   "component_scores": {
-    "skill_md": 25.00,
-    "payloads_md": 8.77,
-    "test_cases_md": 7.00,
+    "skill_md": 40.00,
+    "payloads_md": 31.40,
+    "test_cases_md": 63.00,
     "guides": 40.0
   },
-  "overall_score": 18.5,
-  "tier": "Weak"
+  "overall_score": 44.3,
+  "tier": "Adequate"
 }

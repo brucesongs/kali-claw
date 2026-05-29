@@ -1,30 +1,30 @@
 {
   "skill": "codebase-onboarding",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
     "payload_word_count": 1752,
     "payload_section_count": 7,
     "payload_code_blocks": 16,
-    "test_case_count": 0,
-    "field_completeness_score": 0.29,
+    "test_case_count": 5,
+    "field_completeness_score": 0.57,
     "guide_file_count": 4,
-    "skill_section_score": 0.38
+    "skill_section_score": 0.89
   },
   "normalized_scores": {
     "payload_word": 55.0,
     "payload_section": 40.0,
     "payload_code": 18.3,
-    "test_case": 0.0,
-    "field": 29.0,
+    "test_case": 40.0,
+    "field": 57.0,
     "guide": 53.3,
-    "skill_section": 38.0
+    "skill_section": 89.0
   },
   "component_scores": {
-    "skill_md": 38.00,
+    "skill_md": 89.00,
     "payloads_md": 37.77,
-    "test_cases_md": 14.50,
+    "test_cases_md": 48.50,
     "guides": 53.3
   },
-  "overall_score": 34.7,
-  "tier": "Weak"
+  "overall_score": 52.6,
+  "tier": "Adequate"
 }

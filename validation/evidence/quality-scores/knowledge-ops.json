@@ -1,30 +1,30 @@
 {
   "skill": "knowledge-ops",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
     "payload_word_count": 1185,
     "payload_section_count": 28,
     "payload_code_blocks": 12,
-    "test_case_count": 0,
-    "field_completeness_score": 0.29,
+    "test_case_count": 5,
+    "field_completeness_score": 0.57,
     "guide_file_count": 3,
-    "skill_section_score": 0.38
+    "skill_section_score": 0.91
   },
   "normalized_scores": {
     "payload_word": 43.7,
     "payload_section": 122.2,
     "payload_code": 13.7,
-    "test_case": 0.0,
-    "field": 29.0,
+    "test_case": 40.0,
+    "field": 57.0,
     "guide": 46.7,
-    "skill_section": 38.0
+    "skill_section": 91.0
   },
   "component_scores": {
-    "skill_md": 38.00,
+    "skill_md": 91.00,
     "payloads_md": 59.87,
-    "test_cases_md": 14.50,
+    "test_cases_md": 48.50,
     "guides": 46.7
   },
-  "overall_score": 39.7,
-  "tier": "Weak"
+  "overall_score": 57.8,
+  "tier": "Adequate"
 }

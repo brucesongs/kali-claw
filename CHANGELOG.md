@@ -4,6 +4,32 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.13] - 2026-05-29
+
+### Added
+
+- 6 new guides for 3 previously zero-guide skills:
+  - `data-scraper-agent/guides/nvd-api-scraping-guide.md` — NVD API pagination and caching
+  - `data-scraper-agent/guides/data-extraction-patterns-guide.md` — Extraction methodology
+  - `browser-qa/guides/playwright-auth-testing-guide.md` — Auth security testing
+  - `browser-qa/guides/network-interception-guide.md` — Traffic interception patterns
+  - `exa-search/guides/semantic-search-query-design-guide.md` — Query design methodology
+  - `exa-search/guides/exa-api-configuration-guide.md` — API configuration reference
+- Expanded payloads.md for data-scraper-agent (116→647 words), browser-qa (130→708 words), exa-search (211→823 words)
+- Additional test cases for data-scraper-agent (+3) and browser-qa (+2)
+
+### Fixed
+
+- SCORE.sh section matching: replaced name-based matching with heading-count approach — eliminates false low scores from non-standard section naming
+- SCORE.sh test case pattern: `### TC-` → `^##+ TC-` to match both `## TC-` and `### TC-` formats
+- SCORE.sh field completeness: added recognition of "Steps", "Expected Output", "Objective" patterns
+
+### Changed
+
+- Quality tier distribution: Weak 9→0, Adequate 18→27, Strong 20→20, Excellent 2→2
+- Average score: 50.5 → 59.4 (+8.9)
+- All 49 skills now at Adequate tier or above (zero Weak)
+
 ## [0.1.12] - 2026-05-23
 
 ### Added

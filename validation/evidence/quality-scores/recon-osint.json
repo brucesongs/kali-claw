@@ -1,30 +1,30 @@
 {
   "skill": "recon-osint",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
     "payload_word_count": 1515,
     "payload_section_count": 10,
     "payload_code_blocks": 31,
     "test_case_count": 11,
-    "field_completeness_score": 0.71,
+    "field_completeness_score": 0.86,
     "guide_file_count": 11,
-    "skill_section_score": 1.00
+    "skill_section_score": 0.81
   },
   "normalized_scores": {
     "payload_word": 50.3,
     "payload_section": 82.2,
     "payload_code": 35.4,
     "test_case": 87.5,
-    "field": 71.0,
+    "field": 86.0,
     "guide": 104.0,
-    "skill_section": 100.0
+    "skill_section": 81.0
   },
   "component_scores": {
-    "skill_md": 100.00,
+    "skill_md": 81.00,
     "payloads_md": 55.97,
-    "test_cases_md": 79.25,
+    "test_cases_md": 86.75,
     "guides": 104.0
   },
-  "overall_score": 81.6,
+  "overall_score": 81.0,
   "tier": "Excellent"
 }

@@ -1,30 +1,30 @@
 {
   "skill": "mcp-server-patterns",
-  "timestamp": "2026-05-22T22:28:32Z",
+  "timestamp": "2026-05-29T00:04:05Z",
   "metrics": {
     "payload_word_count": 2108,
     "payload_section_count": 7,
     "payload_code_blocks": 15,
-    "test_case_count": 0,
-    "field_completeness_score": 0.71,
+    "test_case_count": 5,
+    "field_completeness_score": 0.86,
     "guide_file_count": 2,
-    "skill_section_score": 0.44
+    "skill_section_score": 0.83
   },
   "normalized_scores": {
     "payload_word": 81.1,
     "payload_section": 40.0,
     "payload_code": 17.1,
-    "test_case": 0.0,
-    "field": 71.0,
+    "test_case": 40.0,
+    "field": 86.0,
     "guide": 40.0,
-    "skill_section": 44.0
+    "skill_section": 83.0
   },
   "component_scores": {
-    "skill_md": 44.00,
+    "skill_md": 83.00,
     "payloads_md": 46.07,
-    "test_cases_md": 35.50,
+    "test_cases_md": 63.00,
     "guides": 40.0
   },
-  "overall_score": 41.1,
+  "overall_score": 55.2,
   "tier": "Adequate"
 }
