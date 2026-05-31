@@ -207,6 +207,86 @@
 
 ---
 
+## E. Coverage-Guided Corpus Generation
+
+### TC-AF-005 | AI-Assisted Seed Corpus Generation
+**Severity**: HIGH
+**Objective**: Use LLM to generate high-quality seed inputs that maximize code coverage for a target parser
+
+**Steps**:
+1. Identify target input format (e.g., JSON schema, protocol spec)
+2. Prompt LLM to generate diverse valid inputs covering edge cases
+3. Validate generated seeds parse correctly
+4. Measure initial code coverage with generated corpus
+5. Feed seeds into AFL++/libFuzzer as initial corpus
+6. Compare coverage vs random seed generation
+
+**Expected Output**: Seed corpus achieving >60% code coverage before fuzzing begins
+
+**Pass Criteria**:
+- [ ] Generated seeds are syntactically valid
+- [ ] Coverage exceeds random generation by >20%
+- [ ] Seeds trigger distinct code paths (no redundancy)
+- [ ] Fuzzer finds crashes faster with AI-generated seeds
+
+## F. Crash Triage and Deduplication
+
+### TC-AF-006 | Automated Crash Analysis and Severity Classification
+**Severity**: HIGH
+**Objective**: Automatically triage fuzzer-discovered crashes by exploitability and root cause
+
+**Steps**:
+1. Collect crash corpus from completed fuzzing campaign (>50 crashes)
+2. Run crashes through ASan/MSan to classify memory error type
+3. Deduplicate by stack trace similarity (top 3 frames)
+4. Classify exploitability: heap overflow > stack overflow > null deref > assertion
+5. Generate minimized reproducer for each unique crash
+6. Produce triage report with severity ranking
+
+**Expected Output**: Deduplicated crash report with exploitability ratings
+
+**Pass Criteria**:
+- [ ] Crashes deduplicated (unique count < 30% of total)
+- [ ] Each unique crash has minimized reproducer
+- [ ] Exploitability classification assigned
+- [ ] No false deduplication (distinct bugs merged)
+
+---
+
+## G. Differential Fuzzing
+
+### TC-AF-007 | Differential Fuzzing Across Parser Implementations
+- **Severity**: HIGH
+- **Prerequisites**: Two or more independent implementations of the same parser (e.g., two JSON libraries, two X.509 parsers); shared input corpus; harness capable of feeding identical inputs to each implementation and comparing outputs.
+- **Objective**: Discover semantic bugs and parser-differential vulnerabilities by comparing outputs of equivalent implementations across the same fuzzed inputs.
+- **Test Steps**:
+  1. Build harnesses for each implementation that accept the same input format and emit canonical output (parsed AST, validation verdict, or normalized bytes):
+     ```bash
+     clang -fsanitize=fuzzer,address -o fuzz_lib_a fuzz_a.c lib_a.c
+     clang -fsanitize=fuzzer,address -o fuzz_lib_b fuzz_b.c lib_b.c
+     ```
+  2. Run a differential harness that invokes both implementations and asserts equivalence:
+     ```c
+     int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+         Result a = parse_a(data, size);
+         Result b = parse_b(data, size);
+         if (!result_equal(a, b)) abort();
+         return 0;
+     }
+     ```
+  3. Launch fuzzer with shared corpus to maximize divergence discovery.
+  4. For each abort, capture both implementations' outputs and classify divergence: validation gap, normalization drift, or memory safety bug.
+  5. File divergences as security findings — semantically different parses are a precondition for smuggling and policy bypass attacks.
+- **Expected Outcomes**: ≥1 input where implementations disagree on validity or interpretation, documented with reproducer.
+- **Remediation**: Align both implementations against a shared spec, or pin a single canonical parser at the trust boundary.
+- **Pass Criteria**:
+  - [ ] Differential harness compiles and runs without false positives on the seed corpus
+  - [ ] Fuzzer triggers ≥1 documented divergence
+  - [ ] Each divergence has a minimized reproducer and severity classification
+  - [ ] Findings mapped to concrete attack scenarios (request smuggling, auth bypass, etc.)
+
+---
+
 ## Statistics
 
 | Category | Test Cases | ID Range |
@@ -215,13 +295,16 @@
 | B. Web API Fuzzing | 1 | TC-AF-002 |
 | C. Protocol Fuzzing | 1 | TC-AF-003 |
 | D. File Format Fuzzing | 1 | TC-AF-004 |
-| **Total** | **4** | **TC-AF-001 - TC-AF-004** |
+| E. Corpus Generation | 1 | TC-AF-005 |
+| F. Crash Triage | 1 | TC-AF-006 |
+| G. Differential Fuzzing | 1 | TC-AF-007 |
+| **Total** | **7** | **TC-AF-001 - TC-AF-007** |
 
 ### Severity Distribution
 
 | Severity | Count | Test Cases |
 |----------|-------|------------|
 | CRITICAL | 2 | TC-AF-001, TC-AF-002 |
-| HIGH | 2 | TC-AF-003, TC-AF-004 |
+| HIGH | 4 | TC-AF-003, TC-AF-004, TC-AF-005, TC-AF-006 |
 | MEDIUM | 0 | - |
 | LOW | 0 | - |

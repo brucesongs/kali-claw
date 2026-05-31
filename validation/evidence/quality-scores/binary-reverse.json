@@ -1,30 +1,30 @@
 {
   "skill": "binary-reverse",
-  "timestamp": "2026-05-29T00:04:05Z",
+  "timestamp": "2026-05-30T11:02:59Z",
   "metrics": {
-    "payload_word_count": 1975,
-    "payload_section_count": 11,
-    "payload_code_blocks": 38,
+    "payload_word_count": 3407,
+    "payload_section_count": 13,
+    "payload_code_blocks": 46,
     "test_case_count": 11,
     "field_completeness_score": 1.00,
-    "guide_file_count": 3,
+    "guide_file_count": 5,
     "skill_section_score": 0.76
   },
   "normalized_scores": {
-    "payload_word": 59.5,
-    "payload_section": 84.4,
-    "payload_code": 44.0,
+    "payload_word": 94.1,
+    "payload_section": 88.9,
+    "payload_code": 54.7,
     "test_case": 87.5,
     "field": 100.0,
-    "guide": 46.7,
+    "guide": 80.0,
     "skill_section": 76.0
   },
   "component_scores": {
     "skill_md": 76.00,
-    "payloads_md": 62.63,
+    "payloads_md": 79.23,
     "test_cases_md": 93.75,
-    "guides": 46.7
+    "guides": 80.0
   },
-  "overall_score": 70.0,
-  "tier": "Strong"
+  "overall_score": 83.3,
+  "tier": "Excellent"
 }

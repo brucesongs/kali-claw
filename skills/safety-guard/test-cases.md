@@ -406,3 +406,64 @@ During a multi-phase engagement, the safety mode must correctly escalate and de-
 - Each transition has a logged reason and timestamp
 - No operations were executed at the wrong safety mode level
 - Operator received exactly one confirmation request (during Freeze phase)
+
+---
+
+## TC-SG-008: Runtime Security Monitoring — Anomaly Detection and Behavioral Analysis
+
+### Objective
+
+Validate that the runtime security monitoring system correctly detects process anomalies, network scope violations, and risky command chains during an active engagement, and generates appropriate alerts without interfering with authorized operations.
+
+### Severity
+
+HIGH
+
+### Prerequisites
+
+1. Scope lock is active: authorized targets = 192.168.1.0/24
+2. Process anomaly monitor is running with baseline captured
+3. Network traffic monitor is active on the engagement interface
+4. Command log is being written with ISO 8601 timestamps
+5. At least one simulated anomaly is prepared: an outbound connection to an out-of-scope IP (10.0.0.99)
+6. A command sequence matching "recon_to_exploit" pattern is prepared (nmap followed by msfconsole within 30 minutes)
+7. Behavioral analysis scoring engine is loaded with RISK_PATTERNS configuration
+
+### Steps
+
+1. Start runtime monitoring (process anomaly detection + network monitor)
+2. Verify baseline capture: initial process tree and network state logged
+3. Execute authorized in-scope nmap scan — verify no alerts generated
+4. Simulate out-of-scope outbound connection to 10.0.0.99
+5. Verify network monitor detects and logs the out-of-scope connection alert
+6. Execute command sequence: nmap scan followed by msfconsole within 30 minutes
+7. Run behavioral analysis against the command log
+8. Verify "recon_to_exploit" chain is detected with risk score 3/5
+9. Verify alert log contains both network anomaly and behavioral chain alerts
+10. Run engagement health dashboard generator
+11. Verify health score is reduced due to detected anomalies
+12. Verify no false positives: authorized in-scope operations did not trigger alerts
+
+### Expected Output
+
+- Baseline log containing initial process tree and network connections
+- Network alert: out-of-scope connection to 10.0.0.99 with timestamp
+- Behavioral alert: "recon_to_exploit" chain detected (nmap -> msfconsole, risk 3/5)
+- Health dashboard showing degraded score due to anomalies
+- Zero alerts for authorized in-scope operations (no false positives)
+- All alerts include ISO 8601 timestamps and actionable context
+
+### Remediation
+
+If false positives occur: add the legitimate connection to a whitelist in the monitoring configuration. If behavioral analysis misses a known chain: verify timestamp parsing handles the log format and that the time window threshold is correctly calculated.
+
+### Pass Criteria
+
+- [ ] Baseline captured successfully (process tree + network state)
+- [ ] Authorized in-scope operations generate zero alerts (no false positives)
+- [ ] Out-of-scope connection detected and logged within 30 seconds
+- [ ] Behavioral chain "recon_to_exploit" detected with correct risk score
+- [ ] Alert log contains both anomaly types with timestamps
+- [ ] Health dashboard score reflects detected anomalies (score < 100)
+- [ ] Monitoring does not interfere with authorized operation execution
+- [ ] All alerts are actionable (include target, reason, and suggested response)

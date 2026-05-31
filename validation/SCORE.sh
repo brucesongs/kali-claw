@@ -160,6 +160,7 @@ for skill in "${SKILLS[@]}"; do
     TEST_CASE_SCORE=$(compute_normalized_score $TEST_CASE_COUNT 3 5 8 8)
     FIELD_SCORE=$(awk "BEGIN {printf \"%.1f\", $FIELD_COMPLETENESS_SCORE * 100}")
     GUIDE_SCORE=$(compute_normalized_score $GUIDE_FILE_COUNT 0 2 5 5)
+    GUIDE_SCORE=$(awk "BEGIN {v=$GUIDE_SCORE; if(v>100) v=100; printf \"%.1f\", v}")
     SKILL_SCORE=$(awk "BEGIN {printf \"%.1f\", $SKILL_SECTION_SCORE * 100}")
 
     # Compute component scores (weighted as planned)

@@ -1,0 +1,247 @@
+[
+  {
+    "skill": "ai-fuzzing",
+    "overall_score": 83.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "ai-security",
+    "overall_score": 81.4,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "api-security",
+    "overall_score": 83.7,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "article-writing",
+    "overall_score": 84.2,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "autonomous-loops",
+    "overall_score": 83.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "binary-reverse",
+    "overall_score": 83.3,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "browser-qa",
+    "overall_score": 89.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "chronicle",
+    "overall_score": 89.8,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "cloud-security",
+    "overall_score": 83.5,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "codebase-onboarding",
+    "overall_score": 84.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "container-security",
+    "overall_score": 81.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "continuous-learning",
+    "overall_score": 86.7,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "council",
+    "overall_score": 81.4,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "crypto-attacks",
+    "overall_score": 82.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "data-scraper-agent",
+    "overall_score": 88.8,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "deep-research",
+    "overall_score": 85.3,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "digital-forensics",
+    "overall_score": 82.5,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "docker-patterns",
+    "overall_score": 85.3,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "exa-search",
+    "overall_score": 88.2,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "hardware-security",
+    "overall_score": 88.2,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "insecure-design",
+    "overall_score": 80.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "knowledge-ops",
+    "overall_score": 90.3,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "logging-monitoring",
+    "overall_score": 87.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "mcp-server-patterns",
+    "overall_score": 81.4,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "mobile-security",
+    "overall_score": 81.8,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "multi-agent-collaboration",
+    "overall_score": 80.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "network-pentest",
+    "overall_score": 81.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "osint",
+    "overall_score": 82.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "password-attack",
+    "overall_score": 82.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "post-exploitation",
+    "overall_score": 80.8,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "recon-osint",
+    "overall_score": 80.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "repo-scan",
+    "overall_score": 84.1,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "safety-guard",
+    "overall_score": 87.4,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "search-first",
+    "overall_score": 86.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "security-bounty-hunter",
+    "overall_score": 82.4,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "security-misconfiguration",
+    "overall_score": 83.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "security-review",
+    "overall_score": 82.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "social-engineering",
+    "overall_score": 83.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "social-intelligence",
+    "overall_score": 82.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "supply-chain-security",
+    "overall_score": 84.1,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "terminal-ops",
+    "overall_score": 84.0,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "verification-loop",
+    "overall_score": 83.8,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "vulnerability-assessment",
+    "overall_score": 81.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "web-access-control",
+    "overall_score": 83.5,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "web-auth-bypass",
+    "overall_score": 83.6,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "web-sqli",
+    "overall_score": 86.9,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "web-ssrf",
+    "overall_score": 81.3,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "web-xss",
+    "overall_score": 88.1,
+    "tier": "Excellent"
+  },
+  {
+    "skill": "wifi-pentest",
+    "overall_score": 81.8,
+    "tier": "Excellent"
+  }
+]

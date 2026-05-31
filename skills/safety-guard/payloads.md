@@ -886,3 +886,313 @@ echo "" >> "$OUTPUT"
 echo "============================================" >> "$OUTPUT"
 echo "[AUDIT] Report saved to $OUTPUT"
 ```
+
+---
+
+## 8. Runtime Security Monitoring
+
+### Process Anomaly Detection
+
+```bash
+# Monitor for anomalous process behavior during engagement
+# Detects: unexpected child processes, privilege changes, network connections
+
+MONITOR_PID="${1:-$$}"
+EVIDENCE_DIR="${2:-evidence}"
+LOG_FILE="$EVIDENCE_DIR/runtime-monitor-$(date +%Y%m%d-%H%M%S).log"
+ALERT_FILE="$EVIDENCE_DIR/runtime-alerts.log"
+
+echo "[RUNTIME-MON] Starting process anomaly detection for PID $MONITOR_PID"
+echo "[RUNTIME-MON] Log: $LOG_FILE | Alerts: $ALERT_FILE"
+
+# Baseline: capture initial process tree and network state
+echo "=== BASELINE $(date -Iseconds) ===" > "$LOG_FILE"
+ps auxf | grep -v grep >> "$LOG_FILE"
+echo "--- Network Connections ---" >> "$LOG_FILE"
+ss -tlnp >> "$LOG_FILE"
+
+# Monitor loop: check every 10 seconds for anomalies
+ITERATION=0
+MAX_ITERATIONS="${3:-360}"  # Default 1 hour at 10s intervals
+
+while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
+  ITERATION=$((ITERATION + 1))
+  sleep 10
+
+  # Check for new SUID processes
+  NEW_SUID=$(find /tmp /var/tmp /dev/shm -perm -4000 -type f 2>/dev/null)
+  if [ -n "$NEW_SUID" ]; then
+    echo "[ALERT] $(date -Iseconds) New SUID binary detected: $NEW_SUID" >> "$ALERT_FILE"
+  fi
+
+  # Check for unexpected outbound connections (not to target scope)
+  OUTBOUND=$(ss -tnp 2>/dev/null | grep -v "127.0.0.1\|::1" | grep "ESTAB")
+  if echo "$OUTBOUND" | grep -qvE "192\.168\.|10\.\|172\.(1[6-9]|2[0-9]|3[01])\."; then
+    echo "[ALERT] $(date -Iseconds) Unexpected outbound connection: $OUTBOUND" >> "$ALERT_FILE"
+  fi
+
+  # Check for privilege escalation indicators
+  CURRENT_UID=$(id -u)
+  if [ "$CURRENT_UID" -eq 0 ] && [ "$MONITOR_PID" != "1" ]; then
+    echo "[ALERT] $(date -Iseconds) Process running as root — verify authorization" >> "$ALERT_FILE"
+  fi
+done
+
+echo "[RUNTIME-MON] Monitoring complete. $ITERATION iterations."
+ALERT_COUNT=$(wc -l < "$ALERT_FILE" 2>/dev/null | tr -d ' ')
+echo "[RUNTIME-MON] Total alerts: ${ALERT_COUNT:-0}"
+```
+
+### Behavioral Analysis — Command Pattern Scoring
+
+```python
+#!/usr/bin/env python3
+"""Score command sequences for risk level based on behavioral patterns.
+Detects attack chains that individually appear benign but together indicate escalation."""
+
+import re
+import sys
+from datetime import datetime, timedelta
+
+RISK_PATTERNS = {
+    "recon_to_exploit": {
+        "sequence": ["nmap|masscan|rustscan", "searchsploit|msfconsole|exploit"],
+        "window_minutes": 30,
+        "risk_score": 3,
+        "description": "Reconnaissance followed by exploitation within 30 minutes"
+    },
+    "credential_harvest_to_lateral": {
+        "sequence": ["mimikatz|secretsdump|hashdump", "psexec|wmiexec|smbexec|evil-winrm"],
+        "window_minutes": 15,
+        "risk_score": 5,
+        "description": "Credential harvesting followed by lateral movement"
+    },
+    "privesc_to_persistence": {
+        "sequence": ["sudo|pkexec|getsystem|linpeas", "crontab|systemctl.*enable|schtasks"],
+        "window_minutes": 20,
+        "risk_score": 5,
+        "description": "Privilege escalation followed by persistence installation"
+    },
+    "data_staging_to_exfil": {
+        "sequence": ["tar|zip|7z|compress", "curl.*upload|scp|nc.*<"],
+        "window_minutes": 10,
+        "risk_score": 5,
+        "description": "Data staging followed by exfiltration attempt"
+    }
+}
+
+def parse_command_log(log_file):
+    """Parse timestamped command log into structured entries."""
+    entries = []
+    with open(log_file) as f:
+        for line in f:
+            match = re.match(r'\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\]\s+(.*)', line.strip())
+            if match:
+                timestamp = datetime.fromisoformat(match.group(1))
+                command = match.group(2)
+                entries.append({"timestamp": timestamp, "command": command})
+    return entries
+
+def detect_chains(entries):
+    """Detect risky command chains based on pattern sequences."""
+    alerts = []
+    for pattern_name, pattern in RISK_PATTERNS.items():
+        window = timedelta(minutes=pattern["window_minutes"])
+        seq = pattern["sequence"]
+
+        for i, entry in enumerate(entries):
+            if re.search(seq[0], entry["command"], re.IGNORECASE):
+                # Found first step — look for second step within window
+                for j in range(i + 1, len(entries)):
+                    time_diff = entries[j]["timestamp"] - entry["timestamp"]
+                    if time_diff > window:
+                        break
+                    if re.search(seq[1], entries[j]["command"], re.IGNORECASE):
+                        alerts.append({
+                            "pattern": pattern_name,
+                            "risk_score": pattern["risk_score"],
+                            "description": pattern["description"],
+                            "first_cmd": entry["command"],
+                            "second_cmd": entries[j]["command"],
+                            "time_gap": str(time_diff)
+                        })
+                        break
+    return alerts
+
+if __name__ == "__main__":
+    log_file = sys.argv[1] if len(sys.argv) > 1 else "evidence/command-log.txt"
+    entries = parse_command_log(log_file)
+    alerts = detect_chains(entries)
+
+    print(f"[BEHAVIORAL] Analyzed {len(entries)} commands")
+    print(f"[BEHAVIORAL] Detected {len(alerts)} risky chains:")
+    for alert in alerts:
+        print(f"  [{alert['risk_score']}/5] {alert['pattern']}: {alert['description']}")
+        print(f"    Step 1: {alert['first_cmd']}")
+        print(f"    Step 2: {alert['second_cmd']} (+{alert['time_gap']})")
+```
+
+### Network Traffic Anomaly Monitor
+
+```bash
+# Real-time network traffic monitoring for scope violations and data exfiltration
+# Alerts on: out-of-scope connections, large outbound transfers, DNS tunneling indicators
+
+INTERFACE="${1:-eth0}"
+SCOPE_CIDR="${2:-192.168.1.0/24}"
+EVIDENCE_DIR="${3:-evidence}"
+PCAP_FILE="$EVIDENCE_DIR/traffic-monitor-$(date +%Y%m%d-%H%M%S).pcap"
+ALERT_LOG="$EVIDENCE_DIR/network-alerts.log"
+MAX_OUTBOUND_MB=50
+
+echo "[NET-MON] Monitoring $INTERFACE for anomalies (scope: $SCOPE_CIDR)"
+echo "[NET-MON] PCAP: $PCAP_FILE | Alerts: $ALERT_LOG"
+
+# Start background packet capture
+sudo tcpdump -i "$INTERFACE" -w "$PCAP_FILE" -G 300 -W 12 &
+TCPDUMP_PID=$!
+
+# Monitor for anomalies every 30 seconds
+while kill -0 $TCPDUMP_PID 2>/dev/null; do
+  sleep 30
+
+  # Check for connections outside scope
+  SCOPE_PREFIX=$(echo "$SCOPE_CIDR" | cut -d/ -f1 | cut -d. -f1-3)
+  OUT_OF_SCOPE=$(ss -tn state established 2>/dev/null \
+    | awk '{print $5}' | cut -d: -f1 \
+    | grep -v "^$\|127\.0\.\|^$SCOPE_PREFIX\." | sort -u)
+
+  if [ -n "$OUT_OF_SCOPE" ]; then
+    for ip in $OUT_OF_SCOPE; do
+      echo "[NET-ALERT] $(date -Iseconds) Out-of-scope connection: $ip" >> "$ALERT_LOG"
+    done
+  fi
+
+  # Check outbound data volume
+  OUTBOUND_BYTES=$(cat /proc/net/dev 2>/dev/null | grep "$INTERFACE" | awk '{print $10}')
+  OUTBOUND_MB=$((OUTBOUND_BYTES / 1048576))
+  if [ "$OUTBOUND_MB" -gt "$MAX_OUTBOUND_MB" ]; then
+    echo "[NET-ALERT] $(date -Iseconds) High outbound volume: ${OUTBOUND_MB}MB (threshold: ${MAX_OUTBOUND_MB}MB)" >> "$ALERT_LOG"
+  fi
+
+  # Check for DNS tunneling indicators (high volume of TXT/NULL queries)
+  DNS_TXT=$(tshark -r "$PCAP_FILE" -Y "dns.qry.type == 16" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$DNS_TXT" -gt 100 ]; then
+    echo "[NET-ALERT] $(date -Iseconds) Possible DNS tunneling: $DNS_TXT TXT queries" >> "$ALERT_LOG"
+  fi
+done
+
+echo "[NET-MON] Monitoring stopped. Alerts: $(wc -l < "$ALERT_LOG" 2>/dev/null | tr -d ' ')"
+```
+
+### Safety Mode State Machine Validator
+
+```yaml
+# Runtime validation rules for safety mode state transitions
+# Ensures mode changes follow the defined state machine
+
+state_machine:
+  initial_state: "careful"
+
+  valid_transitions:
+    careful:
+      - target: "freeze"
+        triggers: ["exploit_execution", "brute_force", "file_modification", "privilege_escalation"]
+        requires: "pattern_match"
+      - target: "guard"
+        triggers: ["scope_violation", "guard_pattern_match", "time_window_violation"]
+        requires: "scope_check_fail OR guard_pattern"
+
+    freeze:
+      - target: "careful"
+        triggers: ["operator_approval", "non_dangerous_command"]
+        requires: "confirmation_received OR no_pattern_match"
+      - target: "guard"
+        triggers: ["scope_violation", "operator_denial_with_violation"]
+        requires: "scope_check_fail"
+
+    guard:
+      - target: "careful"
+        triggers: ["next_in_scope_operation"]
+        requires: "scope_check_pass AND time_window_pass"
+
+  invalid_transitions:
+    - from: "guard"
+      to: "freeze"
+      reason: "Cannot go from Guard to Freeze — must return to Careful first"
+    - from: "careful"
+      to: "careful"
+      note: "Not a transition — same state, just log the operation"
+
+  monitoring:
+    log_every_transition: true
+    alert_on_rapid_escalation: true
+    rapid_threshold: "3 escalations in 60 seconds"
+    alert_on_stuck_freeze: true
+    stuck_threshold: "300 seconds without operator response"
+```
+
+### Engagement Health Dashboard Generator
+
+```bash
+# Generate real-time engagement health summary combining all safety metrics
+# Designed to run periodically via HEARTBEAT.md
+
+EVIDENCE_DIR="${1:-evidence}"
+SCOPE_FILE="${2:-scope-lock.md}"
+OUTPUT="$EVIDENCE_DIR/health-dashboard-$(date +%Y%m%d-%H%M%S).txt"
+
+echo "[HEALTH] Generating engagement health dashboard"
+echo "================================================" > "$OUTPUT"
+echo "Engagement Health Dashboard — $(date -Iseconds)" >> "$OUTPUT"
+echo "================================================" >> "$OUTPUT"
+
+# Safety Mode Status
+echo "" >> "$OUTPUT"
+echo "## Safety Mode" >> "$OUTPUT"
+CURRENT_MODE=$(grep -m1 "Mode:" "$EVIDENCE_DIR/mode-state.log" 2>/dev/null | awk '{print $NF}')
+echo "Current: ${CURRENT_MODE:-careful}" >> "$OUTPUT"
+TRANSITIONS=$(grep -c "TRANSITION" "$EVIDENCE_DIR/mode-state.log" 2>/dev/null || echo "0")
+echo "Transitions this session: $TRANSITIONS" >> "$OUTPUT"
+
+# Incident Summary
+echo "" >> "$OUTPUT"
+echo "## Incidents" >> "$OUTPUT"
+for level in 1 2 3; do
+  COUNT=$(grep -rc "INCIDENT-L${level}" "$EVIDENCE_DIR" 2>/dev/null | awk -F: '{s+=$2}END{print s+0}')
+  echo "Level $level: $COUNT" >> "$OUTPUT"
+done
+
+# Rate Limit Status
+echo "" >> "$OUTPUT"
+echo "## Rate Limiting" >> "$OUTPUT"
+VIOLATIONS=$(grep -c "RATE-VIOLATION" "$EVIDENCE_DIR"/*.log 2>/dev/null || echo "0")
+BACKOFFS=$(grep -c "RATE-LIMIT" "$EVIDENCE_DIR"/*.log 2>/dev/null || echo "0")
+echo "Violations: $VIOLATIONS | Backoffs triggered: $BACKOFFS" >> "$OUTPUT"
+
+# Scope Compliance
+echo "" >> "$OUTPUT"
+echo "## Scope Compliance" >> "$OUTPUT"
+SCOPE_VIOLATIONS=$(grep -rc "OUT-OF-SCOPE\|SCOPE-VIOLATION" "$EVIDENCE_DIR" 2>/dev/null | awk -F: '{s+=$2}END{print s+0}')
+echo "Scope violations: $SCOPE_VIOLATIONS" >> "$OUTPUT"
+
+# Overall Health Score
+echo "" >> "$OUTPUT"
+echo "## Overall Health" >> "$OUTPUT"
+SCORE=100
+SCORE=$((SCORE - SCOPE_VIOLATIONS * 20))
+SCORE=$((SCORE - $(grep -rc "INCIDENT-L3" "$EVIDENCE_DIR" 2>/dev/null | awk -F: '{s+=$2}END{print s+0}') * 30))
+SCORE=$((SCORE - $(grep -rc "INCIDENT-L2" "$EVIDENCE_DIR" 2>/dev/null | awk -F: '{s+=$2}END{print s+0}') * 10))
+[ "$SCORE" -lt 0 ] && SCORE=0
+echo "Health Score: $SCORE/100" >> "$OUTPUT"
+if [ "$SCORE" -ge 80 ]; then
+  echo "Status: HEALTHY" >> "$OUTPUT"
+elif [ "$SCORE" -ge 50 ]; then
+  echo "Status: DEGRADED — review incidents" >> "$OUTPUT"
+else
+  echo "Status: CRITICAL — immediate review required" >> "$OUTPUT"
+fi
+
+echo "================================================" >> "$OUTPUT"
+echo "[HEALTH] Dashboard saved to $OUTPUT (Score: $SCORE/100)"
+```

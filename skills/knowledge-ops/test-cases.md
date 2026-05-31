@@ -9,8 +9,11 @@
 | TC-KO-003 | Pattern Recognition Across Targets | Detect recurring vulnerability pattern | Active |
 | TC-KO-004 | Intelligence Handoff | Transfer complete context to new session | Active |
 | TC-KO-005 | Knowledge Expiration Management | Archive and remove stale intelligence | Active |
+| TC-KO-006 | Knowledge Conflict Resolution | Handle contradictory findings across sessions | Active |
+| TC-KO-007 | Automated Knowledge Indexing | Bulk entity extraction and tagging pipeline | Active |
+| TC-KO-008 | Knowledge Decay Detection | Identify stale intelligence and trigger refresh | Active |
 
-Total: 5 test cases
+Total: 8 test cases
 
 ---
 
@@ -330,3 +333,210 @@ done
 - [ ] Stale intelligence archived with reason
 - [ ] Still-valid intelligence has expiration extended
 - [ ] Query returns 0 expired units after cleanup
+
+---
+
+## TC-KO-006: Knowledge Conflict Resolution
+
+**Objective**: Handle contradictory findings from different sessions or sources
+
+**Severity**: HIGH
+
+**Prerequisites**: Multiple sessions producing findings about the same target
+
+**Scenario**: Two sessions produce conflicting assessments of the same component
+
+**Phase 1 — Conflicting Findings Created**
+
+```
+Session A finds:
+  KU-020: Finding (target auth uses bcrypt, confidence 85)
+  Source: codebase-onboarding static analysis
+
+Session B finds:
+  KU-021: Finding (target auth uses MD5, confidence 78)
+  Source: runtime observation of password hashes in database
+```
+
+**Phase 2 — Conflict Detection**
+
+```
+GIVEN: KU-020 and KU-021 both describe target auth hashing
+WHEN: knowledge-ops runs consistency check
+THEN: detect conflict:
+  - Same target, same component (auth/password-hashing)
+  - Contradictory claims (bcrypt vs MD5)
+  - Flag for resolution
+```
+
+**Phase 3 — Resolution Strategy**
+
+```
+Resolution approaches (in priority order):
+1. Source reliability: runtime observation > static analysis
+2. Recency: newer finding takes precedence
+3. Confidence: higher confidence wins
+4. Manual: escalate to operator if unresolvable
+
+THEN: Resolve:
+  - KU-021 wins (runtime observation, direct evidence)
+  - KU-020 confidence: 85 → 30 (demoted, add note: "contradicted by runtime evidence")
+  - Create KU-022: Resolution record linking KU-020 and KU-021
+```
+
+**Steps**:
+1. Create two conflicting knowledge units about same target
+2. Run conflict detection scan
+3. Verify conflict is flagged
+4. Apply resolution strategy
+5. Verify losing unit is demoted with explanation
+
+**Expected Output**:
+- Conflict detected and flagged automatically
+- Resolution record created with reasoning
+- Losing unit demoted (not deleted) with cross-reference
+
+**Pass Criteria**:
+- [ ] Conflict detected between KU-020 and KU-021
+- [ ] Resolution strategy applied correctly
+- [ ] Losing unit retains history (not deleted)
+- [ ] Resolution record links both units
+- [ ] No orphaned or contradictory active findings remain
+
+**Remediation**: Implement conflict detection as part of knowledge ingestion pipeline
+
+---
+
+## TC-KO-007: Automated Knowledge Indexing
+
+**Objective**: Bulk extract entities and relationships from unstructured session logs
+
+**Severity**: MEDIUM
+
+**Prerequisites**: 5+ session memory files with unstructured findings
+
+**Scenario**: Process raw session logs into structured knowledge units
+
+**Phase 1 — Input Preparation**
+
+```
+GIVEN: 5 raw session memory files:
+  - memory/2026-05-01.md (recon session, 3 targets mentioned)
+  - memory/2026-05-02.md (exploitation session, 2 vulns found)
+  - memory/2026-05-03.md (post-exploitation, credentials harvested)
+  - memory/2026-05-04.md (lateral movement, 4 hosts accessed)
+  - memory/2026-05-05.md (reporting session, findings summarized)
+```
+
+**Phase 2 — Entity Extraction**
+
+```
+WHEN: Running automated indexing pipeline
+THEN: Extract entities:
+  - Targets: IP addresses, domains, hostnames
+  - Findings: vulnerability mentions with severity indicators
+  - Credentials: username/password pairs (redacted in index)
+  - Tools: tool names and their usage context
+  - Relationships: which tool found which vuln on which target
+```
+
+**Phase 3 — Tagging and Linking**
+
+```
+THEN: For each extracted entity:
+  1. Assign type tag (target/finding/credential/tool)
+  2. Assign confidence based on context (mentioned=50, tested=75, exploited=90)
+  3. Link related entities (finding → target, tool → finding)
+  4. Deduplicate across sessions (same IP mentioned in 3 files = 1 entity)
+```
+
+**Steps**:
+1. Prepare 5 session memory files with known entities
+2. Run indexing pipeline
+3. Verify entity extraction completeness
+4. Verify deduplication across sessions
+5. Verify relationship links are correct
+
+**Expected Output**:
+- Structured index with all entities tagged and linked
+- Deduplication report (N raw mentions → M unique entities)
+- Relationship graph (entity → entity connections)
+
+**Pass Criteria**:
+- [ ] All entities extracted from all 5 files
+- [ ] Correct type tags assigned (>90% accuracy)
+- [ ] Duplicates merged (same entity across files = 1 record)
+- [ ] Relationships correctly linked
+- [ ] Confidence scores assigned based on evidence level
+
+**Verification**: Compare extracted entities against manually counted ground truth
+
+---
+
+## TC-KO-008: Knowledge Decay Detection
+
+**Objective**: Identify intelligence that has become stale and trigger refresh workflows
+
+**Severity**: MEDIUM
+
+**Prerequisites**: Knowledge base with entries of varying ages
+
+**Scenario**: Detect and handle knowledge units that may no longer be accurate
+
+**Phase 1 — Define Decay Rules**
+
+```
+Decay rules by knowledge type:
+  - Credentials: decay after 7 days (high rotation risk)
+  - Network topology: decay after 30 days (infrastructure changes)
+  - Vulnerability findings: decay after 90 days (may be patched)
+  - Patterns/techniques: decay after 365 days (slow evolution)
+  - Entity metadata: decay after 180 days (organizational changes)
+```
+
+**Phase 2 — Decay Scan**
+
+```
+GIVEN: Knowledge base with 20 units of varying ages
+WHEN: Running decay detection scan
+THEN: Identify decayed units:
+  - KU-030: Credential (created 14 days ago) → DECAYED
+  - KU-031: Network map (created 45 days ago) → DECAYED
+  - KU-032: SQLi finding (created 60 days ago) → OK (within 90-day window)
+  - KU-033: Pattern (created 200 days ago) → OK (within 365-day window)
+```
+
+**Phase 3 — Refresh Workflow**
+
+```
+FOR each decayed unit:
+  1. Check if refresh is possible (target still accessible?)
+  2. If yes: queue for re-validation
+     - Credential: test if still valid
+     - Network: re-scan topology
+  3. If no: mark as "unverifiable" with last-known-good date
+  4. After refresh:
+     - If still valid: reset decay timer, update confidence
+     - If invalid: archive with reason
+```
+
+**Steps**:
+1. Create knowledge units with various creation dates
+2. Run decay detection scan
+3. Verify correct units flagged as decayed
+4. Execute refresh workflow on flagged units
+5. Verify outcomes (refreshed or archived)
+
+**Expected Output**:
+- Decay report listing all stale units with age and type
+- Refresh queue with prioritized actions
+- Post-refresh summary (N refreshed, M archived, K unverifiable)
+
+**Pass Criteria**:
+- [ ] Decay rules correctly applied per knowledge type
+- [ ] All units exceeding their type's threshold flagged
+- [ ] Refresh workflow produces actionable queue
+- [ ] Refreshed units have updated timestamps
+- [ ] Archived units retain history with decay reason
+
+**Verification**: Manual review of decay report against known creation dates

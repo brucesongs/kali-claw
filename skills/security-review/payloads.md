@@ -604,3 +604,496 @@ curl -s -X POST http://target/graphql \
   -H "Content-Type: application/json" \
   -d '{"query":"{a{b{c{d{e{f{g{h{i{j{k}}}}}}}}}}}"}'
 ```
+
+---
+
+## Dependency Audit Commands
+
+### NPM/Node.js
+```bash
+# Check for known vulnerabilities
+npm audit --json
+
+# Check outdated packages
+npm outdated --json
+
+# List all dependencies with licenses
+npx license-checker --json
+```
+
+### Python
+```bash
+# Safety check for known CVEs
+pip-audit --format=json
+
+# Check outdated packages
+pip list --outdated --format=json
+
+# Scan requirements file
+safety check -r requirements.txt --json
+```
+
+### Container Image Scanning
+```bash
+# Trivy scan
+trivy image --format json target-image:latest
+
+# Grype scan
+grype target-image:latest -o json
+
+# Snyk container test
+snyk container test target-image:latest --json
+```
+
+### SAST Quick Checks
+```bash
+# Semgrep scan
+semgrep --config=auto --json .
+
+# Bandit (Python)
+bandit -r . -f json
+
+# ESLint security plugin (JavaScript)
+npx eslint --plugin security --rule 'security/detect-eval-with-expression: error' .
+```
+
+---
+
+## 7. Automated Code Analysis
+
+### 7.1 Semgrep Custom Rules
+
+```bash
+# Run Semgrep with auto-detection of language and framework
+semgrep --config=auto --json -o semgrep_results.json .
+
+# Run OWASP Top 10 rules
+semgrep --config=p/owasp-top-ten .
+
+# Run language-specific security rules
+semgrep --config=p/python .
+semgrep --config=p/javascript .
+semgrep --config=p/java .
+semgrep --config=p/golang .
+
+# Run with multiple rulesets
+semgrep --config=p/security-audit --config=p/secrets --config=p/default .
+
+# Scan specific directories with severity filter
+semgrep --config=auto --severity ERROR --severity WARNING \
+  --include="*.py" --include="*.js" \
+  --exclude="node_modules" --exclude="venv" .
+
+# Generate SARIF output for CI integration
+semgrep --config=auto --sarif -o results.sarif .
+```
+
+### 7.2 Custom Semgrep Rules
+
+```yaml
+# custom-rules.yaml - Project-specific security patterns
+rules:
+  - id: hardcoded-jwt-secret
+    patterns:
+      - pattern: |
+          jwt.sign($PAYLOAD, "...", ...)
+      - pattern-not: |
+          jwt.sign($PAYLOAD, process.env.$VAR, ...)
+    message: "JWT signed with hardcoded secret"
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: sql-string-concat
+    patterns:
+      - pattern: |
+          $QUERY = "..." + $INPUT + "..."
+      - metavariable-regex:
+          metavariable: $QUERY
+          regex: ".*(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE).*"
+    message: "Potential SQL injection via string concatenation"
+    severity: ERROR
+    languages: [python, javascript, java]
+
+  - id: unsafe-deserialization
+    pattern: pickle.loads($DATA)
+    message: "Unsafe deserialization with pickle - use json instead"
+    severity: ERROR
+    languages: [python]
+
+  - id: missing-csrf-protection
+    patterns:
+      - pattern: |
+          @app.route("...", methods=["POST"])
+          def $FUNC(...):
+              ...
+      - pattern-not-inside: |
+          @csrf.exempt
+          ...
+      - pattern-not-inside: |
+          csrf_token = ...
+          ...
+    message: "POST endpoint may lack CSRF protection"
+    severity: WARNING
+    languages: [python]
+```
+
+```bash
+# Run custom rules
+semgrep --config=custom-rules.yaml .
+
+# Test a single rule against a file
+semgrep --config=custom-rules.yaml --pattern 'pickle.loads($X)' --lang python .
+```
+
+### 7.3 CodeQL Queries
+
+```bash
+# Initialize CodeQL database
+codeql database create codeql-db --language=javascript --source-root=.
+codeql database create codeql-db-py --language=python --source-root=.
+
+# Run standard security queries
+codeql database analyze codeql-db \
+  codeql/javascript-queries:Security \
+  --format=sarif-latest --output=codeql-results.sarif
+
+# Run specific CWE queries
+codeql database analyze codeql-db \
+  codeql/javascript-queries:Security/CWE-079 \
+  codeql/javascript-queries:Security/CWE-089 \
+  codeql/javascript-queries:Security/CWE-022 \
+  --format=csv --output=cwe-results.csv
+
+# Run all security and quality queries
+codeql database analyze codeql-db-py \
+  codeql/python-queries:Security \
+  codeql/python-queries:Errors \
+  --format=sarif-latest --output=python-results.sarif
+
+# Custom CodeQL query for taint tracking
+codeql query run custom-taint.ql --database=codeql-db
+```
+
+### 7.4 Custom CodeQL Query (SQL Injection)
+
+```python
+# custom-sqli.ql - CodeQL query for SQL injection detection
+# Save as .ql file and run with: codeql query run custom-sqli.ql --database=codeql-db
+
+# /**
+#  * @name SQL injection from user input
+#  * @description Finds SQL queries built from user-controlled input
+#  * @kind path-problem
+#  * @problem.severity error
+#  * @security-severity 9.8
+#  * @id custom/sql-injection
+#  * @tags security
+#  */
+# import javascript
+# import DataFlow::PathGraph
+# import semmle.javascript.security.dataflow.SqlInjectionQuery
+#
+# from SqlInjection::Configuration cfg, DataFlow::PathNode source, DataFlow::PathNode sink
+# where cfg.hasFlowPath(source, sink)
+# select sink.getNode(), source, sink, "SQL injection from $@.", source.getNode(), "user input"
+
+# Equivalent Bandit scan for Python
+bandit -r . -f json -o bandit_results.json
+bandit -r . -ll -ii  # Only high severity, high confidence
+bandit -r . --skip B101,B601  # Skip specific checks
+bandit -r . -t B301,B302,B303,B304,B305  # Only deserialization checks
+```
+
+### 7.5 Pattern-Based Grep Scanning
+
+```bash
+# Dangerous function usage (C/C++)
+grep -rnE '\b(gets|strcpy|strcat|sprintf|scanf|vsprintf|realpath)\s*\(' \
+  --include='*.c' --include='*.cpp' --include='*.h' .
+
+# Eval and dynamic execution (JavaScript/Python)
+grep -rnE '\b(eval|exec|execFile|Function)\s*\(' \
+  --include='*.js' --include='*.ts' --include='*.py' .
+
+# Hardcoded IPs and internal URLs
+grep -rnE '(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)' \
+  --include='*.py' --include='*.js' --include='*.yaml' --include='*.json' .
+
+# Disabled security features
+grep -rnE '(verify\s*=\s*False|SSL_VERIFY.*false|InsecureSkipVerify.*true|NODE_TLS_REJECT_UNAUTHORIZED.*0)' .
+
+# Debug/development leftovers
+grep -rnE '(TODO.*hack|FIXME.*security|XXX|TEMP.*password|debugger|console\.log)' \
+  --include='*.py' --include='*.js' --include='*.ts' --include='*.java' .
+
+# Crypto weaknesses
+grep -rnE '(MD5|SHA1|DES|RC4|ECB)\b' --include='*.py' --include='*.js' --include='*.java' .
+grep -rnE '(random\(\)|Math\.random|rand\(\))' --include='*.py' --include='*.js' .
+```
+
+---
+
+## 8. Dependency Vulnerability Scanning
+
+### 8.1 Snyk Advanced Usage
+
+```bash
+# Authenticate and test project
+snyk auth
+snyk test --json > snyk_results.json
+
+# Test with severity threshold (fail on high+)
+snyk test --severity-threshold=high
+
+# Monitor project for new vulnerabilities
+snyk monitor --project-name="my-app"
+
+# Test specific manifest files
+snyk test --file=package-lock.json
+snyk test --file=requirements.txt
+snyk test --file=go.sum
+snyk test --file=Gemfile.lock
+
+# Scan Infrastructure as Code
+snyk iac test terraform/ --json > iac_results.json
+snyk iac test kubernetes/ --severity-threshold=medium
+
+# Scan container images with detailed output
+snyk container test myimage:latest --json --severity-threshold=high
+snyk container test --file=Dockerfile myimage:latest
+
+# Generate SBOM (Software Bill of Materials)
+snyk sbom --format=cyclonedx1.4+json > sbom.json
+```
+
+### 8.2 npm Audit Automation
+
+```bash
+# Full audit with fix suggestions
+npm audit --json | jq '.vulnerabilities | to_entries[] | select(.value.severity == "critical" or .value.severity == "high") | {name: .key, severity: .value.severity, via: .value.via[0]}'
+
+# Auto-fix non-breaking vulnerabilities
+npm audit fix
+
+# Force fix (may include breaking changes)
+npm audit fix --force --dry-run  # Preview first
+npm audit fix --force
+
+# Check specific packages
+npm audit --package-lock-only --json | jq '.vulnerabilities | keys'
+
+# Generate audit report for CI pipeline
+npm audit --json > audit.json
+node -e "
+const audit = require('./audit.json');
+const critical = Object.values(audit.vulnerabilities).filter(v => v.severity === 'critical');
+if (critical.length > 0) {
+  console.error('CRITICAL vulnerabilities found:', critical.map(v => v.name));
+  process.exit(1);
+}
+"
+```
+
+### 8.3 pip-audit and Safety Automation
+
+```bash
+# pip-audit with multiple output formats
+pip-audit --format=json --output=audit.json
+pip-audit --format=cyclonedx-json --output=sbom.json
+pip-audit --strict  # Fail on any vulnerability
+
+# Audit specific requirements file
+pip-audit -r requirements.txt -r requirements-dev.txt
+
+# Audit installed packages with fix suggestions
+pip-audit --fix --dry-run
+pip-audit --fix  # Auto-update vulnerable packages
+
+# Safety check with policy file
+safety check -r requirements.txt --json --output=safety_results.json
+safety check --policy-file=.safety-policy.yml
+
+# OSV-Scanner (Google's vulnerability scanner)
+osv-scanner --lockfile=requirements.txt
+osv-scanner --lockfile=package-lock.json
+osv-scanner -r .  # Recursive scan all lockfiles
+
+# Generate vulnerability summary report
+pip-audit --format=json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for dep in data.get('dependencies', []):
+    for vuln in dep.get('vulns', []):
+        print(f\"[{vuln.get('id')}] {dep['name']}=={dep['version']} - {vuln.get('description', '')[:80]}\")
+"
+```
+
+### 8.4 License Compliance Scanning
+
+```bash
+# Check licenses for all npm dependencies
+npx license-checker --json --production > licenses.json
+npx license-checker --failOn "GPL-3.0;AGPL-3.0" --production
+
+# Python license check
+pip-licenses --format=json --output-file=licenses.json
+pip-licenses --fail-on="GPL-3.0-only;AGPL-3.0-only"
+
+# FOSSA CLI for comprehensive license analysis
+fossa analyze
+fossa test  # Fail if policy violations found
+
+# Scancode toolkit (detailed license detection)
+scancode --license --copyright --json-pp licenses_detailed.json .
+```
+
+### 8.5 Continuous Vulnerability Monitoring
+
+```bash
+# GitHub Dependabot alerts via CLI
+gh api repos/{owner}/{repo}/dependabot/alerts --jq '.[] | {package: .security_advisory.summary, severity: .security_advisory.severity, state: .state}'
+
+# Renovate Bot dry-run (preview dependency updates)
+npx renovate --dry-run --print-config
+
+# Trivy filesystem scan with ignore file
+cat > .trivyignore << 'EOF'
+CVE-2023-12345
+CVE-2023-67890
+EOF
+trivy fs --ignorefile .trivyignore --severity HIGH,CRITICAL .
+
+# Grype with ignore rules
+cat > .grype.yaml << 'EOF'
+ignore:
+  - vulnerability: CVE-2023-12345
+    reason: "Not exploitable in our context"
+  - package:
+      name: lodash
+      version: 4.17.20
+      type: npm
+EOF
+grype dir:. --config .grype.yaml
+```
+
+---
+
+## 9. Infrastructure Code Review
+
+### 9.1 Terraform Security Scanning
+
+```bash
+# tfsec - Terraform static analysis
+tfsec . --format json --out tfsec_results.json
+tfsec . --minimum-severity HIGH
+tfsec . --exclude aws-vpc-no-public-ingress-sgr,aws-s3-enable-versioning
+
+# Checkov - Policy-as-code for IaC
+checkov -d . --framework terraform --output json > checkov_results.json
+checkov -d . --check CKV_AWS_18,CKV_AWS_21  # Specific checks
+checkov -d . --skip-check CKV_AWS_999  # Skip specific check
+checkov -f main.tf --framework terraform
+
+# Terrascan - Detect compliance violations
+terrascan scan -i terraform -d . -o json > terrascan_results.json
+terrascan scan -i terraform -d . --policy-type aws --severity high
+
+# KICS (Keeping Infrastructure as Code Secure)
+kics scan -p . -o kics_results/ --type terraform
+kics scan -p . --exclude-severities info,low
+```
+
+### 9.2 Terraform Misconfigurations to Detect
+
+```bash
+# Check for public S3 buckets
+grep -rnE 'acl\s*=\s*"public-read|public-read-write"' --include='*.tf' .
+
+# Check for unencrypted resources
+grep -rnL 'encryption\|kms_key\|encrypted\s*=\s*true' --include='*.tf' . | \
+  xargs grep -l 'aws_s3_bucket\|aws_ebs_volume\|aws_rds_instance'
+
+# Check for overly permissive IAM policies
+grep -rnE '"Action"\s*:\s*"\*"|"Resource"\s*:\s*"\*"' --include='*.tf' --include='*.json' .
+
+# Check for missing logging
+grep -rnL 'logging\|access_logs\|cloud_watch' --include='*.tf' . | \
+  xargs grep -l 'aws_lb\|aws_s3_bucket\|aws_cloudfront'
+
+# Check for hardcoded secrets in Terraform
+grep -rnE '(password|secret|key)\s*=\s*"[^${}]' --include='*.tf' .
+grep -rnE 'default\s*=\s*"(sk-|AKIA|ghp_|glpat-)' --include='*.tf' .
+```
+
+### 9.3 Kubernetes Manifest Analysis
+
+```bash
+# kubesec - Security risk analysis for K8s resources
+kubesec scan deployment.yaml
+kubesec scan pod.yaml --format json > kubesec_results.json
+
+# kube-score - Static analysis of K8s object definitions
+kube-score score deployment.yaml
+kube-score score *.yaml --output-format json > kube_score.json
+
+# Checkov for Kubernetes
+checkov -d . --framework kubernetes --output json
+checkov -f deployment.yaml --framework kubernetes
+
+# Polaris - Best practices for K8s deployments
+polaris audit --audit-path . --format json > polaris_results.json
+polaris audit --audit-path . --set-exit-code-on-danger
+
+# Trivy for Kubernetes manifests
+trivy config . --severity HIGH,CRITICAL
+trivy config deployment.yaml --format json
+```
+
+### 9.4 Kubernetes Security Anti-Patterns
+
+```bash
+# Find containers running as root
+grep -rnB5 'runAsUser: 0\|runAsNonRoot: false\|privileged: true' \
+  --include='*.yaml' --include='*.yml' .
+
+# Find missing resource limits
+grep -rnL 'resources:\|limits:\|requests:' --include='*.yaml' . | \
+  xargs grep -l 'containers:'
+
+# Find containers with host network/PID/IPC
+grep -rnE 'hostNetwork: true|hostPID: true|hostIPC: true' \
+  --include='*.yaml' --include='*.yml' .
+
+# Find missing security contexts
+grep -rnL 'securityContext' --include='*.yaml' . | \
+  xargs grep -l 'containers:'
+
+# Find images without specific tags (using :latest or no tag)
+grep -rnE 'image:\s*[^:]+$|image:.*:latest' --include='*.yaml' --include='*.yml' .
+
+# Find secrets mounted as environment variables (prefer volumes)
+grep -rnB2 -A2 'secretKeyRef' --include='*.yaml' --include='*.yml' .
+```
+
+### 9.5 Docker Security Scanning
+
+```bash
+# Hadolint - Dockerfile linter
+hadolint Dockerfile --format json > hadolint_results.json
+hadolint Dockerfile --ignore DL3008 --ignore DL3009
+
+# Dockle - Container image linter
+dockle myimage:latest --format json --output dockle_results.json
+dockle --exit-code 1 --exit-level fatal myimage:latest
+
+# Check Dockerfile for common security issues
+grep -nE '^USER root|^RUN.*chmod 777|^RUN.*curl.*\|.*sh' Dockerfile
+grep -nE 'ADD\s+https?://' Dockerfile  # Prefer COPY over ADD with URLs
+grep -nE 'ENV.*PASSWORD|ENV.*SECRET|ENV.*KEY' Dockerfile
+
+# Scan for secrets in Docker build history
+docker history --no-trunc myimage:latest | grep -iE 'key|secret|password|token'
+
+# Dive - Analyze image layers for waste and secrets
+dive myimage:latest --ci --highestWastedBytes 50MB
+```

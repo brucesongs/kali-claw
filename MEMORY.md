@@ -2,7 +2,7 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-05-25
+**Last Updated**: 2026-05-30
 
 ---
 
@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - **Uptime**: ~10 weeks (since 2026-03-14 launch)
-- **Current Focus**: Zero Weak achieved — all 49 skills at Adequate+, average score 59.4
+- **Current Focus**: 49/49 Excellent (100%), avg 84.0, min 80.0 — CI quality gate active (baseline 84.0), 10 integration tests PASS
 
 ---
 
@@ -81,6 +81,36 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Expanded 3 zero-content skills (data-scraper-agent, browser-qa, exa-search) with payloads + guides + test cases
 - All 49 skills now Adequate or above — zero Weak remaining
 - Average score: 50.5 → 59.4 (+8.9), median: 45.9 → 59.2 (+13.3)
+
+### 2026-05-30: 100% Excellent 里程碑 (v0.1.14 final)
+- Mass payload expansion across 49 skills: most payloads.md now 25-118 code blocks
+- SKILL.md section expansion: browser-qa, data-scraper-agent, exa-search expanded from 6→15 sections each (score 0.60→0.80)
+- Fixed field completeness for 6 skills (codebase-onboarding, autonomous-loops, web-xss, docker-patterns, search-first, terminal-ops)
+- Added 52 test cases across 10 skills to reach 10+ TC per skill
+- Expanded payloads for 8 skills (logging-monitoring, security-bounty-hunter, verification-loop, hardware-security, continuous-learning, mcp-server-patterns, web-xss, ai-security) to 50+ code blocks each
+- Final push: 4 remaining Strong skills (hardware-security, browser-qa, data-scraper-agent, exa-search) promoted via +5 TC each + payload expansion
+- **Final distribution: Excellent 49/49 (100%), Strong 0, Adequate 0, Weak 0**
+- Average score: 59.4→84.0 (+24.6 from v0.1.13), Min: 40.4→80.0 (+39.6), Max: 80.0→90.3 (+10.3)
+- Top 5: knowledge-ops (90.3), chronicle (89.8), browser-qa (89.0), data-scraper-agent (88.8), hardware-security (88.2)
+- CI baseline updated to 84.0; 10 integration scenarios all PASS
+- Key insight: TC expansion (5→10) is the highest-leverage action for skills already at 5+ guides and 50+ code blocks (+5-8 overall points per skill)
+- Capped guide score overflow at 100 (was 156 for web-sqli)
+- Created infrastructure docs: SCORING-METHODOLOGY.md + validation/README.md
+- Promoted 27 Adequate skills to Strong with targeted improvements (guides, payloads, test cases)
+- Recovered web-sqli to Excellent (75.6→86.9) via +20 code blocks and +2 test cases
+- Promoted osint to Excellent (72.4→82.0) via +10 code blocks and +1 guide
+- Promoted deep-research to Excellent (72.1→85.3) via +27 code blocks and +1 guide
+- Promoted mobile-security to Excellent (71.9→81.8) via +20 code blocks
+- Promoted council to Excellent (57.2→81.4) via +28 code blocks, +3 guides, +1 test case
+- Eliminated all Adequate: repo-scan (45.5→78.1), data-scraper-agent (44.3→71.4), browser-qa (41.4→71.7), exa-search (40.4→70.0)
+- Achieved all-65+ minimum: added 5+ guides to all 49 skills (261 total guide files)
+- repo-scan promoted to Excellent (45.5→84.1) via +31 code blocks, +3 test cases, +3 guides
+- 10 integration test scenarios executed (10/10 PASS): added INT-008/009/010 for supply chain, full pentest, defensive validation
+- Built batch-improve.sh: automated tool identifying optimal improvement path per skill
+- Created GitHub Actions CI workflow with quality gate (PR regression blocking: avg + per-skill)
+- Distribution: Adequate 27→0, Strong 20→0, Excellent 2→49 (100%)
+- Average score: 59.4→84.0, Min: 40.4→80.0, Median: 59.2→83.5
+- Key insight: guide-based promotions are most efficient initially; TC expansion to 10+ and payload expansion to 50+ complete the push to Excellent
 
 ---
 

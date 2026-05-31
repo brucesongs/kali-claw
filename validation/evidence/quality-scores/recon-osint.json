@@ -1,6 +1,6 @@
 {
   "skill": "recon-osint",
-  "timestamp": "2026-05-29T00:04:05Z",
+  "timestamp": "2026-05-30T11:02:59Z",
   "metrics": {
     "payload_word_count": 1515,
     "payload_section_count": 10,
@@ -16,15 +16,15 @@
     "payload_code": 35.4,
     "test_case": 87.5,
     "field": 86.0,
-    "guide": 104.0,
+    "guide": 100.0,
     "skill_section": 81.0
   },
   "component_scores": {
     "skill_md": 81.00,
     "payloads_md": 55.97,
     "test_cases_md": 86.75,
-    "guides": 104.0
+    "guides": 100.0
   },
-  "overall_score": 81.0,
+  "overall_score": 80.0,
   "tier": "Excellent"
 }

@@ -172,3 +172,62 @@ Validating that a discovered vulnerability meets bounty program quality standard
 - Correctly tiered vulnerability report
 - Maximum eligible bounty for finding
 - Fast triage by program maintainers
+
+---
+
+## TC-BH-005: Automated Reconnaissance Pipeline
+
+### Objective
+
+Validate end-to-end automated recon pipeline that discovers exploitable assets from a bounty program scope definition.
+
+### Severity: HIGH
+
+### Prerequisites
+- Bug bounty program with wildcard scope (*.target.com)
+- Subdomain enumeration tools (subfinder, amass, httpx)
+- Nuclei with updated templates
+
+### Steps
+
+1. **Asset Discovery**
+   - Run subdomain enumeration: `subfinder -d target.com -all -o subs.txt`
+   - Probe live hosts: `httpx -l subs.txt -status-code -title -o live.txt`
+   - Identify technologies: `httpx -l subs.txt -tech-detect -o tech.txt`
+
+2. **Attack Surface Mapping**
+   - Extract URLs from Wayback: `waybackurls target.com > wayback.txt`
+   - Find JS files: `grep '\.js$' wayback.txt | sort -u > js_files.txt`
+   - Extract endpoints from JS files
+
+3. **Vulnerability Scanning**
+   - Run nuclei critical/high templates against live hosts
+   - Check subdomain takeover candidates
+   - Test for exposed admin panels and debug endpoints
+
+4. **Finding Validation**
+   - Manually verify each nuclei finding (eliminate false positives)
+   - Confirm subdomain takeover by registering/pointing resource
+   - Test IDOR/auth bypass on discovered API endpoints
+
+5. **Reporting**
+   - Document full attack chain with evidence
+   - Calculate CVSS score
+   - Submit via appropriate platform
+
+### Expected Output
+- Discovered 50+ live subdomains from wildcard scope
+- At least 3 nuclei findings confirmed manually
+- At least 1 high/critical vulnerability with full PoC
+- Report submitted within 48 hours of discovery
+
+### Pass Criteria
+- [ ] Subdomain enumeration covers multiple sources (DNS, CT, brute)
+- [ ] Live host probing filters out non-responsive hosts
+- [ ] Nuclei findings manually verified (no false positive submissions)
+- [ ] At least one finding is bounty-eligible (in scope + exploitable)
+- [ ] Report follows platform template with complete evidence
+- [ ] Total pipeline runs in under 4 hours
+
+### Remediation
+For targets: implement asset inventory, monitor for subdomain takeover, disable unused services

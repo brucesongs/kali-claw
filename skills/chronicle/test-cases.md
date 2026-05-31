@@ -279,3 +279,108 @@ Verify that the CHRONICLE.md index is consistent with the actual chronicle direc
 - Integrity report lists all discrepancies with classification and repair instructions
 - After manual repairs, the index and directory are fully synchronized
 - No orphaned detail files and no broken index references remain
+
+---
+
+## TC-CH-007: Timeline Correlation Analysis — Multi-Source Event Merging
+
+### Objective
+
+Validate that the timeline correlation pipeline correctly merges events from memory logs, chronicle entries, and tool mastery records into a unified, chronologically sorted timeline, and accurately detects coverage gaps.
+
+### Severity
+
+MEDIUM
+
+### Prerequisites
+
+1. `memory/` directory contains at least 10 daily log files spanning 30+ days
+2. `chronicle/` directory contains at least 5 event files across 2+ months
+3. `TOOLS.md` contains at least 3 dated mastery entries
+4. At least one intentional gap of 10+ days exists between chronicle entries
+5. At least one memory file contains significant content with no matching chronicle entry
+
+### Steps
+
+1. Run the multi-source event merging script against all three sources (memory, chronicle, TOOLS.md)
+2. Verify output contains entries from all three sources with correct source labels
+3. Verify chronological sorting — all entries ordered by date ascending
+4. Run gap detection script with threshold of 7 days
+5. Verify the intentional 10+ day gap is detected and reported
+6. Run cross-source correlation report
+7. Verify the uncovered significant memory entry is flagged as [MISSING]
+8. Verify already-covered entries are flagged as [COVERED]
+
+### Expected Output
+
+- Unified timeline file containing entries from memory, chronicle, and TOOLS.md
+- Each entry labeled with source type: [MEMORY], [CHRONICLE-P0/P1/P2], or [TOOLS]
+- Gap analysis report identifying all periods > 7 days without chronicle coverage
+- Correlation report showing MISSING and COVERED classifications
+- All dates in ISO 8601 format, sorted ascending
+
+### Remediation
+
+If correlation fails: verify date parsing handles all filename formats; ensure grep patterns match actual content structure in each source file.
+
+### Pass Criteria
+
+- [ ] All three sources (memory, chronicle, tools) represented in unified timeline
+- [ ] Timeline is strictly chronologically sorted
+- [ ] Known 10+ day gap is detected by gap analysis
+- [ ] Significant memory entries without chronicle coverage are flagged as MISSING
+- [ ] No false positives — entries with matching chronicle are not flagged as MISSING
+- [ ] Output files are created at expected paths with non-zero content
+
+---
+
+## TC-CH-008: Knowledge Distillation Pipeline — Automated Insight Extraction
+
+### Objective
+
+Validate that the knowledge distillation pipeline correctly extracts insights from chronicle entries, scores them by confidence level, deduplicates overlapping entries, and produces MEMORY.md-ready formatted output.
+
+### Severity
+
+HIGH
+
+### Prerequisites
+
+1. `chronicle/` directory contains at least 8 event files with populated Impact sections
+2. At least 2 chronicle entries contain high-confidence keywords ("always", "never", "critical", "proven")
+3. At least 2 chronicle entries contain medium-confidence keywords ("usually", "pattern", "learned")
+4. `MEMORY.md` contains at least 3 existing distilled entries (for deduplication testing)
+5. At least one pair of MEMORY.md entries has > 60% word overlap (intentional duplicate)
+
+### Steps
+
+1. Run the key insight extraction script against the chronicle directory
+2. Verify insights are extracted from Impact sections of chronicle entries
+3. Verify confidence scoring: high-signal entries scored "High", medium-signal scored "Medium"
+4. Verify output format matches MEMORY.md entry template (Source, Confidence, Lesson fields)
+5. Run the deduplication pipeline against MEMORY.md
+6. Verify the intentional duplicate pair is detected (> 60% word overlap)
+7. Run the automated summarization script for the past 7 days of daily logs
+8. Verify categorized output contains Techniques, Tool Usage, and Patterns sections
+
+### Expected Output
+
+- Insight extraction produces structured entries with source attribution and confidence scores
+- High-confidence insights sorted before medium and low confidence
+- Deduplication report identifies the known duplicate pair with overlap percentage
+- Summarization output contains categorized knowledge under correct headings
+- All outputs include line counts and processing statistics
+
+### Remediation
+
+If extraction fails: verify chronicle entries have `## Impact` sections with > 20 characters of content. If deduplication misses known duplicates: lower the overlap threshold from 0.6 to 0.5 and verify word tokenization handles punctuation.
+
+### Pass Criteria
+
+- [ ] Insights extracted from all chronicle entries with Impact sections
+- [ ] Confidence scoring correctly classifies high/medium/low based on keyword presence
+- [ ] Output format is valid for direct insertion into MEMORY.md
+- [ ] Known duplicate pair detected with reported overlap > 60%
+- [ ] Summarization produces non-empty Techniques, Tool Usage, and Patterns sections
+- [ ] No insights extracted from SUMMARY.md files (correctly excluded)
+- [ ] Source attribution paths are valid and point to existing files

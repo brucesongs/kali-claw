@@ -1,0 +1,90 @@
+name: Skill Quality Score
+
+on:
+  push:
+    branches: [main]
+    paths: ['skills/**']
+  pull_request:
+    paths: ['skills/**']
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Run SCORE.sh
+        run: bash validation/SCORE.sh
+
+      - name: Run batch-improve.sh
+        run: bash validation/batch-improve.sh --top 5
+
+      - name: Check for regressions
+        run: |
+          WEAK_COUNT=$(find validation/evidence/quality-scores -name "*.json" -exec jq -r '.tier' {} \; | grep -c "Weak" || true)
+          if [ "$WEAK_COUNT" -gt 0 ]; then
+            echo "::error::$WEAK_COUNT skills regressed to Weak tier"
+            exit 1
+          fi
+
+      - name: Quality gate - block PR on score regression
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "=== Quality Gate: Score Regression Check ==="
+          BASELINE_AVG=84.0
+          CURRENT_AVG=$(find validation/evidence/quality-scores -name "*.json" -exec jq -r '.overall_score' {} \; | awk '{sum+=$1; n++} END {printf "%.1f", sum/n}')
+          echo "Baseline average: $BASELINE_AVG"
+          echo "Current average: $CURRENT_AVG"
+
+          REGRESSED=$(awk "BEGIN {print ($CURRENT_AVG < $BASELINE_AVG - 1.0)}")
+          if [ "$REGRESSED" = "1" ]; then
+            echo "::error::Average score dropped from $BASELINE_AVG to $CURRENT_AVG (threshold: -1.0)"
+            exit 1
+          fi
+
+          # Single-skill regression check (>5 point drop blocks PR)
+          BLOCK=0
+          declare -A BASELINE_SCORES
+          if [ -f validation/evidence/quality-scores-baseline.json ]; then
+            while IFS=$'\t' read -r skill score; do
+              BASELINE_SCORES["$skill"]="$score"
+            done < <(jq -r '[.[] | "\(.skill)\t\(.overall_score)"] | .[]' validation/evidence/quality-scores-baseline.json)
+          fi
+
+          for f in validation/evidence/quality-scores/*.json; do
+            skill=$(jq -r '.skill' "$f")
+            score=$(jq -r '.overall_score' "$f")
+            tier=$(jq -r '.tier' "$f")
+
+            # Check against baseline if available
+            if [ -n "${BASELINE_SCORES[$skill]:-}" ]; then
+              baseline="${BASELINE_SCORES[$skill]}"
+              drop=$(awk "BEGIN {printf \"%.1f\", $baseline - $score}")
+              exceeded=$(awk "BEGIN {print ($drop > 5.0)}")
+              if [ "$exceeded" = "1" ]; then
+                echo "::error::$skill dropped $drop points ($baseline → $score)"
+                BLOCK=1
+              fi
+            fi
+
+            # Warn on Adequate skills
+            if [ "$tier" = "Adequate" ]; then
+              echo "::warning::$skill is at Adequate tier ($score)"
+            fi
+          done
+
+          if [ "$BLOCK" = "1" ]; then
+            echo "::error::One or more skills regressed >5 points. PR blocked."
+            exit 1
+          fi
+
+          echo "Quality gate PASSED: avg=$CURRENT_AVG (baseline=$BASELINE_AVG)"
+
+      - name: Upload score evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-scores
+          path: validation/evidence/quality-scores/

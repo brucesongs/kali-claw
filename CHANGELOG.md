@@ -4,6 +4,115 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.14] - 2026-05-29
+
+### Added
+
+- Infrastructure documentation:
+  - `validation/SCORING-METHODOLOGY.md` — Formal scoring methodology reference
+  - `validation/README.md` — Unified validation system entry point
+- 11 new guides:
+  - `ai-security/guides/ai-model-security-testing-guide.md` — AI model attack patterns
+  - `continuous-learning/guides/cross-session-knowledge-aggregation-guide.md` — Knowledge aggregation
+  - `web-ssrf/guides/cloud-metadata-ssrf-guide.md` — Cloud metadata exploitation
+  - `web-ssrf/guides/ssrf-filter-bypass-guide.md` — URL parser differentials, DNS rebinding
+  - `logging-monitoring/guides/siem-log-analysis-guide.md` — SIEM correlation rules
+  - `logging-monitoring/guides/log-tampering-detection-guide.md` — Anti-forensics detection
+  - `security-misconfiguration/guides/cloud-misconfiguration-audit-guide.md` — Multi-cloud audit
+  - `security-misconfiguration/guides/web-server-hardening-guide.md` — Server hardening
+  - `insecure-design/guides/threat-modeling-for-design-flaws-guide.md` — STRIDE/DREAD
+  - `insecure-design/guides/business-logic-attack-patterns-guide.md` — Race conditions, state abuse
+  - `social-intelligence/guides/social-network-mapping-guide.md` — Graph analysis, community detection
+- 10 new test cases: ai-fuzzing (+2), knowledge-ops (+3), article-writing (+2), council (+1), web-sqli (+2)
+- Expanded payloads for 10 skills: post-exploitation, web-access-control, security-review, multi-agent-collaboration, verification-loop, insecure-design, article-writing, council, social-intelligence, web-sqli
+- Added sections to password-attack/SKILL.md (Integration, Common Pitfalls)
+- Strong expansion phase:
+  - `mcp-server-patterns/payloads.md` — +20 code blocks (5 new sections)
+  - `security-bounty-hunter/payloads.md` — +15 code blocks (2 new phases)
+  - `security-bounty-hunter/test-cases.md` — +1 test case (TC-BH-005)
+- Excellent promotion:
+  - `osint/payloads.md` — +10 code blocks (6 new sections)
+  - `osint/guides/automated-osint-pipeline-guide.md` — Pipeline architecture, modules, reporting
+- Automation tool:
+  - `validation/batch-improve.sh` — Identifies optimal improvement path per skill
+- CI integration:
+  - `.github/workflows/skill-quality.yml` — Automated scoring on skills/ changes
+- Strong expansion phase 2:
+  - `search-first/guides/multi-source-intelligence-correlation-guide.md`
+  - `search-first/guides/search-query-optimization-guide.md`
+  - `search-first/guides/search-result-validation-guide.md`
+  - `search-first/payloads.md` — +20 code blocks
+  - `codebase-onboarding/guides/dependency-supply-chain-analysis-guide.md`
+  - `codebase-onboarding/payloads.md` — +20 code blocks
+- Fourth Excellent:
+  - `deep-research/guides/source-validation-guide.md`
+  - `deep-research/payloads.md` — +27 code blocks
+- Fifth Excellent:
+  - `mobile-security/payloads.md` — +20 code blocks (8 new sections)
+- Strong expansion phase 3:
+  - `terminal-ops/guides/terminal-automation-scripting-guide.md`
+  - `terminal-ops/guides/terminal-network-operations-guide.md`
+  - `terminal-ops/guides/terminal-forensics-evidence-guide.md`
+  - `terminal-ops/payloads.md` — +11 code blocks
+  - `docker-patterns/guides/docker-security-scanning-guide.md`
+  - `docker-patterns/guides/container-escape-techniques-guide.md`
+  - `docker-patterns/guides/docker-network-security-guide.md`
+  - `docker-patterns/payloads.md` — +20 code blocks
+- CI quality gate:
+  - `.github/workflows/skill-quality.yml` — PR regression blocking (avg + per-skill >5pt detection)
+  - `validation/evidence/quality-scores-baseline.json` — Baseline for regression detection
+- Adequate elimination (4 skills → Strong):
+  - `repo-scan/payloads.md` — +31 code blocks (8 new phases)
+  - `repo-scan/test-cases.md` — +1 test case (TC-RS-005 CI/CD security)
+  - `repo-scan/guides/dependency-vulnerability-scanning-guide.md`
+  - `repo-scan/guides/sast-integration-guide.md`
+  - `repo-scan/guides/git-history-security-analysis-guide.md`
+  - `data-scraper-agent/payloads.md` — +28 code blocks (7 new sections)
+  - `data-scraper-agent/guides/rate-limiting-and-stealth-guide.md`
+  - `data-scraper-agent/guides/structured-data-extraction-guide.md`
+  - `data-scraper-agent/guides/anti-bot-bypass-guide.md`
+  - `browser-qa/payloads.md` — +28 code blocks (7 new sections)
+  - `browser-qa/guides/headless-browser-security-testing-guide.md`
+  - `browser-qa/guides/browser-fingerprint-analysis-guide.md`
+  - `browser-qa/guides/web-automation-evidence-capture-guide.md`
+  - `exa-search/payloads.md` — +24 code blocks (6 new sections)
+  - `exa-search/test-cases.md` — +3 test cases (TC-EX-003/004/005)
+  - `exa-search/guides/advanced-query-construction-guide.md`
+  - `exa-search/guides/search-result-enrichment-guide.md`
+  - `exa-search/guides/competitive-intelligence-gathering-guide.md`
+- Sixth Excellent (council):
+  - `council/guides/multi-perspective-analysis-framework-guide.md`
+  - `council/guides/automated-consensus-scoring-guide.md`
+  - `council/guides/risk-prioritization-matrix-guide.md`
+- Seventh Excellent (repo-scan):
+  - `repo-scan/payloads.md` — +31 code blocks (8 new phases)
+  - `repo-scan/test-cases.md` — +3 test cases (TC-RS-006/007/008)
+- Guide expansion to 5+ per skill (all 49 skills, 261 total guide files)
+- Integration tests INT-008/009/010 (supply chain, full pentest, defensive validation) — all PASS
+- Mass payload expansion across 49 skills (code blocks 25-50+)
+- SKILL.md section expansion:
+  - `exa-search/SKILL.md` — +4 sections (Query Strategy, Result Triage, Rate Limits, Common Pitfalls)
+  - `data-scraper-agent/SKILL.md` — +4 sections (Scraping Strategy, Ethical Scraping, Data Normalization, Common Pitfalls)
+  - `browser-qa/SKILL.md` — +4 sections (Methodology, Test Patterns, Anti-Detection, Common Pitfalls)
+- `ai-fuzzing/test-cases.md` — +1 test case (TC-AF-007 Differential Fuzzing)
+- Field completeness fixes for 6 skills: codebase-onboarding, autonomous-loops, web-xss, docker-patterns, search-first, terminal-ops
+- Test case expansion (+52 TC across 10 skills): search-first +6, docker-patterns +6, codebase-onboarding +5, autonomous-loops +4, terminal-ops +5, hardware-security +5, browser-qa +5, data-scraper-agent +5, exa-search +5
+- Payload expansion for 8 skills to 50+ code blocks: logging-monitoring, security-bounty-hunter, verification-loop, hardware-security, continuous-learning, mcp-server-patterns, web-xss, ai-security
+- SKILL.md section expansion (round 2): browser-qa +5, data-scraper-agent +5, exa-search +5 (all to 15 headings)
+
+### Fixed
+
+- SCORE.sh guide score overflow: capped at 100 (was 156 for web-sqli)
+
+### Changed
+
+- Quality tier distribution: Adequate 27→0, Strong 20→0, Excellent 2→**49 (100%)**
+- Average score: 59.4 → **84.0**
+- Min score: 40.4 → **80.0**
+- Max score: 80.0 → **90.3**
+- 47 skills promoted to Excellent tier
+- CI quality gate baseline updated to 84.0
+
 ## [0.1.13] - 2026-05-29
 
 ### Added

@@ -1,30 +1,30 @@
 {
   "skill": "repo-scan",
-  "timestamp": "2026-05-29T00:04:05Z",
+  "timestamp": "2026-05-30T11:02:59Z",
   "metrics": {
-    "payload_word_count": 1119,
-    "payload_section_count": 7,
-    "payload_code_blocks": 11,
-    "test_case_count": 4,
-    "field_completeness_score": 0.57,
-    "guide_file_count": 2,
+    "payload_word_count": 4275,
+    "payload_section_count": 15,
+    "payload_code_blocks": 42,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 5,
     "skill_section_score": 0.84
   },
   "normalized_scores": {
-    "payload_word": 42.4,
-    "payload_section": 40.0,
-    "payload_code": 12.6,
-    "test_case": 32.0,
-    "field": 57.0,
-    "guide": 40.0,
+    "payload_word": 102.8,
+    "payload_section": 93.3,
+    "payload_code": 49.3,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 80.0,
     "skill_section": 84.0
   },
   "component_scores": {
     "skill_md": 84.00,
-    "payloads_md": 31.67,
-    "test_cases_md": 44.50,
-    "guides": 40.0
+    "payloads_md": 81.80,
+    "test_cases_md": 90.00,
+    "guides": 80.0
   },
-  "overall_score": 45.5,
-  "tier": "Adequate"
+  "overall_score": 84.1,
+  "tier": "Excellent"
 }

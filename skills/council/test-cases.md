@@ -8,8 +8,9 @@
 | TC-CL-002 | Cloud Architecture Security Assessment | Multi-cloud K8s deployment | Active |
 | TC-CL-003 | Mobile Application Security Evaluation | Fintech app with biometric auth | Active |
 | TC-CL-004 | Incident Response Decision Simulation | Active breach with lateral movement | Active |
+| TC-CL-005 | Automated Consensus Scoring | Quantitative agreement measurement across perspectives | Active |
 
-Total: 4 test cases
+Total: 5 test cases
 
 ---
 
@@ -371,3 +372,84 @@ THEN: output:
 - [ ] Dissenting views documented (attacker's observation preference)
 - [ ] Action items have clear owners and timeframes
 - [ ] Decision confidence explicitly stated as lower due to time pressure
+
+---
+
+## TC-CL-005: Automated Consensus Scoring
+
+**Objective**: Validate quantitative consensus measurement across three perspectives using weighted voting
+
+**Severity**: MEDIUM
+
+**Prerequisites**: Council session with 10+ findings from all three perspectives, scoring algorithm implemented
+
+**Scenario**: Automated system processes findings from attacker, defender, and auditor perspectives, calculates agreement scores, resolves disagreements via weighted voting, and produces a confidence-rated recommendation.
+
+**Phase 1 — Input Preparation**
+
+```
+GIVEN: 12 findings across 3 perspectives:
+  - Attacker: 5 findings (2 Critical, 2 High, 1 Medium)
+  - Defender: 4 findings (1 Critical, 2 High, 1 Medium)
+  - Auditor: 3 findings (1 Critical, 1 High, 1 Medium)
+  
+  Overlapping topics:
+  - "Auth bypass" flagged by all 3 (agreement)
+  - "Rate limiting" flagged by Attacker (Critical) and Defender (High) — disagreement
+  - "Logging gap" flagged only by Auditor (unique insight)
+```
+
+**Phase 2 — Consensus Calculation**
+
+```
+WHEN: Running consensus algorithm with weights:
+  - Attacker weight: 0.40 (offensive expertise)
+  - Defender weight: 0.35 (operational context)
+  - Auditor weight: 0.25 (compliance authority)
+
+THEN: Calculate:
+  - Agreement score: topics where all perspectives align / total topics
+  - Weighted severity for disagreements
+  - Unique insight bonus (findings from single perspective get flagged for review)
+  
+Expected output:
+  - Agreement rate: 0.60 (6/10 topics agreed)
+  - Disagreement resolution: 3 topics resolved via weighted vote
+  - Unique insights: 1 (auditor logging gap)
+  - Overall confidence: 0.72
+```
+
+**Phase 3 — Output Validation**
+
+```
+THEN: Verify output contains:
+  - Ranked finding list (by final risk score)
+  - Agreement/disagreement classification for each finding
+  - Confidence score between 0 and 1
+  - Dissenting views preserved (not discarded)
+  - Actionable recommendation with owner assignment
+```
+
+**Steps**:
+1. Prepare 12 findings with known overlaps and disagreements
+2. Run consensus scoring algorithm
+3. Verify agreement detection is correct
+4. Verify weighted voting resolves disagreements correctly
+5. Verify unique insights are flagged (not lost)
+6. Validate final confidence score calculation
+
+**Expected Output**:
+- Consensus report with agreement rate, resolved disagreements, and confidence score
+- All findings ranked by final severity
+- Dissenting views documented with perspective attribution
+- Recommendation with confidence level
+
+**Pass Criteria**:
+- [ ] Agreement detection correctly identifies overlapping topics
+- [ ] Weighted voting produces deterministic severity resolution
+- [ ] Unique insights (single-perspective findings) are preserved and flagged
+- [ ] Confidence score reflects actual agreement level (not inflated)
+- [ ] Dissenting views retained in output (not silently dropped)
+- [ ] Final recommendation is actionable with assigned owners
+
+**Verification**: Compare algorithm output against manually calculated expected values for the 12-finding test set

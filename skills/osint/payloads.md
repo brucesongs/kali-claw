@@ -533,3 +533,150 @@ theHarvester -d example.com -b crtsh
 # use certspotter
 curl -s "https://api.certspotter.com/v1/issuances?domain=example.com&include_subdomains=true" | jq '.[].dns_names[]'
 ```
+
+---
+
+## 14. GitHub OSINT
+
+```bash
+# Search for leaked credentials in repos
+gh search code "target.com password" --limit 20
+gh search code "target.com api_key" --limit 20
+gh search code "target.com secret" --limit 20
+
+# Find employee accounts
+gh search users "target-company" --limit 50
+
+# Search commit messages for sensitive info
+gh search commits "fix password" --owner target-org --limit 20
+
+# Trufflehog for secret scanning
+trufflehog github --org=target-org --only-verified
+```
+
+---
+
+## 15. Infrastructure Fingerprinting
+
+```bash
+# Shodan CLI queries
+shodan search "hostname:target.com" --fields ip_str,port,org,os
+shodan search "ssl.cert.subject.cn:target.com" --fields ip_str,port,product
+shodan search "http.title:target" --fields ip_str,port,http.title
+
+# Censys search
+censys search "services.tls.certificates.leaf.subject.common_name: target.com" --index-type hosts
+
+# DNS zone transfer attempt
+dig axfr target.com @ns1.target.com
+
+# ASN lookup and IP range discovery
+whois -h whois.radb.net -- '-i origin AS12345' | grep route
+curl -s "https://api.bgpview.io/asn/12345/prefixes" | jq '.data.ipv4_prefixes[].prefix'
+```
+
+---
+
+## 16. People OSINT
+
+```bash
+# Email format discovery
+curl -s "https://api.hunter.io/v2/domain-search?domain=target.com&api_key=$HUNTER_KEY" \
+  | jq '{pattern: .data.pattern, emails: [.data.emails[].value]}'
+
+# LinkedIn enumeration (via Google)
+site:linkedin.com/in "target company" "security engineer"
+site:linkedin.com/in "target company" "DevOps"
+
+# Breach data check (ethical - only for authorized testing)
+curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/target@target.com" \
+  -H "hibp-api-key: $HIBP_KEY" | jq '.[].Name'
+
+# Social media correlation
+sherlock targetusername --print-found --output sherlock_results.txt
+```
+
+---
+
+## 17. Automated OSINT Pipeline
+
+```python
+import subprocess
+import json
+from pathlib import Path
+
+def run_osint_pipeline(domain, output_dir="./osint_results"):
+    Path(output_dir).mkdir(exist_ok=True)
+    results = {}
+
+    # Phase 1: DNS & Subdomains
+    subs = subprocess.run(
+        ["subfinder", "-d", domain, "-silent"],
+        capture_output=True, text=True
+    ).stdout.strip().split("\n")
+    results["subdomains"] = subs
+    Path(f"{output_dir}/subdomains.txt").write_text("\n".join(subs))
+
+    # Phase 2: WHOIS
+    whois_data = subprocess.run(
+        ["whois", domain], capture_output=True, text=True
+    ).stdout
+    results["whois"] = whois_data
+    Path(f"{output_dir}/whois.txt").write_text(whois_data)
+
+    # Phase 3: Certificate Transparency
+    import requests
+    ct_resp = requests.get(f"https://crt.sh/?q=%25.{domain}&output=json")
+    ct_domains = list(set(e["name_value"] for e in ct_resp.json())) if ct_resp.ok else []
+    results["ct_domains"] = ct_domains
+
+    # Phase 4: Technology detection
+    tech = subprocess.run(
+        ["httpx", "-l", f"{output_dir}/subdomains.txt", "-tech-detect", "-silent", "-json"],
+        capture_output=True, text=True
+    ).stdout
+    results["technologies"] = [json.loads(l) for l in tech.strip().split("\n") if l]
+
+    return results
+```
+
+---
+
+## 18. Metadata Extraction
+
+```bash
+# Image EXIF data extraction
+exiftool image.jpg | grep -iE "gps|date|camera|software|author"
+
+# PDF metadata
+exiftool document.pdf | grep -iE "author|creator|producer|create date|modify"
+pdfinfo document.pdf
+
+# Office document metadata
+exiftool document.docx | grep -iE "author|company|manager|created|modified"
+
+# Bulk metadata extraction from downloaded files
+find ./downloads -type f \( -name "*.pdf" -o -name "*.docx" -o -name "*.jpg" \) \
+  -exec exiftool -csv {} + > metadata_report.csv
+```
+
+---
+
+## 19. Dark Web & Leak Monitoring
+
+```bash
+# IntelX API search
+curl -s "https://2.intelx.io/intelligent/search" \
+  -H "x-key: $INTELX_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{\"term\":\"target.com\",\"maxresults\":20,\"media\":0}" | jq '.records[].systemid'
+
+# Dehashed API (credential leak search)
+curl -s "https://api.dehashed.com/search?query=domain:target.com" \
+  -u "$DEHASHED_EMAIL:$DEHASHED_KEY" | jq '.entries[] | {email, password: .hashed_password}'
+
+# Google dorking for leaked data
+site:pastebin.com "target.com"
+site:trello.com "target.com" password
+site:docs.google.com "target.com" confidential
+```

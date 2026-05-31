@@ -103,6 +103,22 @@ Verification        Force               Stuffing/Spray      (impacket/wmiexec)
 
 ---
 
+## Integration with Other Skills
+
+- **web-auth-bypass**: Use cracked credentials to test authentication bypass scenarios
+- **post-exploitation**: Credential harvesting feeds back into password attack wordlists
+- **recon-osint**: OSINT-gathered personal info improves targeted wordlist generation
+- **crypto-attacks**: Weak cryptographic implementations may expose password hashes
+
+## Common Pitfalls
+
+- Running online attacks without checking lockout policies first
+- Using generic wordlists when target-specific mutations would be more effective
+- Ignoring password reuse across services (credential stuffing opportunity)
+- Not verifying cracked credentials before reporting
+
+---
+
 ## Learning Resources
 
 - **This skill's supplementary files**: `payloads.md`, `test-cases.md`

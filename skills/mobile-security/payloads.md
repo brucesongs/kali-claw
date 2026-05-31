@@ -550,3 +550,238 @@ adb logcat | grep "com.target.app"
 # dump systeminformation
 adb shell dumpsys package com.target.app
 ```
+
+---
+
+## 9. Binary Protection Analysis
+
+```bash
+# Check native library protections
+readelf -h lib/arm64-v8a/libnative.so | grep "Type"
+readelf -d lib/arm64-v8a/libnative.so | grep -E "NEEDED|SONAME"
+
+# Check for stack canaries
+readelf -s lib/arm64-v8a/libnative.so | grep "__stack_chk"
+
+# Check for RELRO
+readelf -l lib/arm64-v8a/libnative.so | grep "GNU_RELRO"
+
+# Find JNI methods
+nm -D lib/arm64-v8a/libnative.so | grep "Java_"
+
+# iOS binary protections
+otool -hv Payload/App.app/App | grep -i "PIE"
+otool -l Payload/App.app/App | grep -A2 "LC_ENCRYPTION"
+```
+
+---
+
+## 10. Sensitive Data Exposure
+
+```bash
+# Search for hardcoded secrets in decompiled APK
+grep -rn "api_key\|api_secret\|password\|token" smali/ --include="*.smali"
+strings classes.dex | grep -iE "(key|secret|password|token)\s*=\s*['\"][^'\"]{8,}"
+
+# Firebase misconfiguration check
+grep -r "firebaseio.com" . | grep -v ".git"
+curl -s "https://PROJECT-ID.firebaseio.com/.json"
+
+# AWS credentials in APK
+strings classes.dex | grep -E "AKIA[0-9A-Z]{16}"
+grep -rn "amazonaws.com" smali/ res/
+```
+
+```bash
+# iOS plist sensitive data
+find Payload/ -name "*.plist" -exec plutil -p {} \; | grep -iE "password|token|key|secret"
+
+# Check for cleartext HTTP in Info.plist
+plutil -p Payload/App.app/Info.plist | grep -A5 "NSAppTransportSecurity"
+```
+
+---
+
+## 11. WebView Exploitation
+
+```javascript
+// Frida: Hook WebView JavaScript interfaces
+Java.perform(function() {
+    var WebView = Java.use("android.webkit.WebView");
+    WebView.addJavascriptInterface.implementation = function(obj, name) {
+        console.log("[WebView] JS Interface added: " + name + " → " + obj.getClass().getName());
+        this.addJavascriptInterface(obj, name);
+    };
+    WebView.loadUrl.overload("java.lang.String").implementation = function(url) {
+        console.log("[WebView] Loading: " + url);
+        this.loadUrl(url);
+    };
+});
+```
+
+```bash
+# Check for insecure WebView settings in smali
+grep -rn "setJavaScriptEnabled\|setAllowFileAccess\|setAllowUniversalAccessFromFileURLs" smali/
+grep -rn "addJavascriptInterface" smali/
+grep -rn "setWebContentsDebuggingEnabled" smali/
+```
+
+---
+
+## 12. API Security Testing
+
+```bash
+# Extract API endpoints from decompiled code
+grep -rohP "https?://[^\s\"'<>]+" smali/ res/ | sort -u > api_endpoints.txt
+
+# Test IDOR on mobile API
+for id in $(seq 1 50); do
+    code=$(curl -s -o /dev/null -w "%{http_code}" \
+      "https://api.target.com/v1/user/$id/profile" \
+      -H "Authorization: Bearer $TOKEN")
+    [ "$code" = "200" ] && echo "[IDOR] user/$id accessible"
+done
+
+# Test token expiration
+curl -s "https://api.target.com/v1/me" -H "Authorization: Bearer $EXPIRED_TOKEN" -o /dev/null -w "%{http_code}"
+```
+
+```python
+# Automated API parameter tampering
+import requests
+
+BASE = "https://api.target.com/v1"
+HEADERS = {"Authorization": "Bearer VALID_TOKEN"}
+
+# Price manipulation test
+r = requests.post(f"{BASE}/order", headers=HEADERS, json={"item_id": 1, "price": 0.01, "quantity": 1})
+print(f"Price tamper: {r.status_code} - {r.text[:100]}")
+
+# Role escalation test
+r = requests.put(f"{BASE}/user/me", headers=HEADERS, json={"role": "admin"})
+print(f"Role escalation: {r.status_code} - {r.text[:100]}")
+```
+
+---
+
+## 13. Dynamic Instrumentation Advanced
+
+```javascript
+// Frida: Trace all method calls in target class
+Java.perform(function() {
+    var target = Java.use("com.target.app.crypto.CryptoManager");
+    var methods = target.class.getDeclaredMethods();
+    methods.forEach(function(m) {
+        var name = m.getName();
+        target[name].overloads.forEach(function(overload) {
+            overload.implementation = function() {
+                console.log("[TRACE] " + name + "(" + Array.from(arguments).join(", ") + ")");
+                return overload.apply(this, arguments);
+            };
+        });
+    });
+});
+```
+
+```javascript
+// Frida: Hook SharedPreferences writes
+Java.perform(function() {
+    var Editor = Java.use("android.app.SharedPreferencesImpl$EditorImpl");
+    Editor.putString.implementation = function(key, value) {
+        console.log("[SharedPrefs] " + key + " = " + value);
+        return this.putString(key, value);
+    };
+});
+```
+
+---
+
+## 14. Automated Mobile Security Pipeline
+
+```bash
+#!/bin/bash
+# mobile-audit.sh — Full automated mobile app assessment
+APK="$1"
+OUTPUT="./audit_$(basename "$APK" .apk)_$(date +%Y%m%d)"
+mkdir -p "$OUTPUT"
+
+echo "[1/7] Decompiling..."
+apktool d "$APK" -o "$OUTPUT/src" -f 2>/dev/null
+
+echo "[2/7] Extracting strings..."
+strings "$APK" | grep -iE "http://|https://|api|key|secret|password|token" | sort -u > "$OUTPUT/strings.txt"
+
+echo "[3/7] Permissions audit..."
+aapt dump permissions "$APK" > "$OUTPUT/permissions.txt"
+grep -c "DANGEROUS" "$OUTPUT/permissions.txt" | xargs -I{} echo "  Dangerous permissions: {}"
+
+echo "[4/7] Exported components..."
+grep "android:exported=\"true\"" "$OUTPUT/src/AndroidManifest.xml" > "$OUTPUT/exported.txt"
+
+echo "[5/7] Secret scanning..."
+grep -rn "api_key\|secret\|password\|token\|AKIA" "$OUTPUT/src/" --include="*.smali" > "$OUTPUT/secrets.txt"
+
+echo "[6/7] Network security config..."
+cat "$OUTPUT/src/res/xml/network_security_config.xml" 2>/dev/null > "$OUTPUT/net_config.txt"
+
+echo "[7/7] Native library analysis..."
+find "$OUTPUT/src/lib" -name "*.so" -exec nm -D {} \; 2>/dev/null | grep "Java_" > "$OUTPUT/jni_methods.txt"
+
+echo "[+] Complete: $OUTPUT/"
+wc -l "$OUTPUT"/*.txt 2>/dev/null
+```
+
+```bash
+# MobSF Docker automated scan
+docker run -d -p 8000:8000 opensecurity/mobile-security-framework-mobsf
+HASH=$(curl -s -F "file=@$APK" http://localhost:8000/api/v1/upload -H "Authorization:$KEY" | jq -r '.hash')
+curl -s "http://localhost:8000/api/v1/scan" -H "Authorization:$KEY" -d "hash=$HASH&scan_type=apk"
+curl -s "http://localhost:8000/api/v1/report_json?hash=$HASH" -H "Authorization:$KEY" | jq '.security_score'
+```
+
+---
+
+## 15. Reverse Engineering Native Libraries
+
+```bash
+# Extract and analyze native libs
+unzip -o app.apk "lib/*" -d extracted/
+file extracted/lib/arm64-v8a/*.so
+
+# Ghidra headless analysis
+analyzeHeadless /tmp/ghidra_proj proj -import lib/arm64-v8a/libnative.so \
+  -postScript ExportFunctions.java -scriptPath /opt/ghidra/scripts
+
+# Strings for crypto and anti-debug
+strings lib/arm64-v8a/libnative.so | grep -iE "AES|RSA|SHA|HMAC|encrypt|decrypt"
+strings lib/arm64-v8a/libnative.so | grep -iE "ptrace|TracerPid|frida|xposed|substrate"
+```
+
+```bash
+# iOS class-dump
+class-dump Payload/App.app/App > headers.h
+grep -E "@interface|@property.*(password|token|secret|key)" headers.h
+```
+
+---
+
+## 16. Permission Abuse Vectors
+
+```bash
+# List dangerous permissions
+aapt dump permissions app.apk | grep -E "CAMERA|RECORD_AUDIO|READ_CONTACTS|ACCESS_FINE_LOCATION|READ_SMS|SEND_SMS|READ_CALL_LOG"
+
+# Test permission enforcement
+# Try accessing protected content without permission
+adb shell content query --uri content://sms/inbox 2>&1
+adb shell content query --uri content://contacts/phones 2>&1
+
+# Check for permission re-delegation
+grep -rn "checkCallingPermission\|enforcePermission" smali/ --include="*.smali" | wc -l
+```
+
+```bash
+# iOS entitlements check
+codesign -d --entitlements :- Payload/App.app 2>/dev/null | plutil -p -
+# Look for: com.apple.developer.associated-domains, keychain-access-groups
+```

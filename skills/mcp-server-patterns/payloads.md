@@ -680,3 +680,1097 @@ curl -s -X POST http://localhost:8080/tools/run_nmap \
 # Check response does NOT contain: /home/, /root/, Traceback, File ", line
 # If it does: HIGH severity information disclosure finding
 ```
+
+---
+
+## 10. MCP Client Implementation Patterns
+
+### Python Client with Retry Logic
+
+```python
+import httpx
+import asyncio
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+class MCPClient:
+    def __init__(self, base_url, api_key):
+        self.base_url = base_url
+        self.headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+    async def call_tool(self, tool_name, params):
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{self.base_url}/tools/{tool_name}",
+                headers=self.headers,
+                json=params,
+                timeout=30.0
+            )
+            resp.raise_for_status()
+            return resp.json()
+```
+
+### Streaming Response Handler
+
+```python
+async def stream_tool_output(client, tool_name, params):
+    async with httpx.AsyncClient() as http:
+        async with http.stream("POST", f"{client.base_url}/tools/{tool_name}",
+                               headers=client.headers, json=params) as response:
+            async for chunk in response.aiter_lines():
+                if chunk.strip():
+                    data = json.loads(chunk)
+                    yield data
+```
+
+### Connection Pool Management
+
+```python
+from contextlib import asynccontextmanager
+
+class MCPConnectionPool:
+    def __init__(self, servers):
+        self.servers = servers
+        self.pools = {}
+
+    @asynccontextmanager
+    async def get_connection(self, server_name):
+        if server_name not in self.pools:
+            self.pools[server_name] = httpx.AsyncClient(
+                base_url=self.servers[server_name]["url"],
+                headers={"X-API-Key": self.servers[server_name]["key"]},
+                limits=httpx.Limits(max_connections=10)
+            )
+        yield self.pools[server_name]
+
+    async def close_all(self):
+        for pool in self.pools.values():
+            await pool.aclose()
+```
+
+---
+
+## 11. Multi-Server Orchestration
+
+### Server Registry Pattern
+
+```python
+class ServerRegistry:
+    def __init__(self):
+        self.servers = {}
+        self.capabilities = {}
+
+    def register(self, name, url, api_key, tools):
+        self.servers[name] = {"url": url, "api_key": api_key}
+        for tool in tools:
+            self.capabilities[tool] = name
+
+    def route(self, tool_name):
+        server = self.capabilities.get(tool_name)
+        if not server:
+            raise ValueError(f"No server registered for tool: {tool_name}")
+        return self.servers[server]
+```
+
+### Parallel Tool Execution
+
+```python
+async def parallel_execute(registry, tool_calls):
+    tasks = []
+    for call in tool_calls:
+        server = registry.route(call["tool"])
+        client = MCPClient(server["url"], server["api_key"])
+        tasks.append(client.call_tool(call["tool"], call["params"]))
+    return await asyncio.gather(*tasks, return_exceptions=True)
+```
+
+### Pipeline Pattern (Sequential with Data Passing)
+
+```python
+async def pipeline_execute(registry, steps):
+    context = {}
+    for step in steps:
+        server = registry.route(step["tool"])
+        client = MCPClient(server["url"], server["api_key"])
+        params = {**step["params"], **{k: context[v] for k, v in step.get("input_map", {}).items()}}
+        result = await client.call_tool(step["tool"], params)
+        if step.get("output_key"):
+            context[step["output_key"]] = result
+    return context
+```
+
+---
+
+## 12. Health Check and Monitoring
+
+### Server Health Endpoint
+
+```python
+@app.route("/health")
+async def health_check():
+    checks = {
+        "status": "healthy",
+        "uptime_seconds": time.time() - START_TIME,
+        "tools_registered": len(TOOL_REGISTRY),
+        "active_connections": CONNECTION_COUNTER,
+        "last_request_at": LAST_REQUEST_TIME,
+    }
+    for tool_name, tool_fn in TOOL_REGISTRY.items():
+        try:
+            checks[f"tool_{tool_name}"] = "available"
+        except Exception as e:
+            checks[f"tool_{tool_name}"] = f"error: {e}"
+            checks["status"] = "degraded"
+    return json.dumps(checks)
+```
+
+### Prometheus Metrics Export
+
+```python
+from prometheus_client import Counter, Histogram, generate_latest
+
+REQUEST_COUNT = Counter("mcp_requests_total", "Total requests", ["tool", "status"])
+REQUEST_LATENCY = Histogram("mcp_request_duration_seconds", "Request latency", ["tool"])
+
+@app.middleware("http")
+async def metrics_middleware(request, call_next):
+    tool = request.url.path.split("/")[-1]
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+    REQUEST_COUNT.labels(tool=tool, status=response.status_code).inc()
+    REQUEST_LATENCY.labels(tool=tool).observe(duration)
+    return response
+
+@app.route("/metrics")
+async def metrics():
+    return Response(generate_latest(), media_type="text/plain")
+```
+
+### Automated Health Monitor Script
+
+```bash
+#!/bin/bash
+SERVERS=("http://localhost:8080" "http://localhost:8081" "http://localhost:8082")
+
+for server in "${SERVERS[@]}"; do
+    status=$(curl -s -o /dev/null -w "%{http_code}" "$server/health" --max-time 5)
+    if [ "$status" != "200" ]; then
+        echo "ALERT: $server is DOWN (HTTP $status)"
+    else
+        echo "OK: $server is healthy"
+    fi
+done
+```
+
+---
+
+## 13. Configuration and Deployment
+
+### Docker Compose Multi-Server Setup
+
+```yaml
+version: "3.8"
+services:
+  mcp-nmap:
+    build: ./servers/nmap
+    ports: ["8080:8080"]
+    environment:
+      - MCP_API_KEY=${MCP_API_KEY}
+      - ALLOWED_TARGETS=10.0.0.0/8,192.168.0.0/16
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+
+  mcp-sqlmap:
+    build: ./servers/sqlmap
+    ports: ["8081:8080"]
+    environment:
+      - MCP_API_KEY=${MCP_API_KEY}
+      - MAX_CONCURRENT=3
+
+  mcp-gateway:
+    build: ./gateway
+    ports: ["443:443"]
+    depends_on: [mcp-nmap, mcp-sqlmap]
+    environment:
+      - UPSTREAM_SERVERS=mcp-nmap:8080,mcp-sqlmap:8080
+```
+
+### Environment Configuration Schema
+
+```python
+from pydantic import BaseModel, Field
+
+class MCPServerConfig(BaseModel):
+    host: str = "0.0.0.0"
+    port: int = Field(default=8080, ge=1024, le=65535)
+    api_key: str = Field(min_length=32)
+    allowed_targets: list[str] = []
+    max_concurrent_requests: int = Field(default=5, ge=1, le=50)
+    request_timeout_seconds: int = Field(default=30, ge=5, le=300)
+    rate_limit_per_minute: int = Field(default=60, ge=1)
+    log_level: str = "INFO"
+    tls_cert_path: str | None = None
+    tls_key_path: str | None = None
+```
+
+### Nginx Reverse Proxy Configuration
+
+```nginx
+upstream mcp_servers {
+    server 127.0.0.1:8080 weight=5;
+    server 127.0.0.1:8081 weight=3;
+    server 127.0.0.1:8082 weight=2;
+}
+
+server {
+    listen 443 ssl;
+    server_name mcp.internal;
+    ssl_certificate /etc/ssl/mcp.crt;
+    ssl_certificate_key /etc/ssl/mcp.key;
+
+    location /tools/ {
+        proxy_pass http://mcp_servers;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_read_timeout 60s;
+        limit_req zone=mcp_rate burst=10 nodelay;
+    }
+
+    location /health {
+        proxy_pass http://mcp_servers;
+        access_log off;
+    }
+}
+```
+
+---
+
+## 14. Logging and Audit Trail
+
+### Structured Audit Logger
+
+```python
+import json
+import logging
+from datetime import datetime
+
+class AuditLogger:
+    def __init__(self, log_file="audit.jsonl"):
+        self.logger = logging.getLogger("mcp_audit")
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
+
+    def log_request(self, tool, params, user, result_status):
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "tool": tool,
+            "params": {k: v for k, v in params.items() if k != "api_key"},
+            "user": user,
+            "status": result_status,
+        }
+        self.logger.info(json.dumps(entry))
+```
+
+### Log Rotation Configuration
+
+```bash
+# /etc/logrotate.d/mcp-server
+/var/log/mcp/*.jsonl {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 mcp mcp
+    postrotate
+        systemctl reload mcp-server
+    endscripts
+}
+```
+
+---
+
+## 15. Server Lifecycle
+
+### Graceful Startup with Dependency Checks
+
+```python
+#!/usr/bin/env python3
+"""MCP server startup with health checks and graceful initialization."""
+import asyncio
+import logging
+import os
+import signal
+import sys
+
+log = logging.getLogger("mcp-server")
+
+class MCPServer:
+    def __init__(self):
+        self.shutdown_event = asyncio.Event()
+        self.tool_registry = {}
+
+    async def check_dependencies(self):
+        """Verify all required services are available before starting."""
+        checks = {
+            "REDIS": os.environ.get("REDIS_URL", "redis://localhost:6379"),
+            "DATABASE": os.environ.get("DATABASE_URL", "postgresql://localhost/mcp"),
+        }
+        for name, url in checks.items():
+            try:
+                if name == "REDIS":
+                    import redis
+                    r = redis.from_url(url)
+                    r.ping()
+                elif name == "DATABASE":
+                    import psycopg2
+                    conn = psycopg2.connect(url)
+                    conn.close()
+                log.info("Dependency OK: %s", name)
+            except Exception as e:
+                log.error("Dependency FAIL: %s - %s", name, e)
+                return False
+        return True
+
+    async def start(self):
+        log.info("Running dependency checks...")
+        if not await self.check_dependencies():
+            log.error("Dependency checks failed. Aborting startup.")
+            sys.exit(1)
+
+        log.info("Registering signal handlers...")
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, self.shutdown_event.set)
+
+        log.info("MCP server started successfully")
+        await self.shutdown_event.wait()
+        log.info("Shutdown signal received, cleaning up...")
+
+    def register_tool(self, name, handler, schema):
+        self.tool_registry[name] = {"handler": handler, "schema": schema}
+
+if __name__ == "__main__":
+    server = MCPServer()
+    asyncio.run(server.start())
+```
+
+### Graceful Shutdown Handler
+
+```python
+import asyncio
+import logging
+
+log = logging.getLogger("mcp-shutdown")
+
+async def graceful_shutdown(server, timeout=30):
+    """Drain in-flight requests and clean up resources."""
+    log.info("Starting graceful shutdown (timeout=%ds)", timeout)
+
+    # Stop accepting new connections
+    server.close()
+    await server.wait_closed()
+    log.info("Stopped accepting new connections")
+
+    # Wait for in-flight requests to complete
+    try:
+        await asyncio.wait_for(
+            asyncio.gather(*asyncio.all_tasks(), return_exceptions=True),
+            timeout=timeout,
+        )
+    except asyncio.TimeoutError:
+        log.warning("Shutdown timeout reached, forcing exit")
+
+    # Clean up resources
+    await cleanup_database_connections()
+    await cleanup_cache()
+    log.info("Graceful shutdown complete")
+```
+
+---
+
+## 16. Tool Registration Patterns
+
+### Dynamic Tool Registry
+
+```python
+from typing import Any, Callable
+from dataclasses import dataclass, field
+
+@dataclass
+class ToolDefinition:
+    name: str
+    description: str
+    handler: Callable
+    input_schema: dict
+    requires_auth: bool = True
+    rate_limit: int = 60
+    timeout_seconds: int = 30
+    tags: list[str] = field(default_factory=list)
+
+class ToolRegistry:
+    def __init__(self):
+        self._tools: dict[str, ToolDefinition] = {}
+
+    def register(self, definition: ToolDefinition):
+        if definition.name in self._tools:
+            raise ValueError(f"Tool already registered: {definition.name}")
+        self._tools[definition.name] = definition
+
+    def get(self, name: str) -> ToolDefinition:
+        if name not in self._tools:
+            raise KeyError(f"Tool not found: {name}")
+        return self._tools[name]
+
+    def list_all(self) -> list[dict]:
+        return [
+            {"name": t.name, "description": t.description, "tags": t.tags}
+            for t in self._tools.values()
+        ]
+
+    def list_by_tag(self, tag: str) -> list[ToolDefinition]:
+        return [t for t in self._tools.values() if tag in t.tags]
+
+# Usage
+registry = ToolRegistry()
+registry.register(ToolDefinition(
+    name="run_nmap",
+    description="Execute nmap scan",
+    handler=handle_nmap,
+    input_schema={"type": "object", "properties": {"target": {"type": "string"}}},
+    tags=["network", "scanner"],
+))
+```
+
+---
+
+## 17. Error Handling Patterns
+
+### Structured Error Responses
+
+```python
+from enum import Enum
+from dataclasses import dataclass
+import json
+
+class ErrorCode(Enum):
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+    AUTH_FAILED = "AUTH_FAILED"
+    RATE_LIMITED = "RATE_LIMITED"
+    TOOL_NOT_FOUND = "TOOL_NOT_FOUND"
+    EXECUTION_FAILED = "EXECUTION_FAILED"
+    TIMEOUT = "TIMEOUT"
+    SCOPE_DENIED = "SCOPE_DENIED"
+
+@dataclass
+class MCPError:
+    code: ErrorCode
+    message: str
+    detail: str = ""
+    retry_after: int | None = None
+
+    def to_response(self):
+        response = {
+            "error": self.code.value,
+            "message": self.message,
+        }
+        if self.detail:
+            response["detail"] = self.detail[:200]
+        if self.retry_after is not None:
+            response["retry_after"] = self.retry_after
+        return json.dumps(response)
+
+# Usage in tool handler
+async def call_tool(name: str, arguments: dict):
+    try:
+        tool = registry.get(name)
+    except KeyError:
+        return MCPError(ErrorCode.TOOL_NOT_FOUND, f"Unknown tool: {name}").to_response()
+
+    try:
+        validated = validate_input(tool.input_schema, arguments)
+    except ValueError as e:
+        return MCPError(ErrorCode.VALIDATION_ERROR, str(e)).to_response()
+```
+
+### Error Recovery Middleware
+
+```python
+import asyncio
+import logging
+
+log = logging.getLogger("mcp-errors")
+
+async def error_recovery_middleware(tool_name, arguments, handler):
+    """Wrap tool execution with retry and fallback logic."""
+    max_retries = 2
+    for attempt in range(max_retries + 1):
+        try:
+            return await handler(arguments)
+        except asyncio.TimeoutError:
+            log.warning("Tool %s timed out (attempt %d/%d)", tool_name, attempt + 1, max_retries + 1)
+            if attempt == max_retries:
+                return {"error": "timeout", "tool": tool_name, "attempts": attempt + 1}
+        except ConnectionError as e:
+            log.warning("Connection error in %s: %s", tool_name, e)
+            if attempt < max_retries:
+                await asyncio.sleep(2 ** attempt)
+            else:
+                return {"error": "connection_failed", "tool": tool_name}
+        except Exception as e:
+            log.error("Unexpected error in %s: %s", tool_name, e, exc_info=True)
+            return {"error": "execution_failed", "tool": tool_name, "detail": str(e)[:120]}
+```
+
+---
+
+## 18. Transport Protocols
+
+### SSE (Server-Sent Events) Transport
+
+```python
+import asyncio
+import json
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
+
+app = FastAPI()
+
+@app.get("/sse")
+async def sse_endpoint(request: Request):
+    """SSE transport for streaming MCP responses."""
+    async def event_generator():
+        while True:
+            if await request.is_disconnected():
+                break
+            # Check for pending tool results
+            result = await get_next_result(request)
+            if result:
+                data = json.dumps(result)
+                yield f"data: {data}\n\n"
+            await asyncio.sleep(0.1)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+```
+
+### WebSocket Transport
+
+```python
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import json
+
+app = FastAPI()
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            message = json.loads(raw)
+            tool_name = message.get("tool")
+            arguments = message.get("arguments", {})
+
+            result = await call_tool(tool_name, arguments)
+            await websocket.send_text(json.dumps(result))
+    except WebSocketDisconnect:
+        pass
+```
+
+---
+
+## 19. Authentication Patterns
+
+### JWT Authentication
+
+```python
+import jwt
+import os
+import time
+from functools import wraps
+
+JWT_SECRET = os.environ["JWT_SECRET"]
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRY_SECONDS = 3600
+
+def create_token(user_id: str, scopes: list[str]) -> str:
+    payload = {
+        "sub": user_id,
+        "scopes": scopes,
+        "iat": int(time.time()),
+        "exp": int(time.time()) + JWT_EXPIRY_SECONDS,
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def verify_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise ValueError("Token expired")
+    except jwt.InvalidTokenError:
+        raise ValueError("Invalid token")
+
+def require_scope(scope: str):
+    def decorator(handler):
+        @wraps(handler)
+        async def wrapper(request, *args, **kwargs):
+            token = request.headers.get("Authorization", "").replace("Bearer ", "")
+            payload = verify_token(token)
+            if scope not in payload.get("scopes", []):
+                raise PermissionError(f"Missing required scope: {scope}")
+            return await handler(request, *args, **kwargs)
+        return wrapper
+    return decorator
+```
+
+### OAuth2 Client Credentials
+
+```python
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = verify_token(token)
+        return payload
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+```
+
+---
+
+## 20. Rate Limiting Advanced
+
+### Token Bucket Rate Limiter
+
+```python
+import time
+import threading
+from collections import defaultdict
+
+class TokenBucketLimiter:
+    def __init__(self, rate: float, capacity: int):
+        self.rate = rate          # Tokens per second
+        self.capacity = capacity  # Max tokens
+        self._buckets: dict[str, dict] = defaultdict(
+            lambda: {"tokens": capacity, "last_refill": time.monotonic()}
+        )
+        self._lock = threading.Lock()
+
+    def allow(self, client_id: str) -> bool:
+        with self._lock:
+            now = time.monotonic()
+            bucket = self._buckets[client_id]
+            elapsed = now - bucket["last_refill"]
+            bucket["tokens"] = min(
+                self.capacity,
+                bucket["tokens"] + elapsed * self.rate,
+            )
+            bucket["last_refill"] = now
+
+            if bucket["tokens"] >= 1:
+                bucket["tokens"] -= 1
+                return True
+            return False
+
+# Usage: 10 requests per second, burst of 20
+limiter = TokenBucketLimiter(rate=10, capacity=20)
+```
+
+### Sliding Window Rate Limiter
+
+```python
+import time
+from collections import defaultdict
+
+class SlidingWindowLimiter:
+    def __init__(self, max_requests: int, window_seconds: int):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._windows: dict[str, list[float]] = defaultdict(list)
+
+    def check(self, client_id: str) -> tuple[bool, int]:
+        now = time.time()
+        cutoff = now - self.window_seconds
+        self._windows[client_id] = [
+            t for t in self._windows[client_id] if t > cutoff
+        ]
+        if len(self._windows[client_id]) >= self.max_requests:
+            oldest = self._windows[client_id][0]
+            retry_after = int(oldest + self.window_seconds - now) + 1
+            return False, retry_after
+        self._windows[client_id].append(now)
+        return True, 0
+```
+
+---
+
+## 21. MCP Protocol Testing
+
+### Protocol Compliance Tests
+
+```python
+#!/usr/bin/env python3
+"""Test MCP server protocol compliance."""
+import json
+import httpx
+import asyncio
+
+async def test_protocol_compliance(base_url, api_key):
+    headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+    results = []
+
+    async with httpx.AsyncClient(base_url=base_url, headers=headers, timeout=10) as client:
+        # Test 1: List tools endpoint
+        resp = await client.get("/tools")
+        results.append({
+            "test": "list_tools",
+            "status": resp.status_code,
+            "valid_json": True,
+        })
+
+        # Test 2: Call non-existent tool
+        resp = await client.post("/tools/nonexistent", json={})
+        results.append({
+            "test": "unknown_tool_error",
+            "status": resp.status_code,
+            "returns_error": "error" in resp.text.lower(),
+        })
+
+        # Test 3: Missing required parameter
+        resp = await client.post("/tools/run_nmap", json={})
+        results.append({
+            "test": "missing_param_validation",
+            "status": resp.status_code,
+            "validates_input": resp.status_code in (400, 422),
+        })
+
+        # Test 4: Invalid JSON body
+        resp = await client.post("/tools/run_nmap", content="not json", headers={"Content-Type": "application/json"})
+        results.append({
+            "test": "invalid_json_handling",
+            "status": resp.status_code,
+            "graceful_error": resp.status_code in (400, 422),
+        })
+
+        # Test 5: Health endpoint
+        resp = await client.get("/health")
+        results.append({
+            "test": "health_endpoint",
+            "status": resp.status_code,
+        })
+
+    return results
+
+asyncio.run(test_protocol_compliance("http://localhost:8080", "test-key"))
+```
+
+### Concurrent Request Testing
+
+```python
+#!/usr/bin/env python3
+"""Test MCP server behavior under concurrent load."""
+import asyncio
+import httpx
+import time
+
+async def concurrent_test(url, api_key, num_requests=50):
+    headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+    payload = {"target": "192.168.1.1", "ports": "80"}
+
+    start = time.time()
+    async with httpx.AsyncClient(timeout=30) as client:
+        tasks = [
+            client.post(f"{url}/tools/run_nmap", json=payload, headers=headers)
+            for _ in range(num_requests)
+        ]
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+    duration = time.time() - start
+    successes = sum(1 for r in responses if not isinstance(r, Exception) and r.status_code == 200)
+    errors = sum(1 for r in responses if isinstance(r, Exception))
+    rate_limited = sum(1 for r in responses if not isinstance(r, Exception) and r.status_code == 429)
+
+    print(f"Concurrent test: {num_requests} requests in {duration:.1f}s")
+    print(f"  Successes: {successes}")
+    print(f"  Rate limited: {rate_limited}")
+    print(f"  Errors: {errors}")
+
+asyncio.run(concurrent_test("http://localhost:8080", "test-key"))
+```
+
+---
+
+## 22. MCP Server Security Hardening
+
+### TLS Configuration
+
+```python
+import ssl
+import os
+
+def create_tls_context():
+    """Create a hardened TLS context for MCP server."""
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    ctx.load_cert_chain(
+        certfile=os.environ["TLS_CERT_PATH"],
+        keyfile=os.environ["TLS_KEY_PATH"],
+    )
+    # Hardened cipher suite
+    ctx.set_ciphers(
+        "ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:!aNULL:!MD5:!DSS"
+    )
+    ctx.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+    return ctx
+```
+
+### Input Schema Validation
+
+```python
+import jsonschema
+from typing import Any
+
+def validate_tool_input(schema: dict, arguments: dict[str, Any]) -> dict[str, Any]:
+    """Validate tool input against JSON schema. Raise on invalid."""
+    try:
+        jsonschema.validate(instance=arguments, schema=schema)
+    except jsonschema.ValidationError as e:
+        raise ValueError(f"Input validation failed: {e.message}")
+
+    # Additional safety checks beyond schema
+    for key, value in arguments.items():
+        if isinstance(value, str):
+            # Reject shell metacharacters
+            dangerous = set(";|&`$><\n\r\x00")
+            found = dangerous & set(value)
+            if found:
+                raise ValueError(f"Field {key!r} contains dangerous characters: {found}")
+
+    return arguments
+```
+
+### Request Size Limiting Middleware
+
+```python
+from fastapi import FastAPI, Request, HTTPException
+
+app = FastAPI()
+MAX_REQUEST_SIZE = 1_000_000  # 1MB
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_REQUEST_SIZE:
+        raise HTTPException(status_code=413, detail="Request too large")
+    return await call_next(request)
+```
+
+---
+
+## 23. MCP Server Testing Automation
+
+### End-to-End Integration Test
+
+```python
+#!/usr/bin/env python3
+"""Full end-to-end integration test for MCP server."""
+import asyncio
+import httpx
+import json
+
+async def e2e_test(base_url, api_key):
+    headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+
+    async with httpx.AsyncClient(base_url=base_url, headers=headers, timeout=30) as client:
+        # Step 1: Health check
+        resp = await client.get("/health")
+        assert resp.status_code == 200, f"Health check failed: {resp.status_code}"
+
+        # Step 2: List available tools
+        resp = await client.get("/tools")
+        tools = resp.json().get("tools", [])
+        assert len(tools) > 0, "No tools registered"
+        print(f"[OK] {len(tools)} tools registered")
+
+        # Step 3: Test a tool call with valid input
+        resp = await client.post("/tools/run_nmap", json={
+            "target": "192.168.1.1", "ports": "80", "scan_type": "connect",
+        })
+        assert resp.status_code == 200, f"Tool call failed: {resp.status_code}"
+
+        print("[PASS] All e2e tests passed")
+
+asyncio.run(e2e_test("http://localhost:8080", "test-key"))
+```
+
+### Fuzz Testing for MCP Endpoints
+
+```python
+#!/usr/bin/env python3
+"""Fuzz test MCP server endpoints with random inputs."""
+import httpx
+import random
+import string
+import asyncio
+
+def random_string(length=20):
+    return "".join(random.choices(string.printable, k=length))
+
+async def fuzz_endpoint(url, api_key, iterations=100):
+    headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+    errors = []
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        for i in range(iterations):
+            payload = {
+                "target": random_string(),
+                "ports": random.choice(["80", "abc", "99999", "", random_string(5)]),
+            }
+            try:
+                resp = await client.post(f"{url}/tools/run_nmap", json=payload, headers=headers)
+                if resp.status_code == 500:
+                    errors.append({"payload": payload, "body": resp.text[:200]})
+            except Exception as e:
+                errors.append({"payload": payload, "error": str(e)})
+
+    print(f"Fuzzed {iterations} requests, {len(errors)} server errors")
+
+asyncio.run(fuzz_endpoint("http://localhost:8080", "test-key"))
+```
+
+---
+
+## 24. MCP Server Metrics and Observability
+
+### Tool Usage Metrics
+
+```python
+from collections import defaultdict
+from datetime import datetime
+
+class ToolMetrics:
+    def __init__(self):
+        self._calls = defaultdict(list)
+        self._errors = defaultdict(int)
+
+    def record_call(self, tool_name, duration_ms, success=True):
+        self._calls[tool_name].append({
+            "timestamp": datetime.utcnow().isoformat(),
+            "duration_ms": duration_ms,
+            "success": success,
+        })
+        if not success:
+            self._errors[tool_name] += 1
+
+    def get_summary(self):
+        summary = {}
+        for tool, calls in self._calls.items():
+            durations = [c["duration_ms"] for c in calls]
+            summary[tool] = {
+                "total_calls": len(calls),
+                "errors": self._errors.get(tool, 0),
+                "avg_duration_ms": sum(durations) / len(durations) if durations else 0,
+                "p95_duration_ms": sorted(durations)[int(len(durations) * 0.95)] if durations else 0,
+            }
+        return summary
+```
+
+### Health Check with Dependency Verification
+
+```python
+async def deep_health_check():
+    """Comprehensive health check including all dependencies."""
+    checks = {}
+
+    # Check database connectivity
+    try:
+        import psycopg2
+        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        conn.close()
+        checks["database"] = "healthy"
+    except Exception as e:
+        checks["database"] = f"unhealthy: {str(e)[:50]}"
+
+    # Check Redis connectivity
+    try:
+        import redis
+        r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost"))
+        r.ping()
+        checks["redis"] = "healthy"
+    except Exception as e:
+        checks["redis"] = f"unhealthy: {str(e)[:50]}"
+
+    # Check tool binaries
+    for tool in ["nmap", "nikto", "sqlmap"]:
+        import shutil
+        checks[f"tool_{tool}"] = "available" if shutil.which(tool) else "missing"
+
+    overall = "healthy" if all(v == "healthy" or v == "available" for v in checks.values()) else "degraded"
+    return {"status": overall, "checks": checks}
+```
+
+---
+
+## 25. MCP Server Versioning and Compatibility
+
+### API Version Header Handler
+
+```python
+from fastapi import FastAPI, Request, HTTPException
+
+app = FastAPI()
+SUPPORTED_VERSIONS = ["1.0", "1.1", "2.0"]
+
+@app.middleware("http")
+async def version_middleware(request: Request, call_next):
+    version = request.headers.get("X-MCP-Version", "1.0")
+    if version not in SUPPORTED_VERSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported API version: {version}. Supported: {SUPPORTED_VERSIONS}",
+        )
+    request.state.api_version = version
+    response = await call_next(request)
+    response.headers["X-MCP-Version"] = version
+    return response
+```
+
+### Backward Compatibility Layer
+
+```python
+def adapt_request(payload, from_version, to_version="2.0"):
+    """Transform request payload between API versions."""
+    adapted = dict(payload)
+
+    if from_version == "1.0" and to_version == "2.0":
+        # v1.0 used "ip" field, v2.0 uses "target"
+        if "ip" in adapted and "target" not in adapted:
+            adapted["target"] = adapted.pop("ip")
+        # v1.0 used "type", v2.0 uses "scan_type"
+        if "type" in adapted and "scan_type" not in adapted:
+            adapted["scan_type"] = adapted.pop("type")
+
+    return adapted
+```

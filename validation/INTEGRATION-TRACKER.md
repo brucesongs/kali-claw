@@ -10,7 +10,7 @@
 
 | Status | Count |
 |--------|-------|
-| PASS | 7 |
+| PASS | 10 |
 | FAIL | 0 |
 | PARTIAL | 0 |
 | BLOCKED | 0 |
@@ -29,6 +29,9 @@
 | INT-005 | Autonomous Batch Scan | autonomous-loops → vulnerability-assessment → verification-loop → terminal-ops | Batch | PASS | 2026-05-22 | evidence/integration/INT-005-2026-05-22.log | 3 targets batched, finding confirmed |
 | INT-006 | Web App Attack | recon-osint → security-misconfiguration → web-sqli → article-writing | Sequential | PASS | 2026-05-22 | evidence/integration/INT-006-2026-05-22.log | Graceful degradation on static target |
 | INT-007 | Multi-Agent Coordination | multi-agent-collaboration → (network-pentest + osint + web-sqli) → council | Parallel | PASS | 2026-05-22 | evidence/integration/INT-007-2026-05-22.log | 3 parallel workers aggregated via council |
+| INT-008 | Supply Chain Audit | repo-scan → security-review → ai-security → council → article-writing | Sequential | PASS | 2026-05-30 | evidence/integration/INT-008-2026-05-30.log | Full audit on kali-claw-en; no secrets, clean scripts |
+| INT-009 | Full Pentest Lifecycle | osint → network-pentest → web-ssrf → post-exploitation → digital-forensics → chronicle | Sequential | PASS | 2026-05-30 | evidence/integration/INT-009-2026-05-30.log | scanme.nmap.org; outdated services identified, CVEs correlated |
+| INT-010 | Defensive Validation | logging-monitoring → security-misconfiguration → safety-guard → verification-loop → council | Sequential | PASS | 2026-05-30 | evidence/integration/INT-010-2026-05-30.log | Blue team chain; controls proportional to risk |
 
 ---
 
@@ -50,3 +53,4 @@
 |------|--------|
 | 2026-05-22 | Tracker created with 7 PENDING scenarios |
 | 2026-05-22 | Full execution pass: 7 PASS, 0 FAIL, 0 BLOCKED |
+| 2026-05-30 | Added INT-008/009/010: supply chain, full pentest, defensive validation — all PASS |

@@ -470,3 +470,370 @@ merge_iocs() {
   }' >> "$output"
 }
 ```
+
+---
+
+## 11. Academic & Patent Research
+
+### Paper Discovery
+
+```bash
+# Semantic Scholar — search security papers
+curl -s "https://api.semanticscholar.org/graph/v1/paper/search?query=web+application+fuzzing&limit=10&fields=title,year,citationCount,authors" \
+  | jq '.data[] | {title, year, citations: .citationCount, authors: [.authors[].name]}'
+
+# arXiv — recent security papers
+curl -s "http://export.arxiv.org/api/query?search_query=cat:cs.CR+AND+all:fuzzing&start=0&max_results=5" \
+  | grep -oP '<title>[^<]+</title>' | sed 's/<[^>]*>//g'
+
+# DBLP — author publication history
+curl -s "https://dblp.org/search/publ/api?q=author:john_doe+security&format=json&h=10" \
+  | jq '.result.hits.hit[].info | {title, year, venue}'
+```
+
+### Patent and Standards Search
+
+```bash
+# Google Patents API
+curl -s "https://patents.google.com/xhr/query?url=q%3Dcybersecurity+intrusion+detection&num=5" \
+  | jq '.results.cluster[0].result[:5] | .[].patent | {title: .title, date: .publication_date, assignee: .assignee}'
+
+# NIST SP search
+curl -s "https://csrc.nist.gov/publications?keywords=penetration+testing&sortBy=Recent" | grep -oP 'SP [0-9]+-[0-9]+[A-Z]?' | sort -u
+
+# RFC search
+curl -s "https://www.rfc-editor.org/search/rfc_search.php?query=tls+1.3&format=json" 2>/dev/null
+```
+
+---
+
+## 12. Threat Landscape Analysis
+
+### Threat Feed Aggregation
+
+```bash
+# AlienVault OTX — pulse search
+curl -s "https://otx.alienvault.com/api/v1/search/pulses?q=ransomware&limit=10" \
+  -H "X-OTX-API-KEY: $OTX_KEY" \
+  | jq '.results[] | {name, created, adversary, targeted_countries, indicators_count: (.indicators | length)}'
+
+# MISP — event search
+curl -s "$MISP_URL/events/restSearch" \
+  -H "Authorization: $MISP_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"keyword":"apt28","limit":5}' \
+  | jq '.response[].Event | {id, info, date, threat_level_id}'
+
+# Recorded Future (via API)
+curl -s "https://api.recordedfuture.com/v2/alert/search" \
+  -H "X-RFToken: $RF_TOKEN" \
+  -d '{"filter":{"type":"CyberVulnerability"},"limit":10}' \
+  | jq '.data.results[:5] | .[].entity'
+```
+
+### Trend Analysis
+
+```bash
+# CVE publication trends by year/severity
+curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=2025-01-01T00:00:00.000&pubEndDate=2025-12-31T23:59:59.999&cvssV3Severity=CRITICAL" \
+  | jq '.totalResults' | xargs -I{} echo "Critical CVEs in 2025: {}"
+
+# Technology-specific vulnerability timeline
+for year in 2022 2023 2024 2025; do
+  count=$(curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=kubernetes&pubStartDate=${year}-01-01T00:00:00.000&pubEndDate=${year}-12-31T23:59:59.999" | jq '.totalResults')
+  echo "$year: $count kubernetes CVEs"
+done
+```
+
+---
+
+## 13. Structured Data Collection
+
+### API Response Normalization
+
+```python
+import json
+from datetime import datetime
+
+def normalize_nvd_response(raw: dict) -> list[dict]:
+    """Extract structured findings from NVD API response."""
+    findings = []
+    for vuln in raw.get("vulnerabilities", []):
+        cve = vuln["cve"]
+        metrics = cve.get("metrics", {})
+        cvss = metrics.get("cvssMetricV31", [{}])[0].get("cvssData", {})
+        findings.append({
+            "id": cve["id"],
+            "published": cve.get("published"),
+            "severity": cvss.get("baseScore"),
+            "vector": cvss.get("vectorString"),
+            "description": cve["descriptions"][0]["value"] if cve.get("descriptions") else "",
+            "references": [r["url"] for r in cve.get("references", [])],
+        })
+    return findings
+
+def normalize_github_advisory(raw: dict) -> list[dict]:
+    """Extract structured findings from GitHub Advisory API."""
+    return [{
+        "id": adv["ghsaId"],
+        "published": adv["publishedAt"],
+        "severity": adv["severity"],
+        "description": adv["summary"],
+        "references": [r["url"] for r in adv.get("references", [])],
+    } for adv in raw.get("data", {}).get("securityAdvisories", {}).get("nodes", [])]
+```
+
+### Bulk Data Pipeline
+
+```bash
+#!/bin/bash
+# bulk-cve-collector.sh — Collect all CVEs for a technology across years
+KEYWORD="$1"
+OUTPUT_DIR="./cve_data/$KEYWORD"
+mkdir -p "$OUTPUT_DIR"
+
+for year in $(seq 2020 2025); do
+    echo "Fetching $KEYWORD CVEs for $year..."
+    curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=$KEYWORD&pubStartDate=${year}-01-01T00:00:00.000&pubEndDate=${year}-12-31T23:59:59.999&resultsPerPage=100" \
+        > "$OUTPUT_DIR/${year}.json"
+    sleep 6  # NVD rate limit: 10 requests/minute
+done
+
+# Summarize
+echo "=== Collection Summary ==="
+for f in "$OUTPUT_DIR"/*.json; do
+    year=$(basename "$f" .json)
+    count=$(jq '.totalResults' "$f")
+    echo "  $year: $count CVEs"
+done
+```
+
+### Report Summarization
+
+```python
+def summarize_findings(findings: list[dict], top_n=10) -> str:
+    """Generate executive summary from collected findings."""
+    critical = [f for f in findings if (f.get("severity") or 0) >= 9.0]
+    high = [f for f in findings if 7.0 <= (f.get("severity") or 0) < 9.0]
+    
+    lines = [
+        f"## Research Summary",
+        f"- **Total findings**: {len(findings)}",
+        f"- **Critical (9.0+)**: {len(critical)}",
+        f"- **High (7.0-8.9)**: {len(high)}",
+        "",
+        "### Top Critical Findings",
+    ]
+    for f in sorted(critical, key=lambda x: x.get("severity", 0), reverse=True)[:top_n]:
+        lines.append(f"- **{f['id']}** (CVSS {f['severity']}): {f['description'][:80]}...")
+    
+    return "\n".join(lines)
+```
+
+---
+
+## 14. Research Workflow Automation
+
+### End-to-End Research Pipeline
+
+```bash
+#!/bin/bash
+# research-pipeline.sh — Full automated research cycle
+TOPIC="$1"
+OUTPUT="./research_output/$TOPIC"
+mkdir -p "$OUTPUT"
+
+echo "[1/5] Collecting from NVD..."
+curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=$TOPIC&resultsPerPage=20" > "$OUTPUT/nvd.json"
+
+echo "[2/5] Searching ExploitDB..."
+searchsploit "$TOPIC" --json > "$OUTPUT/exploitdb.json" 2>/dev/null
+
+echo "[3/5] GitHub code search..."
+gh search code "$TOPIC vulnerability" --limit 20 --json repository,path > "$OUTPUT/github_code.json"
+
+echo "[4/5] Extracting IOCs from all sources..."
+cat "$OUTPUT"/*.json | grep -oP 'CVE-\d{4}-\d{4,}' | sort -u > "$OUTPUT/cve_list.txt"
+
+echo "[5/5] Generating report..."
+{
+  echo "# Research Report: $TOPIC"
+  echo "**Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo ""
+  echo "## NVD Results"
+  jq -r '.vulnerabilities[:10][] | .cve | "- \(.id): \(.descriptions[0].value[:80])..."' "$OUTPUT/nvd.json"
+  echo ""
+  echo "## ExploitDB Results"
+  jq -r '.RESULTS_EXPLOIT[:10][] | "- [\(.EDB_ID)] \(.Title)"' "$OUTPUT/exploitdb.json" 2>/dev/null
+  echo ""
+  echo "## Unique CVEs Found"
+  cat "$OUTPUT/cve_list.txt"
+} > "$OUTPUT/REPORT.md"
+
+echo "[+] Report saved to $OUTPUT/REPORT.md"
+```
+
+### Scheduled Research Jobs
+
+```bash
+# Cron job for daily threat monitoring
+# 0 8 * * * /opt/research/research-pipeline.sh "kubernetes" >> /var/log/research.log
+
+# Weekly technology survey
+# 0 9 * * 1 /opt/research/research-pipeline.sh "zero-day" >> /var/log/research.log
+
+# On-demand deep dive (triggered by alert)
+research_on_alert() {
+    local cve_id="$1"
+    curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=$cve_id" | jq '.vulnerabilities[0].cve | {
+        id,
+        severity: .metrics.cvssMetricV31[0].cvssData.baseScore,
+        vector: .metrics.cvssMetricV31[0].cvssData.vectorString,
+        description: .descriptions[0].value,
+        references: [.references[].url]
+    }'
+}
+```
+
+---
+
+## 15. Knowledge Graph Construction
+
+### Entity Extraction
+
+```python
+import re
+from collections import defaultdict
+
+def extract_entities(text: str) -> dict:
+    """Extract security-relevant entities from research text."""
+    entities = defaultdict(set)
+    
+    # CVEs
+    for m in re.finditer(r'CVE-\d{4}-\d{4,}', text):
+        entities["cve"].add(m.group())
+    
+    # Products/versions
+    for m in re.finditer(r'(?:Apache|Nginx|WordPress|Django|Rails|Express)\s+[\d.]+', text):
+        entities["product"].add(m.group())
+    
+    # Technique references
+    for m in re.finditer(r'T\d{4}(?:\.\d{3})?', text):
+        entities["mitre_technique"].add(m.group())
+    
+    # Threat actors
+    for m in re.finditer(r'(?:APT|FIN|UNC)\d+', text):
+        entities["threat_actor"].add(m.group())
+    
+    return dict(entities)
+
+def build_knowledge_graph(findings: list[dict]) -> dict:
+    """Build relationship graph from extracted entities."""
+    nodes = set()
+    edges = []
+    
+    for finding in findings:
+        entities = extract_entities(finding.get("description", ""))
+        finding_id = finding["id"]
+        nodes.add(finding_id)
+        
+        for category, values in entities.items():
+            for value in values:
+                nodes.add(value)
+                edges.append({"from": finding_id, "to": value, "relation": category})
+    
+    return {"nodes": list(nodes), "edges": edges}
+```
+
+### Graph Queries
+
+```bash
+# Find all CVEs related to a product
+find_related_cves() {
+    local product="$1"
+    local graph_file="$2"
+    jq --arg prod "$product" '
+        .edges[] | select(.to == $prod and .relation == "product") | .from
+    ' "$graph_file"
+}
+
+# Find attack chains (CVE → technique → actor)
+find_attack_chains() {
+    local graph_file="$1"
+    jq '
+        [.edges[] | select(.relation == "mitre_technique")] as $tech_edges |
+        [.edges[] | select(.relation == "threat_actor")] as $actor_edges |
+        $tech_edges[] as $t |
+        $actor_edges[] | select(.from == $t.from) |
+        {cve: $t.from, technique: $t.to, actor: .to}
+    ' "$graph_file"
+}
+```
+
+---
+
+## 16. Research Quality Metrics
+
+### Completeness Scoring
+
+```python
+def assess_research_completeness(report: dict) -> dict:
+    """Score how thorough a research investigation was."""
+    checks = {
+        "nvd_queried": bool(report.get("nvd_results")),
+        "exploits_checked": bool(report.get("exploit_results")),
+        "github_searched": bool(report.get("code_results")),
+        "mitre_mapped": bool(report.get("attack_mapping")),
+        "iocs_extracted": bool(report.get("iocs")),
+        "timeline_built": bool(report.get("timeline")),
+        "sources_cited": len(report.get("sources", [])) >= 3,
+        "cross_validated": report.get("corroboration_count", 0) >= 2,
+    }
+    
+    score = sum(checks.values()) / len(checks)
+    return {
+        "completeness_score": round(score, 2),
+        "checks": checks,
+        "grade": "A" if score >= 0.9 else "B" if score >= 0.7 else "C" if score >= 0.5 else "D",
+    }
+```
+
+### Source Diversity Measurement
+
+```bash
+# Count unique source types used in research
+assess_source_diversity() {
+    local report_dir="$1"
+    echo "=== Source Diversity ==="
+    echo "  NVD data: $([ -s "$report_dir/nvd.json" ] && echo 'YES' || echo 'NO')"
+    echo "  ExploitDB: $([ -s "$report_dir/exploitdb.json" ] && echo 'YES' || echo 'NO')"
+    echo "  GitHub code: $([ -s "$report_dir/github_code.json" ] && echo 'YES' || echo 'NO')"
+    echo "  Academic: $([ -s "$report_dir/papers.json" ] && echo 'YES' || echo 'NO')"
+    echo "  Threat feeds: $([ -s "$report_dir/threat_intel.json" ] && echo 'YES' || echo 'NO')"
+    
+    local count=0
+    for f in nvd exploitdb github_code papers threat_intel; do
+        [ -s "$report_dir/${f}.json" ] && ((count++))
+    done
+    echo "  Diversity score: $count/5"
+}
+```
+
+### Research Velocity Tracking
+
+```bash
+# Track research output over time
+track_velocity() {
+    local output_dir="./research_output"
+    echo "=== Research Velocity ==="
+    echo "Date       | Reports | CVEs Found | Sources Used"
+    echo "-----------|---------|------------|-------------"
+    for day_dir in "$output_dir"/*/; do
+        date=$(basename "$day_dir")
+        reports=$(find "$day_dir" -name "REPORT.md" | wc -l)
+        cves=$(cat "$day_dir"/*/cve_list.txt 2>/dev/null | sort -u | wc -l)
+        sources=$(find "$day_dir" -name "*.json" | wc -l)
+        printf "%-11s| %-7s | %-10s | %s\n" "$date" "$reports" "$cves" "$sources"
+    done
+}
+```

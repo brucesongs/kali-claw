@@ -608,3 +608,970 @@ Q6: Should the coordinator escalate to human?
     ├── Evidence of active threat actor on target
     └── Authorization document ambiguity blocks progress
 ```
+
+---
+
+## 7. Agent Communication Patterns
+
+### Task Assignment Message
+```json
+{
+  "type": "task_assign",
+  "from": "coordinator",
+  "to": "agent-recon-01",
+  "task_id": "RECON-001",
+  "objective": "Enumerate subdomains and open ports for target.com",
+  "scope": ["*.target.com"],
+  "deadline": "2026-05-29T12:00:00Z",
+  "priority": "high",
+  "dependencies": []
+}
+```
+
+### Status Report Message
+```json
+{
+  "type": "status_report",
+  "from": "agent-recon-01",
+  "task_id": "RECON-001",
+  "status": "in_progress",
+  "progress": 0.6,
+  "findings_count": 12,
+  "blockers": [],
+  "eta_minutes": 15
+}
+```
+
+### Finding Handoff Message
+```json
+{
+  "type": "finding_handoff",
+  "from": "agent-recon-01",
+  "to": "agent-exploit-01",
+  "finding": {
+    "type": "open_service",
+    "host": "admin.target.com",
+    "port": 8443,
+    "service": "Apache Tomcat 9.0.50",
+    "confidence": 0.95
+  },
+  "suggested_action": "Test for CVE-2021-42013 path traversal"
+}
+```
+
+### Conflict Report Message
+```json
+{
+  "type": "conflict_report",
+  "from": "agent-exploit-01",
+  "conflicting_findings": [
+    {"agent": "agent-recon-01", "claim": "Port 8443 running Tomcat 9.0.50"},
+    {"agent": "agent-exploit-01", "claim": "Port 8443 running Tomcat 10.1.2"}
+  ],
+  "resolution_needed": "version_verification",
+  "suggested_resolver": "agent-recon-01"
+}
+```
+
+## 8. Coordinator Orchestration Scripts
+
+### Parallel Task Dispatch
+```python
+import asyncio
+from dataclasses import dataclass
+
+@dataclass
+class AgentTask:
+    agent_id: str
+    task_id: str
+    objective: str
+    scope: list
+
+async def dispatch_parallel(tasks):
+    results = await asyncio.gather(*[
+        send_task(task) for task in tasks
+    ], return_exceptions=True)
+    
+    for task, result in zip(tasks, results):
+        if isinstance(result, Exception):
+            await reassign_task(task)
+        else:
+            print(f"OK {task.task_id}: {result.findings_count} findings")
+```
+
+### Health Check Loop
+```python
+async def monitor_agents(agents, interval=60):
+    while True:
+        for agent in agents:
+            status = await agent.heartbeat()
+            if status.is_stale(threshold_seconds=300):
+                await coordinator.handle_stale_agent(agent)
+            elif status.progress_stalled(threshold_minutes=10):
+                await coordinator.nudge_or_reassign(agent)
+        await asyncio.sleep(interval)
+```
+
+### Result Aggregation
+```python
+def aggregate_findings(agent_results):
+    all_findings = []
+    seen = set()
+    
+    for result in agent_results:
+        for finding in result.findings:
+            key = (finding.host, finding.port, finding.vuln_type)
+            if key not in seen:
+                seen.add(key)
+                all_findings.append(finding)
+            else:
+                existing = next(f for f in all_findings if (f.host, f.port, f.vuln_type) == key)
+                existing.confidence = min(0.99, existing.confidence + 0.1)
+    
+    return sorted(all_findings, key=lambda f: f.severity, reverse=True)
+```
+
+---
+
+## 9. Agent Orchestration Patterns
+
+### Coordinator Pattern — Central Hub
+
+```python
+import asyncio
+from enum import Enum
+
+class AgentState(Enum):
+    IDLE = "idle"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+class CoordinatorHub:
+    def __init__(self):
+        self.agents = {}
+        self.task_queue = asyncio.Queue()
+        self.results = []
+
+    async def register_agent(self, agent_id, capabilities):
+        self.agents[agent_id] = {
+            "state": AgentState.IDLE,
+            "capabilities": capabilities,
+            "current_task": None
+        }
+
+    async def dispatch(self, task):
+        best_agent = self._select_agent(task)
+        if best_agent:
+            self.agents[best_agent]["state"] = AgentState.RUNNING
+            self.agents[best_agent]["current_task"] = task
+            return await self._send_task(best_agent, task)
+        else:
+            await self.task_queue.put(task)
+
+    def _select_agent(self, task):
+        for agent_id, info in self.agents.items():
+            if info["state"] == AgentState.IDLE and task["type"] in info["capabilities"]:
+                return agent_id
+        return None
+```
+
+### Pipeline Pattern — Sequential Processing
+
+```python
+class PipelineOrchestrator:
+    def __init__(self, stages):
+        self.stages = stages  # ordered list of agent roles
+
+    async def execute(self, initial_input):
+        current_data = initial_input
+        for stage in self.stages:
+            agent = await self._get_agent_for_stage(stage)
+            result = await agent.process(current_data)
+            if result.get("error"):
+                return {"status": "failed", "stage": stage, "error": result["error"]}
+            current_data = result["output"]
+        return {"status": "completed", "final_output": current_data}
+
+    async def _get_agent_for_stage(self, stage):
+        # Select or spawn agent matching the stage role
+        pass
+
+# Usage: Recon → Scan → Exploit → Post-Exploit → Report
+pipeline = PipelineOrchestrator([
+    "recon_agent", "scan_agent", "exploit_agent", "postexploit_agent", "report_agent"
+])
+```
+
+### Swarm Pattern — Decentralized Collaboration
+
+```python
+import asyncio
+import random
+
+class SwarmAgent:
+    def __init__(self, agent_id, shared_board):
+        self.agent_id = agent_id
+        self.shared_board = shared_board  # shared task/finding board
+
+    async def run(self):
+        while True:
+            task = await self.shared_board.claim_task(self.agent_id)
+            if not task:
+                break
+            result = await self._execute(task)
+            await self.shared_board.post_finding(self.agent_id, result)
+            # Publish new tasks discovered during execution
+            for new_task in result.get("spawned_tasks", []):
+                await self.shared_board.add_task(new_task)
+
+    async def _execute(self, task):
+        # Agent-specific execution logic
+        pass
+
+class SharedBoard:
+    def __init__(self):
+        self.tasks = asyncio.Queue()
+        self.findings = []
+        self.claimed = set()
+
+    async def claim_task(self, agent_id):
+        try:
+            task = self.tasks.get_nowait()
+            self.claimed.add((agent_id, task["id"]))
+            return task
+        except asyncio.QueueEmpty:
+            return None
+
+    async def post_finding(self, agent_id, finding):
+        self.findings.append({"agent": agent_id, **finding})
+
+    async def add_task(self, task):
+        await self.tasks.put(task)
+```
+
+### Fan-Out / Fan-In Pattern
+
+```python
+async def fan_out_fan_in(targets, agent_pool, timeout=300):
+    """Distribute targets across agents, collect all results"""
+    tasks = []
+    for i, target in enumerate(targets):
+        agent = agent_pool[i % len(agent_pool)]
+        tasks.append(asyncio.create_task(
+            asyncio.wait_for(agent.scan(target), timeout=timeout)
+        ))
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    successful = [r for r in results if not isinstance(r, Exception)]
+    failed = [(i, r) for i, r in enumerate(results) if isinstance(r, Exception)]
+
+    return {
+        "successful": successful,
+        "failed": failed,
+        "success_rate": len(successful) / len(results)
+    }
+```
+
+### Event-Driven Orchestration
+
+```python
+import asyncio
+from collections import defaultdict
+
+class EventBus:
+    def __init__(self):
+        self.subscribers = defaultdict(list)
+
+    def subscribe(self, event_type, handler):
+        self.subscribers[event_type].append(handler)
+
+    async def publish(self, event_type, data):
+        for handler in self.subscribers[event_type]:
+            asyncio.create_task(handler(data))
+
+# Usage
+bus = EventBus()
+
+async def on_recon_complete(data):
+    # Automatically trigger scanning when recon finishes
+    for host in data["hosts"]:
+        await bus.publish("scan_request", {"host": host})
+
+async def on_vuln_found(data):
+    # Automatically trigger verification when vuln found
+    await bus.publish("verify_request", {"finding": data})
+
+bus.subscribe("recon_complete", on_recon_complete)
+bus.subscribe("vuln_found", on_vuln_found)
+```
+
+---
+
+## 10. Load Balancing and Scaling
+
+### Round-Robin Work Distribution
+
+```python
+class RoundRobinDistributor:
+    def __init__(self, agents):
+        self.agents = agents
+        self.index = 0
+
+    def next_agent(self):
+        agent = self.agents[self.index % len(self.agents)]
+        self.index += 1
+        return agent
+
+    async def distribute_tasks(self, tasks):
+        assignments = {}
+        for task in tasks:
+            agent = self.next_agent()
+            assignments[task["id"]] = agent.agent_id
+            await agent.assign(task)
+        return assignments
+```
+
+### Weighted Load Balancing
+
+```python
+class WeightedBalancer:
+    def __init__(self, agents):
+        self.agents = agents  # each has .capacity and .current_load
+
+    def select_agent(self, task_weight=1):
+        available = [a for a in self.agents if a.current_load + task_weight <= a.capacity]
+        if not available:
+            return None
+        # Select agent with most remaining capacity
+        return min(available, key=lambda a: a.current_load / a.capacity)
+
+    async def assign(self, task):
+        agent = self.select_agent(task.get("weight", 1))
+        if agent:
+            agent.current_load += task.get("weight", 1)
+            result = await agent.execute(task)
+            agent.current_load -= task.get("weight", 1)
+            return result
+        raise RuntimeError("No available agents with sufficient capacity")
+```
+
+### Agent Pool Management
+
+```python
+class AgentPool:
+    def __init__(self, min_agents=2, max_agents=10, scale_threshold=0.8):
+        self.min_agents = min_agents
+        self.max_agents = max_agents
+        self.scale_threshold = scale_threshold
+        self.agents = []
+
+    async def scale_check(self):
+        utilization = sum(a.current_load for a in self.agents) / sum(a.capacity for a in self.agents)
+        if utilization > self.scale_threshold and len(self.agents) < self.max_agents:
+            await self._scale_up()
+        elif utilization < 0.3 and len(self.agents) > self.min_agents:
+            await self._scale_down()
+
+    async def _scale_up(self):
+        new_agent = await self._spawn_agent()
+        self.agents.append(new_agent)
+        print(f"[+] Scaled up: {len(self.agents)} agents active")
+
+    async def _scale_down(self):
+        idle_agent = next((a for a in self.agents if a.current_load == 0), None)
+        if idle_agent:
+            self.agents.remove(idle_agent)
+            await idle_agent.shutdown()
+            print(f"[-] Scaled down: {len(self.agents)} agents active")
+```
+
+### Task Priority Queue
+
+```python
+import heapq
+from dataclasses import dataclass, field
+
+@dataclass(order=True)
+class PrioritizedTask:
+    priority: int
+    task: dict = field(compare=False)
+
+class PriorityTaskQueue:
+    def __init__(self):
+        self.heap = []
+        self.counter = 0
+
+    def push(self, task, priority):
+        # Lower number = higher priority
+        heapq.heappush(self.heap, PrioritizedTask(priority, task))
+
+    def pop(self):
+        if self.heap:
+            return heapq.heappop(self.heap).task
+        return None
+
+    def peek_priority(self):
+        return self.heap[0].priority if self.heap else None
+
+# Priority levels: 1=Critical finding verification, 2=Exploitation, 3=Scanning, 4=Reporting
+queue = PriorityTaskQueue()
+queue.push({"type": "verify", "finding": "sqli"}, priority=1)
+queue.push({"type": "scan", "target": "10.0.0.1"}, priority=3)
+```
+
+### Adaptive Rate Control
+
+```bash
+#!/bin/bash
+# Adaptive rate control for distributed scanning agents
+MAX_RATE=100
+CURRENT_RATE=$MAX_RATE
+ERROR_COUNT=0
+SUCCESS_COUNT=0
+
+adjust_rate() {
+    local response_code=$1
+    if [ "$response_code" = "429" ] || [ "$response_code" = "503" ]; then
+        ERROR_COUNT=$((ERROR_COUNT + 1))
+        CURRENT_RATE=$((CURRENT_RATE / 2))
+        [ $CURRENT_RATE -lt 5 ] && CURRENT_RATE=5
+        echo "[!] Rate limited. Reducing to $CURRENT_RATE req/s"
+    else
+        SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+        if [ $SUCCESS_COUNT -gt 50 ] && [ $CURRENT_RATE -lt $MAX_RATE ]; then
+            CURRENT_RATE=$((CURRENT_RATE + 10))
+            SUCCESS_COUNT=0
+            echo "[+] Increasing rate to $CURRENT_RATE req/s"
+        fi
+    fi
+}
+```
+
+---
+
+## 11. Inter-Agent Security
+
+### Agent Authentication with HMAC
+
+```python
+import hmac
+import hashlib
+import time
+import json
+
+class AgentAuthenticator:
+    def __init__(self, shared_secret):
+        self.shared_secret = shared_secret.encode()
+
+    def sign_message(self, agent_id, message):
+        timestamp = str(int(time.time()))
+        payload = f"{agent_id}:{timestamp}:{json.dumps(message)}"
+        signature = hmac.new(self.shared_secret, payload.encode(), hashlib.sha256).hexdigest()
+        return {
+            "agent_id": agent_id,
+            "timestamp": timestamp,
+            "message": message,
+            "signature": signature
+        }
+
+    def verify_message(self, signed_message, max_age=300):
+        agent_id = signed_message["agent_id"]
+        timestamp = signed_message["timestamp"]
+        message = signed_message["message"]
+        signature = signed_message["signature"]
+
+        # Check timestamp freshness
+        if abs(time.time() - int(timestamp)) > max_age:
+            return False, "Message expired"
+
+        payload = f"{agent_id}:{timestamp}:{json.dumps(message)}"
+        expected = hmac.new(self.shared_secret, payload.encode(), hashlib.sha256).hexdigest()
+        if hmac.compare_digest(signature, expected):
+            return True, "Valid"
+        return False, "Invalid signature"
+```
+
+### Trust Boundary Enforcement
+
+```python
+class TrustBoundary:
+    def __init__(self):
+        self.permissions = {
+            "recon_agent": ["read_scope", "dns_query", "port_scan"],
+            "exploit_agent": ["read_findings", "execute_exploit", "write_evidence"],
+            "report_agent": ["read_findings", "read_evidence", "write_report"],
+        }
+
+    def check_permission(self, agent_role, action):
+        allowed = self.permissions.get(agent_role, [])
+        if action not in allowed:
+            raise PermissionError(
+                f"Agent role '{agent_role}' not authorized for action '{action}'. "
+                f"Allowed: {allowed}"
+            )
+        return True
+
+    def validate_scope(self, agent_id, target):
+        assigned_scope = self._get_agent_scope(agent_id)
+        if target not in assigned_scope:
+            raise ScopeViolation(
+                f"Agent {agent_id} attempted to access {target} outside assigned scope"
+            )
+```
+
+### Encrypted Inter-Agent Communication
+
+```python
+from cryptography.fernet import Fernet
+import json
+
+class SecureChannel:
+    def __init__(self):
+        self.key = Fernet.generate_key()
+        self.cipher = Fernet(self.key)
+
+    def encrypt_message(self, sender_id, recipient_id, payload):
+        envelope = {
+            "from": sender_id,
+            "to": recipient_id,
+            "payload": payload,
+            "timestamp": time.time()
+        }
+        plaintext = json.dumps(envelope).encode()
+        return self.cipher.encrypt(plaintext)
+
+    def decrypt_message(self, encrypted_data, expected_recipient):
+        plaintext = self.cipher.decrypt(encrypted_data)
+        envelope = json.loads(plaintext)
+        if envelope["to"] != expected_recipient:
+            raise SecurityError("Message not intended for this agent")
+        return envelope["payload"]
+```
+
+### Agent Identity Verification
+
+```bash
+#!/bin/bash
+# Verify agent identity before accepting task results
+verify_agent_identity() {
+    local agent_id="$1"
+    local claimed_token="$2"
+    local expected_hash
+
+    # Each agent has a pre-registered identity hash
+    expected_hash=$(grep "^${agent_id}:" /etc/agents/registry | cut -d: -f2)
+
+    actual_hash=$(echo -n "$claimed_token" | sha256sum | cut -d' ' -f1)
+
+    if [ "$actual_hash" = "$expected_hash" ]; then
+        echo "[+] Agent $agent_id identity verified"
+        return 0
+    else
+        echo "[!] ALERT: Agent $agent_id failed identity verification"
+        return 1
+    fi
+}
+```
+
+### Scope Isolation Enforcement
+
+```python
+class ScopeIsolator:
+    def __init__(self, engagement_scope):
+        self.engagement_scope = engagement_scope
+        self.agent_scopes = {}
+        self.violations = []
+
+    def assign_scope(self, agent_id, scope_subset):
+        # Verify subset is within engagement scope
+        for item in scope_subset:
+            if item not in self.engagement_scope:
+                raise ValueError(f"Cannot assign {item} — not in engagement scope")
+        self.agent_scopes[agent_id] = set(scope_subset)
+
+    def validate_target(self, agent_id, target):
+        allowed = self.agent_scopes.get(agent_id, set())
+        if target not in allowed:
+            violation = {
+                "agent": agent_id,
+                "target": target,
+                "timestamp": time.time(),
+                "action": "blocked"
+            }
+            self.violations.append(violation)
+            raise ScopeViolation(f"Agent {agent_id} blocked from accessing {target}")
+        return True
+```
+
+---
+
+## 12. Monitoring and Observability
+
+### Agent Health Dashboard
+
+```python
+import time
+from dataclasses import dataclass
+
+@dataclass
+class AgentMetrics:
+    agent_id: str
+    last_heartbeat: float
+    tasks_completed: int
+    tasks_failed: int
+    findings_reported: int
+    avg_task_duration: float
+    current_state: str
+
+class MonitoringDashboard:
+    def __init__(self):
+        self.metrics = {}
+
+    def update_heartbeat(self, agent_id):
+        if agent_id not in self.metrics:
+            self.metrics[agent_id] = AgentMetrics(
+                agent_id=agent_id, last_heartbeat=time.time(),
+                tasks_completed=0, tasks_failed=0,
+                findings_reported=0, avg_task_duration=0.0,
+                current_state="idle"
+            )
+        self.metrics[agent_id].last_heartbeat = time.time()
+
+    def get_stale_agents(self, threshold_seconds=300):
+        now = time.time()
+        return [m for m in self.metrics.values()
+                if now - m.last_heartbeat > threshold_seconds]
+
+    def summary(self):
+        total = len(self.metrics)
+        active = sum(1 for m in self.metrics.values() if m.current_state == "running")
+        findings = sum(m.findings_reported for m in self.metrics.values())
+        return f"Agents: {active}/{total} active | Findings: {findings}"
+```
+
+### Task Metrics Collection
+
+```python
+import time
+from collections import defaultdict
+
+class TaskMetrics:
+    def __init__(self):
+        self.task_durations = defaultdict(list)
+        self.task_outcomes = defaultdict(lambda: {"success": 0, "failure": 0})
+        self.start_times = {}
+
+    def task_started(self, task_id, task_type):
+        self.start_times[task_id] = (time.time(), task_type)
+
+    def task_completed(self, task_id, success=True):
+        if task_id in self.start_times:
+            start_time, task_type = self.start_times.pop(task_id)
+            duration = time.time() - start_time
+            self.task_durations[task_type].append(duration)
+            outcome = "success" if success else "failure"
+            self.task_outcomes[task_type][outcome] += 1
+
+    def get_stats(self, task_type):
+        durations = self.task_durations[task_type]
+        outcomes = self.task_outcomes[task_type]
+        if not durations:
+            return None
+        return {
+            "avg_duration": sum(durations) / len(durations),
+            "max_duration": max(durations),
+            "min_duration": min(durations),
+            "total_tasks": outcomes["success"] + outcomes["failure"],
+            "success_rate": outcomes["success"] / (outcomes["success"] + outcomes["failure"])
+        }
+```
+
+### Performance Tracking
+
+```bash
+#!/bin/bash
+# Agent performance tracking script
+LOG_FILE="/var/log/agent_performance.log"
+
+track_agent_performance() {
+    local agent_id="$1"
+    local task_id="$2"
+    local start_time=$(date +%s%N)
+
+    # Wait for task completion signal
+    wait_for_completion "$agent_id" "$task_id"
+    local end_time=$(date +%s%N)
+
+    local duration_ms=$(( (end_time - start_time) / 1000000 ))
+    local findings=$(get_findings_count "$agent_id" "$task_id")
+    local memory_mb=$(get_agent_memory "$agent_id")
+
+    echo "$(date -Iseconds) | $agent_id | $task_id | ${duration_ms}ms | ${findings} findings | ${memory_mb}MB" >> "$LOG_FILE"
+}
+
+# Generate performance report
+generate_report() {
+    echo "=== Agent Performance Report ==="
+    echo "Period: $(head -1 $LOG_FILE | cut -d'|' -f1) to $(tail -1 $LOG_FILE | cut -d'|' -f1)"
+    echo ""
+    awk -F'|' '{agents[$2]++; findings[$2]+=$5} END {for(a in agents) printf "%s: %d tasks, %d findings\n", a, agents[a], findings[a]}' "$LOG_FILE"
+}
+```
+
+### Real-Time Alert System
+
+```python
+import asyncio
+from enum import Enum
+
+class AlertSeverity(Enum):
+    INFO = "info"
+    WARNING = "warning"
+    CRITICAL = "critical"
+
+class AlertSystem:
+    def __init__(self):
+        self.handlers = []
+        self.alert_history = []
+
+    def add_handler(self, handler):
+        self.handlers.append(handler)
+
+    async def fire_alert(self, severity, agent_id, message, context=None):
+        alert = {
+            "severity": severity.value,
+            "agent_id": agent_id,
+            "message": message,
+            "context": context or {},
+            "timestamp": time.time()
+        }
+        self.alert_history.append(alert)
+        for handler in self.handlers:
+            await handler(alert)
+
+    async def check_conditions(self, metrics):
+        for agent_id, m in metrics.items():
+            if time.time() - m.last_heartbeat > 300:
+                await self.fire_alert(AlertSeverity.WARNING, agent_id, "Agent heartbeat stale")
+            if m.tasks_failed > 3:
+                await self.fire_alert(AlertSeverity.CRITICAL, agent_id, "Multiple task failures")
+```
+
+### Engagement Progress Tracker
+
+```python
+class EngagementTracker:
+    def __init__(self, total_scope_items):
+        self.total_scope_items = total_scope_items
+        self.completed_items = set()
+        self.in_progress = set()
+        self.findings_by_severity = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0, "Info": 0}
+        self.start_time = time.time()
+
+    def mark_complete(self, scope_item):
+        self.in_progress.discard(scope_item)
+        self.completed_items.add(scope_item)
+
+    def add_finding(self, severity):
+        self.findings_by_severity[severity] += 1
+
+    def progress_report(self):
+        elapsed = time.time() - self.start_time
+        coverage = len(self.completed_items) / self.total_scope_items * 100
+        return {
+            "elapsed_minutes": int(elapsed / 60),
+            "coverage_percent": round(coverage, 1),
+            "items_complete": len(self.completed_items),
+            "items_in_progress": len(self.in_progress),
+            "items_remaining": self.total_scope_items - len(self.completed_items) - len(self.in_progress),
+            "findings": dict(self.findings_by_severity),
+            "total_findings": sum(self.findings_by_severity.values())
+        }
+```
+
+---
+
+## 13. Error Recovery Patterns
+
+### Retry with Exponential Backoff
+
+```python
+import asyncio
+import random
+
+async def retry_with_backoff(func, max_retries=5, base_delay=1.0, max_delay=60.0):
+    for attempt in range(max_retries):
+        try:
+            return await func()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            delay = min(base_delay * (2 ** attempt) + random.uniform(0, 1), max_delay)
+            print(f"[!] Attempt {attempt+1} failed: {e}. Retrying in {delay:.1f}s")
+            await asyncio.sleep(delay)
+
+# Usage
+result = await retry_with_backoff(
+    lambda: agent.execute_scan(target),
+    max_retries=3,
+    base_delay=2.0
+)
+```
+
+### Circuit Breaker Pattern
+
+```python
+import time
+
+class CircuitBreaker:
+    def __init__(self, failure_threshold=5, recovery_timeout=60):
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.failure_count = 0
+        self.last_failure_time = 0
+        self.state = "closed"  # closed, open, half-open
+
+    async def call(self, func):
+        if self.state == "open":
+            if time.time() - self.last_failure_time > self.recovery_timeout:
+                self.state = "half-open"
+            else:
+                raise CircuitOpenError("Circuit breaker is open — target unreachable")
+
+        try:
+            result = await func()
+            if self.state == "half-open":
+                self.state = "closed"
+                self.failure_count = 0
+            return result
+        except Exception as e:
+            self.failure_count += 1
+            self.last_failure_time = time.time()
+            if self.failure_count >= self.failure_threshold:
+                self.state = "open"
+                print(f"[!] Circuit OPEN after {self.failure_count} failures")
+            raise
+```
+
+### Graceful Degradation Strategy
+
+```python
+class GracefulDegradation:
+    def __init__(self):
+        self.degradation_levels = {
+            0: "full_operation",
+            1: "reduced_scanning_rate",
+            2: "passive_only",
+            3: "evidence_collection_only",
+            4: "emergency_stop"
+        }
+        self.current_level = 0
+
+    async def escalate(self, reason):
+        self.current_level = min(self.current_level + 1, 4)
+        level_name = self.degradation_levels[self.current_level]
+        print(f"[!] Degradation escalated to level {self.current_level}: {level_name} ({reason})")
+        await self._apply_restrictions()
+
+    async def _apply_restrictions(self):
+        if self.current_level >= 1:
+            await self._reduce_scan_rate(factor=0.5)
+        if self.current_level >= 2:
+            await self._disable_active_scanning()
+        if self.current_level >= 3:
+            await self._stop_all_agents()
+        if self.current_level >= 4:
+            await self._emergency_shutdown()
+
+    def can_perform(self, action_type):
+        restrictions = {
+            1: ["aggressive_scan"],
+            2: ["aggressive_scan", "active_scan", "exploitation"],
+            3: ["aggressive_scan", "active_scan", "exploitation", "enumeration"],
+            4: ["all"]
+        }
+        blocked = restrictions.get(self.current_level, [])
+        return action_type not in blocked and "all" not in blocked
+```
+
+### Task Failover and Reassignment
+
+```python
+class FailoverManager:
+    def __init__(self, agent_pool):
+        self.agent_pool = agent_pool
+        self.failed_tasks = []
+        self.reassignment_log = []
+
+    async def handle_agent_failure(self, failed_agent_id, task):
+        self.failed_tasks.append({"agent": failed_agent_id, "task": task})
+
+        # Find alternative agent with matching capabilities
+        alternative = self._find_alternative(failed_agent_id, task)
+        if alternative:
+            await alternative.assign(task)
+            self.reassignment_log.append({
+                "task_id": task["id"],
+                "from": failed_agent_id,
+                "to": alternative.agent_id,
+                "reason": "agent_failure"
+            })
+            return True
+
+        # No alternative available — queue for manual handling
+        print(f"[!] No alternative agent for task {task['id']} — queued for manual review")
+        return False
+
+    def _find_alternative(self, exclude_id, task):
+        for agent in self.agent_pool:
+            if agent.agent_id != exclude_id and agent.state == "idle":
+                if task["type"] in agent.capabilities:
+                    return agent
+        return None
+```
+
+### State Checkpoint and Recovery
+
+```python
+import json
+import os
+
+class CheckpointManager:
+    def __init__(self, checkpoint_dir="/tmp/agent_checkpoints"):
+        self.checkpoint_dir = checkpoint_dir
+        os.makedirs(checkpoint_dir, exist_ok=True)
+
+    def save_checkpoint(self, engagement_id, state):
+        path = os.path.join(self.checkpoint_dir, f"{engagement_id}.json")
+        checkpoint = {
+            "engagement_id": engagement_id,
+            "timestamp": time.time(),
+            "agent_states": state.get("agents", {}),
+            "completed_tasks": state.get("completed", []),
+            "pending_tasks": state.get("pending", []),
+            "findings": state.get("findings", [])
+        }
+        with open(path, "w") as f:
+            json.dump(checkpoint, f, indent=2)
+        print(f"[+] Checkpoint saved: {path}")
+
+    def restore_checkpoint(self, engagement_id):
+        path = os.path.join(self.checkpoint_dir, f"{engagement_id}.json")
+        if not os.path.exists(path):
+            return None
+        with open(path) as f:
+            checkpoint = json.load(f)
+        print(f"[+] Restored from checkpoint: {checkpoint['timestamp']}")
+        return checkpoint
+
+    async def resume_engagement(self, engagement_id):
+        checkpoint = self.restore_checkpoint(engagement_id)
+        if not checkpoint:
+            raise FileNotFoundError(f"No checkpoint for {engagement_id}")
+        # Re-dispatch only pending tasks
+        for task in checkpoint["pending_tasks"]:
+            await self.coordinator.dispatch(task)
+        return checkpoint["findings"]
+```

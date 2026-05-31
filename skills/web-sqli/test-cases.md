@@ -187,6 +187,51 @@ Reference Payload: Corresponding section in payloads.md
   4. `sqlmap -u "URL" --os-shell` attempt to get OS Shell
 - **Expected Results**: sqlmap automatically completes the full workflow from detection to data extraction
 
+### TC-S013 | WAF Evasion Chain
+
+- **Severity**: HIGH
+- **Prerequisites**: Confirmed injection point behind WAF (ModSecurity, Cloudflare, AWS WAF, etc.)
+- **Test Steps**:
+  1. Identify WAF type via response headers or error pages (`wafw00f target.com`)
+  2. Test basic payload to confirm WAF blocks: `' UNION SELECT 1,2,3-- -`
+  3. Apply encoding bypass: `%2527%2520UNION%2520SELECT%25201,2,3-- -`
+  4. Apply comment obfuscation: `'/*!50000UnIoN*//*!50000SeLeCt*/1,2,3-- -`
+  5. Apply chunked transfer encoding to split payload across chunks
+  6. Apply HTTP parameter pollution: `?id=1'/*&id=*/UNION/*&id=*/SELECT 1,2,3-- -`
+  7. Test sqlmap with tamper scripts: `--tamper=space2comment,between,randomcase`
+  8. Verify data extraction succeeds through the WAF
+- **Expected Results**: At least one evasion technique bypasses WAF and allows data extraction
+- **Pass Criteria**:
+  - [ ] WAF type identified
+  - [ ] At least 2 bypass techniques tested
+  - [ ] Successful data extraction through WAF confirmed
+  - [ ] Bypass technique documented for reproducibility
+- **Remediation**: WAF rules should be updated; parameterized queries eliminate the root cause regardless of WAF
+- **Reference**: payloads.md §12 WAF Evasion Advanced Techniques
+
+### TC-S014 | Second-Order SQL Injection
+
+- **Severity**: CRITICAL
+- **Prerequisites**: Application with user registration or profile update that stores input and uses it in subsequent queries
+- **Test Steps**:
+  1. Identify stored input fields (username, display name, address, comments)
+  2. Register account with payload username: `admin'-- -`
+  3. Login with the created account
+  4. Navigate to features that use the stored username in queries (profile view, password reset, admin user listing)
+  5. Observe if the stored payload triggers SQL injection in the secondary context
+  6. Test alternative stored fields: email with `test@test.com' UNION SELECT password FROM users-- -`
+  7. Test file upload with SQL payload in filename
+  8. Verify data extraction or authentication bypass via the second-order trigger
+- **Expected Results**: Stored payload executes in a different query context, allowing unauthorized data access or authentication bypass
+- **Pass Criteria**:
+  - [ ] Stored input field identified that is reused in subsequent queries
+  - [ ] Payload survives storage (not sanitized on input)
+  - [ ] Second-order trigger point identified
+  - [ ] Data extraction or auth bypass confirmed
+  - [ ] Attack chain documented (store → trigger → exploit)
+- **Remediation**: Parameterize ALL queries including those using previously stored data; never trust data from your own database
+- **Reference**: payloads.md §13 Second-Order SQL Injection
+
 ---
 
 ## Test Case Statistics
@@ -197,5 +242,5 @@ Reference Payload: Corresponding section in payloads.md
 | B. UNION Injection | 2 | 1 | 1 | 0 | 0 |
 | C. Error-based Injection | 2 | 0 | 2 | 0 | 0 |
 | D. Blind Injection | 2 | 0 | 2 | 0 | 0 |
-| E. Advanced Exploitation | 4 | 2 | 2 | 0 | 0 |
-| **Total** | **12** | **5** | **7** | **0** | **0** |
+| E. Advanced Exploitation | 6 | 3 | 3 | 0 | 0 |
+| **Total** | **14** | **6** | **8** | **0** | **0** |

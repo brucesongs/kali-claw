@@ -329,7 +329,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.13 |
+| **Version** | 0.1.14 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | 49 |
