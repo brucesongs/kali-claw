@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 45 security skill domains
+├── skills/              # 49 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -112,7 +112,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (45 domains total)
+│   └── ... (49 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -293,20 +293,39 @@ TOOLS.md:
 
 ## Roadmap
 
-### Completed Roadmap (v0.1.3–v0.1.5)
+### Completed
 
-| Tier | Skills | Version | Status |
-|------|--------|---------|--------|
-| Tier 1 | `codebase-onboarding`, `knowledge-ops` | v0.1.3 | Done |
-| Tier 2 | `article-writing`, `browser-qa`, `data-scraper-agent`, `exa-search` | v0.1.4 | Done |
-| Tier 3 (partial) | `ai-fuzzing`, `council` | v0.1.5 | Done |
+| Version | Date | Milestone | Key Changes |
+|---------|------|-----------|-------------|
+| v0.1.3 | 2026-05-14 | Foundation | Tier 1 skills (`codebase-onboarding`, `knowledge-ops`) |
+| v0.1.4 | 2026-05-14 | Expansion | Tier 2 skills (`article-writing`, `browser-qa`, `data-scraper-agent`, `exa-search`) |
+| v0.1.5 | 2026-05-14 | Frontier Domains | Added AI Fuzzing + Council; three-perspective framework (Attack/Defense/Audit) |
+| v0.1.6 | 2026-05-14 | Infrastructure Ops | 10 infrastructure skills enriched (FULL/PARTIAL/MINIMAL strategy) |
+| v0.1.7 | 2026-05-16 | 49 Domains | Added AI Security, Hardware Security, Multi-Agent Collaboration, MCP Server Patterns (45→49) |
+| v0.1.8 | 2026-05-22 | Full Enrichment | All 49 skills at FULL enrichment (SKILL.md + payloads + test-cases + guides) |
+| v0.1.9 | 2026-05-22 | Validation Infra | Practice validation: 49 test cases, execution playbook, 5-level status system |
+| v0.1.10 | 2026-05-22 | Integration Tests | 7 cross-skill integration scenarios, all PASS (recon→exploit→verify→report pipelines) |
+| v0.1.11 | 2026-05-23 | Quality Scoring | Automated SCORE.sh (7 metrics, 4 components); baseline: 22 Weak, 25 Adequate, 2 Strong |
+| v0.1.12 | 2026-05-25 | First Improvement | 16 guides added; Weak 22→9, Strong 2→20, Excellent 0→2; avg 40.5→50.5 |
+| v0.1.13 | 2026-05-29 | Zero Weak | All 49 skills Adequate or above; avg 59.4, median 59.2 |
+| v0.1.14 | 2026-05-30 | **100% Excellent** | **49/49 Excellent, avg 84.0, min 80.0, max 90.3**; CI quality gate; 10 integration tests |
+
+### Current Quality Snapshot (v0.1.14)
+
+| Tier | Count | Skills |
+|------|-------|--------|
+| Excellent (80-100) | **49** | All skill domains |
+| Strong (60-80) | 0 | — |
+| Adequate (40-60) | 0 | — |
+| Weak (0-40) | 0 | — |
 
 ### Future Exploration
 
-| Skill | Description |
+| Topic | Description |
 |-------|-------------|
-| `strategic-compact` | Strategic context management — long engagement context compression, priority-based information retention |
-| `ai-assisted-exploit-dev` | AI-driven exploit development and payload customization |
+| Cross-skill advanced scenarios | Multi-skill composite attack chain testing |
+| Live pentest validation | Execute full attack chains on authorized targets, produce real pentest reports |
+| AI-driven exploit dev | AI-driven exploit development and payload customization |
 
 ---
 
