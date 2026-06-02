@@ -134,6 +134,288 @@ Use this checklist when generating the auditor viewpoint for any security questi
 
 Use this matrix to score and prioritize findings from the council analysis.
 
+### Automated Risk Score Calculator
+
+```python
+def calculate_severity(impact, likelihood):
+    """Calculate risk score and severity classification."""
+    score = impact * likelihood
+    if score >= 15:
+        return score, "Critical"
+    elif score >= 10:
+        return score, "High"
+    elif score >= 5:
+        return score, "Medium"
+    elif score >= 3:
+        return score, "Low"
+    else:
+        return score, "Info"
+
+def batch_score_findings(findings):
+    """Score and categorize a batch of findings."""
+    categorized = {"Critical": [], "High": [], "Medium": [], "Low": [], "Info": []}
+    for f in findings:
+        score, severity = calculate_severity(f.get("impact", 1), f.get("likelihood", 1))
+        f["risk_score"] = score
+        f["severity"] = severity
+        categorized[severity].append(f)
+    return categorized
+```
+
+### Markdown Risk Register Generator
+
+```python
+def generate_markdown_risk_table(findings, output_file="risk_register.md"):
+    """Generate a markdown risk register table from findings."""
+    lines = [
+        "# Risk Register",
+        "",
+        "| ID | Finding | Perspective | Impact | Likelihood | Score | Severity |",
+        "|----|---------|-------------|--------|------------|-------|----------|"
+    ]
+    for idx, f in enumerate(sorted(findings,
+            key=lambda x: x.get("impact", 1) * x.get("likelihood", 1), reverse=True), 1):
+        impact = f.get("impact", 1)
+        likelihood = f.get("likelihood", 1)
+        score = impact * likelihood
+        severity = "Critical" if score >= 15 else "High" if score >= 10 else \
+                   "Medium" if score >= 5 else "Low" if score >= 3 else "Info"
+        lines.append(
+            f"| R-{idx:03d} | {f.get('title', 'N/A')} | {f.get('perspective', 'N/A')} "
+            f"| {impact} | {likelihood} | {score} | {severity} |"
+        )
+
+    with open(output_file, "w") as out:
+        out.write("\n".join(lines))
+    print(f"[+] Risk register written to {output_file}")
+```
+
+### Voting Mechanism Implementation
+
+```python
+from collections import Counter
+
+def majority_vote(positions):
+    """Simple majority vote across perspectives."""
+    votes = Counter(p["severity"] for p in positions)
+    winner = votes.most_common(1)[0][0]
+    margin = votes.most_common(1)[0][1] / len(positions)
+    return {"winner": winner, "margin": margin, "is_consensus": margin >= 0.67}
+
+def ranked_choice_voting(positions, severity_order=["Critical", "High", "Medium", "Low", "Info"]):
+    """Ranked choice voting with elimination rounds."""
+    remaining = list(severity_order)
+    votes = [p.get("ranked_preferences", [p["severity"]]) for p in positions]
+
+    while len(remaining) > 1:
+        first_choices = Counter()
+        for ballot in votes:
+            for choice in ballot:
+                if choice in remaining:
+                    first_choices[choice] += 1
+                    break
+
+        total = sum(first_choices.values())
+        for choice, count in first_choices.most_common():
+            if count / total > 0.5:
+                return {"winner": choice, "rounds": len(severity_order) - len(remaining) + 1}
+
+        # Eliminate lowest
+        lowest = first_choices.most_common()[-1][0]
+        remaining.remove(lowest)
+
+    return {"winner": remaining[0], "rounds": len(severity_order) - len(remaining) + 1}
+```
+
+### Advisory Email Template Generator
+
+```python
+def generate_advisory_email(session_data, recipients):
+    """Generate a formatted advisory email from council session data."""
+    findings = session_data.get("findings", [])
+    critical = [f for f in findings if f.get("severity") == "Critical"]
+    high = [f for f in findings if f.get("severity") == "High"]
+
+    email_body = f"""Subject: [Security Advisory] Council Session {session_data.get('session_id', 'N/A')}
+
+Security Council completed analysis of:
+{session_data.get('question', 'N/A')}
+
+CONFIDENCE: {session_data.get('consensus', {}).get('confidence', 0):.0%}
+
+SUMMARY:
+- Total findings: {len(findings)}
+- Critical: {len(critical)}
+- High: {len(high)}
+
+IMMEDIATE ACTIONS REQUIRED:
+"""
+    for f in sorted(critical + high,
+                    key=lambda x: x.get("impact", 0) * x.get("likelihood", 0),
+                    reverse=True)[:5]:
+        score = f.get("impact", 0) * f.get("likelihood", 0)
+        email_body += f"  - [{f.get('severity')}] {f.get('title')} (Score: {score})\n"
+
+    email_body += f"\nFull report available in council session records.\n"
+    return email_body
+```
+
+### JSON Report Exporter
+
+```python
+import json
+from datetime import datetime
+
+def export_council_json(session, findings, consensus, filename="council_report.json"):
+    """Export complete council analysis as structured JSON."""
+    report = {
+        "metadata": {
+            "session_id": session.get("session_id"),
+            "timestamp": datetime.utcnow().isoformat(),
+            "question": session.get("question"),
+            "duration_minutes": session.get("duration", 0)
+        },
+        "statistics": {
+            "total_findings": len(findings),
+            "by_perspective": {},
+            "by_severity": {},
+            "consensus_confidence": consensus.get("confidence", 0)
+        },
+        "findings": findings,
+        "consensus": consensus,
+        "recommendations": [f for f in findings if f.get("recommendation")]
+    }
+
+    # Compute perspective breakdown
+    for f in findings:
+        p = f.get("perspective", "unknown")
+        report["statistics"]["by_perspective"][p] = \
+            report["statistics"]["by_perspective"].get(p, 0) + 1
+        s = f.get("severity", "unknown")
+        report["statistics"]["by_severity"][s] = \
+            report["statistics"]["by_severity"].get(s, 0) + 1
+
+    with open(filename, "w") as f:
+        json.dump(report, f, indent=2, default=str)
+    print(f"[+] Council report exported to {filename}")
+    return report
+```
+
+### Stakeholder Impact Matrix
+
+```python
+def generate_impact_matrix(findings, stakeholders=None):
+    """Map findings to stakeholder impact for communication planning."""
+    if stakeholders is None:
+        stakeholders = ["Engineering", "Legal", "Executive", "Operations", "Compliance"]
+
+    impact_map = {
+        "Engineering": ["exploit", "vulnerability", "code", "patch", "deployment"],
+        "Legal": ["breach", "compliance", "regulation", "gdpr", "liability"],
+        "Executive": ["revenue", "reputation", "business", "strategy", "risk"],
+        "Operations": ["downtime", "availability", "incident", "monitoring", "response"],
+        "Compliance": ["audit", "control", "policy", "framework", "evidence"]
+    }
+
+    matrix = {s: [] for s in stakeholders}
+    for f in findings:
+        title_lower = f.get("title", "").lower()
+        rec_lower = f.get("recommendation", "").lower()
+        text = title_lower + " " + rec_lower
+
+        for stakeholder, keywords in impact_map.items():
+            if any(kw in text for kw in keywords):
+                matrix[stakeholder].append({
+                    "title": f.get("title"),
+                    "severity": f.get("severity"),
+                    "action": f.get("recommendation", "Review required")
+                })
+
+    return matrix
+```
+
+### Finding Age and Trend Tracker
+
+```python
+def track_finding_trends(historical_sessions, current_findings):
+    """Compare current findings with historical sessions to track trends."""
+    trends = []
+    for current in current_findings:
+        title = current.get("title", "").lower()
+        matching_history = []
+
+        for session in historical_sessions:
+            for past_f in session.get("findings", []):
+                if title in past_f.get("title", "").lower() or \
+                   past_f.get("title", "").lower() in title:
+                    matching_history.append({
+                        "session": session.get("session_id"),
+                        "date": session.get("date"),
+                        "severity": past_f.get("severity"),
+                        "status": past_f.get("status", "open")
+                    })
+
+        if matching_history:
+            last_status = matching_history[-1].get("status")
+            trend = "RECURRING" if last_status == "closed" else "PERSISTENT"
+        else:
+            trend = "NEW"
+
+        trends.append({
+            "title": current.get("title"),
+            "trend": trend,
+            "occurrences": len(matching_history),
+            "history": matching_history
+        })
+
+    return sorted(trends, key=lambda t: t["occurrences"], reverse=True)
+```
+
+### Remediation Priority Calculator
+
+```python
+def calculate_remediation_priority(finding, organization_context=None):
+    """Calculate remediation priority based on multiple factors."""
+    base_score = finding.get("impact", 1) * finding.get("likelihood", 1)
+
+    # Adjust for exploitability
+    exploit_adjustment = 0
+    if finding.get("exploit_available"):
+        exploit_adjustment += 5
+    if finding.get("publicly_known"):
+        exploit_adjustment += 3
+    if finding.get("actively_exploited"):
+        exploit_adjustment += 10
+
+    # Adjust for business context
+    business_adjustment = 0
+    if organization_context:
+        exposed = finding.get("exposed_to_internet", False)
+        critical_asset = finding.get("critical_asset", False)
+        if exposed and critical_asset:
+            business_adjustment += 8
+        elif exposed:
+            business_adjustment += 4
+        elif critical_asset:
+            business_adjustment += 3
+
+    # Estimate remediation effort
+    effort_map = {"low": 1, "medium": 2, "high": 3}
+    effort = effort_map.get(finding.get("remediation_effort", "medium"), 2)
+
+    priority = base_score + exploit_adjustment + business_adjustment
+
+    return {
+        "finding": finding.get("title"),
+        "priority_score": priority,
+        "effort": effort,
+        "roi": round(priority / max(effort, 1), 1),
+        "recommendation": "IMMEDIATE" if priority >= 20 else
+                          "HIGH" if priority >= 15 else
+                          "SCHEDULED" if priority >= 8 else "BACKLOG"
+    }
+```
+
 ### Scoring Guide
 
 **Impact Scale (1-5)**:
@@ -340,6 +622,41 @@ Use this condensed checklist for rapid council analysis when time is limited.
 - [ ] Open questions that block a decision
 - [ ] Recommended action with confidence level (High/Medium/Low)
 
+### Quick Council Script
+
+```python
+def quick_council_analysis(question, findings_list):
+    """Run a rapid council analysis from three perspectives."""
+    perspectives = {"attacker": [], "defender": [], "auditor": []}
+    for f in findings_list:
+        if f.get("perspective") in perspectives:
+            perspectives[f["perspective"]].append(f)
+
+    # Find agreements (same finding title across multiple perspectives)
+    all_titles = {}
+    for f in findings_list:
+        title = f.get("title", "")
+        all_titles.setdefault(title, []).append(f.get("perspective"))
+
+    agreements = [t for t, ps in all_titles.items() if len(set(ps)) >= 2]
+    disagreements = [t for t, ps in all_titles.items() if len(set(ps)) == 1]
+
+    critical_findings = [f for f in findings_list
+                        if f.get("impact", 0) * f.get("likelihood", 0) >= 15]
+
+    recommendation = "Immediate action required" if critical_findings else "Schedule review"
+    confidence = len(agreements) / max(len(all_titles), 1)
+
+    return {
+        "question": question,
+        "recommendation": recommendation,
+        "confidence": f"{confidence:.0%}",
+        "agreements": agreements[:5],
+        "disagreements": disagreements[:5],
+        "critical_count": len(critical_findings)
+    }
+```
+
 ### Output
 
 ```markdown
@@ -351,6 +668,309 @@ Use this condensed checklist for rapid council analysis when time is limited.
 **Key Agreement**: [What all perspectives agree on]
 **Key Disagreement**: [What perspectives disagree on]
 **Next Step**: [Immediate action to take]
+```
+
+---
+
+## Additional Council Scripts
+
+### Council Session Timer and Budget Tracker
+
+```python
+import time
+
+class CouncilTimer:
+    """Track time budget across council analysis phases."""
+    def __init__(self, total_minutes=45):
+        self.total_seconds = total_minutes * 60
+        self.start_time = None
+        self.phases = {}
+
+    def start(self):
+        self.start_time = time.time()
+
+    def phase(self, name):
+        """Record a phase checkpoint."""
+        if self.start_time is None:
+            self.start()
+        elapsed = time.time() - self.start_time
+        remaining = self.total_seconds - elapsed
+        self.phases[name] = {"elapsed": round(elapsed, 1), "remaining": round(remaining, 1)}
+        print(f"[TIMER] {name}: {elapsed:.0f}s elapsed, {remaining:.0f}s remaining")
+        return remaining > 0
+
+    def time_left(self):
+        if self.start_time is None:
+            return self.total_seconds
+        return max(0, self.total_seconds - (time.time() - self.start_time))
+```
+
+### Council Report HTML Generator
+
+```python
+def generate_html_report(session_data, findings, output_file="council_report.html"):
+    """Generate an HTML-formatted council report for stakeholder review."""
+    severity_colors = {
+        "Critical": "#dc3545", "High": "#fd7e14",
+        "Medium": "#ffc107", "Low": "#28a745", "Info": "#6c757d"
+    }
+
+    rows = ""
+    for idx, f in enumerate(sorted(findings,
+            key=lambda x: x.get("impact", 1) * x.get("likelihood", 1), reverse=True), 1):
+        score = f.get("impact", 1) * f.get("likelihood", 1)
+        severity = "Critical" if score >= 15 else "High" if score >= 10 else \
+                   "Medium" if score >= 5 else "Low" if score >= 3 else "Info"
+        color = severity_colors.get(severity, "#6c757d")
+        rows += f"""<tr>
+            <td>{idx}</td><td>{f.get('title','')}</td>
+            <td style="color:{color};font-weight:bold">{severity}</td>
+            <td>{f.get('perspective','')}</td><td>{score}</td>
+        </tr>"""
+
+    html = f"""<html><head><title>Council Report</title>
+    <style>body{{font-family:sans-serif;margin:2em}}table{{border-collapse:collapse;width:100%}}
+    th,td{{border:1px solid #ddd;padding:8px;text-align:left}}th{{background:#f5f5f5}}</style>
+    </head><body><h1>Council Analysis Report</h1>
+    <p><strong>Session:</strong> {session_data.get('session_id','N/A')}</p>
+    <p><strong>Question:</strong> {session_data.get('question','N/A')}</p>
+    <table><tr><th>#</th><th>Finding</th><th>Severity</th><th>Perspective</th><th>Score</th></tr>
+    {rows}</table></body></html>"""
+
+    with open(output_file, "w") as f:
+        f.write(html)
+    print(f"[+] HTML report saved to {output_file}")
+```
+
+### Council Metrics Dashboard Generator
+
+```python
+def generate_dashboard(findings, session_info):
+    """Generate text-based dashboard metrics for council session."""
+    severity_counts = Counter(f.get("severity", "Unknown") for f in findings)
+    perspective_counts = Counter(f.get("perspective", "Unknown") for f in findings)
+
+    critical_score = sum(1 for f in findings if f.get("severity") == "Critical")
+    total_score = sum(f.get("impact", 1) * f.get("likelihood", 1) for f in findings)
+    avg_confidence = session_info.get("consensus", {}).get("confidence", 0)
+
+    dashboard = f"""
+    =============================================
+    COUNCIL SESSION DASHBOARD
+    =============================================
+    Session:    {session_info.get('session_id', 'N/A')}
+    Question:   {session_info.get('question', 'N/A')}
+    Confidence: {avg_confidence:.0%}
+
+    FINDINGS BY SEVERITY
+    ---------------------------------
+    Critical: {'#' * min(critical_score, 40)} ({critical_score})
+    High:     {'#' * min(severity_counts.get('High', 0), 40)} ({severity_counts.get('High', 0)})
+    Medium:   {'#' * min(severity_counts.get('Medium', 0), 40)} ({severity_counts.get('Medium', 0)})
+    Low:      {'#' * min(severity_counts.get('Low', 0), 40)} ({severity_counts.get('Low', 0)})
+
+    PERSPECTIVE COVERAGE
+    ---------------------------------
+    Attacker: {perspective_counts.get('attacker', 0)} findings
+    Defender: {perspective_counts.get('defender', 0)} findings
+    Auditor:  {perspective_counts.get('auditor', 0)} findings
+
+    Aggregate Risk Score: {total_score}
+    =============================================
+    """
+    return dashboard
+```
+
+### Action Item Tracker
+
+```python
+def track_action_items(findings, owners_map):
+    """Generate tracked action items from council findings with deadlines."""
+    actions = []
+    severity_deadlines = {
+        "Critical": 1,   # 1 day
+        "High": 3,       # 3 days
+        "Medium": 14,    # 2 weeks
+        "Low": 30         # 1 month
+    }
+
+    for f in sorted(findings,
+                    key=lambda x: x.get("impact", 1) * x.get("likelihood", 1),
+                    reverse=True):
+        severity = f.get("severity", "Low")
+        deadline_days = severity_deadlines.get(severity, 30)
+        component = f.get("affected_component", "general")
+        owner = owners_map.get(component, owners_map.get("default", "Unassigned"))
+
+        actions.append({
+            "id": f"A-{len(actions)+1:03d}",
+            "finding": f.get("title"),
+            "severity": severity,
+            "owner": owner,
+            "deadline_days": deadline_days,
+            "recommendation": f.get("recommendation", "Review required"),
+            "status": "Open"
+        })
+
+    return actions
+```
+
+### Weighted Confidence Scorer
+
+```python
+def calculate_weighted_confidence(findings, weights=None):
+    """Calculate confidence score based on perspective agreement weights."""
+    if weights is None:
+        weights = {"attacker": 0.40, "defender": 0.35, "auditor": 0.25}
+
+    from collections import defaultdict
+    by_topic = defaultdict(list)
+    for f in findings:
+        by_topic[f.get("title")].append(f)
+
+    scores = []
+    for topic, topic_findings in by_topic.items():
+        perspectives_present = set(f.get("perspective") for f in topic_findings)
+        coverage = sum(weights.get(p, 0) for p in perspectives_present)
+
+        severities = [f.get("severity") for f in topic_findings]
+        severity_map = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1, "Info": 0}
+        severity_values = [severity_map.get(s, 0) for s in severities]
+        spread = max(severity_values) - min(severity_values) if severity_values else 0
+        agreement_bonus = 1.0 if spread == 0 else max(0, 1.0 - spread * 0.25)
+
+        confidence = coverage * agreement_bonus
+        scores.append({"topic": topic, "confidence": round(confidence, 2), "spread": spread})
+
+    return sorted(scores, key=lambda x: x["confidence"], reverse=True)
+```
+
+### Executive Summary Generator
+
+```python
+def generate_executive_summary(session_data, findings, max_findings=5):
+    """Generate a one-page executive summary from council analysis."""
+    critical = [f for f in findings if f.get("severity") == "Critical"]
+    high = [f for f in findings if f.get("severity") == "High"]
+    total_risk = sum(f.get("impact", 1) * f.get("likelihood", 1) for f in findings)
+
+    top = sorted(findings, key=lambda x: x.get("impact", 1) * x.get("likelihood", 1), reverse=True)
+    top_findings = top[:max_findings]
+
+    summary = f"""EXECUTIVE SUMMARY
+{'=' * 50}
+Session: {session_data.get('session_id')}
+Date: {session_data.get('date', 'N/A')}
+Risk Level: {'CRITICAL' if critical else 'HIGH' if high else 'MODERATE'}
+
+OVERVIEW
+--------
+Total findings: {len(findings)}
+Critical: {len(critical)} | High: {len(high)}
+Aggregate risk score: {total_risk}
+Confidence: {session_data.get('consensus', {}).get('confidence', 0):.0%}
+
+TOP FINDINGS
+------------
+"""
+    for i, f in enumerate(top_findings, 1):
+        score = f.get("impact", 1) * f.get("likelihood", 1)
+        summary += f"{i}. [{f.get('severity')}] {f.get('title')} (Score: {score})\n"
+        summary += f"   Action: {f.get('recommendation', 'Review needed')}\n"
+
+    summary += f"\nRECOMMENDATION\n{'-' * 50}\n"
+    if critical:
+        summary += "Immediate remediation required for critical findings.\n"
+    elif high:
+        summary += "Priority remediation within 72 hours recommended.\n"
+    else:
+        summary += "Schedule remediation within 30 days.\n"
+
+    return summary
+```
+
+### Finding Classification Engine
+
+```python
+def classify_finding(finding):
+    """Auto-classify a finding into OWASP/SANS category."""
+    title = finding.get("title", "").lower()
+    categories = {
+        "Injection": ["sql", "xss", "command injection", "ldap", "xpath", "ssti"],
+        "Broken Auth": ["auth", "session", "password", "login", "token", "jwt"],
+        "Sensitive Data": ["encrypt", "crypto", "data exposure", "leak", " pii"],
+        "Access Control": ["idor", "privilege", "rbac", "authorization", "bypass"],
+        "Misconfig": ["cors", "header", "config", "default", "debug"],
+        "Vulnerable Component": ["outdated", "version", "cve", "library", "dependency"]
+    }
+
+    for category, keywords in categories.items():
+        if any(kw in title for kw in keywords):
+            finding["category"] = category
+            return category
+
+    finding["category"] = "Other"
+    return "Other"
+```
+
+### Council Session Comparator
+
+```python
+def compare_sessions(session_a, session_b):
+    """Compare two council sessions to track progress over time."""
+    findings_a = {f.get("title"): f for f in session_a.get("findings", [])}
+    findings_b = {f.get("title"): f for f in session_b.get("findings", [])}
+
+    new_findings = [t for t in findings_b if t not in findings_a]
+    resolved = [t for t in findings_a if t not in findings_b]
+    persistent = [t for t in findings_b if t in findings_a]
+
+    severity_improved = 0
+    severity_worsened = 0
+    for title in persistent:
+        score_a = findings_a[title].get("impact", 1) * findings_a[title].get("likelihood", 1)
+        score_b = findings_b[title].get("impact", 1) * findings_b[title].get("likelihood", 1)
+        if score_b < score_a:
+            severity_improved += 1
+        elif score_b > score_a:
+            severity_worsened += 1
+
+    return {
+        "new_findings": len(new_findings),
+        "resolved": len(resolved),
+        "persistent": len(persistent),
+        "severity_improved": severity_improved,
+        "severity_worsened": severity_worsened,
+        "trend": "improving" if len(resolved) > len(new_findings) else "degrading"
+    }
+```
+
+### Compliance Gap Heatmap Generator
+
+```python
+def generate_compliance_heatmap(findings, framework_controls):
+    """Generate a compliance coverage heatmap from council findings."""
+    heatmap = {}
+    for control_id, control_desc in framework_controls.items():
+        relevant = [f for f in findings
+                    if control_id in f.get("mapped_controls", [])]
+        if relevant:
+            scores = [f.get("impact", 1) * f.get("likelihood", 1) for f in relevant]
+            avg_score = sum(scores) / len(scores)
+            heatmap[control_id] = {
+                "description": control_desc,
+                "status": "GAP" if avg_score >= 10 else "PARTIAL" if avg_score >= 5 else "COVERED",
+                "finding_count": len(relevant),
+                "avg_risk": round(avg_score, 1)
+            }
+        else:
+            heatmap[control_id] = {
+                "description": control_desc,
+                "status": "UNTESTED",
+                "finding_count": 0,
+                "avg_risk": 0
+            }
+    return heatmap
 ```
 
 ---
@@ -553,6 +1173,85 @@ def build_consensus(findings_by_topic):
     return consensus
 ```
 
+### Bias Detection Algorithm
+
+```python
+def detect_perspective_bias(perspectives_data):
+    """Detect cognitive biases across council perspectives."""
+    biases = []
+
+    # Anchoring bias: first finding disproportionately influences others
+    for topic, positions in perspectives_data.items():
+        if len(positions) < 2:
+            continue
+        first_severity = positions[0]["severity"]
+        agreeing = sum(1 for p in positions[1:] if p["severity"] == first_severity)
+        if agreeing == len(positions) - 1:
+            biases.append({
+                "type": "potential_anchoring",
+                "topic": topic,
+                "detail": f"All {len(positions)} perspectives share the first perspective's severity"
+            })
+
+    # Confirmation bias: defender consistently rates lower than attacker
+    severity_map = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1}
+    for topic, positions in perspectives_data.items():
+        attacker = next((p for p in positions if p["perspective"] == "attacker"), None)
+        defender = next((p for p in positions if p["perspective"] == "defender"), None)
+        if attacker and defender:
+            diff = severity_map[attacker["severity"]] - severity_map[defender["severity"]]
+            if diff >= 2:
+                biases.append({
+                    "type": "severity_divergence",
+                    "topic": topic,
+                    "detail": f"Attacker rates {attacker['severity']}, Defender rates {defender['severity']} (gap={diff})"
+                })
+
+    return biases
+```
+
+### Conflict Resolution Engine
+
+```python
+def resolve_conflicts(disagreements, strategy="weighted_vote"):
+    """Resolve disagreements between perspectives using configurable strategies."""
+    weights = {"attacker": 0.40, "defender": 0.35, "auditor": 0.25}
+    severity_map = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1}
+    reverse_map = {v: k for k, v in severity_map.items()}
+    resolved = []
+
+    for disagreement in disagreements:
+        positions = disagreement["positions"]
+
+        if strategy == "weighted_vote":
+            weighted_sum = sum(
+                severity_map[p["severity"]] * weights.get(p["perspective"], 0.33)
+                for p in positions
+            )
+            final_score = round(weighted_sum)
+            final_severity = reverse_map.get(final_score, "Medium")
+
+        elif strategy == "max_severity":
+            final_severity = max(positions, key=lambda p: severity_map[p["severity"]])["severity"]
+
+        elif strategy == "auditor_tiebreak":
+            scores = [p["severity"] for p in positions]
+            if len(set(scores)) > 1:
+                auditor_pos = next((p for p in positions if p["perspective"] == "auditor"), None)
+                final_severity = auditor_pos["severity"] if auditor_pos else scores[0]
+            else:
+                final_severity = scores[0]
+
+        resolved.append({
+            "topic": disagreement["topic"],
+            "final_severity": final_severity,
+            "strategy_used": strategy,
+            "dissenting": [p for p in positions if p["severity"] != final_severity]
+        })
+
+    return resolved
+```
+
 ### Decision Record Generator
 
 ```python
@@ -673,6 +1372,63 @@ def detect_agreements(attacker_findings, defender_findings, auditor_findings):
     return sorted(agreements, key=lambda a: a["avg_impact"], reverse=True)
 ```
 
+### Finding Deduplication Across Perspectives
+
+```python
+def deduplicate_findings(all_findings, similarity_threshold=0.8):
+    """Deduplicate similar findings across different perspectives."""
+    from difflib import SequenceMatcher
+
+    unique = []
+    for finding in all_findings:
+        is_duplicate = False
+        for existing in unique:
+            ratio = SequenceMatcher(
+                None,
+                finding.get("title", "").lower(),
+                existing.get("title", "").lower()
+            ).ratio()
+            if ratio >= similarity_threshold and finding.get("perspective") != existing.get("perspective"):
+                existing["related_perspectives"] = existing.get("related_perspectives", [])
+                existing["related_perspectives"].append(finding.get("perspective"))
+                is_duplicate = True
+                break
+        if not is_duplicate:
+            unique.append(finding)
+
+    return unique
+```
+
+### Finding Correlation Engine
+
+```python
+def correlate_findings(findings):
+    """Find causal relationships between findings (e.g., A enables B)."""
+    correlations = []
+    keywords_map = {
+        "credential": ["auth", "login", "password", "session"],
+        "network": ["firewall", "port", "service", "network"],
+        "injection": ["sql", "xss", "command", "injection", "input"],
+        "access": ["privilege", "escalation", "permission", "rbac"]
+    }
+
+    for i, f1 in enumerate(findings):
+        for f2 in findings[i+1:]:
+            title1 = f1.get("title", "").lower()
+            title2 = f2.get("title", "").lower()
+            for category, kws in keywords_map.items():
+                if any(kw in title1 for kw in kws) and any(kw in title2 for kw in kws):
+                    correlations.append({
+                        "finding_a": f1.get("title"),
+                        "finding_b": f2.get("title"),
+                        "category": category,
+                        "relationship": "correlated"
+                    })
+                    break
+
+    return correlations
+```
+
 ### Disagreement Resolution
 
 ```python
@@ -704,6 +1460,251 @@ def resolve_disagreements(disagreements, resolution_strategy="weighted_vote"):
             "dissenting": [p for p in d["positions"] if p["severity"] != final_severity]
         })
     return resolved
+```
+
+---
+
+## Automated Risk Matrix Generation
+
+### Heatmap Data Generation
+
+```python
+def generate_risk_heatmap(findings):
+    """Generate data for a 5x5 risk heatmap from findings."""
+    matrix = [[0]*5 for _ in range(5)]
+    severity_map = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1, "Info": 0}
+
+    for f in findings:
+        impact = f.get("impact", 1) - 1  # 0-indexed
+        likelihood = f.get("likelihood", 1) - 1
+        if 0 <= impact < 5 and 0 <= likelihood < 5:
+            matrix[4 - impact][likelihood] += 1  # flip so highest impact is top
+
+    print("Risk Heatmap (Impact vs Likelihood):")
+    labels = ["Critical", "High", "Medium", "Low", "Negligible"]
+    print(f"{'Impact':<12}", end="")
+    for i in range(1, 6):
+        print(f"  L={i}  ", end="")
+    print()
+    for row_idx, row in enumerate(matrix):
+        print(f"{labels[row_idx]:<12}", end="")
+        for cell in row:
+            print(f"  [{cell}]  " if cell else "   .   ", end="")
+        print()
+    return matrix
+```
+
+### Risk Register CSV Export
+
+```python
+import csv
+from datetime import datetime
+
+def export_risk_register(findings, filename="risk_register.csv"):
+    """Export findings as a CSV risk register for stakeholder review."""
+    headers = [
+        "ID", "Finding", "Category", "Perspective",
+        "Impact", "Likelihood", "RiskScore", "Severity",
+        "Status", "Owner", "Deadline", "Evidence", "Recommendation"
+    ]
+
+    with open(filename, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        for idx, finding in enumerate(findings, 1):
+            impact = finding.get("impact", 1)
+            likelihood = finding.get("likelihood", 1)
+            risk_score = impact * likelihood
+
+            severity = "Critical" if risk_score >= 15 else \
+                       "High" if risk_score >= 10 else \
+                       "Medium" if risk_score >= 5 else "Low"
+
+            writer.writerow([
+                f"R-{idx:03d}",
+                finding.get("title", ""),
+                finding.get("category", ""),
+                finding.get("perspective", ""),
+                impact,
+                likelihood,
+                risk_score,
+                severity,
+                finding.get("status", "Open"),
+                finding.get("owner", ""),
+                finding.get("deadline", ""),
+                finding.get("evidence", "")[:200],
+                finding.get("recommendation", "")
+            ])
+
+    print(f"[+] Risk register exported: {filename} ({len(findings)} findings)")
+```
+
+### Finding Prioritization Engine
+
+```python
+def prioritize_findings(findings, weights=None):
+    """Prioritize findings using multi-factor scoring."""
+    if weights is None:
+        weights = {"risk_score": 0.4, "exploitability": 0.3, "business_impact": 0.3}
+
+    for f in findings:
+        risk = f.get("impact", 1) * f.get("likelihood", 1)
+        exploit = f.get("exploitability", 5)  # 1=easy, 5=hard -> invert
+        business = f.get("business_impact", 3)  # 1-5
+
+        f["priority_score"] = round(
+            (risk / 25) * weights["risk_score"] * 100 +
+            ((6 - exploit) / 5) * weights["exploitability"] * 100 +
+            (business / 5) * weights["business_impact"] * 100,
+            1
+        )
+
+    return sorted(findings, key=lambda x: x["priority_score"], reverse=True)
+```
+
+---
+
+## Advisory Report Templates
+
+### Technical Advisory Template
+
+```markdown
+# Technical Security Advisory
+
+**Advisory ID**: ADV-YYYY-NNN
+**Date**: YYYY-MM-DD
+**Classification**: Confidential
+
+## Summary
+[One-paragraph executive summary of the finding]
+
+## Technical Details
+
+### Vulnerability Description
+[Detailed technical description]
+
+### Affected Components
+- Component: [name], Version: [version]
+- Attack Vector: [network/application/local]
+- Authentication Required: [yes/no]
+
+### Proof of Concept
+[Step-by-step reproduction instructions]
+
+### Impact Assessment
+- **Confidentiality**: [None/Partial/Complete]
+- **Integrity**: [None/Partial/Complete]
+- **Availability**: [None/Partial/Complete]
+
+## Recommendations
+1. [Immediate mitigation]
+2. [Long-term fix]
+3. [Detection enhancement]
+
+## References
+- CVE: [CVE-YYYY-NNNNN]
+- CWE: [CWE-NNN]
+- CVSS: [Score] ([Vector String])
+```
+
+### Stakeholder Communication Template
+
+```markdown
+# Security Council Communication
+
+**To**: [Stakeholders]
+**From**: Security Council
+**Date**: YYYY-MM-DD
+**Priority**: [Critical/High/Normal]
+
+## Key Decision
+[One sentence describing the decision made]
+
+## Background
+[2-3 sentences of context, non-technical language]
+
+## Impact to Business
+- Revenue: [description]
+- Operations: [description]
+- Compliance: [description]
+
+## Required Actions
+| Action | Owner | Deadline | Status |
+|--------|-------|----------|--------|
+| [Action 1] | [Team] | [Date] | Pending |
+| [Action 2] | [Team] | [Date] | Pending |
+
+## Questions?
+Contact: [Security Team] at [email]
+```
+
+---
+
+## Validation and Quality Scripts
+
+### Cross-Perspective Validation
+
+```python
+def validate_council_output(session_data):
+    """Validate that council analysis meets quality thresholds."""
+    issues = []
+
+    findings = session_data.get("findings", [])
+    if len(findings) < 1:
+        issues.append("CRITICAL: No findings generated")
+
+    perspectives = set(f.get("perspective") for f in findings)
+    required = {"attacker", "defender", "auditor"}
+    missing = required - perspectives
+    if missing:
+        issues.append(f"HIGH: Missing perspectives: {missing}")
+
+    for f in findings:
+        if not f.get("evidence"):
+            issues.append(f"MEDIUM: Finding '{f.get('title')}' has no evidence")
+        if f.get("impact", 0) < 1 or f.get("impact", 0) > 5:
+            issues.append(f"HIGH: Finding '{f.get('title')}' has invalid impact score")
+        if f.get("likelihood", 0) < 1 or f.get("likelihood", 0) > 5:
+            issues.append(f"HIGH: Finding '{f.get('title')}' has invalid likelihood score")
+
+    consensus = session_data.get("consensus", {})
+    confidence = consensus.get("confidence", 0)
+    if confidence < 0.5:
+        issues.append(f"MEDIUM: Low consensus confidence: {confidence:.0%}")
+
+    return {"valid": len([i for i in issues if i.startswith("CRITICAL")]) == 0,
+            "issues": issues, "total_findings": len(findings)}
+```
+
+### Council Session Summary Generator
+
+```python
+def generate_session_summary(session):
+    """Generate a markdown summary from council session data."""
+    findings = session.get("findings", [])
+    critical = [f for f in findings if f.get("impact", 0) * f.get("likelihood", 0) >= 15]
+    high = [f for f in findings if 10 <= f.get("impact", 0) * f.get("likelihood", 0) < 15]
+
+    summary = f"""# Council Session Summary
+
+**Session**: {session.get('session_id', 'N/A')}
+**Question**: {session.get('question', 'N/A')}
+**Confidence**: {session.get('consensus', {}).get('confidence', 0):.0%}
+
+## Statistics
+- Total Findings: {len(findings)}
+- Critical: {len(critical)}
+- High: {len(high)}
+- Perspectives Used: {len(set(f.get('perspective') for f in findings))}
+
+## Top Critical Findings
+"""
+    for f in sorted(critical, key=lambda x: x.get('impact', 0) * x.get('likelihood', 0), reverse=True)[:5]:
+        score = f.get('impact', 0) * f.get('likelihood', 0)
+        summary += f"- [{f.get('perspective')}] {f.get('title')} (Score: {score})\n"
+
+    return summary
 ```
 
 ---

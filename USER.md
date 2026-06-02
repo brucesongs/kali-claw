@@ -26,10 +26,10 @@ _Continuously learn about the person you're helping. Update at any time._
 
 ## Current Focus
 
-- Systematically learning all 518 Kali Linux security tools
-- Building a structured security knowledge system
-- Accumulating penetration testing experience through hands-on practice
-- Exploring OpenClaw Agent's self-evolution capabilities in security
+- Infrastructure hardening and scoring system evolution (v0.1.16)
+- Cross-skill composite attack chain scenario design
+- All 518 Kali Linux tools mastered; 49/49 skill domains at Excellent tier
+- Exploring cross-platform portability and live pentest validation
 
 ---
 
@@ -48,4 +48,4 @@ _Record more about the captain as collaboration deepens._
 
 ---
 
-_Last updated: 2026-04-26_
+_Last updated: 2026-06-02_

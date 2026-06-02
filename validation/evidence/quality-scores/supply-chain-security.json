@@ -1,30 +1,33 @@
 {
   "skill": "supply-chain-security",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
-    "payload_word_count": 3647,
-    "payload_section_count": 11,
-    "payload_code_blocks": 43,
+    "payload_word_count": 4442,
+    "payload_section_count": 13,
+    "payload_code_blocks": 52,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
     "guide_file_count": 6,
-    "skill_section_score": 0.76
+    "guide_avg_words": 900,
+    "guide_key_sections": 2,
+    "skill_section_score": 0.83
   },
   "normalized_scores": {
-    "payload_word": 96.5,
-    "payload_section": 84.4,
-    "payload_code": 50.7,
+    "payload_word": 100.0,
+    "payload_section": 88.9,
+    "payload_code": 80.8,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 84.0,
-    "skill_section": 76.0
+    "guide": 69.5,
+    "skill_section": 83.0
   },
   "component_scores": {
-    "skill_md": 76.00,
-    "payloads_md": 77.20,
+    "skill_md": 83.00,
+    "payloads_md": 89.90,
     "test_cases_md": 95.00,
-    "guides": 84.0
+    "guides": 69.5
   },
-  "overall_score": 84.1,
+  "overall_score": 85.3,
   "tier": "Excellent"
 }

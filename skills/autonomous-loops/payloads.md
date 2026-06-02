@@ -12,8 +12,13 @@
 4. [Watch Loop Commands](#4-watch-loop-commands)
 5. [Batch Processing Commands](#5-batch-processing-commands)
 6. [Learning Cycle Commands](#6-learning-cycle-commands)
-7. [Error Handling Response Templates](#7-error-handling-response-templates)
-8. [Evidence Log Templates](#8-evidence-log-templates)
+7. [State Machine Implementations](#7-state-machine-implementations)
+8. [Checkpoint and Recovery](#8-checkpoint-and-recovery)
+9. [Nested Loop Orchestration](#9-nested-loop-orchestration)
+10. [Progress Tracking and Reporting](#10-progress-tracking-and-reporting)
+11. [Timeout and Resource Management](#11-timeout-and-resource-management)
+12. [Error Handling Response Templates](#12-error-handling-response-templates)
+13. [Evidence Log Templates](#13-evidence-log-templates)
 
 ---
 
@@ -722,7 +727,1020 @@ echo "[LEARN] Mutated list: $(wc -l < "$OUTPUT") unique entries saved to $OUTPUT
 
 ---
 
-## 7. Error Handling Response Templates
+## 7. State Machine Implementations
+
+### Finite State Machine for Multi-Phase Operations
+
+```python
+#!/usr/bin/env python3
+"""State machine for phased autonomous operations with explicit transitions."""
+
+from enum import Enum, auto
+from typing import Dict, Callable
+
+class OpState(Enum):
+    INIT = auto()
+    RECON = auto()
+    SCAN = auto()
+    EXPLOIT = auto()
+    REPORT = auto()
+    DONE = auto()
+    ERROR = auto()
+
+class StateMachine:
+    def __init__(self):
+        self.state = OpState.INIT
+        self.transitions: Dict[OpState, Dict[str, OpState]] = {
+            OpState.INIT:    {"success": OpState.RECON, "error": OpState.ERROR},
+            OpState.RECON:   {"success": OpState.SCAN, "error": OpState.ERROR},
+            OpState.SCAN:    {"success": OpState.EXPLOIT, "partial": OpState.SCAN, "error": OpState.ERROR},
+            OpState.EXPLOIT: {"success": OpState.REPORT, "error": OpState.REPORT},
+            OpState.REPORT:  {"success": OpState.DONE, "error": OpState.ERROR},
+        }
+        self.handlers: Dict[OpState, Callable] = {}
+
+    def register(self, state: OpState, handler: Callable):
+        self.handlers[state] = handler
+
+    def run(self, max_iterations=100):
+        iteration = 0
+        while self.state not in (OpState.DONE, OpState.ERROR) and iteration < max_iterations:
+            iteration += 1
+            handler = self.handlers.get(self.state)
+            if not handler:
+                self.state = OpState.ERROR
+                break
+            result = handler()
+            next_state = self.transitions.get(self.state, {}).get(result, OpState.ERROR)
+            print(f"[FSM] {self.state.name} -> {result} -> {next_state.name}")
+            self.state = next_state
+        print(f"[FSM] Final state: {self.state.name} after {iteration} iterations")
+```
+
+### Retry Logic with Exponential Backoff
+
+```python
+#!/usr/bin/env python3
+"""Retry wrapper with configurable backoff for autonomous operations."""
+
+import time
+import subprocess
+from dataclasses import dataclass
+
+@dataclass
+class RetryConfig:
+    max_retries: int = 3
+    base_delay: float = 2.0
+    max_delay: float = 60.0
+    backoff_multiplier: float = 2.0
+    retry_on_exit_codes: tuple = (1, 2, 7, 28)  # common network/tool errors
+
+def retry_command(cmd, config: RetryConfig) -> subprocess.CompletedProcess:
+    delay = config.base_delay
+    last_result = None
+
+    for attempt in range(1, config.max_retries + 1):
+        print(f"[RETRY] Attempt {attempt}/{config.max_retries}: {' '.join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+        if result.returncode == 0:
+            return result
+
+        if result.returncode not in config.retry_on_exit_codes:
+            print(f"[RETRY] Non-retryable exit code {result.returncode}, giving up")
+            return result
+
+        last_result = result
+        print(f"[RETRY] Failed (exit {result.returncode}), waiting {delay}s before retry")
+        time.sleep(delay)
+        delay = min(delay * config.backoff_multiplier, config.max_delay)
+
+    return last_result
+
+# Usage: retry_command(["nmap", "-sV", "-p", "22,80", "target"], RetryConfig(max_retries=5))
+```
+
+### Convergence Detection for Learning Cycles
+
+```python
+#!/usr/bin/env python3
+"""Detect when a learning cycle has converged (no improvement over N iterations)."""
+
+from collections import deque
+
+class ConvergenceDetector:
+    def __init__(self, window_size=5, threshold=0.01):
+        self.window = deque(maxlen=window_size)
+        self.threshold = threshold
+        self.best_score = float('-inf')
+        self.iterations_without_improvement = 0
+
+    def update(self, score: float) -> dict:
+        self.window.append(score)
+        improved = score > self.best_score + self.threshold
+
+        if improved:
+            self.best_score = score
+            self.iterations_without_improvement = 0
+        else:
+            self.iterations_without_improvement += 1
+
+        converged = (
+            self.iterations_without_improvement >= self.window.maxlen
+            and len(self.window) == self.window.maxlen
+        )
+
+        avg_delta = 0.0
+        if len(self.window) >= 2:
+            deltas = [abs(self.window[i] - self.window[i-1]) for i in range(1, len(self.window))]
+            avg_delta = sum(deltas) / len(deltas)
+
+        return {
+            "converged": converged,
+            "best_score": self.best_score,
+            "iterations_without_improvement": self.iterations_without_improvement,
+            "avg_delta": round(avg_delta, 6),
+            "should_stop": converged or avg_delta < self.threshold
+        }
+```
+
+---
+
+## 8. Checkpoint and Recovery
+
+### Checkpoint Save/Load for Long-Running Operations
+
+```python
+#!/usr/bin/env python3
+"""Checkpoint system for resumable autonomous loop operations."""
+
+import json
+import os
+from datetime import datetime
+
+class CheckpointManager:
+    def __init__(self, operation_id, checkpoint_dir="evidence/checkpoints"):
+        self.operation_id = operation_id
+        self.checkpoint_dir = os.path.join(checkpoint_dir, operation_id)
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, "state.json")
+
+    def save(self, state: dict):
+        state["saved_at"] = datetime.utcnow().isoformat()
+        state["operation_id"] = self.operation_id
+        with open(self.checkpoint_file, "w") as f:
+            json.dump(state, f, indent=2, default=str)
+        print(f"[CHECKPOINT] Saved at iteration {state.get('iteration', '?')}")
+
+    def load(self) -> dict:
+        if not os.path.exists(self.checkpoint_file):
+            return None
+        with open(self.checkpoint_file) as f:
+            state = json.load(f)
+        print(f"[CHECKPOINT] Resuming from iteration {state.get('iteration', '?')}")
+        return state
+
+    def is_resumable(self) -> bool:
+        return os.path.exists(self.checkpoint_file)
+
+# Usage:
+# ckpt = CheckpointManager("OP-AL-20260531-001")
+# state = ckpt.load() or {"iteration": 0, "targets_processed": []}
+# ... do work ...
+# ckpt.save({"iteration": i, "targets_processed": processed, "status": "in_progress"})
+```
+
+### Pipeline Resume from Checkpoint
+
+```bash
+#!/usr/bin/env bash
+# Resume a port scan pipeline from the last checkpoint
+# Usage: ./resume_scan.sh <checkpoint_file>
+
+CHECKPOINT="${1:-evidence/checkpoints/OP-AL-latest/state.json}"
+TARGETS_FILE="targets.txt"
+OUTPUT_DIR="evidence/portscan-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+
+if [ -f "$CHECKPOINT" ]; then
+    LAST_HOST=$(python3 -c "import json; print(json.load(open('$CHECKPOINT'))['last_host'])")
+    echo "[RESUME] Resuming from host: $LAST_HOST"
+    # Skip already-processed hosts
+    SKIP=true
+else
+    LAST_HOST=""
+    SKIP=false
+fi
+
+while IFS= read -r host; do
+    if [ "$SKIP" = true ]; then
+        [ "$host" = "$LAST_HOST" ] && SKIP=false
+        continue
+    fi
+
+    echo "[ITERATION] Scanning $host"
+    nmap -sV -T4 -p- -oA "$OUTPUT_DIR/host-${host}" "$host" 2>&1 | tail -1
+
+    # Save checkpoint after each host
+    python3 -c "
+import json
+state = {'last_host': '$host', 'iteration': $(wc -l < "$OUTPUT_DIR"/*.nmap 2>/dev/null || echo 0)}
+json.dump(state, open('evidence/checkpoints/OP-AL-latest/state.json','w'), indent=2)
+"
+    sleep 2
+done < "$TARGETS_FILE"
+```
+
+---
+
+## 9. Nested Loop Orchestration
+
+### Multi-Level Target Processing
+
+```bash
+#!/usr/bin/env bash
+# Nested loop: iterate subnets -> hosts -> ports with scope enforcement
+
+SUBNETS=("192.168.1.0/24" "192.168.2.0/24")
+TOP_PORTS="22,80,443,3306,5432,8080,8443"
+OUTPUT_DIR="evidence/nested-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+MAX_HOSTS=254
+MAX_SUBNETS=${#SUBNETS[@]}
+
+for subnet_idx in "${!SUBNETS[@]}"; do
+    subnet="${SUBNETS[$subnet_idx]}"
+    echo "[OUTER] Subnet $((subnet_idx + 1))/$MAX_SUBNETS: $subnet"
+
+    hosts=$(nmap -sn -n "$subnet" -oG - | awk '/Up$/{print $2}')
+    host_count=0
+
+    for host in $hosts; do
+        host_count=$((host_count + 1))
+        [ "$host_count" -gt "$MAX_HOSTS" ] && break
+
+        echo "[INNER] Host $host_count: $host"
+        nmap -sV -p "$TOP_PORTS" -oA "$OUTPUT_DIR/host-${host}" "$host" 2>&1 | tail -3
+
+        # Check for new services and enumerate
+        open_ports=$(grep "open" "$OUTPUT_DIR/host-${host}.nmap" | awk '{print $1}' | tr '\n' ',')
+        if echo "$open_ports" | grep -q "80\|443\|8080"; then
+            echo "[INNER-DEEP] Web service found, running nikto on $host"
+            nikto -h "http://${host}" -output "$OUTPUT_DIR/nikto-${host}.xml" -Format xml 2>&1 | tail -3
+        fi
+
+        sleep 2
+    done
+
+    echo "[OUTER] Subnet $subnet complete: $host_count hosts processed"
+    sleep 5
+done
+```
+
+### Dynamic Parameter Adjustment
+
+```python
+#!/usr/bin/env python3
+"""Dynamically adjust scan parameters based on feedback."""
+
+import time
+import subprocess
+
+class DynamicScanner:
+    def __init__(self, target, base_rate=1000):
+        self.target = target
+        self.rate = base_rate
+        self.failures = 0
+        self.successes = 0
+
+    def adjust_rate(self, success: bool):
+        if success:
+            self.successes += 1
+            self.failures = max(0, self.failures - 1)
+            if self.successes % 10 == 0 and self.rate < 10000:
+                self.rate = int(self.rate * 1.2)
+                print(f"[ADJUST] Increasing rate to {self.rate}")
+        else:
+            self.failures += 1
+            self.successes = 0
+            self.rate = max(100, int(self.rate * 0.5))
+            print(f"[ADJUST] Reducing rate to {self.rate} after failure")
+
+    def scan_with_adaptation(self, ports="1-1000", max_retries=3):
+        for attempt in range(max_retries):
+            cmd = f"nmap -T4 --max-rate {self.rate} -p {ports} {self.target}"
+            result = subprocess.run(cmd.split(), capture_output=True, text=True, timeout=120)
+            success = result.returncode == 0
+            self.adjust_rate(success)
+            if success:
+                return result.stdout
+        return None
+```
+
+---
+
+## 10. Progress Tracking and Reporting
+
+### Real-Time Progress Bar for Batch Operations
+
+```bash
+#!/usr/bin/env bash
+# Display progress during batch scanning operations
+
+TARGETS_FILE="targets.txt"
+TOTAL=$(wc -l < "$TARGETS_FILE")
+CURRENT=0
+START_TIME=$(date +%s)
+
+while IFS= read -r target; do
+    CURRENT=$((CURRENT + 1))
+    ELAPSED=$(($(date +%s) - START_TIME))
+    [ "$CURRENT" -gt 1 ] && ETA=$(( (ELAPSED * (TOTAL - CURRENT)) / (CURRENT - 1) )) || ETA=0
+
+    printf "\r[PROGRESS] %d/%d (%d%%) | Elapsed: %ds | ETA: %ds | Rate: %.1f/min | Current: %s   " \
+        "$CURRENT" "$TOTAL" "$((CURRENT * 100 / TOTAL))" "$ELAPSED" "$ETA" \
+        "$(echo "scale=1; $CURRENT * 60 / ($ELAPSED + 1)" | bc)" "$target"
+
+    nmap -sV -T4 --top-ports 100 -oA "evidence/host-${target}" "$target" 2>/dev/null | tail -1
+    sleep 1
+done < "$TARGETS_FILE"
+
+echo ""
+echo "[COMPLETE] Processed $TOTAL targets in $(($(date +%s) - START_TIME)) seconds"
+```
+
+### Loop Statistics Reporter
+
+```python
+#!/usr/bin/env python3
+"""Collect and report statistics from autonomous loop execution."""
+
+import json
+from datetime import datetime
+from dataclasses import dataclass, field, asdict
+
+@dataclass
+class LoopStats:
+    operation_id: str
+    start_time: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    total_iterations: int = 0
+    successful: int = 0
+    failed: int = 0
+    skipped: int = 0
+    errors_by_type: dict = field(default_factory=dict)
+    targets_processed: list = field(default_factory=list)
+
+    def record_success(self, target: str):
+        self.total_iterations += 1
+        self.successful += 1
+        self.targets_processed.append({"target": target, "status": "success"})
+
+    def record_failure(self, target: str, error_type: str):
+        self.total_iterations += 1
+        self.failed += 1
+        self.errors_by_type[error_type] = self.errors_by_type.get(error_type, 0) + 1
+        self.targets_processed.append({"target": target, "status": "failed", "error": error_type})
+
+    def summary(self) -> dict:
+        elapsed = (datetime.utcnow() - datetime.fromisoformat(self.start_time)).total_seconds()
+        return {
+            "operation_id": self.operation_id,
+            "duration_seconds": round(elapsed, 1),
+            "total": self.total_iterations,
+            "successful": self.successful,
+            "failed": self.failed,
+            "success_rate": round(self.successful / max(self.total_iterations, 1) * 100, 1),
+            "rate_per_minute": round(self.total_iterations / max(elapsed / 60, 0.01), 2),
+            "error_breakdown": self.errors_by_type
+        }
+```
+
+### Feedback-Driven Iteration Controller
+
+```python
+#!/usr/bin/env python3
+"""Feedback-driven iteration that adapts strategy based on results."""
+
+from enum import Enum
+from typing import Callable, Any
+
+class Strategy(Enum):
+    BROAD = "broad"        # Wide scope, fast
+    TARGETED = "targeted"  # Narrow scope, deep
+    STEALTH = "stealth"    # Slow, low-noise
+
+class FeedbackController:
+    def __init__(self, max_iterations=100, target_success_rate=0.3):
+        self.max_iterations = max_iterations
+        self.target_success_rate = target_success_rate
+        self.history = []
+        self.strategy = Strategy.BROAD
+        self.iteration = 0
+
+    def record_feedback(self, result: dict):
+        self.iteration += 1
+        self.history.append(result)
+
+        recent = self.history[-10:]
+        success_rate = sum(1 for r in recent if r.get("success")) / len(recent)
+
+        # Adapt strategy based on feedback
+        if success_rate < 0.05:
+            self.strategy = Strategy.TARGETED
+            print(f"[FEEDBACK] Switching to TARGETED (success rate: {success_rate:.0%})")
+        elif success_rate > 0.5:
+            self.strategy = Strategy.BROAD
+            print(f"[FEEDBACK] Switching to BROAD (success rate: {success_rate:.0%})")
+
+        if result.get("rate_limited"):
+            self.strategy = Strategy.STEALTH
+            print(f"[FEEDBACK] Switching to STEALTH (rate limited)")
+
+    def get_delay(self) -> float:
+        delays = {Strategy.BROAD: 0.1, Strategy.TARGETED: 0.5, Strategy.STEALTH: 3.0}
+        return delays[self.strategy]
+
+    def should_continue(self) -> bool:
+        if self.iteration >= self.max_iterations:
+            return False
+        if len(self.history) >= 20:
+            recent_rate = sum(1 for r in self.history[-20:] if r.get("success")) / 20
+            if recent_rate == 0:
+                print("[FEEDBACK] Aborting: zero success rate in last 20 iterations")
+                return False
+        return True
+```
+
+---
+
+## 11. Timeout and Resource Management
+
+### Per-Operation Timeout Wrapper
+
+```bash
+#!/usr/bin/env bash
+# Execute a command with strict timeout and resource cleanup
+# Usage: timeout_wrapper.sh <seconds> <command...>
+
+TIMEOUT_SECS="${1:?Usage: $0 <timeout_secs> <command...>}"
+shift
+OUTPUT_DIR="evidence/timeouts"
+mkdir -p "$OUTPUT_DIR"
+LOG_FILE="$OUTPUT_DIR/timeout-$(date +%Y%m%d-%H%M%S).log"
+
+timeout "$TIMEOUT_SECS" "$@" > "$LOG_FILE.stdout" 2> "$LOG_FILE.stderr"
+EXIT_CODE=$?
+
+case $EXIT_CODE in
+    0)   echo "[OK] Command completed successfully" ;;
+    124) echo "[TIMEOUT] Command exceeded ${TIMEOUT_SECS}s limit" ;;
+    137) echo "[KILLED] Command was killed (SIGKILL)" ;;
+    *)   echo "[ERROR] Command exited with code $EXIT_CODE" ;;
+esac
+
+echo "Exit code: $EXIT_CODE" >> "$LOG_FILE"
+echo "Stdout lines: $(wc -l < "$LOG_FILE.stdout")" >> "$LOG_FILE"
+echo "Stderr lines: $(wc -l < "$LOG_FILE.stderr")" >> "$LOG_FILE"
+```
+
+---
+
+## 12. Error Handling Response Templates
+
+### Automated Error Classifier
+
+```python
+#!/usr/bin/env python3
+"""Classify errors from autonomous loop operations and determine response."""
+
+import re
+
+ERROR_PATTERNS = {
+    "rate_limit": [
+        r"429 Too Many Requests",
+        r"rate.?limit",
+        r"throttl",
+        r"slow down",
+        r"HTTP/\d\.\d" 429"
+    ],
+    "waf_block": [
+        r"403 Forbidden",
+        r"WAF",
+        r"Web Application Firewall",
+        r"request blocked",
+        r"access denied"
+    ],
+    "target_down": [
+        r"Connection refused",
+        r"Connection timed out",
+        r"No route to host",
+        r"Host is down"
+    ],
+    "auth_failure": [
+        r"401 Unauthorized",
+        r"Authentication failed",
+        r"Invalid credentials",
+        r"Login failed"
+    ]
+}
+
+def classify_error(stderr_output, http_code=None):
+    """Classify an error and return the recommended action."""
+    text = stderr_output.lower()
+    classifications = []
+
+    for error_type, patterns in ERROR_PATTERNS.items():
+        for pattern in patterns:
+            if re.search(pattern, text, re.IGNORECASE):
+                classifications.append(error_type)
+                break
+
+    if http_code == 429:
+        classifications.append("rate_limit")
+    elif http_code == 403:
+        classifications.append("waf_block")
+
+    action_map = {
+        "rate_limit": "backoff_retry",
+        "waf_block": "abort",
+        "target_down": "skip",
+        "auth_failure": "skip"
+    }
+
+    primary = classifications[0] if classifications else "unknown"
+    return {
+        "type": primary,
+        "all_types": classifications,
+        "action": action_map.get(primary, "log_and_continue"),
+        "raw_error": stderr_output[:500]
+    }
+```
+
+### Scope Violation Detector
+
+```python
+#!/usr/bin/env python3
+"""Detect and prevent scope violations during autonomous operations."""
+
+import ipaddress
+
+class ScopeGuard:
+    def __init__(self, allowed_cidrs, allowed_ports, forbidden_ops):
+        self.allowed_networks = [ipaddress.ip_network(cidr) for cidr in allowed_cidrs]
+        self.allowed_ports = set(allowed_ports)
+        self.forbidden_ops = set(op.lower() for op in forbidden_ops)
+        self.violations = []
+
+    def check_target(self, target_ip):
+        """Verify a target IP is within the allowed scope."""
+        try:
+            addr = ipaddress.ip_address(target_ip)
+        except ValueError:
+            self.violations.append(f"Invalid IP: {target_ip}")
+            return False
+
+        for network in self.allowed_networks:
+            if addr in network:
+                return True
+
+        self.violations.append(f"OUT OF SCOPE: {target_ip} not in allowed networks")
+        return False
+
+    def check_port(self, port):
+        """Verify a port is within allowed range."""
+        if port in self.allowed_ports:
+            return True
+        self.violations.append(f"PORT VIOLATION: port {port} not in allowed list")
+        return False
+
+    def check_operation(self, operation):
+        """Verify an operation is not in the forbidden list."""
+        if operation.lower() in self.forbidden_ops:
+            self.violations.append(f"FORBIDDEN OP: {operation}")
+            return False
+        return True
+
+# Usage: guard = ScopeGuard(["192.168.1.0/24"], [22,80,443,8080], ["exploit","bruteforce"])
+```
+
+---
+
+## 13. Error Handling Response Templates
+
+### Adaptive Learning Rate Controller
+
+```python
+#!/usr/bin/env python3
+"""Dynamically adjust learning parameters based on feedback from each iteration."""
+
+class LearningRateController:
+    def __init__(self, initial_rate=1.0, min_rate=0.1, max_rate=2.0, decay=0.95):
+        self.current_rate = initial_rate
+        self.min_rate = min_rate
+        self.max_rate = max_rate
+        self.decay = decay
+        self.history = []
+
+    def update(self, success: bool) -> float:
+        """Adjust rate based on success or failure feedback."""
+        self.history.append(success)
+
+        if success:
+            self.current_rate = min(self.current_rate * 1.05, self.max_rate)
+        else:
+            self.current_rate = max(self.current_rate * self.decay, self.min_rate)
+
+        # Check recent trend
+        if len(self.history) >= 10:
+            recent = self.history[-10:]
+            success_rate = sum(recent) / len(recent)
+            if success_rate > 0.8:
+                self.current_rate = min(self.current_rate * 1.1, self.max_rate)
+            elif success_rate < 0.2:
+                self.current_rate = max(self.current_rate * 0.8, self.min_rate)
+
+        return self.current_rate
+```
+
+### Parallel Batch Orchestration
+
+```bash
+#!/usr/bin/env bash
+# Orchestrate parallel scan batches with inter-batch coordination
+
+TARGETS="targets.txt"
+BATCH_SIZE=5
+MAX_PARALLEL=5
+INTER_BATCH_DELAY=3
+OUTPUT="evidence/parallel-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT"
+
+total=$(wc -l < "$TARGETS")
+echo "[ORCHESTRATOR] $total targets, batch size $BATCH_SIZE, max parallel $MAX_PARALLEL"
+
+# Split into batches
+split -l "$BATCH_SIZE" "$TARGETS" "$OUTPUT/batch-"
+
+batch_num=0
+active_jobs=0
+
+for batch_file in "$OUTPUT"/batch-*; do
+    batch_num=$((batch_num + 1))
+
+    # Wait if too many parallel jobs
+    while [ "$(jobs -r | wc -l)" -ge "$MAX_PARALLEL" ]; do
+        sleep 1
+    done
+
+    echo "[BATCH-$batch_num] Starting $(wc -l < "$batch_file") targets"
+
+    while IFS= read -r target; do
+        nmap -sV -T4 --top-ports 100 -oA "$OUTPUT/host-${target}" "$target" 2>/dev/null &
+    done < "$batch_file"
+
+    # Inter-batch delay for rate limiting
+    sleep "$INTER_BATCH_DELAY"
+done
+
+# Wait for all remaining jobs
+wait
+echo "[ORCHESTRATOR] All $batch_num batches complete"
+rm -f "$OUTPUT"/batch-*
+```
+
+### Conditional Loop with Multi-Trigger Support
+
+```bash
+#!/usr/bin/env bash
+# Watch loop with multiple trigger conditions and response actions
+
+TARGET="192.168.1.100"
+PORTS=(22 80 443 8080)
+MAX_ITER=1000
+POLL_INTERVAL=5
+TRIGGER_LOG="evidence/triggers-$(date +%Y%m%d).log"
+
+for i in $(seq 1 "$MAX_ITER"); do
+    triggered=false
+
+    for port in "${PORTS[@]}"; do
+        if timeout 2 bash -c "echo >/dev/tcp/$TARGET/$port" 2>/dev/null; then
+            state="OPEN"
+        else
+            state="CLOSED"
+        fi
+
+        # Trigger 1: SSH port opened (potential compromise)
+        if [ "$port" -eq 22 ] && [ "$state" = "OPEN" ]; then
+            echo "[$(date -Iseconds)] [TRIGGER-CRITICAL] SSH is OPEN on $TARGET" | tee -a "$TRIGGER_LOG"
+            triggered=true
+        fi
+
+        # Trigger 2: New service on 8080
+        if [ "$port" -eq 8080 ] && [ "$state" = "OPEN" ]; then
+            echo "[$(date -Iseconds)] [TRIGGER-HIGH] New service on port 8080" | tee -a "$TRIGGER_LOG"
+            triggered=true
+        fi
+    done
+
+    # Check HTTP response for changes
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "http://$TARGET" 2>/dev/null || echo "000")
+    if [ "$http_code" = "500" ]; then
+        echo "[$(date -Iseconds)] [TRIGGER-MED] HTTP 500 error detected" | tee -a "$TRIGGER_LOG"
+        triggered=true
+    fi
+
+    sleep "$POLL_INTERVAL"
+done
+```
+
+### Iteration Result Aggregator
+
+```python
+#!/usr/bin/env python3
+"""Aggregate results from autonomous loop iterations into structured output."""
+
+import json
+from datetime import datetime
+
+class ResultAggregator:
+    def __init__(self, operation_id):
+        self.operation_id = operation_id
+        self.iterations = []
+        self.start_time = datetime.utcnow().isoformat()
+
+    def add_result(self, iteration_num, target, tool, success, output_summary, duration_sec):
+        """Record a single iteration result."""
+        self.iterations.append({
+            "iteration": iteration_num,
+            "target": target,
+            "tool": tool,
+            "success": success,
+            "output_summary": output_summary[:500],
+            "duration_sec": round(duration_sec, 2),
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+    def export_json(self, filepath):
+        """Export all results as structured JSON."""
+        report = {
+            "operation_id": self.operation_id,
+            "start_time": self.start_time,
+            "end_time": datetime.utcnow().isoformat(),
+            "total_iterations": len(self.iterations),
+            "successful": sum(1 for i in self.iterations if i["success"]),
+            "failed": sum(1 for i in self.iterations if not i["success"]),
+            "results": self.iterations
+        }
+        with open(filepath, "w") as f:
+            json.dump(report, f, indent=2, default=str)
+        return report
+```
+
+### Global Loop Controller with Abort Conditions
+
+```python
+#!/usr/bin/env python3
+"""Central controller that manages abort conditions across all loop patterns."""
+
+import time
+import json
+
+class GlobalLoopController:
+    def __init__(self, config):
+        self.max_wall_time = config.get("max_wall_minutes", 120) * 60
+        self.max_iterations = config.get("max_iterations", 1000)
+        self.max_errors = config.get("max_errors", 50)
+        self.error_rate_threshold = config.get("error_rate_threshold", 0.5)
+        self.start_time = time.time()
+        self.iteration_count = 0
+        self.error_count = 0
+        self.abort_reason = None
+
+    def check(self) -> bool:
+        """Check if the loop should continue. Returns True if OK to continue."""
+        self.iteration_count += 1
+        elapsed = time.time() - self.start_time
+
+        if elapsed > self.max_wall_time:
+            self.abort_reason = f"Wall time limit: {elapsed:.0f}s > {self.max_wall_time}s"
+            return False
+
+        if self.iteration_count > self.max_iterations:
+            self.abort_reason = f"Iteration limit: {self.iteration_count} > {self.max_iterations}"
+            return False
+
+        if self.error_count > self.max_errors:
+            self.abort_reason = f"Error limit: {self.error_count} > {self.max_errors}"
+            return False
+
+        if self.iteration_count > 10:
+            error_rate = self.error_count / self.iteration_count
+            if error_rate > self.error_rate_threshold:
+                self.abort_reason = f"Error rate: {error_rate:.0%} > {self.error_rate_threshold:.0%}"
+                return False
+
+        return True
+
+    def record_error(self):
+        self.error_count += 1
+
+    def status(self):
+        elapsed = time.time() - self.start_time
+        return {
+            "iterations": self.iteration_count,
+            "errors": self.error_count,
+            "elapsed_seconds": round(elapsed, 1),
+            "abort_reason": self.abort_reason,
+            "continue": self.abort_reason is None
+        }
+```
+
+### Inter-Loop Communication Bridge
+
+```python
+#!/usr/bin/env python3
+"""Enable communication between nested or parallel loops via shared state."""
+
+import json
+import os
+from pathlib import Path
+
+class LoopBridge:
+    """Shared state bridge for inter-loop communication."""
+    def __init__(self, bridge_dir="/tmp/loop_bridge"):
+        self.bridge_dir = Path(bridge_dir)
+        self.bridge_dir.mkdir(parents=True, exist_ok=True)
+
+    def publish(self, topic, data):
+        """Publish data to a topic for other loops to consume."""
+        topic_file = self.bridge_dir / f"{topic}.json"
+        with open(topic_file, "w") as f:
+            json.dump(data, f, indent=2, default=str)
+
+    def subscribe(self, topic):
+        """Read the latest data from a topic."""
+        topic_file = self.bridge_dir / f"{topic}.json"
+        if topic_file.exists():
+            return json.loads(topic_file.read_text())
+        return None
+
+    def list_topics(self):
+        """List all available topics."""
+        return [f.stem for f in self.bridge_dir.glob("*.json")]
+
+    def cleanup(self):
+        """Remove all bridge data."""
+        for f in self.bridge_dir.glob("*.json"):
+            f.unlink()
+```
+
+---
+
+## 14. Loop Pattern Selection Guide
+
+### Pattern Decision Matrix
+
+```python
+def select_loop_pattern(operation_type, target_count, time_budget, risk_level):
+    """Select the optimal loop pattern based on operation parameters."""
+    patterns = {
+        "sequential_pipeline": {
+            "best_for": ["service_enum", "port_scan", "web_dir_enum"],
+            "max_targets": 500,
+            "min_time_per_target": 5,
+            "risk": "low"
+        },
+        "watch_loop": {
+            "best_for": ["monitoring", "change_detection", "service_watch"],
+            "max_targets": 10,
+            "min_time_per_target": 1,
+            "risk": "minimal"
+        },
+        "batch_processing": {
+            "best_for": ["vuln_scan", "dns_lookup", "header_check"],
+            "max_targets": 1000,
+            "min_time_per_target": 2,
+            "risk": "low"
+        },
+        "learning_cycle": {
+            "best_for": ["sqli_test", "fuzzing", "brute_force"],
+            "max_targets": 5,
+            "min_time_per_target": 10,
+            "risk": "medium"
+        }
+    }
+
+    recommended = None
+    for name, config in patterns.items():
+        if operation_type in config["best_for"]:
+            if target_count <= config["max_targets"]:
+                recommended = name
+                break
+
+    if recommended is None:
+        recommended = "batch_processing"  # safe default
+
+    return {
+        "recommended_pattern": recommended,
+        "operation_type": operation_type,
+        "target_count": target_count,
+        "time_budget": time_budget,
+        "risk_level": risk_level,
+        "rationale": f"Pattern '{recommended}' selected for {operation_type} with {target_count} targets"
+    }
+```
+
+### Adaptive Concurrency Controller
+
+```python
+class AdaptiveConcurrency:
+    """Dynamically adjust concurrency based on success rate and rate limiting."""
+
+    def __init__(self, initial_concurrency=5, max_concurrency=20, min_concurrency=1):
+        self.concurrency = initial_concurrency
+        self.max_concurrency = max_concurrency
+        self.min_concurrency = min_concurrency
+        self.window = []
+
+    def record(self, success, rate_limited=False):
+        """Record a result and adjust concurrency."""
+        self.window.append({"success": success, "rate_limited": rate_limited})
+        if len(self.window) > 20:
+            self.window.pop(0)
+
+        if rate_limited:
+            self.concurrency = max(self.min_concurrency, self.concurrency // 2)
+            return
+
+        if len(self.window) >= 10:
+            recent = self.window[-10:]
+            success_rate = sum(1 for r in recent if r["success"]) / len(recent)
+            if success_rate > 0.9:
+                self.concurrency = min(self.concurrency + 1, self.max_concurrency)
+            elif success_rate < 0.5:
+                self.concurrency = max(self.concurrency - 2, self.min_concurrency)
+
+    def get_concurrency(self):
+        return self.concurrency
+```
+
+---
+
+## 15. Safe Termination and Cleanup
+
+### Graceful Shutdown Handler
+
+```bash
+#!/usr/bin/env bash
+# Graceful shutdown handler for long-running autonomous loops
+# Catches SIGINT/SIGTERM and saves state before exit
+
+OUTPUT_DIR="evidence"
+STATE_FILE="$OUTPUT_DIR/loop_state.json"
+PID_FILE="$OUTPUT_DIR/loop.pid"
+
+cleanup() {
+    echo ""
+    echo "[SHUTDOWN] Caught signal, saving state and cleaning up..."
+    echo "$$" > "$PID_FILE"
+
+    # Kill all background jobs
+    jobs -p | xargs kill 2>/dev/null
+
+    # Save current state
+    python3 -c "
+import json, datetime
+state = {
+    'status': 'interrupted',
+    'timestamp': datetime.datetime.utcnow().isoformat(),
+    'last_iteration': '$(cat /tmp/current_iteration 2>/dev/null || echo 0)'
+}
+json.dump(state, open('$STATE_FILE', 'w'), indent=2)
+print('[SHUTDOWN] State saved to $STATE_FILE')
+"
+
+    # Wait for processes to finish
+    wait 2>/dev/null
+    echo "[SHUTDOWN] Clean exit"
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM
+
+# Main loop (example)
+ITER=0
+while true; do
+    ITER=$((ITER + 1))
+    echo "$ITER" > /tmp/current_iteration
+    echo "[RUNNING] Iteration $ITER"
+    sleep 5
+done
+```
+
+---
+
+## 12. Error Handling Response Templates
 
 ### Pre-Formatted Error Log Entries
 
@@ -772,7 +1790,7 @@ Impact: Target flagged in results for manual investigation; does not block pipel
 
 ---
 
-## 8. Evidence Log Templates
+## 13. Evidence Log Templates
 
 ### Loop-Level Evidence Header
 

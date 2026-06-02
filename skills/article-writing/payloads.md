@@ -792,3 +792,596 @@ Content-Type: application/json
 | Availability | High (H) | Can drop tables |
 | **Base Score** | **9.8 Critical** | |
 ```
+
+---
+
+## Vulnerability Description Generators
+
+### Auto-Generate Finding Description from Evidence
+
+```python
+#!/usr/bin/env python3
+"""Generate structured vulnerability descriptions from raw evidence data."""
+import json
+import sys
+
+TEMPLATE = """## {title}
+
+**Severity**: {severity} (CVSS {cvss_score})
+**Affected Component**: {component}
+**Attack Vector**: {attack_vector}
+
+### Description
+{description}
+
+### Impact
+{impact}
+
+### Remediation
+{remediation}
+"""
+
+def generate_finding(evidence_file):
+    with open(evidence_file) as f:
+        data = json.load(f)
+    return TEMPLATE.format(
+        title=data.get("title", "Untitled Finding"),
+        severity=data.get("severity", "Unknown"),
+        cvss_score=data.get("cvss_score", "0.0"),
+        component=data.get("component", "Unknown"),
+        attack_vector=data.get("attack_vector", "Unknown"),
+        description=data.get("description", "Pending analysis"),
+        impact=data.get("impact", "Pending impact assessment"),
+        remediation=data.get("remediation", "Pending remediation guidance"),
+    )
+
+if __name__ == "__main__":
+    evidence = sys.argv[1] if len(sys.argv) > 1 else "evidence.json"
+    print(generate_finding(evidence))
+```
+
+### CVSS 3.1 Vector Parser and Score Calculator
+
+```python
+#!/usr/bin/env python3
+"""Parse CVSS 3.1 vector strings and compute base score."""
+import sys
+
+METRICS = {
+    "AV": {"N": 0.85, "A": 0.62, "L": 0.55, "P": 0.20},
+    "AC": {"L": 0.77, "H": 0.44},
+    "PR": {"N": 0.85, "L": 0.62, "H": 0.27},
+    "UI": {"N": 0.85, "R": 0.62},
+    "S": {"U": "Unchanged", "C": "Changed"},
+    "C": {"H": 0.56, "L": 0.22, "N": 0.00},
+    "I": {"H": 0.56, "L": 0.22, "N": 0.00},
+    "A": {"H": 0.56, "L": 0.22, "N": 0.00},
+}
+
+def parse_cvss_vector(vector_str):
+    parts = vector_str.replace("CVSS:3.1/", "").split("/")
+    values = {}
+    for part in parts:
+        key, val = part.split(":")
+        values[key] = val
+    exploitability = 8.22 * METRICS["AV"][values["AV"]] \
+        * METRICS["AC"][values["AC"]] \
+        * METRICS["PR"][values["PR"]] \
+        * METRICS["UI"][values["UI"]]
+    iss = 1 - ((1 - METRICS["C"][values["C"]]) \
+        * (1 - METRICS["I"][values["I"]]) \
+        * (1 - METRICS["A"][values["A"]]))
+    if iss <= 0:
+        return 0.0
+    if values["S"] == "U":
+        impact = 6.42 * iss
+    else:
+        impact = 7.52 * (iss - 0.029) - 3.25 * ((iss - 0.02) ** 15)
+    if impact <= 0:
+        return 0.0
+    if values["S"] == "U":
+        score = min(impact + exploitability, 10)
+    else:
+        score = min(1.08 * (impact + exploitability), 10)
+    return round(score, 1)
+
+if __name__ == "__main__":
+    vector = sys.argv[1] if len(sys.argv) > 1 else "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+    score = parse_cvss_vector(vector)
+    if score >= 9.0: label = "Critical"
+    elif score >= 7.0: label = "High"
+    elif score >= 4.0: label = "Medium"
+    elif score > 0.0: label = "Low"
+    else: label = "None"
+    print(f"Vector: {vector}")
+    print(f"Score:  {score} ({label})")
+```
+
+---
+
+## Report Generation Scripts
+
+### Executive Summary Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate an executive summary from aggregated findings."""
+import json
+from collections import Counter
+from datetime import datetime
+
+def generate_exec_summary(findings, metadata):
+    severity_order = ["Critical", "High", "Medium", "Low", "Informational"]
+    counts = Counter(f["severity"] for f in findings)
+    total = len(findings)
+    critical_high = counts.get("Critical", 0) + counts.get("High", 0)
+
+    summary = f"# Executive Summary\n\n"
+    summary += f"**Engagement**: {metadata.get('client', 'N/A')}\n"
+    summary += f"**Date**: {metadata.get('date', datetime.now().strftime('%Y-%m-%d'))}\n"
+    summary += f"**Scope**: {metadata.get('scope', 'Application Security Assessment')}\n\n"
+
+    summary += f"## Findings Overview\n\n"
+    summary += f"A total of **{total}** security findings were identified:\n\n"
+    for sev in severity_order:
+        if counts.get(sev, 0) > 0:
+            summary += f"- **{sev}**: {counts[sev]}\n"
+    summary += f"\n**{critical_high}** findings require immediate attention.\n"
+
+    if counts.get("Critical", 0) > 0:
+        summary += f"\n## Critical Issues\n\n"
+        for f in findings:
+            if f["severity"] == "Critical":
+                summary += f"- **{f.get('title', 'Untitled')}** ({f.get('component', 'N/A')})\n"
+
+    return summary
+
+if __name__ == "__main__":
+    with open("findings.json") as fh:
+        findings = json.load(fh)
+    print(generate_exec_summary(findings, {"client": "Example Corp"}))
+```
+
+### Risk Rating Matrix Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate a risk rating matrix (Likelihood x Impact) from findings."""
+import json
+
+LIKELIHOOD_MAP = {
+    "Network": "High", "Adjacent": "Medium", "Local": "Medium", "Physical": "Low"
+}
+IMPACT_MAP = {"H": "High", "L": "Medium", "N": "Low"}
+RISK_MATRIX = {
+        ("High", "High"): "Critical", ("High", "Medium"): "High",
+        ("High", "Low"): "Medium", ("Medium", "High"): "High",
+        ("Medium", "Medium"): "Medium", ("Medium", "Low"): "Low",
+        ("Low", "High"): "Medium", ("Low", "Medium"): "Low",
+        ("Low", "Low"): "Low",
+}
+
+def classify_risk(finding):
+    cvss_vector = finding.get("cvss_vector", "")
+    parts = dict(p.split(":") for p in cvss_vector.replace("CVSS:3.1/", "").split("/") if ":" in p)
+    likelihood = LIKELIHOOD_MAP.get(parts.get("AV", "N"), "Medium")
+    impact = IMPACT_MAP.get(parts.get("C", "N"), "Low")
+    return RISK_MATRIX.get((likelihood, impact), "Medium")
+
+if __name__ == "__main__":
+    with open("findings.json") as f:
+        findings = json.load(f)
+    for finding in findings:
+        risk = classify_risk(finding)
+        print(f"[{risk}] {finding.get('title', 'Untitled')}")
+```
+
+---
+
+## Markdown Report Formatters
+
+### Markdown Table Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate formatted Markdown tables from finding data."""
+import json
+import sys
+
+def findings_table(findings):
+    header = "| # | Title | Severity | CVSS | Component | Status |"
+    sep =    "|---|-------|----------|------|-----------|--------|"
+    rows = []
+    for i, f in enumerate(findings, 1):
+        title = f.get("title", "Untitled")[:50]
+        sev = f.get("severity", "Unknown")
+        cvss = f.get("cvss_score", "0.0")
+        comp = f.get("component", "N/A")[:30]
+        status = f.get("status", "Open")
+        rows.append(f"| {i} | {title} | {sev} | {cvss} | {comp} | {status} |")
+    return "\n".join([header, sep] + rows)
+
+def remediation_timeline(findings):
+    header = "| Finding | Priority | Estimated Effort | Deadline |"
+    sep =    "|---------|----------|------------------|----------|"
+    rows = []
+    for f in findings:
+        title = f.get("title", "Untitled")[:40]
+        priority = "P1" if f.get("severity") == "Critical" else "P2"
+        effort = "2-4 hours" if f.get("severity") in ("Critical", "High") else "4-8 hours"
+        deadline = "24-48 hours" if priority == "P1" else "1-2 weeks"
+        rows.append(f"| {title} | {priority} | {effort} | {deadline} |")
+    return "\n".join([header, sep] + rows)
+
+if __name__ == "__main__":
+    with open(sys.argv[1]) as f:
+        data = json.load(f)
+    print("### Findings Summary\n")
+    print(findings_table(data))
+    print("\n### Remediation Timeline\n")
+    print(remediation_timeline(data))
+```
+
+### Findings JSON to Markdown Converter
+
+```bash
+#!/bin/bash
+# Convert JSON findings file to a structured Markdown report
+# Usage: ./json2md.sh findings.json > report.md
+
+FINDINGS_FILE="${1:-findings.json}"
+
+echo "# Security Assessment Report"
+echo ""
+echo "## Findings Summary"
+echo ""
+
+# Generate severity counts
+echo "| Severity | Count |"
+echo "|----------|-------|"
+for sev in Critical High Medium Low Informational; do
+  count=$(jq -r "[.[] | select(.severity == \"$sev\")] | length" "$FINDINGS_FILE" 2>/dev/null || echo "0")
+  [ "$count" -gt 0 ] && echo "| $sev | $count |"
+done
+
+echo ""
+echo "## Detailed Findings"
+echo ""
+
+# Generate individual finding sections
+jq -r '.[] | "### \(.title // "Untitled")\n\n" +
+  "**Severity**: \(.severity // "Unknown") | **CVSS**: \(.cvss_score // "N/A")\n\n" +
+  "**Component**: \(.component // "N/A")\n\n" +
+  "**Description**: \(.description // "No description available")\n\n" +
+  "**Remediation**: \(.remediation // "No remediation provided")\n\n" +
+  "---\n"' "$FINDINGS_FILE"
+```
+
+---
+
+## Advisory Templates
+
+### CVE Advisory Body Template
+
+```markdown
+## Technical Details
+
+The vulnerability exists in [component name] version [affected versions]. 
+The [function/endpoint/feature] at [file:line] does not properly [validate/sanitize/authorize] 
+[user input/requests/data], allowing an attacker to [impact description].
+
+### Root Cause Analysis
+The root cause is [missing check / incorrect logic / default configuration] in the [module name].
+Specifically, the code at [file:line] uses [vulnerable pattern] instead of [secure pattern].
+
+### Proof of Concept
+[Step-by-step reproduction instructions with sanitized commands]
+
+### Workaround
+[Immediate mitigation steps for users unable to upgrade]
+
+### Credits
+Discovered by [researcher name] of [organization] on [date].
+```
+
+### Vendor Notification Email Template
+
+```markdown
+Subject: [SECURITY] Vulnerability Report: [Title] ([CVE-ID])
+
+Dear [Vendor] Security Team,
+
+We are writing to responsibly disclose a security vulnerability we discovered 
+in [Product Name] version [version].
+
+## Summary
+- **Vulnerability**: [brief description]
+- **Severity**: [CVSS score] ([Critical/High/Medium/Low])
+- **Attack Vector**: [Remote/Local/Adjacent]
+- **Authentication**: [Required/Not Required]
+
+## Timeline
+- [YYYY-MM-DD]: Vulnerability discovered
+- [YYYY-MM-DD]: Vendor notified (this email)
+- [YYYY-MM-DD + 90]: Planned public disclosure (per our 90-day policy)
+
+We are committed to responsible disclosure and will delay public announcement 
+until a patch is available. Please acknowledge receipt within 72 hours.
+
+Please direct all communication to [secure contact method].
+```
+
+---
+
+## Vulnerability Severity Report Script
+
+### Severity Distribution Analyzer
+
+```python
+#!/usr/bin/env python3
+"""Analyze severity distribution across multiple scan reports."""
+import json
+import sys
+from collections import Counter, defaultdict
+
+def analyze_severity_distribution(*report_files):
+    severity_counts = Counter()
+    by_tool = defaultdict(Counter)
+    for report_file in report_files:
+        with open(report_file) as f:
+            data = json.load(f)
+        tool_name = report_file.replace(".json", "").split("/")[-1]
+        findings = data if isinstance(data, list) else data.get("results", data.get("findings", []))
+        for finding in findings:
+            sev = finding.get("severity", finding.get("level", "Unknown")).title()
+            severity_counts[sev] += 1
+            by_tool[tool_name][sev] += 1
+    print("=== Severity Distribution ===")
+    for sev in ["Critical", "High", "Medium", "Low", "Info"]:
+        count = severity_counts.get(sev, 0)
+        bar = "#" * min(count, 50)
+        print(f"  {sev:10s} {count:4d} {bar}")
+    print(f"\n  {'Total':10s} {sum(severity_counts.values()):4d}")
+    print("\n=== By Tool ===")
+    for tool, counts in sorted(by_tool.items()):
+        total = sum(counts.values())
+        crit = counts.get("Critical", 0)
+        high = counts.get("High", 0)
+        print(f"  {tool}: {total} total ({crit} Critical, {high} High)")
+
+if __name__ == "__main__":
+    analyze_severity_distribution(*sys.argv[1:])
+```
+
+### Markdown Section Generator
+
+```bash
+#!/bin/bash
+# Generate a full pentest report Markdown structure with placeholder sections
+# Usage: ./generate-report-structure.sh > report-structure.md
+
+cat << 'STRUCTURE'
+# Penetration Test Report
+
+## 1. Executive Summary
+<!-- Auto-generated from findings data -->
+
+## 2. Scope and Methodology
+### 2.1 Engagement Scope
+### 2.2 Testing Methodology
+### 2.3 Tools Used
+
+## 3. Findings Summary
+<!-- Findings table inserted here -->
+
+## 4. Detailed Findings
+<!-- One subsection per finding -->
+
+## 5. Risk Assessment
+### 5.1 Risk Matrix
+### 5.2 Business Impact Analysis
+
+## 6. Remediation Roadmap
+### 6.1 Immediate Actions (P1)
+### 6.2 Short-Term Fixes (P2)
+### 6.3 Long-Term Improvements (P3)
+
+## 7. Appendices
+### A. Tool Output
+### B. Raw Evidence
+### C. Test Accounts Used
+STRUCTURE
+```
+
+### Evidence File Naming Convention Script
+
+```bash
+#!/bin/bash
+# Standardize evidence file naming for audit compliance
+# Format: EVD-NNNN-category-timestamp.ext
+
+EVIDENCE_DIR="${1:-./evidence}"
+mkdir -p "$EVIDENCE_DIR"
+
+evidence_capture() {
+  local category="$1"
+  local description="$2"
+  local ext="${3:-png}"
+  local counter=$(ls "$EVIDENCE_DIR"/EVD-* 2>/dev/null | wc -l | tr -d ' ')
+  counter=$((counter + 1))
+  local file_id=$(printf "EVD-%04d" "$counter")
+  local timestamp=$(date -u '+%Y%m%dT%H%M%SZ')
+  local filename="${file_id}-${category}-${timestamp}.${ext}"
+  local filepath="$EVIDENCE_DIR/$filename"
+  echo "$filepath"
+}
+
+# Example: capture a screenshot
+EVIDENCE_FILE=$(evidence_capture "screenshot" "login-bypass" "png")
+echo "Next evidence file: $EVIDENCE_FILE"
+```
+
+### Report Revision Tracker
+
+```python
+#!/usr/bin/env python3
+"""Track report revisions and maintain version history."""
+import json
+from datetime import datetime
+
+def create_revision(filename, author, changes):
+    """Append a revision entry to the report changelog."""
+    try:
+        with open(filename) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {"revisions": []}
+    data["revisions"].append({
+        "version": f"1.{len(data['revisions'])}",
+        "date": datetime.now().isoformat(),
+        "author": author,
+        "changes": changes,
+    })
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+    print(f"Revision 1.{len(data['revisions'])-1} recorded: {changes}")
+
+if __name__ == "__main__":
+    import sys
+    author = sys.argv[1] if len(sys.argv) > 1 else "Security Team"
+    changes = sys.argv[2] if len(sys.argv) > 2 else "Initial draft"
+    create_revision("report_revisions.json", author, changes)
+```
+
+### Cross-Reference Link Generator
+
+```bash
+#!/bin/bash
+# Generate cross-reference links between findings in a Markdown report
+# Creates internal links so findings can reference related findings
+
+python3 << 'PYEOF'
+import re
+import sys
+
+def generate_cross_refs(markdown_file):
+    with open(markdown_file) as f:
+        content = f.read()
+    # Find all finding headers
+    pattern = r'###\s+(FIND-\d+)\s*[:-]\s*(.+)'
+    findings = re.findall(pattern, content)
+    print("### Cross-Reference Index\n")
+    for fid, title in findings:
+        anchor = fid.lower().replace(" ", "-")
+        print(f"- [{fid}: {title.strip()}](#{anchor})")
+    print(f"\nTotal findings: {len(findings)}")
+
+if __name__ == "__main__":
+    generate_cross_refs(sys.argv[1] if len(sys.argv) > 1 else "report.md")
+PYEOF
+```
+
+### Compliance Mapping Table Generator
+
+```python
+#!/usr/bin/env python3
+"""Map security findings to compliance frameworks (OWASP, CIS, PCI-DSS)."""
+import json
+
+OWASP_MAPPING = {
+    "SQL Injection": "A03:2021 - Injection",
+    "XSS": "A07:2021 - Cross-Site Scripting",
+    "Broken Authentication": "A07:2021 - Identification and Authentication Failures",
+    "SSRF": "A10:2021 - Server-Side Request Forgery",
+    "Sensitive Data Exposure": "A02:2021 - Cryptographic Failures",
+    "Broken Access Control": "A01:2021 - Broken Access Control",
+    "Security Misconfiguration": "A05:2021 - Security Misconfiguration",
+    "Outdated Components": "A06:2021 - Vulnerable and Outdated Components",
+}
+
+def map_findings_to_owasp(findings_file):
+    with open(findings_file) as f:
+        findings = json.load(f)
+    print("| Finding | OWASP Top 10 (2021) |")
+    print("|---------|---------------------|")
+    for f in findings:
+        title = f.get("title", "Unknown")
+        for keyword, owasp in OWASP_MAPPING.items():
+            if keyword.lower() in title.lower():
+                print(f"| {title} | {owasp} |")
+                break
+        else:
+            print(f"| {title} | (unmapped) |")
+
+if __name__ == "__main__":
+    import sys
+    map_findings_to_owasp(sys.argv[1] if len(sys.argv) > 1 else "findings.json")
+```
+
+### Report Word Count and Page Estimator
+
+```bash
+#!/bin/bash
+# Estimate report length and page count for client delivery
+# Assumes ~500 words per page with images
+
+REPORT="${1:-report.md}"
+
+WORDS=$(wc -w < "$REPORT")
+LINES=$(wc -l < "$REPORT")
+CHARS=$(wc -c < "$REPORT")
+CODE_BLOCKS=$(grep -c '^\`\`\`' "$REPORT")
+IMAGES=$(grep -c '!\[' "$REPORT")
+
+# Estimate pages: ~500 words per page, +1 page per 2 images
+EST_PAGES=$(( (WORDS / 500) + (IMAGES / 2) + 1 ))
+
+echo "=== Report Statistics ==="
+echo "  Words:        $WORDS"
+echo "  Lines:        $LINES"
+echo "  Characters:   $CHARS"
+echo "  Code blocks:  $((CODE_BLOCKS / 2))"
+echo "  Images:       $IMAGES"
+echo "  Est. pages:   ~$EST_PAGES"
+
+# Section breakdown
+echo ""
+echo "=== Section Breakdown ==="
+grep "^##" "$REPORT" | while read -r section; do
+  echo "  $section"
+done
+```
+
+### Remediation Priority Matrix Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate a remediation priority matrix based on severity, exploitability, and business impact."""
+
+PRIORITY_WEIGHTS = {
+    "Critical": {"exploitability": 10, "business_impact": 10, "remediation_effort": 1},
+    "High":     {"exploitability": 7,  "business_impact": 7,  "remediation_effort": 2},
+    "Medium":   {"exploitability": 4,  "business_impact": 4,  "remediation_effort": 3},
+    "Low":      {"exploitability": 2,  "business_impact": 2,  "remediation_effort": 4},
+}
+
+def calculate_priority(findings):
+    scored = []
+    for f in findings:
+        sev = f.get("severity", "Medium")
+        weights = PRIORITY_WEIGHTS.get(sev, PRIORITY_WEIGHTS["Medium"])
+        score = (weights["exploitability"] * 0.4 +
+                 weights["business_impact"] * 0.4 +
+                 weights["remediation_effort"] * 0.2)
+        scored.append((score, f))
+    return sorted(scored, key=lambda x: -x[0])
+
+if __name__ == "__main__":
+    import json, sys
+    with open(sys.argv[1]) as fh:
+        findings = json.load(fh)
+    print("| Priority | Score | Finding | Severity |")
+    print("|----------|-------|---------|----------|")
+    for i, (score, f) in enumerate(calculate_priority(findings), 1):
+        print(f"| P{i} | {score:.1f} | {f.get('title', 'Untitled')[:40]} | {f.get('severity', 'N/A')} |")
+```

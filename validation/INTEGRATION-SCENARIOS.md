@@ -425,3 +425,17 @@ Integration test evidence follows the same standards as single-skill validation:
 - **Content**: Full terminal output showing each skill's execution and data handoff
 - **Handoff markers**: Each step clearly labeled with `=== STEP N: {skill-name} ===`
 - **Data flow**: Show the output of step N being used as input to step N+1
+
+---
+
+## Composite Attack Chain Scenarios (v0.1.16)
+
+Advanced multi-skill scenarios covering complete kill chains. See `validation/scenarios/` for full details.
+
+| ID | Scenario | Skill Chain | Kill Chain Phase |
+|----|----------|-------------|-----------------|
+| SCEN-001 | Enterprise External Network Penetration | recon-osint → network-pentest → web-xss/web-sqli → web-auth-bypass → post-exploitation | Recon → Initial Access → Execution → Persistence → Lateral Movement |
+| SCEN-002 | Cloud Environment Attack Chain | osint → cloud-security → container-security → api-security → supply-chain-security | Recon → Initial Access → Privilege Escalation → Container Escape → Supply Chain |
+| SCEN-003 | Social Engineering + Internal Network | social-engineering → social-intelligence → password-attack → network-pentest → digital-forensics | Social Engineering → Credential Harvesting → Lateral Movement → Forensic Analysis |
+| SCEN-004 | Mobile Application Attack Chain | wifi-pentest → mobile-security → api-security → crypto-attacks | Wireless Intercept → App Analysis → API Exploitation → Crypto Breaking |
+| SCEN-005 | Purple Team Defense Validation | vulnerability-assessment → security-review → security-misconfiguration → logging-monitoring → container-security | Assessment → Detection → Hardening → Monitoring → Verification |

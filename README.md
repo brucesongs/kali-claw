@@ -144,7 +144,7 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 
 ## Security Skills
 
-37 domains organized by the OWASP and MITRE frameworks + 6 new knowledge operations domains:
+37 domains organized by the OWASP and MITRE frameworks + 12 additional domains (knowledge operations, AI/LLM, hardware, multi-agent, MCP, bounty hunting, etc.):
 
 | Domain | Description | Key Topics |
 |--------|-------------|------------|
@@ -253,7 +253,7 @@ rm -rf chronicle/
 The following are universal and reusable as-is:
 - **Hacker Laws** in `SOUL.md` — applies to all security agents
 - **Heartbeat framework** in `HEARTBEAT.md`
-- **All 37 skills** in `skills/`
+- **All 49 skills** in `skills/`
 - **All guides** in `skills/*/guides/`
 
 ### Example: Web Security Agent
@@ -309,12 +309,15 @@ TOOLS.md:
 | v0.1.12 | 2026-05-25 | First Improvement | 16 guides added; Weak 22→9, Strong 2→20, Excellent 0→2; avg 40.5→50.5 |
 | v0.1.13 | 2026-05-29 | Zero Weak | All 49 skills Adequate or above; avg 59.4, median 59.2 |
 | v0.1.14 | 2026-05-30 | **100% Excellent** | **49/49 Excellent, avg 84.0, min 80.0, max 90.3**; CI quality gate; 10 integration tests |
+| v0.1.15 | 2026-05-31 | **Solid Excellent** | **avg 88.6, min 85.3, max 99.7**; 18 SKILL.md expanded, 20 TC added, 26 payloads to 50+ blocks |
+| v0.1.16 | 2026-06-02 | **Infrastructure + Scoring v2** | Scoring v2 (guide quality, score caps, Distinguished tier); core files synced to 49 domains; 5 cross-skill attack chain scenarios; TEMPLATE.md |
 
-### Current Quality Snapshot (v0.1.14)
+### Current Quality Snapshot (v0.1.16, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Excellent (80-100) | **49** | All skill domains |
+| Distinguished (92+) | 0 | — |
+| Excellent (80-91.9) | **49** | All skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
@@ -348,7 +351,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.14 |
+| **Version** | 0.1.16 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | 49 |

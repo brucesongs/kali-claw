@@ -1103,3 +1103,112 @@ EOF
 }
 generate_report
 ```
+
+---
+
+## 15. Terminal Automation Scripts
+
+### Batch Scan Automation with Evidence Capture
+
+```bash
+#!/bin/bash
+# Automated pentest evidence collection script
+# Usage: ./auto_scan.sh target_ip scope_file output_dir
+TARGET="$1"
+SCOPE="$2"
+OUTDIR="evidence_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$OUTDIR"/{nmap,nuclei,curl,screenshots}
+
+echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ===" | tee "$OUTDIR/timeline.log"
+echo "[*] Starting automated scan of $TARGET" | tee -a "$OUTDIR/timeline.log"
+
+# Phase 1: Port scan with service detection
+echo "[*] Phase 1: Port scanning..." | tee -a "$OUTDIR/timeline.log"
+nmap -sV -sC -oA "$OUTDIR/nmap/full_scan" "$TARGET" 2>&1 | tee "$OUTDIR/nmap/scan_output.txt"
+
+# Phase 2: Vulnerability scan with Nuclei
+echo "[*] Phase 2: Vulnerability scanning..." | tee -a "$OUTDIR/timeline.log"
+nuclei -u "http://$TARGET" -t cves/ -t vulnerabilities/ -severity critical,high \
+  -json -o "$OUTDIR/nuclei/findings.json" -stats 2>&1 | tee "$OUTDIR/nuclei/scan_output.txt"
+
+# Phase 3: Web technology detection
+echo "[*] Phase 3: Technology fingerprinting..." | tee -a "$OUTDIR/timeline.log"
+whatweb -v "http://$TARGET" 2>&1 | tee "$OUTDIR/curl/whatweb.txt"
+
+echo "[*] Scan complete: $OUTDIR" | tee -a "$OUTDIR/timeline.log"
+echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ===" | tee -a "$OUTDIR/timeline.log"
+```
+
+### Process Management for Long-Running Scans
+
+```bash
+# Run scan in background with nohup and capture PID
+nohup nmap -sV -p- -T4 -oA full_scan target > scan.log 2>&1 &
+SCAN_PID=$!
+echo "Scan PID: $SCAN_PID" | tee scan_pid.txt
+
+# Monitor progress without blocking
+tail -f scan.log &
+
+# Check if scan is still running
+kill -0 $SCAN_PID 2>/dev/null && echo "Running" || echo "Finished"
+
+# Parallel scanning with GNU parallel
+cat targets.txt | parallel -j 5 "nmap -sV -T4 -oA scans/{#} {} 2>&1 | tee logs/{#}.log"
+
+# Resource-aware scanning: throttle based on load
+while read target; do
+  while [ $(nproc --ignore=2) -lt $(nproc) ] && [ $(awk '{print $1}' /proc/loadavg | cut -d. -f1) -gt 4 ]; do
+    sleep 10
+  done
+  nmap -sV -T3 -oA "scans/$(echo $target | tr '.' '_')" "$target" &
+done < targets.txt
+wait
+```
+
+---
+
+## 16. Shell Scripting for Pentest Workflow
+
+### Automated Reconnaissance Pipeline
+
+```python
+#!/usr/bin/env python3
+"""Orchestrate multi-tool recon pipeline with evidence collection."""
+import subprocess
+import json
+from datetime import datetime
+from pathlib import Path
+
+class ReconPipeline:
+    def __init__(self, target, output_dir="recon_output"):
+        self.target = target
+        self.outdir = Path(output_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.outdir.mkdir(parents=True, exist_ok=True)
+        self.results = {}
+
+    def run(self, cmd, name):
+        outfile = self.outdir / f"{name}.txt"
+        start = datetime.now()
+        try:
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=600)
+            outfile.write_text(result.stdout + result.stderr)
+            self.results[name] = {
+                "status": "completed", "returncode": result.returncode,
+                "duration": str(datetime.now() - start), "output_file": str(outfile)
+            }
+        except subprocess.TimeoutExpired:
+            self.results[name] = {"status": "timeout", "duration": str(datetime.now() - start)}
+        print(f"  [{self.results[name]['status']}] {name} ({self.results[name]['duration']})")
+
+    def execute(self):
+        print(f"[*] Recon pipeline for {self.target}")
+        self.run(f"nmap -sV -T4 -oA {self.outdir}/nmap {self.target}", "nmap")
+        self.run(f"whatweb -v http://{self.target}", "whatweb")
+        self.run(f"nuclei -u http://{self.target} -t cves/ -severity critical,high -silent", "nuclei")
+        (self.outdir / "summary.json").write_text(json.dumps(self.results, indent=2))
+        print(f"[*] Results: {self.outdir}")
+
+pipeline = ReconPipeline("192.168.1.100")
+pipeline.execute()
+```

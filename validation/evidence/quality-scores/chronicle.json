@@ -1,6 +1,7 @@
 {
   "skill": "chronicle",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
     "payload_word_count": 4743,
     "payload_section_count": 35,
@@ -8,23 +9,25 @@
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
+    "guide_avg_words": 1254,
+    "guide_key_sections": 3,
     "skill_section_score": 0.95
   },
   "normalized_scores": {
-    "payload_word": 107.4,
-    "payload_section": 137.8,
+    "payload_word": 100.0,
+    "payload_section": 100.0,
     "payload_code": 40.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 80.0,
+    "guide": 79.5,
     "skill_section": 95.0
   },
   "component_scores": {
     "skill_md": 95.00,
-    "payloads_md": 95.07,
+    "payloads_md": 80.00,
     "test_cases_md": 90.00,
-    "guides": 80.0
+    "guides": 79.5
   },
-  "overall_score": 89.8,
+  "overall_score": 85.1,
   "tier": "Excellent"
 }

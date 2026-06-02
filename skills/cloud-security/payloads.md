@@ -899,3 +899,325 @@ echo "=== GCP Audit Log ==="
 gcloud logging read "timestamp>=\"$START\" AND timestamp<=\"$END\"" \
   --format="value(timestamp,protoPayload.methodName)" | sort
 ```
+
+---
+
+## 15. AWS Network Security Assessment
+
+### Security Group Auditing
+
+```bash
+# Find security groups with overly permissive inbound rules
+for region in $(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text); do
+  aws ec2 describe-security-groups --region "$region" --query '
+    SecurityGroups[?IpPermissions[?contains(IpRanges[].CidrIp, `0.0.0.0/0`)].{
+      GroupId:GroupId, GroupName:GroupName, Rules:IpPermissions[?contains(IpRanges[].CidrIp, `0.0.0.0/0`)].{FromPort:FromPort,ToPort:ToPort,IpProtocol:IpProtocol}}
+    }
+  ' --output json | jq '.[] | select(.Rules != null)'
+done
+
+# Check for security groups allowing all traffic (0.0.0.0/0 on all ports)
+aws ec2 describe-security-groups \
+  --filters Name=ip-permission.cidr,Values=0.0.0.0/0 \
+  --query 'SecurityGroups[*].[GroupId,GroupName,Description]' \
+  --output table
+
+# Find unused security groups (not attached to any ENI)
+for sg in $(aws ec2 describe-security-groups --query 'SecurityGroups[*].GroupId' --output text); do
+  eni_count=$(aws ec2 describe-network-interfaces --filters Name=group-id,Values=$sg --query 'length(NetworkInterfaces)' --output text)
+  if [ "$eni_count" = "0" ]; then
+    echo "[UNUSED] $sg"
+  fi
+done
+```
+
+### VPC Flow Log Analysis
+
+```bash
+# Enable VPC Flow Logs for suspicious traffic detection
+aws ec2 create-flow-logs \
+  --resource-type VPC \
+  --resource-ids vpc-12345678 \
+  --traffic-type ALL \
+  --log-group-name /vpc/flowlogs/suspicious \
+  --deliver-logs-permission-arn arn:aws:iam::123456789012:role/flowlogsRole
+
+# Query flow logs for suspicious patterns (data exfiltration)
+aws logs filter-log-events \
+  --log-group-name /vpc/flowlogs/suspicious \
+  --filter-pattern '[version, account, eni, source, destination, srcport, destport="443", protocol="6", packets, bytes, windowstart, windowend, action="ACCEPT", logstatus]' \
+  --start-time $(($(date +%s) - 86400))000 \
+  --limit 100
+```
+
+---
+
+## 16. Azure Network Security Review
+
+### NSG Rule Auditing
+
+```bash
+# List all Network Security Groups with their rules
+for nsg in $(az network nsg list --query '[].name' -o tsv); do
+  echo "=== NSG: $nsg ==="
+  az network nsg rule list --nsg-name "$nsg" --query '
+    [].{Name:name,Priority:priority,Direction:direction,Access:access,Source:sourceAddressPrefix,DestPort:destinationPortRange}
+  ' -o table
+done
+
+# Find NSG rules allowing unrestricted inbound access
+az network nsg rule list --nsg-name target-nsg --query '
+  [?direction=="Inbound" && access=="Allow" && sourceAddressPrefix=="*" || sourceAddressPrefix=="0.0.0.0/0" || sourceAddressPrefix=="Internet"]
+  .{Name:name,Priority:priority,Port:destinationPortRange,Protocol:protocol}' -o table
+
+# Check for open RDP (3389) and SSH (22) across all NSGs
+for nsg in $(az network nsg list --query '[].name' -o tsv); do
+  az network nsg rule list --nsg-name "$nsg" --query "
+    [?destinationPortRange=='22' || destinationPortRange=='3389' || destinationPortRange=='*']
+    .{Name:name,Source:sourceAddressPrefix,Port:destinationPortRange}" -o table 2>/dev/null
+done
+```
+
+---
+
+## 17. GCP IAM and Storage Auditing
+
+### GCP IAM Policy Analysis
+
+```python
+# Analyze GCP IAM policies for overly permissive bindings
+import json
+import subprocess
+
+def analyze_iam_policy(project_id):
+    result = subprocess.run(
+        ['gcloud', 'projects', 'get-iam-policy', project_id, '--format=json'],
+        capture_output=True, text=True
+    )
+    policy = json.loads(result.stdout)
+
+    dangerous_roles = [
+        'roles/owner', 'roles/editor', 'roles/admin',
+        'roles/iam.securityAdmin', 'roles/iam.serviceAccountAdmin',
+        'roles/compute.admin', 'roles/storage.admin',
+        'roles/cloudsql.admin', 'roles/container.admin'
+    ]
+
+    findings = []
+    for binding in policy.get('bindings', []):
+        role = binding['role']
+        if role in dangerous_roles:
+            for member in binding.get('members', []):
+                findings.append({
+                    'role': role,
+                    'member': member,
+                    'risk': 'CRITICAL' if 'owner' in role else 'HIGH',
+                    'recommendation': f'Remove {member} from {role} if not required'
+                })
+
+    for f in sorted(findings, key=lambda x: x['risk']):
+        print(f"[{f['risk']}] {f['member']} -> {f['role']}")
+
+    return findings
+
+analyze_iam_policy('my-project-id')
+```
+
+### GCS Bucket Enumeration
+
+```bash
+# Enumerate and test GCS bucket permissions
+for bucket in $(gsutil ls); do
+  echo "=== $bucket ==="
+  
+  # Check IAM policy
+  gsutil iam get "$bucket" 2>/dev/null | jq '.bindings[] | select(.role=="roles/storage.objectViewer" or .role=="roles/storage.objectAdmin") | .members[]' 2>/dev/null
+  
+  # Check for public access
+  gsutil uniformbucketlevelaccess get "$bucket" 2>/dev/null
+  
+  # Test anonymous read
+  if curl -s "https://storage.googleapis.com/$(echo $bucket | sed 's|gs://||')" | head -1 | grep -q "ListBucketResult"; then
+    echo "  [!] PUBLICLY ACCESSIBLE"
+  fi
+done
+```
+
+---
+
+## 18. AWS EC2 Security Assessment
+
+### Instance Metadata and User Data Analysis
+
+```bash
+# Enumerate EC2 instance metadata without IMDSv2 (test for SSRF exposure)
+curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/ 2>/dev/null
+
+# List all EC2 instances with public IPs and security groups
+aws ec2 describe-instances --query '
+  Reservations[*].Instances[*].{
+    ID:InstanceId,
+    IP:PublicIpAddress,
+    State:State.Name,
+    SGs:join(",", SecurityGroups[*].GroupId),
+    Name:join(",", Tags[?Key=="Name"].Value)
+  }' --output table
+
+# Check for instances with public IPs that should be internal
+aws ec2 describe-instances --filters Name=ip-address-type,Values=ipv4 \
+  --query 'Reservations[*].Instances[?PublicIpAddress!=`null`].[InstanceId,PublicIpAddress,State.Name]' \
+  --output table
+```
+
+### EBS Snapshot Security
+
+```bash
+# Check for public EBS snapshots that may contain sensitive data
+aws ec2 describe-snapshots --owner-ids self --query '
+  Snapshots[*].[SnapshotId,VolumeId,State,StartTime,Description]' --output table
+
+# Find snapshots shared with other accounts
+for snap in $(aws ec2 describe-snapshots --owner-ids self --query 'Snapshots[*].SnapshotId' --output text); do
+  attrs=$(aws ec2 describe-snapshot-attribute --snapshot-id "$snap" --attribute createVolumePermission 2>/dev/null)
+  public=$(echo "$attrs" | jq -r '.CreateVolumePermissions[] | select(.Group=="all")')
+  if [ -n "$public" ]; then
+    echo "[!] PUBLIC SNAPSHOT: $snap"
+  fi
+done
+```
+
+---
+
+## 19. Azure Storage Security Review
+
+### Storage Account Access Audit
+
+```bash
+# List all storage accounts and check public access settings
+az storage account list --query '[].{
+  Name:name,
+  ResourceGroup:resourceGroup,
+  HTTPS:enableHttpsTrafficOnly,
+  MinTLS:minimumTlsVersion,
+  PublicAccess:allowBlobPublicAccess
+}' -o table
+
+# Check for publicly accessible containers in each storage account
+for acct in $(az storage account list --query '[].name' -o tsv); do
+  KEY=$(az storage account keys list --account-name "$acct" --query '[0].value' -o tsv)
+  for container in $(az storage container list --account-name "$acct" --account-key "$KEY" --query '[].name' -o tsv 2>/dev/null); do
+    PERM=$(az storage container show --name "$container" --account-name "$acct" --account-key "$KEY" --query 'publicAccess' -o tsv 2>/dev/null)
+    if [ "$PERM" != "None" ] && [ -n "$PERM" ]; then
+      echo "[!] PUBLIC CONTAINER: $acct/$container ($PERM)"
+    fi
+  done
+done
+```
+
+---
+
+## 20. GCP Compute Security
+
+### Firewall Rule Audit
+
+```bash
+# List all GCP firewall rules with their source ranges
+gcloud compute firewall-rules list --format="table(
+  name,
+  network,
+  direction,
+  sourceRanges.list():label=SRC_RANGES,
+  allowed[].map().firewall_rule().list():label=ALLOW,
+  denied[].map().firewall_rule().list():label=DENY
+)"
+
+# Find rules allowing 0.0.0.0/0 ingress
+gcloud compute firewall-rules list --format=json | \
+  jq -r '.[] | select(.direction=="INGRESS") | select(.sourceRanges[] | contains("0.0.0.0/0")) | "\(.name) | \(.allowed)"'
+```
+
+### GCP Service Account Key Age Check
+
+```bash
+# Audit service account keys for age (should be rotated regularly)
+for sa in $(gcloud iam service-accounts list --format="value(email)"); do
+  gcloud iam service-accounts keys list --iam-account="$sa" \
+    --format="table(keyType,validAfterTime,validBeforeTime)" 2>/dev/null
+done
+
+# Find keys older than 90 days (rotation overdue)
+gcloud iam service-accounts list --format="value(email)" | while read sa; do
+  gcloud iam service-accounts keys list --iam-account="$sa" --format=json 2>/dev/null | \
+    jq -r --arg cutoff "$(date -d '90 days ago' +%Y-%m-%dT%H:%M:%SZ)" \
+    '.[] | select(.validAfterTime < $cutoff and .keyType=="USER_MANAGED") | "\(.name) created \(.validAfterTime)"'
+done
+```
+
+---
+
+## 21. AWS Lambda Security Assessment
+
+### Lambda Function Security Review
+
+```bash
+# Enumerate Lambda functions and check for exposed environment variables
+for region in $(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text); do
+  for func in $(aws lambda list-functions --region "$region" --query 'Functions[*].FunctionName' --output text 2>/dev/null); do
+    env_vars=$(aws lambda get-function-configuration --function-name "$func" --region "$region" --query 'Environment.Variables' --output json 2>/dev/null)
+    if [ "$env_vars" != "null" ] && [ -n "$env_vars" ]; then
+      echo "[!] $func ($region) has environment variables:"
+      echo "$env_vars" | jq -r 'to_entries[] | "  \(.key): \(.value)"' 2>/dev/null
+    fi
+  done
+done
+```
+
+### Lambda Execution Role Analysis
+
+```bash
+# Check Lambda execution roles for overly permissive policies
+for func in $(aws lambda list-functions --query 'Functions[*].[FunctionName,Role]' --output text); do
+  fname=$(echo "$func" | awk '{print $1}')
+  role_arn=$(echo "$func" | awk '{print $2}')
+  role_name=$(echo "$role_arn" | awk -F'/' '{print $NF}')
+  
+  # Check attached policies
+  aws iam list-attached-role-policies --role-name "$role_name" --query 'AttachedPolicies[*].PolicyArn' --output text 2>/dev/null | \
+    grep -q "AdministratorAccess" && echo "[!] $fname role has AdministratorAccess!"
+  
+  # Check inline policies for wildcard actions
+  for policy in $(aws iam list-role-policies --role-name "$role_name" --query 'PolicyNames' --output text 2>/dev/null); do
+    aws iam get-role-policy --role-name "$role_name" --policy-name "$policy" --output json 2>/dev/null | \
+      jq -r '.PolicyDocument.Statement[] | select(.Effect=="Allow" and (.Action | test("\\*"))) | "[WILDCARD] '"$fname"': '"$policy"'"' 2>/dev/null
+  done
+done
+```
+
+---
+
+## 22. Multi-Cloud Security Dashboard
+
+### Cross-Cloud Security Summary
+
+```bash
+#!/bin/bash
+# Generate cross-cloud security posture summary
+echo "=== Cloud Security Posture Summary ==="
+echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo ""
+
+echo "--- AWS ---"
+AWS_USERS=$(aws iam list-users --query 'length(Users)' --output text)
+AWS_MFA=$(aws iam list-users --query 'Users[*].UserName' --output text | \
+  while read user; do aws iam list-mfa-devices --user-name "$user" --query 'length(MFADevices)'; done | grep -c "^0" || echo 0)
+echo "Users: $AWS_USERS | Without MFA: $AWS_MFA"
+echo "Public S3: $(aws s3api list-buckets --query 'length(Buckets)' --output text) buckets total"
+
+echo "--- Azure ---"
+az account list --query '[].{Name:name,State:state}' -o table 2>/dev/null
+echo "Storage Accounts: $(az storage account list --query 'length([])' -o tsv 2>/dev/null)"
+
+echo "--- GCP ---"
+echo "Projects: $(gcloud projects list --format='value(projectId)' 2>/dev/null | wc -l)"
+echo "Service Accounts: $(gcloud iam service-accounts list --format='value(email)' 2>/dev/null | wc -l)"
+```

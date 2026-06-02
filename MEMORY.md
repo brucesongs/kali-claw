@@ -2,17 +2,17 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-05-30
+**Last Updated**: 2026-06-02
 
 ---
 
 ## Current Status
 
-- **Project Phase**: Skill domain maturation + cross-platform portability
+- **Project Phase**: Infrastructure hardening + scoring system evolution + cross-skill scenario design
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
-- **Uptime**: ~10 weeks (since 2026-03-14 launch)
-- **Current Focus**: 49/49 Excellent (100%), avg 84.0, min 80.0 — CI quality gate active (baseline 84.0), 10 integration tests PASS
+- **Uptime**: ~11 weeks (since 2026-03-14 launch)
+- **Current Focus**: Structural integrity fixes, SCORE.sh v2 (guide quality metrics, score caps, Distinguished tier), 5 cross-skill composite attack chain scenarios
 
 ---
 
@@ -112,6 +112,15 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Average score: 59.4→84.0, Min: 40.4→80.0, Median: 59.2→83.5
 - Key insight: guide-based promotions are most efficient initially; TC expansion to 10+ and payload expansion to 50+ complete the push to Excellent
 
+### 2026-05-31: Solid Excellent Floor (v0.1.15)
+- Expanded 18 SKILL.md files from 10-14 to 17+ headings (skill_section scores 68-76 → 86.7)
+- Added 20 test cases across 9 skills (5-7 → 8+ TC each, TC component scores 63-77 → 80+)
+- Expanded 26 payloads.md files to 50+ code blocks (payload_code bottleneck eliminated)
+- Three rounds of parallel agent execution: Phase 1 (SKILL.md), Phase 2 (TC), Phase 3 (Payloads), Round 2 (mixed), Round 3 (targeted)
+- Average score: 84.0→88.6 (+4.6), Min: 80.0→85.3 (+5.3), Max: 90.3→99.7 (+9.4)
+- CI baseline updated to 88.6
+- Key insight: payload_code reaching 50 blocks is the universal threshold — it affects 30% weight and unlocks 20+ point gains in the Payloads component
+
 ---
 
 ## Lessons Learned
@@ -143,6 +152,10 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - [x] Cross-skill integration testing: validate multi-skill pipelines end-to-end (v0.1.10)
 - [x] Skill quality scoring: automated metrics + baseline established (v0.1.11)
 - [x] Skill quality improvement: 16 guides added + bugs fixed (v0.1.12)
+- [ ] SCORE.sh v2: guide quality composite metric, score inflation caps, Distinguished tier (v0.1.16)
+- [ ] Cross-skill composite attack chain scenarios: 5 kill chain scenarios designed (v0.1.16)
+- [ ] Live pentest validation: execute full attack chains on authorized targets (future)
+- [ ] AI-driven exploit development: AI-assisted payload customization (future)
 
 ---
 

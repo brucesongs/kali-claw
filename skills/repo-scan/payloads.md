@@ -1043,3 +1043,173 @@ echo "=== TOTALS ===" | tee -a "$REPORT_DIR/summary.txt"
 echo "Secrets: $SECRETS | Vulns: $VULNS | Misconfigs: $MISCONFIGS | SAST: $SAST" | tee -a "$REPORT_DIR/summary.txt"
 echo "Reports saved to: $REPORT_DIR" | tee -a "$REPORT_DIR/summary.txt"
 ```
+
+---
+
+## Phase 14: Semgrep Deep Scanning
+
+### Semgrep CI Integration
+
+```bash
+# Semgrep CI mode — fails on findings and publishes to Semgrep App
+semgrep ci --config "p/security-audit" --config "p/secrets" --json --output semgrep-ci.json
+
+# Semgrep with autofix for common issues
+semgrep scan --config "p/security-audit" --autofix .
+
+# Semgrep scan with performance tuning for large repos
+semgrep scan --config "p/owasp-top-ten" --timeout 120 --max-memory 4096 --jobs 4 .
+```
+
+### Semgrep Custom SARIF Rule
+
+```yaml
+# semgrep-sarif-rules.yaml — generate SARIF for GitHub Advanced Security
+rules:
+  - id: jwt-hardcoded-secret
+    patterns:
+      - pattern: jwt.sign($PAYLOAD, "...")
+      - pattern-not: jwt.sign($PAYLOAD, $ENV_VAR)
+    message: "JWT signed with hardcoded secret — use environment variable instead"
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A02:2021 - Cryptographic Failures"
+```
+
+---
+
+## Phase 15: CodeQL Advanced Queries
+
+### CodeQL Database Creation and Scan
+
+```bash
+# Create CodeQL database for JavaScript/TypeScript project
+codeql database create codeql-db --language=javascript --source-root=. --overwrite
+
+# Run security-and-quality query suite
+codeql database analyze codeql-db javascript-security-and-quality.qls \
+  --format=sarif-latest --output=codeql-results.sarif
+
+# Upload SARIF to GitHub Advanced Security
+gh codeql upload-results --repository owner/repo codeql-results.sarif
+```
+
+### CodeQL Path Traversal Detection
+
+```ql
+/**
+ * @name Path traversal via user-controlled filename
+ * @description User input flows into a file path operation without sanitization
+ * @kind path-problem
+ * @problem.severity error
+ * @security-severity 8.6
+ * @id js/path-traversal
+ */
+
+import javascript
+
+from DataFlow::PathNode source, DataFlow::PathNode sink
+where
+  source.asExpr().(Identifier).name.matches("%req%") and
+  sink.asExpr().(CallExpr).getCalleeName() = "readFileSync"
+select sink, source, sink, "Path traversal: user input reaches file read"
+```
+
+---
+
+## Phase 16: Bandit Python Scanning
+
+### Bandit Deep Configuration
+
+```bash
+# Bandit with custom profile and severity thresholds
+bandit -r . -f json -o bandit-report.json \
+  --exclude ./tests,./venv,./.tox \
+  --severity-level high \
+  --confidence-level high \
+  -t B101,B102,B105,B106,B107,B108,B110,B112 \
+  --show-line-context
+
+# Bandit with baseline comparison (only new findings)
+bandit -r . -f json -o bandit-current.json
+jq '.results[] | {test_id, filename, issue_text, severity}' bandit-current.json
+
+# Bandit integrated with pre-commit
+bandit -r . -f custom --msg-template "{abspath}:{line}: {test_id}: {severity}: {msg}"
+```
+
+---
+
+## Phase 17: SARIF Processing Pipeline
+
+### SARIF Merge and Dedup
+
+```python
+#!/usr/bin/env python3
+"""Merge multiple SARIF files and deduplicate findings."""
+import json
+import sys
+from pathlib import Path
+
+def merge_sarif(files):
+    merged_results = []
+    seen = set()
+    for f in files:
+        with open(f) as fh:
+            sarif = json.load(fh)
+        for run in sarif.get("runs", []):
+            for result in run.get("results", []):
+                rule_id = result.get("ruleId", "")
+                location = result.get("locations", [{}])[0].get("physicalLocation", {})
+                file_path = location.get("artifactLocation", {}).get("uri", "")
+                line = location.get("region", {}).get("startLine", 0)
+                dedup_key = f"{rule_id}|{file_path}|{line}"
+                if dedup_key not in seen:
+                    seen.add(dedup_key)
+                    merged_results.append(result)
+    return merged_results
+
+if __name__ == "__main__":
+    sarif_files = sys.argv[1:]
+    results = merge_sarif(sarif_files)
+    print(f"Merged {len(results)} unique findings from {len(sarif_files)} SARIF files")
+```
+
+### SARIF to Markdown Summary
+
+```bash
+# Convert SARIF findings to a Markdown summary table
+python3 -c "
+import json, sys
+with open(sys.argv[1]) as f:
+    sarif = json.load(f)
+print('| Rule | File | Line | Severity | Message |')
+print('|------|------|------|----------|---------|')
+for run in sarif.get('runs', []):
+    for r in run.get('results', []):
+        rule = r.get('ruleId', 'N/A')
+        loc = r.get('locations', [{}])[0].get('physicalLocation', {})
+        uri = loc.get('artifactLocation', {}).get('uri', 'N/A')
+        line = loc.get('region', {}).get('startLine', 'N/A')
+        sev = r.get('level', 'N/A')
+        msg = r.get('message', {}).get('text', '')[:60]
+        print(f'| {rule} | {uri} | {line} | {sev} | {msg} |')
+" results.sarif > sarif-summary.md
+```
+
+### Secret Detection Pattern Library
+
+```yaml
+# custom-secret-patterns.yaml — extended regex patterns for secret detection
+# Use with grep, gitleaks, or custom scanners
+patterns:
+  aws_access_key: "AKIA[0-9A-Z]{16}"
+  aws_secret_key: "(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z/+]{40}['\"]"
+  github_token: "gh[pousr]_[A-Za-z0-9_]{36,255}"
+  slack_token: "xox[baprs]-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24,34}"
+  private_key_block: "-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----"
+  jwt_token: "eyJ[A-Za-z0-9-_]+\\.eyJ[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+"
+  connection_string: "(mongodb|postgres|mysql|redis)://[^\\s'\"]+:[^\\s'\"]+@[^\\s'\"]+"
+```

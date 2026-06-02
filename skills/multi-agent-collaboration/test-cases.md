@@ -369,3 +369,295 @@ Structured test cases for validating multi-agent coordination, task decompositio
 - [ ] Total wall-clock time < single-agent equivalent (validate parallelism benefit)
 
 **Complexity**: High
+
+---
+
+## TC-MAC-006: Agent Role Conflict Resolution
+
+**Objective**: Validate that when two agents with overlapping but conflicting scopes produce contradictory findings (one reports a service as vulnerable, the other reports it as secured), the coordinator correctly identifies the conflict, dispatches a tie-breaker agent, and resolves the disagreement with documented evidence.
+
+**Collaboration Model**: Model 4 — Coordinator-Worker Pattern with conflict resolution extension
+
+**Agents Involved**:
+- Network-Scanner-Agent (reports SMB signing disabled — vulnerability)
+- Compliance-Checker-Agent (reports SMB signing enabled — no vulnerability)
+- Tie-Breaker-Agent (independent third verification)
+- Coordinator Agent
+
+**Prerequisites**:
+- Target Windows server with SMB service on port 445
+- Conflicting agent results available from parallel scans
+- Conflict resolution decision tree from Section 6 of `payloads.md` loaded into coordinator
+- All three verification agents have independent tool access
+
+### Setup
+
+1. Target: `10.10.10.20` (Windows Server with SMB)
+2. Network-Scanner-Agent ran: `nmap --script smb2-security-mode -p 445 10.10.10.20`
+   - Result: "SMB signing not required" — reported as vulnerability (Medium)
+3. Compliance-Checker-Agent ran: `nmap --script smb2-security-mode -p 445 10.10.10.20`
+   - Result: "SMB signing enabled" — reported as no vulnerability
+4. Both agents tested same host within 5-minute window
+5. Coordinator detects conflict: same endpoint, opposite conclusions
+
+### Steps
+
+**Phase A — Conflict Detection**:
+
+1. Coordinator collects both result sets
+2. Correlate findings by target host + port + service:
+   - Agent A: host=10.10.10.20, port=445, service=SMB, status=vulnerable
+   - Agent B: host=10.10.10.20, port=445, service=SMB, status=secure
+3. Apply conflict detection rule: same target + same service + different status = CONFLICT
+
+**Phase B — Evidence Gathering**:
+
+4. Coordinator requests raw evidence from both agents:
+   ```bash
+   # Agent A evidence
+   nmap --script smb2-security-mode -p 445 10.10.10.20 -oX agent-a-evidence.xml
+
+   # Agent B evidence
+   nmap --script smb2-security-mode -p 445 10.10.10.20 -oX agent-b-evidence.xml
+   ```
+5. Compare raw XML output: are the Nmap script results actually different, or did agents interpret them differently?
+
+**Phase C — Tie-Breaker Dispatch**:
+
+6. Coordinator dispatches Tie-Breaker-Agent with:
+   - Both evidence files
+   - Instruction to run an independent third scan with verbose output
+   ```bash
+   # Tie-breaker runs with maximum verbosity
+   nmap --script smb2-security-mode -p 445 10.10.10.20 -v -d -oX tiebreaker-evidence.xml
+
+   # Also check via crackmapexec for cross-tool validation
+   crackmapexec smb 10.10.10.20
+   ```
+7. Tie-Breaker-Agent reports: "SMB signing is enabled but not required" — both agents were partially correct
+
+**Phase D — Resolution**:
+
+8. Coordinator applies resolution:
+   - Finding updated: "SMB signing enabled but not enforced" — severity = Medium
+   - Agent A's vulnerability claim: partially correct (not enforced)
+   - Agent B's secure claim: partially correct (enabled)
+   - Merged finding includes all three evidence sources
+9. Resolution documented with rationale
+
+### Expected Results
+
+- Conflict correctly detected by coordinator (same target, different status)
+- Raw evidence comparison reveals the nuance: both agents read the same data differently
+- Tie-breaker provides independent third result with higher verbosity
+- Final merged finding accurately represents the true state: "signing enabled but not required"
+- All three evidence sources attached to the final finding
+- Resolution rationale documented in coordinator log
+
+### Verification
+
+- [ ] Conflict detection fired on same-target-different-status pattern
+- [ ] Coordinator did NOT silently pick one agent's result over the other
+- [ ] Tie-breaker agent was dispatched and returned before resolution
+- [ ] Final finding severity matches the accurate assessment (not the higher or lower of the two)
+- [ ] Resolution log contains: Agent A claim, Agent B claim, Tie-breaker result, final verdict, rationale
+- [ ] `conflicts_resolved` counter incremented in master finding list
+
+**Complexity**: Medium
+
+---
+
+## TC-MAC-007: Parallel Scan Coordination
+
+**Objective**: Validate that the coordinator can correctly orchestrate 8 parallel scan agents targeting different network segments, enforce per-segment rate limits, prevent cross-segment scanning, and aggregate all results without data loss when agents complete at different times.
+
+**Collaboration Model**: Model 2 — Target Parallelization (extended)
+
+**Agents Involved**:
+- Scan-Agent-S1 through Scan-Agent-S8 (one per /24 network segment)
+- Coordinator Agent
+
+**Prerequisites**:
+- Target network range: 10.10.0.0/21 (8 segments: 10.10.0.0/24 through 10.10.7.0/24)
+- Each segment has different host density (10-50 hosts per segment)
+- Authorization document covers all 8 segments
+- Rate limit: 100 packets/second per segment to avoid network saturation
+- Coordinator rate limit enforcement capability enabled
+
+### Setup
+
+1. Define 8 segments and assign one agent per segment:
+   ```
+   Agent-S1: 10.10.0.0/24  (expected: ~30 hosts)
+   Agent-S2: 10.10.1.0/24  (expected: ~15 hosts)
+   Agent-S3: 10.10.2.0/24  (expected: ~45 hosts)
+   Agent-S4: 10.10.3.0/24  (expected: ~10 hosts)
+   Agent-S5: 10.10.4.0/24  (expected: ~50 hosts)
+   Agent-S6: 10.10.5.0/24  (expected: ~20 hosts)
+   Agent-S7: 10.10.6.0/24  (expected: ~25 hosts)
+   Agent-S8: 10.10.7.0/24  (expected: ~35 hosts)
+   ```
+2. Configure each agent with segment-specific scan mandate and rate limit
+3. Set time budget: 60 minutes per segment
+4. Initialize coverage matrix with 8 rows
+
+### Steps
+
+1. **Simultaneous dispatch** — coordinator launches all 8 agents at the same time:
+   ```bash
+   # Each agent runs its segment scan
+   # Agent-S1 example:
+   nmap -sV -sC --max-rate 100 -oA segment1 10.10.0.0/24
+   ```
+2. **Monitor progress at 15-minute checkpoints**:
+   - Record completion status for each agent
+   - Expected: segments with fewer hosts (S4) complete faster
+3. **Enforce scope boundaries** — verify no agent scans outside its segment:
+   ```bash
+   # Check agent logs for out-of-scope targets
+   for i in {1..8}; do
+     grep -E "10\.10\.[0-7]\." agent-S${i}.log | grep -v "10\.10\.$((i-1))\." && \
+       echo "SCOPE VIOLATION: Agent-S${i} scanned outside its segment"
+   done
+   ```
+4. **Handle staggered completion**:
+   - Agent-S4 completes first (fewest hosts) — coordinator marks segment as Complete
+   - Agent-S5 completes last (most hosts) — coordinator waits for all before closing
+   - No early engagement termination while any agent is still running
+5. **Aggregate results** when all 8 agents return:
+   ```bash
+   # Merge all scan results
+   cat segment*.xml | python3 -c "
+   import sys, xml.etree.ElementTree as ET
+   hosts = set()
+   for line in sys.stdin:
+       # Parse and count unique hosts
+       pass
+   print(f'Total unique hosts: {len(hosts)}')
+   "
+   ```
+6. **Rate limit verification** — check no segment exceeded packet rate:
+   ```bash
+   # Analyze nmap timing from logs
+   grep "max_rate" /var/log/scan-agents/*.log
+   ```
+
+### Expected Results
+
+- All 8 agents dispatched simultaneously (start timestamps within 30 seconds)
+- Each agent scans only its assigned /24 segment (zero scope violations)
+- Total hosts discovered matches expected host density across all segments
+- Coverage matrix: 8/8 rows showing Complete
+- No data loss: total findings = sum of all 8 agent findings
+- Rate limits respected: no segment exceeded 100 packets/second
+- Staggered completion handled correctly: coordinator waited for all agents
+- Wall-clock time < 60 minutes (parallel execution benefit)
+
+### Verification
+
+- [ ] All 8 agents started within 30 seconds of each other
+- [ ] Zero scope violations (each agent only scanned its assigned segment)
+- [ ] Rate limit compliance verified from logs
+- [ ] Coverage matrix: 8/8 Complete, 0 gaps
+- [ ] Master finding list total = sum of individual agent finding counts
+- [ ] Coordinator did NOT close engagement before last agent completed
+- [ ] Wall-clock time significantly less than 8x sequential scan time
+
+**Complexity**: High
+
+---
+
+## TC-MAC-008: Agent Chain Failure Recovery
+
+**Objective**: Validate that when a critical agent in a phase-dependency chain fails (e.g., the Network Scanner agent crashes mid-scan), the coordinator detects the failure, preserves partial results, dispatches a replacement agent, and recovers the engagement without data loss or scope gaps.
+
+**Collaboration Model**: Model 4 — Coordinator-Worker Pattern with failure recovery
+
+**Agents Involved**:
+- Recon-Agent (Phase 1 — completed successfully)
+- Network-Scanner-Agent (Phase 2 — will simulate crash at 60% completion)
+- Web-Tester-Agent (Phase 3 — waiting on Phase 2 results)
+- Recovery-Network-Scanner (replacement agent)
+- Coordinator Agent
+
+**Prerequisites**:
+- Target: `10.10.10.0/24` with multiple hosts
+- Phase dependency chain: Recon -> Network Scan -> Web Testing
+- Coordinator health check interval configured (60 seconds)
+- Agent heartbeat mechanism enabled
+- Evidence checkpoint directory writable
+
+### Setup
+
+1. Configure phase dependency chain in coordinator
+2. Set Recon agent to complete normally
+3. Configure Network-Scanner-Agent to simulate crash after scanning 60% of discovered hosts
+4. Prepare Recovery-Network-Scanner agent with checkpoint-aware configuration
+5. Initialize coverage matrix with dependency tracking
+
+### Steps
+
+**Phase 1 — Recon (completes normally)**:
+
+1. Recon-Agent runs and discovers 10 hosts in `10.10.10.0/24`
+2. Returns host list to coordinator
+3. Coverage matrix: Recon = Complete, Network Scan = Pending, Web Test = Pending
+
+**Phase 2 — Network Scan (crashes at 60%)**:
+
+4. Coordinator dispatches Network-Scanner-Agent with all 10 hosts
+5. Agent scans hosts 1-6 successfully, writes checkpoints:
+   ```bash
+   # Checkpoint after each host
+   echo "host_scanned: 10.10.10.1" >> checkpoint.log
+   echo "host_scanned: 10.10.10.2" >> checkpoint.log
+   # ... continues for hosts 3-6
+   ```
+6. Agent crashes (simulate with `kill -9` or process crash)
+7. Coordinator heartbeat detects agent is unresponsive after 60 seconds
+8. Coordinator reads checkpoint file to determine progress:
+   ```bash
+   grep "host_scanned" checkpoint.log | wc -l
+   # Result: 6 hosts scanned, 4 remaining
+   ```
+
+**Phase 3 — Recovery**:
+
+9. Coordinator marks hosts 1-6 as scanned, hosts 7-10 as pending
+10. Coordinator dispatches Recovery-Network-Scanner with remaining scope:
+    ```bash
+    # Only scan the 4 remaining hosts
+    nmap -sV -sC 10.10.10.7 10.10.10.8 10.10.10.9 10.10.10.10
+    ```
+11. Recovery agent completes the remaining 4 hosts
+12. Coordinator merges partial results (hosts 1-6) with recovery results (hosts 7-10)
+
+**Phase 4 — Web Testing (resumes)**:
+
+13. Coordinator triggers Web-Tester-Agent with full host list (all 10 hosts)
+14. Web testing proceeds normally
+15. Coverage matrix updated: all phases Complete
+
+### Expected Results
+
+- Agent crash detected within the heartbeat interval (60 seconds)
+- Partial results (6 hosts) preserved and not lost
+- Recovery agent dispatched with only the remaining scope (4 hosts)
+- Merged result set contains findings for all 10 hosts
+- Coverage matrix shows no gaps after recovery
+- Web testing started only after full network scan was complete
+- Total finding count reflects all 10 hosts, not just the 6 scanned before crash
+- Engagement timeline documented with crash event, recovery time, and total delay
+
+### Verification
+
+- [ ] Crash detected within heartbeat interval
+- [ ] Partial results (6 hosts) preserved in checkpoint file
+- [ ] Recovery agent scanned only the 4 remaining hosts (not all 10)
+- [ ] Merged findings cover all 10 hosts
+- [ ] Web testing waited for complete network scan (phase dependency respected)
+- [ ] Coverage matrix: all phases Complete after recovery
+- [ ] Engagement log documents: crash time, detection time, recovery dispatch time, recovery completion time
+- [ ] No duplicate findings from re-scanning already-completed hosts
+
+**Complexity**: High

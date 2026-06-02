@@ -159,3 +159,15 @@ Every skill that runs shell commands uses the timestamp, output file, and hash c
 - Never use destructive commands without explicit confirmation
 - Never ignore unrelated findings discovered during execution (log them for follow-up)
 - Never assume a command succeeded without verifying its output
+
+## Automation and Scripting
+
+Terminal automation transforms repetitive pentest tasks into reproducible, evidence-generating pipelines. Shell functions wrapping common scan patterns with automatic timestamp injection and output file management ensure consistency across engagements. Python orchestration scripts can chain multi-stage attacks (recon -> exploit -> post-exploitation) while maintaining complete evidence logs at each step, enabling one-command execution of complex test sequences with full traceability.
+
+## Error Handling
+
+Terminal command failures during pentests must be diagnosed systematically rather than retried blindly. Inspect exit codes (`$?`) and stderr output before retrying; many tool failures result from environmental issues (missing dependencies, permission denials, network connectivity) that no amount of re-execution will resolve. When a tool fails, capture the exact error output, verify the environment (tool version, target reachability, permission level), and document the root cause before attempting alternative approaches.
+
+## Performance Optimization
+
+Efficient terminal operations minimize wasted time during time-sensitive pentest engagements. Parallelize independent scans using background processes (`&`) and GNU parallel, but avoid overloading the target or local network interface. Use targeted port lists (`-p 22,80,443,8080`) instead of full port scans when only specific services are relevant. Cache scan results in structured files (JSON, XML) to avoid re-scanning when multiple tools need the same reconnaissance data.

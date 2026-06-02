@@ -680,3 +680,433 @@ site:pastebin.com "target.com"
 site:trello.com "target.com" password
 site:docs.google.com "target.com" confidential
 ```
+
+---
+
+## 20. Source Verification & Data Correlation
+
+### Cross-Reference OSINT Data Sources
+
+```python
+#!/usr/bin/env python3
+"""Correlate findings from multiple OSINT sources and deduplicate."""
+
+import json
+from collections import defaultdict
+
+def correlate_osint_sources(*source_files):
+    """Merge and correlate results from multiple OSINT tool outputs."""
+    all_domains = defaultdict(lambda: {"sources": [], "ips": set(), "status": set()})
+
+    for filepath in source_files:
+        source_name = filepath.split("/")[-1].replace(".txt", "")
+        with open(filepath) as f:
+            for line in f:
+                domain = line.strip().lower()
+                if domain:
+                    all_domains[domain]["sources"].append(source_name)
+
+    # Domains found by multiple sources have higher confidence
+    correlated = []
+    for domain, data in sorted(all_domains.items()):
+        source_count = len(set(data["sources"]))
+        correlated.append({
+            "domain": domain,
+            "sources": list(set(data["sources"])),
+            "source_count": source_count,
+            "confidence": "HIGH" if source_count >= 3 else "MEDIUM" if source_count == 2 else "LOW"
+        })
+
+    return sorted(correlated, key=lambda x: x["source_count"], reverse=True)
+```
+
+### Automated OSINT Monitoring Script
+
+```bash
+#!/usr/bin/env bash
+# Periodic OSINT monitoring for new subdomains and changes
+# Usage: ./osint_monitor.sh <domain> <interval_seconds>
+
+DOMAIN="${1:?Usage: $0 <domain> <interval>}"
+INTERVAL="${2:-3600}"
+STATE_DIR="evidence/osint-monitor/$DOMAIN"
+mkdir -p "$STATE_DIR"
+
+while true; do
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+    echo "[MONITOR] $(date -Iseconds) - Running OSINT check for $DOMAIN"
+
+    # Discover subdomains
+    subfinder -d "$DOMAIN" -silent | sort -u > "$STATE_DIR/subs-current.txt"
+
+    # Check for new subdomains
+    if [ -f "$STATE_DIR/subs-baseline.txt" ]; then
+        NEW_SUBS=$(comm -13 "$STATE_DIR/subs-baseline.txt" "$STATE_DIR/subs-current.txt")
+        if [ -n "$NEW_SUBS" ]; then
+            echo "[ALERT] New subdomains detected:"
+            echo "$NEW_SUBS" | tee "$STATE_DIR/new-subs-${TIMESTAMP}.txt"
+        fi
+    fi
+
+    # Update baseline
+    cp "$STATE_DIR/subs-current.txt" "$STATE_DIR/subs-baseline.txt"
+
+    # Certificate transparency check
+    curl -s "https://crt.sh/?q=%25.${DOMAIN}&output=json" | \
+      jq -r '.[].name_value' | sort -u > "$STATE_DIR/ct-current.txt"
+
+    sleep "$INTERVAL"
+done
+```
+
+---
+
+## 21. Geolocation & Physical OSINT
+
+### IP Geolocation and ASN Mapping
+
+```bash
+# Batch IP geolocation lookup
+while IFS= read -r ip; do
+    geo=$(curl -s "http://ip-api.com/json/${ip}" 2>/dev/null)
+    country=$(echo "$geo" | jq -r '.country // "unknown"')
+    city=$(echo "$geo" | jq -r '.city // "unknown"')
+    org=$(echo "$geo" | jq -r '.org // "unknown"')
+    echo "$ip,$country,$city,$org"
+done < ips.txt | tee geolocation_results.csv
+
+# ASN enumeration for target organization
+curl -s "https://api.bgpview.io/search?queryTerm=Example+Corp" | \
+  jq '.data.asns[] | {asn: .asn, name: .name, description: .description}'
+
+# Reverse IP to domain lookup
+for ip in $(cat resolved_ips.txt); do
+    curl -s "https://api.hackertarget.com/reverseiplookup/?q=${ip}" 2>/dev/null
+    sleep 0.5
+done
+```
+
+### Wi-Fi Geolocation Database Query
+
+```bash
+# Query Wigle.net WiFi geolocation API for BSSID location
+curl -s "https://api.wigle.net/api/v2/network/search?ssid=TargetSSID" \
+  -u "API_NAME:API_TOKEN" | jq '.results[] | {ssid: .ssid, lat: .trilat, lon: .trilon}'
+```
+
+---
+
+## 22. Breach Data Analysis
+
+### Credential Leak Pattern Analysis
+
+```python
+#!/usr/bin/env python3
+"""Analyze breached credential data for password patterns and policy weaknesses."""
+
+import re
+from collections import Counter
+
+def analyze_password_patterns(credential_file):
+    """Analyze leaked credentials for password strength patterns."""
+    patterns = {
+        "length_<8": 0, "length_8-12": 0, "length_12+": 0,
+        "has_uppercase": 0, "has_lowercase": 0, "has_digit": 0,
+        "has_special": 0, "common_base": Counter(), "seasonal": 0
+    }
+    total = 0
+    common_bases = ["password", "welcome", "admin", "qwerty", "letmein",
+                    "monkey", "dragon", "master", "login", "abc123"]
+    seasons = ["spring", "summer", "fall", "winter", "2024", "2025", "2026"]
+
+    with open(credential_file) as f:
+        for line in f:
+            parts = line.strip().split(":", 1)
+            if len(parts) < 2:
+                continue
+            pwd = parts[1]
+            total += 1
+
+            if len(pwd) < 8:
+                patterns["length_<8"] += 1
+            elif len(pwd) <= 12:
+                patterns["length_8-12"] += 1
+            else:
+                patterns["length_12+"] += 1
+
+            if re.search(r'[A-Z]', pwd):
+                patterns["has_uppercase"] += 1
+            if re.search(r'[a-z]', pwd):
+                patterns["has_lowercase"] += 1
+            if re.search(r'\d', pwd):
+                patterns["has_digit"] += 1
+            if re.search(r'[^A-Za-z0-9]', pwd):
+                patterns["has_special"] += 1
+
+            pwd_lower = pwd.lower()
+            for base in common_bases:
+                if base in pwd_lower:
+                    patterns["common_base"][base] += 1
+            if any(s in pwd_lower for s in seasons):
+                patterns["seasonal"] += 1
+
+    print(f"Total credentials analyzed: {total}")
+    for key, val in patterns.items():
+        if isinstance(val, int):
+            print(f"  {key}: {val} ({val*100/max(total,1):.1f}%)")
+        elif isinstance(val, Counter):
+            for k, v in val.most_common(5):
+                print(f"  {key}[{k}]: {v}")
+```
+
+---
+
+## 23. Automated OSINT Pipeline (Enhanced)
+
+### Full-Spectrum OSINT with Error Handling
+
+```bash
+#!/usr/bin/env bash
+# Complete OSINT pipeline with rate limiting and error handling
+
+DOMAIN="${1:?Usage: $0 <domain>}"
+OUTPUT="evidence/osint-full-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT"
+LOG="$OUTPUT/pipeline.log"
+
+echo "[PIPELINE] Starting full OSINT for $DOMAIN at $(date)" | tee "$LOG"
+
+# Phase 1: WHOIS
+echo "[1/8] WHOIS lookup" | tee -a "$LOG"
+whois "$DOMAIN" > "$OUTPUT/whois.txt" 2>&1 || echo "[WARN] WHOIS failed" | tee -a "$LOG"
+sleep 2
+
+# Phase 2: DNS
+echo "[2/8] DNS enumeration" | tee -a "$LOG"
+dig any "$DOMAIN" +noall +answer > "$OUTPUT/dns-records.txt" 2>&1
+dig axfr "$DOMAIN" @ns1."$DOMAIN" > "$OUTPUT/dns-zone-transfer.txt" 2>&1
+sleep 1
+
+# Phase 3: Subdomains
+echo "[3/8] Subdomain enumeration" | tee -a "$LOG"
+subfinder -d "$DOMAIN" -silent > "$OUTPUT/subs-subfinder.txt" 2>&1 || true
+amass enum -passive -d "$DOMAIN" -o "$OUTPUT/subs-amass.txt" 2>/dev/null || true
+curl -s "https://crt.sh/?q=%25.${DOMAIN}&output=json" | jq -r '.[].name_value' | sort -u > "$OUTPUT/subs-crtsh.txt" 2>/dev/null || true
+sort -u "$OUTPUT"/subs-*.txt > "$OUTPUT/subs-all.txt" 2>/dev/null || true
+echo "  Found $(wc -l < "$OUTPUT/subs-all.txt" 2>/dev/null || echo 0) unique subdomains" | tee -a "$LOG"
+
+# Phase 4: Live host check
+echo "[4/8] Live host verification" | tee -a "$LOG"
+httpx -l "$OUTPUT/subs-all.txt" -silent -status-code -title -tech-detect \
+  -o "$OUTPUT/live-hosts.txt" 2>/dev/null || true
+
+# Phase 5: Technology fingerprint
+echo "[5/8] Technology fingerprinting" | tee -a "$LOG"
+whatweb -i "$OUTPUT/subs-all.txt" -o "$OUTPUT/whatweb.txt" 2>/dev/null || true
+
+# Phase 6: Email harvesting
+echo "[6/8] Email harvesting" | tee -a "$LOG"
+theHarvester -d "$DOMAIN" -b all -f "$OUTPUT/harvester.html" 2>/dev/null || true
+
+# Phase 7: Shodan lookup
+echo "[7/8] Shodan lookup" | tee -a "$LOG"
+shodan search "hostname:$DOMAIN" --fields ip_str,port,product 2>/dev/null > "$OUTPUT/shodan.txt" || true
+
+# Phase 8: GitHub leak check
+echo "[8/8] GitHub leak search" | tee -a "$LOG"
+curl -s "https://api.github.com/search/code?q=${DOMAIN}+password+in:file" | \
+  jq '.items[].html_url' > "$OUTPUT/github-leaks.txt" 2>/dev/null || true
+
+echo "[PIPELINE] Complete at $(date)" | tee -a "$LOG"
+echo "Results: $OUTPUT/"
+```
+
+---
+
+## 24. Advanced Search Operators
+
+### Specialized Google Dork Collections
+
+```bash
+# Find exposed Git repositories
+site:example.com inurl:".git" HEAD
+site:example.com filetype:git
+
+# Find exposed phpMyAdmin installations
+inurl:phpmyadmin intitle:"Welcome to phpMyAdmin" site:example.com
+
+# Find exposed Jenkins instances
+intitle:"Dashboard [Jenkins]" site:example.com
+
+# Find exposed Kubernetes dashboards
+intitle:"Kubernetes Dashboard" site:example.com
+
+# Find exposed Grafana dashboards
+intitle:"Grafana" inurl:3000 site:example.com
+```
+
+### API-Based Intelligence Gathering
+
+```python
+#!/usr/bin/env python3
+"""Aggregate intelligence from multiple OSINT APIs."""
+
+import requests
+import json
+
+class OSINTAggregator:
+    def __init__(self, shodan_key=None, hunter_key=None, hibp_key=None):
+        self.shodan_key = shodan_key
+        self.hunter_key = hunter_key
+        self.hibp_key = hibp_key
+
+    def shodan_host_search(self, query, limit=100):
+        """Search Shodan for hosts matching a query."""
+        if not self.shodan_key:
+            return []
+        url = f"https://api.shodan.io/shodan/host/search?key={self.shodan_key}&query={query}"
+        resp = requests.get(url, timeout=30)
+        if resp.ok:
+            return [{"ip": m["ip_str"], "port": m["port"],
+                     "product": m.get("product", ""), "os": m.get("os", "")}
+                    for m in resp.json().get("matches", [])[:limit]]
+        return []
+
+    def hunter_domain_search(self, domain):
+        """Find email addresses and patterns for a domain."""
+        if not self.hunter_key:
+            return {}
+        url = f"https://api.hunter.io/v2/domain-search?domain={domain}&api_key={self.hunter_key}"
+        resp = requests.get(url, timeout=30)
+        if resp.ok:
+            data = resp.json().get("data", {})
+            return {"pattern": data.get("pattern"), "emails": [e["value"] for e in data.get("emails", [])]}
+        return {}
+
+    def full_recon(self, domain):
+        """Run full OSINT recon across all configured APIs."""
+        results = {"domain": domain}
+        results["shodan"] = self.shodan_host_search(f"hostname:{domain}")
+        results["emails"] = self.hunter_domain_search(domain)
+        return results
+```
+
+---
+
+## 25. Dark Web Research Methods
+
+### Onion Service Enumeration
+
+```bash
+# Tor proxy setup for safe dark web research
+# Configure tor proxy
+echo "SocksPort 9050" | sudo tee -a /etc/tor/torrc
+sudo systemctl restart tor
+
+# Verify Tor connectivity
+curl --socks5 localhost:9050 https://check.torproject.org/ | grep "Congratulations"
+
+# Search Ahmia (Tor search engine) for mentions of target
+curl --socks5-hostname localhost:9050 -s "https://ahmia.fi/search/?q=target.com" | \
+  grep -oP 'http[s]?://[a-z2-7]{16}\.onion[^"<>]*'
+
+# Dark web credential monitoring (authorized testing only)
+# Use tools like darkdump for .onion site content retrieval
+darkdump -s "target.com credentials" -t 10
+```
+
+### Paste Site Monitoring
+
+```bash
+# Monitor paste sites for target mentions
+for site in "pastebin.com" "paste.ee" "justpaste.it" "controlc.com"; do
+  echo "[MONITOR] Checking $site for target.com mentions"
+  curl -s "https://www.google.com/search?q=site:$site+%22target.com%22+password" \
+    -H "User-Agent: Mozilla/5.0" | grep -oP "$site/[a-zA-Z0-9]+" | sort -u
+  sleep 2
+done
+
+# Automated paste site alert script
+PASTEBIN_API_KEY="$PASTE_KEY"
+curl -s "https://scrape.pastebin.com/api_scraping.php?api_key=${PASTEBIN_API_KEY}&limit=100" | \
+  jq '.[].full_url' | while read url; do
+    content=$(curl -s "$url")
+    if echo "$content" | grep -qi "target.com"; then
+      echo "[ALERT] Target mention found: $url"
+    fi
+  done
+```
+
+---
+
+## 26. Visualization and Reporting
+
+### OSINT Data Visualization with Python
+
+```python
+#!/usr/bin/env python3
+"""Generate visual reports from OSINT data collection."""
+
+import json
+from collections import Counter
+
+def generate_subdomain_heatmap(subdomains_file, output_file="subdomain_report.txt"):
+    """Generate a text-based report showing subdomain distribution."""
+    with open(subdomains_file) as f:
+        subs = [line.strip() for line in f if line.strip()]
+
+    # Count subdomains by second-level grouping
+    segments = Counter()
+    for sub in subs:
+        parts = sub.split(".")
+        if len(parts) >= 3:
+            segments[parts[0]] += 1
+        else:
+            segments["(root)"] += 1
+
+    report = ["=" * 60, "Subdomain Distribution Report", "=" * 60, ""]
+    max_count = max(segments.values()) if segments else 1
+    for prefix, count in segments.most_common(30):
+        bar_len = int(count / max_count * 40)
+        report.append(f"  {prefix:<20} {'#' * bar_len} ({count})")
+
+    report.append(f"\nTotal: {len(subs)} subdomains, {len(segments)} unique prefixes")
+    with open(output_file, "w") as out:
+        out.write("\n".join(report))
+    print(f"[+] Report saved to {output_file}")
+```
+
+### Finding Correlation Timeline
+
+```python
+def build_osint_timeline(events, output="timeline_report.txt"):
+    """Build a chronological timeline from OSINT findings."""
+    sorted_events = sorted(events, key=lambda e: e.get("date", "0000"))
+
+    lines = ["OSINT Investigation Timeline", "=" * 50]
+    for event in sorted_events:
+        date = event.get("date", "unknown")
+        source = event.get("source", "unknown")
+        finding = event.get("finding", "no description")
+        severity = event.get("severity", "info")
+        marker = "[!]" if severity in ("critical", "high") else "[.]"
+        lines.append(f"{marker} {date} [{source}] {finding}")
+
+    with open(output, "w") as f:
+        f.write("\n".join(lines))
+    print(f"[+] Timeline saved to {output} ({len(sorted_events)} events)")
+```
+
+---
+
+## 27. Source Verification
+
+### Cross-Validate OSINT Findings
+
+```bash
+# Verify subdomain findings across multiple sources
+comm -23 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l
+echo "Subdomains only in subfinder: $(comm -23 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l)"
+echo "Subdomains only in amass: $(comm -13 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l)"
+echo "Subdomains in both: $(comm -12 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l)"
+```

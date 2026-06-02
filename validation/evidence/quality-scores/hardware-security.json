@@ -1,6 +1,7 @@
 {
   "skill": "hardware-security",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
     "payload_word_count": 3851,
     "payload_section_count": 20,
@@ -8,23 +9,25 @@
     "test_case_count": 10,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
+    "guide_avg_words": 1419,
+    "guide_key_sections": 2,
     "skill_section_score": 0.81
   },
   "normalized_scores": {
     "payload_word": 98.5,
-    "payload_section": 104.4,
+    "payload_section": 100.0,
     "payload_code": 80.0,
     "test_case": 85.0,
     "field": 100.0,
-    "guide": 80.0,
+    "guide": 70.5,
     "skill_section": 81.0
   },
   "component_scores": {
     "skill_md": 81.00,
-    "payloads_md": 94.30,
+    "payloads_md": 92.83,
     "test_cases_md": 92.50,
-    "guides": 80.0
+    "guides": 70.5
   },
-  "overall_score": 88.2,
+  "overall_score": 85.4,
   "tier": "Excellent"
 }

@@ -87,6 +87,57 @@ Use SleuthKit to generate MAC timelines, combining disk MAC times, network traff
 
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
 
+## Common Pitfalls
+
+- **Analyzing original evidence directly**: Working on the original media instead of a verified forensic image risks accidental modification that destroys evidence integrity. Always create a bit-by-bit image first, verify hashes match, and perform all analysis on the copy.
+- **Skipping chain of custody documentation**: Even with perfect technical analysis, evidence without a documented chain of custody may be inadmissible in court. Record every handler, time, location, and operation from the moment evidence is collected to its final presentation.
+- **Relying on a single tool for analysis**: Different forensic tools may parse filesystem structures differently, especially for corrupted or unusual filesystem types. Cross-validate critical findings between SleuthKit, Autopsy, and manual inspection to avoid tool-specific false conclusions.
+
+## Automation and Scripting
+
+Automate forensic triage with scripts that chain SleuthKit commands: use `mmls` to identify partition offsets, pipe results into `fls` for file listing, then `icat` to extract files of interest based on extension or timestamp filters. Build Volatility automation scripts that run the full plugin suite (pslist, netscan, malfind, hivelist) against memory dumps and consolidate results into a structured timeline. Use bulk_extractor with custom regex patterns for rapid extraction of email addresses, credit card numbers, and custom identifiers from large disk images that would take hours to analyze manually through a GUI.
+
+## Reporting and Documentation
+
+Forensic reports must meet legal admissibility standards and include: the evidence inventory with hash verification for each item, the tools and versions used for each analysis step, detailed methodology documentation enabling reproducibility, findings organized by artifact type (disk, memory, network), and a conclusions section that separates factual observations from interpretive analysis. Timeline reconstruction should be presented in both tabular and visual format, with explicit notes about timezone handling and clock skew that may affect timestamp accuracy.
+
+## Legal and Ethical Considerations
+
+Digital forensics for legal proceedings requires strict adherence to evidence handling procedures that vary by jurisdiction. Ensure chain of custody forms are complete, evidence bags are sealed and numbered, and all analysis is performed on verified copies with write-blockers. Privacy laws (GDPR, CCPA) may restrict the analysis of personal data on seized devices — consult legal counsel before examining devices that may contain employee or customer personal information beyond the scope of the investigation. Never disclose findings to unauthorized parties, and store evidence in encrypted, access-controlled storage.
+
+## Integration with Other Tools
+
+Digital forensics connects to multiple adjacent security skills. Memory analysis findings from Volatility (malicious processes, injected DLLs) inform binary-reverse for deeper malware analysis. Network forensics results from tshark (C2 communications, data exfiltration patterns) correlate with network-pentest methodology to understand the attack infrastructure. Disk forensics findings of persistence mechanisms (scheduled tasks, registry run keys, rootkit artifacts) map directly to post-exploitation techniques, enabling defenders to understand what the attacker did after gaining access and how to detect similar activity in the future.
+
+## Case Studies and Examples
+
+- **Insider threat investigation**: An employee was suspected of exfiltrating proprietary source code. Autopsy analysis of the employee's workstation revealed USB device connection logs, file access timestamps matching the exfiltration window, and remnants of deleted 7z archives in unallocated space. The carved archive files contained the exact source code repositories in question, with creation timestamps predating the employee's last day.
+- **Ransomware incident reconstruction**: Volatility analysis of a memory dump from a compromised server revealed a Meterpreter process, LSASS credential dumping activity, and lateral movement connections to three other servers. Timeline reconstruction showed the initial compromise occurred 47 days before ransomware deployment, during which the attacker mapped the network and exfiltrated 12GB of data through DNS tunneling.
+- **Anti-forensics detection**: A suspect attempted to cover tracks by using a secure deletion tool and modifying file timestamps with `touch -t`. SleuthKit analysis of the filesystem journal recovered the original MAC timestamps, and bulk_extractor carved fragments of the deleted files from swap space that the secure deletion tool had not sanitized.
+
+## Detection and Anti-Forensics
+
+Forensic artifacts that indicate anti-forensics activity include: timestamp inconsistencies (files created before their parent directory), gaps in event logs (cleared logs leave metadata artifacts), Timestomp evidence in NTFS $Standard_Information attributes, and Secure Delete tool remnants. Detect rootkit activity through cross-view detection: compare Volatility's process listing (pslist) against hidden process scans (psscan) to identify processes hidden by DKOM. Common anti-forensics techniques include: Timestomp for MAC timestamp modification, encrypted containers (VeraCrypt, BitLocker) preventing disk analysis, secure deletion tools, and rootkit techniques hiding processes, files, and registry keys. Defenders should deploy EDR agents that capture process creation events in real-time before anti-forensics tools can modify or delete evidence.
+
+## Advanced Techniques
+
+Advanced forensic analysis includes: Windows registry forensics (ShellBags, UserAssist, ShimCache, Amcache) for detailed user activity reconstruction, hibernation file analysis for recovering memory contents from powered-off systems, Volume Shadow Copy analysis for accessing previous file versions that attackers believed were deleted, and mobile device forensics using Cellebrite or open-source alternatives. For network forensics, advanced techniques include TLS session decryption with captured keys, HTTP/2 and QUIC protocol analysis, and DNS tunnel reconstruction from fragmented query patterns.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Speed | Coverage | Skill Level |
+|------|----------|-------|----------|-------------|
+| **Autopsy** | GUI-based full disk forensics | Moderate | Very broad | Beginner |
+| **SleuthKit** | CLI filesystem forensics | Fast | Broad | Intermediate |
+| **Volatility** | Memory dump analysis | Variable | Broad (OS-dependent) | Advanced |
+| **Wireshark/tshark** | Network traffic analysis | Fast | Very broad | Intermediate |
+| **binwalk** | Firmware/binary extraction | Fast | Narrow (binary) | Intermediate |
+| **foremost** | File carving by signature | Moderate | Narrow (carving) | Beginner |
+
+## Performance and Remediation
+
+Forensic analysis performance depends heavily on evidence size and tool selection. Large disk images (1TB+) require significant time for initial ingestion into Autopsy — use SleuthKit CLI tools for targeted extraction when full GUI analysis is unnecessary. Volatility memory analysis performance scales with dump size: a 16GB Windows memory dump can take 30+ minutes for the full plugin suite. Use tshark with BPF filters to pre-filter large PCAP files before analysis. Bulk_extractor is optimized for parallel processing and can saturate all CPU cores. While digital forensics is primarily investigative, findings should drive remediation: revoke compromised credentials, rebuild systems with rootkit evidence (cleaning is insufficient), patch the initial access vector, implement monitoring for discovered persistence mechanisms, and update detection rules based on extracted malware artifacts.
+
 ## Hacker Laws
 
 1. **First Principles** - The foundation of digital forensics is data immutability and verifiability. Every conclusion must be traceable to original evidence bits, and every operational step must be reproducibly verifiable. Understanding filesystem structures, memory management mechanisms, and network protocol specifications is a prerequisite for accurate analysis.

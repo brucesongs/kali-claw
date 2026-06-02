@@ -453,3 +453,298 @@ THEN: Verify output contains:
 - [ ] Final recommendation is actionable with assigned owners
 
 **Verification**: Compare algorithm output against manually calculated expected values for the 12-finding test set
+
+---
+
+## TC-CL-006: Consensus on Conflicting Findings
+
+**Objective**: Validate that the council resolves contradictory findings from different perspectives where the attacker perspective claims a vulnerability is exploitable (Critical) while the defender perspective provides evidence that a compensating control blocks exploitation, requiring the council to reach a consensus severity.
+
+**Severity**: HIGH
+
+**Prerequisites**: Council session with at least three perspectives, conflicting evidence for the same finding, mediator role defined
+
+**Scenario**: An internal API endpoint has no authentication token validation (attacker finding) but sits behind a VPN that requires mutual TLS and hardware token authentication (defender evidence). The auditor notes this violates the defense-in-depth principle but agrees the practical exploitability is limited.
+
+**Phase 1 — Conflicting Evidence Presentation**
+
+```
+GIVEN: Finding "Unauthenticated API endpoint at /api/v2/admin/users"
+  - Attacker perspective:
+    - Confirmed: no Authorization header required
+    - Confirmed: returns 200 with user data
+    - Severity: Critical (unauthenticated data access)
+    - Evidence: curl -s http://internal-api.corp/api/v2/admin/users returns full user list
+  - Defender perspective:
+    - Confirmed: endpoint requires VPN connection (mutual TLS + hardware token)
+    - Confirmed: endpoint is not accessible from corporate LAN, only from VPN CIDR
+    - Confirmed: VPN session timeout is 8 hours with re-authentication required
+    - Severity: Low (compensating controls block external access)
+    - Evidence: network diagram + VPN configuration + firewall rules
+  - Auditor perspective:
+    - Finding: violates defense-in-depth (no application-layer auth)
+    - Risk: if VPN is compromised, API has no additional protection
+    - Compliance: internal policy requires application-layer auth for PII data
+    - Severity: Medium (policy violation + residual risk)
+```
+
+**Phase 2 — Structured Debate**
+
+```
+WHEN: mediator facilitates structured debate
+THEN:
+  1. Attacker presents exploitation evidence (curl from VPN-connected machine)
+  2. Defender presents compensating control evidence (VPN MFA, network segmentation)
+  3. Auditor presents policy compliance gap (no defense-in-depth)
+  4. Each perspective rates exploitability:
+     - Attacker: exploitable IF VPN access obtained (conditional)
+     - Defender: not exploitable from external (blocked by VPN)
+     - Auditor: exploitable under VPN compromise scenario (plausible)
+```
+
+**Phase 3 — Consensus Resolution**
+
+```
+WHEN: building consensus
+THEN: produce:
+  - Agreed severity: MEDIUM (not Critical — compensating controls exist; not Low — policy gap present)
+  - Exploitability: conditional on VPN compromise (reduced from Critical)
+  - Business impact: PII exposure if VPN is compromised (retained from Critical)
+  - Compliance impact: policy violation confirmed (retained from Auditor)
+  - Recommendation: add application-layer authentication to API endpoint (defense-in-depth)
+  - Confidence: High (4/5) — all perspectives agree on the finding, disagreement is on severity
+  - Dissent: Attacker maintains severity should be High (not Medium) due to VPN compromise risk
+  - Dissent documented and preserved
+```
+
+**Steps**:
+1. Present all three perspectives with evidence
+2. Facilitate structured debate (5 minutes per perspective)
+3. Calculate weighted severity scores (attacker 0.40, defender 0.35, auditor 0.25)
+4. Identify points of agreement and disagreement
+5. Reach consensus on severity with documented dissent
+6. Produce recommendation with action items
+
+**Expected Result**: Consensus severity of Medium with documented attacker dissent, actionable remediation (add app-layer auth), and preserved dissenting opinion
+
+**Remediation**: Add application-layer authentication (JWT or API key) to the admin API endpoint, implement defense-in-depth
+
+**Pass Criteria**:
+- [ ] All three perspectives presented with distinct evidence
+- [ ] Compensating controls evaluated and weighed against exploitability
+- [ ] Final severity reflects both exploitability (reduced by VPN) and compliance gap (policy violation)
+- [ ] Dissenting view (attacker's High severity preference) explicitly documented
+- [ ] Recommendation is actionable (specific fix, not "review security")
+- [ ] Confidence level reflects the disagreement (not inflated to 5/5)
+
+---
+
+## TC-CL-007: Cross-Domain Risk Assessment
+
+**Objective**: Validate that the council can assess risks spanning multiple security domains (network, application, cloud, compliance) for a single finding that has implications across all domains, producing a unified risk score and domain-specific remediation actions.
+
+**Severity**: HIGH
+
+**Prerequisites**: Council session with experts covering network security, application security, cloud security, and compliance domains; complex finding with cross-domain impact
+
+**Scenario**: A misconfigured AWS S3 bucket is publicly accessible and contains database backup files with customer PII. This single finding impacts cloud security (misconfiguration), data security (PII exposure), compliance (GDPR breach), application security (data used by application), and network security (public internet exposure).
+
+**Phase 1 — Domain-Specific Analysis**
+
+```
+GIVEN: Finding "Public S3 bucket with customer PII database backups"
+  EACH domain expert produces independent assessment:
+
+  Network Security:
+    - Exposure: publicly accessible from any IP
+    - Access log: S3 access logs show 47 downloads from 12 unique IPs
+    - Blast radius: internet-scale exposure
+    - Domain severity: Critical
+
+  Application Security:
+    - Data: backups contain user table (email, password hash, address)
+    - Password hashing: bcrypt (work factor 10) — moderate protection
+    - Data currency: backup from 3 months ago (some stale data)
+    - Domain severity: High
+
+  Cloud Security:
+    - Misconfiguration: S3 bucket ACL allows public read
+    - Root cause: no S3 Bucket Policy enforcing private access
+    - Similar buckets: scan shows 3 other buckets with same ACL pattern
+    - Domain severity: Critical (systemic misconfiguration)
+
+  Compliance:
+    - GDPR Article 5: personal data processed without appropriate security
+    - GDPR Article 32: encryption not applied to data at rest
+    - GDPR Article 33: 72-hour breach notification required
+    - Breach scope: estimated 50,000+ customer records
+    - Domain severity: Critical (mandatory notification)
+```
+
+**Phase 2 — Cross-Domain Impact Correlation**
+
+```
+WHEN: correlating domain assessments
+THEN: identify:
+  - Amplification: network exposure + cloud misconfiguration = systemic risk
+  - Compliance trigger: PII + public access = mandatory GDPR notification
+  - Secondary impact: similar buckets not yet confirmed leaking = potential scope expansion
+  - Root cause: cloud infrastructure-as-code template lacks S3 policy controls
+  - Timeline: 47 downloads already occurred — data already exfiltrated
+```
+
+**Phase 3 — Unified Risk Scoring**
+
+```
+WHEN: producing unified risk assessment
+THEN: output:
+  - Overall severity: Critical
+  - Domain breakdown: Network (Critical), Application (High), Cloud (Critical), Compliance (Critical)
+  - Unified CVSS-like score: 9.1 (calculated from domain maximums weighted by business impact)
+  - Time sensitivity: IMMEDIATE (GDPR 72-hour clock started when discovered)
+  - Financial impact estimate: regulatory fine potential ($2M-$10M range for GDPR)
+  - Remediation priority matrix:
+    1. IMMEDIATE: restrict S3 bucket access (5 minutes)
+    2. IMMEDIATE: assess data scope for breach notification (1 hour)
+    3. URGENT: scan and fix remaining 3 similar buckets (4 hours)
+    4. SHORT-TERM: fix IaC template to prevent recurrence (1 week)
+    5. ONGOING: GDPR notification and customer communication (per regulatory timeline)
+```
+
+**Steps**:
+1. Each domain expert produces independent assessment with domain-specific severity
+2. Correlate domain assessments to identify amplification and secondary impacts
+3. Calculate unified risk score from domain maximums
+4. Prioritize remediation actions across domains
+5. Assign domain-specific action owners with deadlines
+6. Produce unified risk report
+
+**Expected Result**: Unified risk assessment with domain breakdown, unified severity (Critical), time-sensitive remediation priorities, and domain-specific action owners
+
+**Remediation**: Restrict S3 bucket immediately, assess breach scope for GDPR notification, fix IaC templates, scan remaining buckets
+
+**Pass Criteria**:
+- [ ] Each security domain produced independent assessment with domain-specific severity
+- [ ] Cross-domain amplification effects identified (exposure + PII + compliance)
+- [ ] Unified risk score calculated from domain assessments (not arbitrary)
+- [ ] Remediation actions assigned to domain experts with deadlines
+- [ ] GDPR notification timeline explicitly addressed
+- [ ] Similar infrastructure patterns flagged for proactive scanning
+- [ ] Financial impact estimate included for business context
+
+---
+
+## TC-CL-008: Bias Detection in Multi-Perspective Analysis
+
+**Objective**: Validate that the council can detect and mitigate analytical biases in multi-perspective analysis, specifically: confirmation bias (seeking only supporting evidence), anchoring bias (overweighting the first finding), and authority bias (deferring to the most experienced perspective without challenge).
+
+**Severity**: MEDIUM
+
+**Prerequisites**: Council session with known bias injection points, mediator role trained in bias detection, multiple perspectives with varying experience levels
+
+**Scenario**: A security assessment of a web application where the attacker perspective (senior pentester) immediately identifies SQL injection and anchors the entire council discussion around it, potentially causing other perspectives to overlook a more critical but less obvious finding (business logic flaw allowing fund transfers).
+
+**Phase 1 — Baseline Assessment (Bias Injection)**
+
+```
+GIVEN: Web application assessment for fintech platform
+  INJECTED BIASES:
+  1. Anchoring bias:
+     - Attacker (senior, 15 years) immediately finds SQL injection
+     - All subsequent discussion centers on SQLi severity
+     - Other perspectives unconsciously frame their findings relative to SQLi
+
+  2. Confirmation bias:
+     - Defender perspective only looks for controls related to SQL injection
+     - Ignores business logic endpoints because they "don't have SQL"
+
+  3. Authority bias:
+     - Auditor defers to attacker's severity rating without independent assessment
+     - Says "if [senior pentester] says Critical, I trust that"
+
+  HIDDEN CRITICAL FINDING (that bias causes council to deprioritize):
+  - Business logic flaw: /api/transfer allows negative amounts (money reversal)
+  - No SQL injection, no auth bypass — pure logic error
+  - Impact: attacker can transfer money from any account to their own
+```
+
+**Phase 2 — Bias Detection**
+
+```
+WHEN: mediator runs bias detection checklist
+THEN: detect:
+
+  1. Anchoring bias detection:
+     - Check: has the council discussed findings OTHER than SQLi?
+     - Check: has any perspective independently assessed severity without referencing SQLi?
+     - Flag: 80% of discussion time spent on SQLi — anchoring detected
+
+  2. Confirmation bias detection:
+     - Check: has defender assessed controls for ALL finding types?
+     - Check: has auditor verified SQLi severity independently (not just agreed)?
+     - Flag: defender only assessed SQLi-related controls — confirmation bias detected
+
+  3. Authority bias detection:
+     - Check: has auditor provided independent severity rationale?
+     - Check: has any perspective challenged the attacker's assessment?
+     - Flag: auditor used "I trust that" language — authority bias detected
+```
+
+**Phase 3 — Bias Mitigation**
+
+```
+WHEN: applying bias mitigation techniques
+THEN:
+  1. Blind re-assessment:
+     - Ask each perspective to independently rate ALL findings without seeing others' ratings
+     - Compare blind ratings to see if anchoring influenced scores
+
+  2. Mandatory alternative analysis:
+     - Each perspective must identify at least 1 finding NOT related to SQLi
+     - Forces exploration beyond the anchored finding
+     - This surfaces the business logic flaw
+
+  3. Devil's advocate rotation:
+     - Assign each perspective to argue AGAINST the current consensus
+     - Defender argues why SQLi is less severe than claimed
+     - Attacker argues why business logic flaw is MORE severe than SQLi
+
+  4. Structured re-ranking:
+     - All findings re-ranked after bias mitigation
+     - Business logic flaw promoted from "Low" (buried by anchoring) to "Critical"
+     - SQLi correctly rated as "High" (not inflated by anchoring)
+```
+
+**Phase 4 — Bias-Adjusted Consensus**
+
+```
+WHEN: producing final consensus
+THEN: output:
+  - Original consensus (biased): SQLi = Critical, Business Logic = Low
+  - Bias-adjusted consensus: Business Logic = Critical, SQLi = High
+  - Bias incidents detected: 3 (anchoring, confirmation, authority)
+  - Mitigation actions applied: 4 (blind re-assessment, alternative analysis, devil's advocate, re-ranking)
+  - Confidence: Medium (3/5) — bias was significant, some residual bias may remain
+  - Lesson learned: always run bias detection before final consensus
+```
+
+**Steps**:
+1. Conduct initial assessment with injected biases
+2. Run bias detection checklist (3 bias types)
+3. Apply mitigation techniques (blind re-assessment, alternative analysis, devil's advocate)
+4. Re-rank findings after bias mitigation
+5. Compare pre- and post-mitigation severity rankings
+6. Document bias incidents and their impact on initial assessment
+
+**Expected Result**: Bias-adjusted consensus that correctly identifies the business logic flaw as Critical (previously deprioritized due to anchoring), with documented bias incidents and mitigation actions
+
+**Remediation**: Implement mandatory bias detection checklist for all council sessions, include blind re-assessment step in methodology
+
+**Pass Criteria**:
+- [ ] At least 2 of 3 bias types detected during analysis
+- [ ] Bias mitigation changed at least one finding's severity ranking
+- [ ] Business logic flaw correctly promoted to Critical after bias mitigation
+- [ ] Blind re-assessment produced different severity rankings than biased assessment
+- [ ] Devil's advocate rotation generated insights not previously discussed
+- [ ] Bias incidents documented with specific examples of biased reasoning
+- [ ] Final report includes bias detection section alongside findings

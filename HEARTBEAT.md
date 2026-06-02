@@ -9,6 +9,8 @@
 - [ ] Check system resource usage (CPU, memory, disk)
 - [ ] Verify core configuration file integrity (SOUL.md, AGENTS.md, IDENTITY.md)
 - [ ] Confirm bak/ directory backup is up to date (no older than 3 hours)
+- [ ] Verify core file consistency: VERSION matches README version, skill count in CLAUDE.md matches actual directory count (49)
+- [ ] Check for `__pycache__` artifacts in skills/ directories
 
 ---
 
@@ -54,4 +56,4 @@
 
 ---
 
-_Last updated: 2026-05-22_
+_Last updated: 2026-06-02_

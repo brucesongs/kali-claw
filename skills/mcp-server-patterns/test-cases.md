@@ -444,3 +444,353 @@ echo "Deploy recommendation: HOLD until all items show 0 or yes"
 ```
 
 **Severity** (if critical issues found): Critical — block deployment
+
+---
+
+## TC-MCP-006: MCP Resource Enumeration and Access Control Testing
+
+**Objective**: Verify that MCP server resource endpoints (`resources/list`, `resources/read`) enforce proper access controls and do not leak sensitive resource metadata or content to unauthorized clients.
+
+**Type**: Security Testing
+
+**Prerequisites**:
+- MCP server running with multiple resource types registered (files, database records, API endpoints)
+- Valid API key for authenticated access
+- Second API key with restricted role (read-only or limited-scope)
+- curl and jq available
+
+### Setup
+
+```bash
+export ADMIN_KEY="admin-test-key"
+export LIMITED_KEY="limited-test-key"
+export MCP_URL="http://localhost:8080"
+```
+
+### Steps
+
+1. **Enumerate resources with admin key** — expect full resource list:
+   ```bash
+   curl -s -X POST "$MCP_URL/resources/list" \
+     -H "X-API-Key: $ADMIN_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{}' | jq '.resources | length'
+   ```
+
+2. **Enumerate resources with limited key** — expect filtered list:
+   ```bash
+   curl -s -X POST "$MCP_URL/resources/list" \
+     -H "X-API-Key: $LIMITED_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{}' | jq '.resources[] | {name, uri}'
+   ```
+
+3. **Attempt to read restricted resource with limited key**:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/resources/read" \
+     -H "X-API-Key: $LIMITED_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"uri": "file:///etc/shadow"}'
+   ```
+
+4. **Attempt path traversal via resource URI**:
+   ```bash
+   for uri in "file:///etc/passwd" "file:///etc/shadow" "file://../../../etc/passwd" "file:///proc/self/environ"; do
+     echo "--- Testing URI: $uri ---"
+     curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/resources/read" \
+       -H "X-API-Key: $ADMIN_KEY" \
+       -H "Content-Type: application/json" \
+       -d "{\"uri\": \"$uri\"}"
+   done
+   ```
+
+5. **Attempt resource URI injection with encoded characters**:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/resources/read" \
+     -H "X-API-Key: $ADMIN_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"uri": "file:///etc/..%2F..%2Fetc%2Fpasswd"}'
+   ```
+
+6. **Verify limited key cannot enumerate resources outside its scope**:
+   ```bash
+   ADMIN_COUNT=$(curl -s -X POST "$MCP_URL/resources/list" \
+     -H "X-API-Key: $ADMIN_KEY" -d '{}' | jq '.resources | length')
+   LIMITED_COUNT=$(curl -s -X POST "$MCP_URL/resources/list" \
+     -H "X-API-Key: $LIMITED_KEY" -d '{}' | jq '.resources | length')
+   echo "Admin: $ADMIN_COUNT resources, Limited: $LIMITED_COUNT resources"
+   ```
+
+### Expected Results
+
+- Admin key returns full resource list; limited key returns a subset (scope-filtered)
+- All path traversal attempts return `403` or a validation error — never file contents
+- Resource URI encoding bypasses are rejected by input validation layer
+- `/etc/shadow`, `/proc/self/environ`, and other sensitive paths are blocked regardless of API key
+- Limited key cannot read resources outside its assigned scope
+- Server logs show resource access attempts with client identity and requested URI
+
+### Verification
+
+```bash
+# Confirm path traversal blocked
+grep -c "path_traversal_blocked" /var/log/mcp-security-server.log
+
+# Confirm no sensitive file content in any response
+for f in resource-test-*.json; do
+  grep -qE "root:|nobody:|MAIL=" "$f" && echo "FAIL: file content leaked in $f" || echo "PASS: $f"
+done
+
+# Confirm scope enforcement
+[ "$ADMIN_COUNT" -gt "$LIMITED_COUNT" ] && echo "PASS: scope filtering active" || echo "FAIL: no scope filtering"
+```
+
+**Severity** (if path traversal or access control bypass found): Critical
+
+---
+
+## TC-MCP-007: MCP Tool Permission Escalation Testing
+
+**Objective**: Verify that the MCP server enforces tool-level permissions correctly — a client with limited tool access cannot invoke restricted tools, cannot escalate privileges via parameter manipulation, and cannot chain tools to achieve unauthorized actions.
+
+**Type**: Security Testing
+
+**Prerequisites**:
+- MCP server with at least two privilege tiers: `scanner` role (nmap, curl tools) and `exploit` role (metasploit, sqlmap with exploitation mode)
+- Two API keys provisioned: one per role
+- Tool permission matrix documented
+- Server logging enabled
+
+### Setup
+
+```bash
+export SCANNER_KEY="scanner-role-key"
+export EXPLOIT_KEY="exploit-role-key"
+export MCP_URL="http://localhost:8080"
+
+# Document the permission matrix
+echo "Scanner role tools: run_nmap, run_curl, run_whatweb"
+echo "Exploit role tools: run_nmap, run_curl, run_whatweb, run_sqlmap_exploit, run_msf"
+```
+
+### Steps
+
+1. **Baseline — scanner invokes allowed tool** (expect: 200):
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap" \
+     -H "X-API-Key: $SCANNER_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "ports": "80"}'
+   ```
+
+2. **Privilege escalation — scanner invokes restricted tool** (expect: 403):
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_msf" \
+     -H "X-API-Key: $SCANNER_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"module": "exploit/windows/smb/ms17_010", "target": "192.168.56.101"}'
+   ```
+
+3. **Parameter manipulation — scanner passes exploit-mode flag to shared tool**:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_sqlmap" \
+     -H "X-API-Key: $SCANNER_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "url": "http://192.168.56.101/search?q=test", "mode": "exploit", "os_shell": true}'
+   ```
+
+4. **Tool list verification — scanner cannot discover restricted tools**:
+   ```bash
+   SCANNER_TOOLS=$(curl -s -X POST "$MCP_URL/tools/list" \
+     -H "X-API-Key: $SCANNER_KEY" -d '{}' | jq -r '.tools[].name')
+   echo "Scanner visible tools: $SCANNER_TOOLS"
+
+   EXPLOIT_TOOLS=$(curl -s -X POST "$MCP_URL/tools/list" \
+     -H "X-API-Key: $EXPLOIT_KEY" -d '{}' | jq -r '.tools[].name')
+   echo "Exploit visible tools: $EXPLOIT_TOOLS"
+   ```
+
+5. **Tool chaining — attempt to chain scanner tools to achieve exploitation**:
+   ```bash
+   # Use curl tool to fetch internal metadata (simulated SSRF via tool chain)
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_curl" \
+     -H "X-API-Key: $SCANNER_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"}'
+   ```
+
+6. **Role manipulation via request parameters**:
+   ```bash
+   # Attempt to inject role elevation into any tool call
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap" \
+     -H "X-API-Key: $SCANNER_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "ports": "80", "role": "exploit", "permissions": ["all"]}'
+   ```
+
+### Expected Results
+
+- Step 1 succeeds (allowed tool for scanner role)
+- Step 2 returns 403 with `{"error": "forbidden", "message": "tool not authorized for this role"}`
+- Step 3 returns 403 — `mode: exploit` and `os_shell: true` parameters are rejected for scanner role
+- Step 4: scanner tool list is a strict subset of exploit tool list
+- Step 5: SSRF attempt via tool chain is blocked by scope enforcement (cloud metadata IPs out of scope)
+- Step 6: extra role/permission fields are silently ignored or rejected — do not grant elevated access
+- Server logs show all unauthorized access attempts with client key hash and requested tool
+
+### Verification
+
+```bash
+# Confirm restricted tool blocked
+grep "tool_not_authorized" /var/log/mcp-security-server.log | wc -l
+
+# Confirm tool lists differ
+python3 -c "
+import subprocess, json
+scanner = json.loads(subprocess.run(['curl','-s','-X','POST','http://localhost:8080/tools/list','-H','X-API-Key: scanner-role-key','-d','{}'], capture_output=True, text=True).stdout)
+exploit = json.loads(subprocess.run(['curl','-s','-X','POST','http://localhost:8080/tools/list','-H','X-API-Key: exploit-role-key','-d','{}'], capture_output=True, text=True).stdout)
+s_tools = {t['name'] for t in scanner['tools']}
+e_tools = {t['name'] for t in exploit['tools']}
+assert s_tools.issubset(e_tools), 'Scanner tools must be subset of exploit tools'
+assert len(e_tools - s_tools) > 0, 'Exploit must have tools scanner does not'
+print(f'PASS: scope enforcement verified ({len(s_tools)} scanner, {len(e_tools)} exploit tools)')
+"
+```
+
+**Severity** (if privilege escalation possible): Critical
+
+---
+
+## TC-MCP-008: MCP Server Authentication Bypass Testing
+
+**Objective**: Verify that the MCP server's authentication layer cannot be bypassed through HTTP method manipulation, header injection, timing attacks, or protocol-level tricks — all of which could allow unauthenticated access to tools and resources.
+
+**Type**: Security Testing
+
+**Prerequisites**:
+- MCP server running in HTTP/SSE mode on `localhost:8080`
+- Valid API key configured
+- Python 3.11+ with `httpx` installed
+- curl available
+
+### Setup
+
+```bash
+export VALID_KEY="valid-test-key"
+export MCP_URL="http://localhost:8080"
+pip install httpx
+```
+
+### Steps
+
+1. **HTTP method manipulation** — try alternative methods to reach authenticated endpoints:
+   ```bash
+   for method in GET PUT PATCH DELETE OPTIONS TRACE; do
+     echo "--- Method: $method ---"
+     curl -s -w "\nHTTP:%{http_code}" -X $method "$MCP_URL/tools/run_nmap" \
+       -H "Content-Type: application/json" \
+       -d '{"target": "192.168.56.101", "ports": "80"}'
+   done
+   ```
+
+2. **Duplicate header injection** — send two API key headers with different values:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap" \
+     -H "X-API-Key: invalid-key" \
+     -H "X-API-Key: $VALID_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "ports": "80"}'
+   ```
+
+3. **Query parameter authentication** — try passing key as query parameter instead of header:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap?api_key=$VALID_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "ports": "80"}'
+   ```
+
+4. **Timing attack on key validation** — measure response times for valid vs invalid keys:
+   ```python
+   import httpx, time, statistics
+
+   URL = "http://localhost:8080/tools/run_nmap"
+   PAYLOAD = {"target": "192.168.56.101", "ports": "80"}
+
+   def measure(key, n=10):
+       times = []
+       for _ in range(n):
+           start = time.perf_counter()
+           httpx.post(URL, json=PAYLOAD, headers={"X-API-Key": key}, timeout=5)
+           times.append(time.perf_counter() - start)
+       return statistics.median(times)
+
+   valid_time = measure("valid-test-key")
+   invalid_time = measure("wrong-key-1234")
+   diff_ms = abs(valid_time - invalid_time) * 1000
+
+   print(f"Valid key median: {valid_time*1000:.1f}ms")
+   print(f"Invalid key median: {invalid_time*1000:.1f}ms")
+   print(f"Difference: {diff_ms:.1f}ms")
+   if diff_ms > 50:
+       print("WARNING: Timing difference > 50ms — possible timing oracle")
+   else:
+       print("PASS: No significant timing difference")
+   ```
+
+5. **Null byte injection in API key**:
+   ```bash
+   curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap" \
+     -H "X-API-Key: valid-test-key\x00admin-override" \
+     -H "Content-Type: application/json" \
+     -d '{"target": "192.168.56.101", "ports": "80"}'
+   ```
+
+6. **SSE connection authentication** — test if SSE endpoint streams results without auth:
+   ```bash
+   timeout 5 curl -s -N "$MCP_URL/sse" 2>&1 | head -20
+   ```
+
+7. **Content-Type confusion** — try different content types to bypass auth middleware:
+   ```bash
+   for ct in "application/x-www-form-urlencoded" "multipart/form-data" "text/plain" "application/xml"; do
+     echo "--- Content-Type: $ct ---"
+     curl -s -w "\nHTTP:%{http_code}" -X POST "$MCP_URL/tools/run_nmap" \
+       -H "X-API-Key: $VALID_KEY" \
+       -H "Content-Type: $ct" \
+       -d '{"target": "192.168.56.101", "ports": "80"}'
+   done
+   ```
+
+### Expected Results
+
+- All HTTP method variations return 401 when no valid key is provided (no method-based bypass)
+- Duplicate header injection does not grant access (server rejects or takes first header consistently)
+- Query parameter authentication is not accepted (only header-based auth)
+- Timing difference between valid and invalid keys is less than 50ms (constant-time comparison)
+- Null byte injection does not bypass or truncate key comparison
+- SSE endpoint requires authentication before streaming any data
+- Content-Type confusion does not bypass auth middleware
+
+### Verification
+
+```bash
+# Confirm all unauthenticated requests were rejected
+python3 -c "
+import httpx
+
+URL = 'http://localhost:8080/tools/run_nmap'
+PAYLOAD = {'target': '192.168.56.101', 'ports': '80'}
+
+tests = [
+    ('No auth', {}),
+    ('Invalid key', {'X-API-Key': 'wrong'}),
+    ('Empty key', {'X-API-Key': ''}),
+]
+for name, headers in tests:
+    r = httpx.post(URL, json=PAYLOAD, headers=headers, timeout=5)
+    status = 'PASS' if r.status_code == 401 else f'FAIL ({r.status_code})'
+    print(f'{name}: {status}')
+"
+```
+
+**Severity** (if authentication bypass found): Critical

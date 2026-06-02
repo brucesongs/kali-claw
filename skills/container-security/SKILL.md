@@ -98,6 +98,57 @@ Use docker-bench-security and kube-bench for Docker/Kubernetes security baseline
 
 ---
 
+## Common Pitfalls
+
+- **Scanning images without checking runtime configuration**: A clean vulnerability scan does not mean a container is secure. A fully patched image running in privileged mode with docker.sock mounted is more dangerous than an outdated image running with least privilege and a read-only filesystem.
+- **Ignoring ServiceAccount tokens in Kubernetes**: Every Pod receives an automatically mounted ServiceAccount token by default. If the ServiceAccount has excessive RBAC permissions, any code running in the Pod (including attacker code after exploitation) inherits those cluster-level privileges.
+- **Neglecting supply chain verification**: Pulling images by tag (e.g., `nginx:latest`) rather than by digest means the image content can change without notice. An upstream image compromise or tag hijacking can introduce malicious code into your infrastructure without any configuration change on your end.
+
+## Automation and Scripting
+
+Automate container security scanning by integrating trivy into CI/CD pipelines to block builds with Critical/High CVEs from being pushed to production registries. Use kubeaudit in scheduled CronJobs to continuously audit Kubernetes RBAC configurations and alert on deviations. Script falco rule testing by generating expected benign and malicious events in a test cluster and verifying that alerts fire correctly. Build custom Python scripts using the Docker SDK to enumerate all running containers and their mount points for rapid privilege escalation surface assessment.
+
+## Reporting and Documentation
+
+Container security reports should separate findings by layer: image vulnerabilities (CVE list with CVSS scores), runtime configuration issues (privileged mode, cap-add, sensitive mounts), orchestration misconfigurations (RBAC, Network Policies, Pod Security Standards), and supply chain risks (unsigned images, unverified registries). For each container escape finding, document the escape path from inside the container to host access with specific commands and outputs. Include CIS Benchmark compliance scores as a measurable baseline for tracking improvement over time.
+
+## Legal and Ethical Considerations
+
+Container escape testing in shared Kubernetes clusters (multi-tenant environments) carries significant risk of affecting other tenants. Verify that the engagement scope covers escape attempts and coordinate with the cluster operations team to ensure testing occurs in an isolated namespace or during a maintenance window. Container security tools like trivy and kubeaudit are generally safe to run in production for scanning, but active exploitation techniques (escape attempts, privilege escalation) should be performed in dedicated test environments whenever possible.
+
+## Integration with Other Tools
+
+Container security findings connect to multiple adjacent skill domains. Image vulnerability results from trivy feed into vulnerability-assessment for CVE tracking and remediation prioritization. Kubernetes RBAC misconfigurations discovered by kubeaudit inform post-exploitation lateral movement planning. Container escape techniques that reach the host transition to host-level post-exploitation methodology. Cloud metadata access from within containers (via SSRF or direct access) connects to cloud-security assessment of the broader infrastructure.
+
+## Case Studies and Examples
+
+- **docker.sock escape**: A web application container had the Docker socket mounted for "log collection." An attacker who gained RCE in the web app used the Docker CLI to create a new privileged container mounting the host's root filesystem, achieving full host compromise in under 60 seconds.
+- **Kubernetes ServiceAccount escalation**: A pod's default ServiceAccount had `cluster-admin` RBAC bindings due to a misconfigured Helm chart. An attacker who compromised the application used the mounted token to read all Secrets across all namespaces, including database credentials and TLS private keys.
+- **Supply chain attack via image poisoning**: A development team used `node:latest` as their base image. An upstream compromise of the Node.js Docker image (before it was detected and pulled) would have deployed malicious code to all downstream builds. Shifting to pinned digests and cosign verification prevented this vector.
+
+## Detection and Evasion
+
+Container runtime detection relies on tools like Falco that monitor system calls and alert on anomalous behavior: unexpected shell execution inside containers, sensitive file access (`/etc/shadow`, `/proc/sysrq-trigger`), network connections to unusual destinations, and privilege escalation syscalls. Kubernetes audit logs capture API server requests including RBAC changes, Secret access, and Pod creation events. To evade container security monitoring: use static binaries instead of interpreted scripts, leverage capabilities already present in the container rather than downloading new tools, and perform escape attempts through less commonly monitored kernel system calls. In Kubernetes, use existing ServiceAccount tokens rather than creating new RBAC bindings to avoid API server audit logging.
+
+## Advanced Techniques
+
+Advanced container security testing includes: kernel exploit chains from within containers (CVE-2022-0185, CVE-2024-1086 for netfilter escape), cgroup and namespace manipulation for container breakout, seccomp profile bypass through allowed syscalls, Kubernetes admission controller bypass through direct API server access, and etcd database manipulation for cluster-level persistence. For CI/CD pipeline testing, explore build cache poisoning, dependency confusion attacks, and malicious build argument injection.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Speed | Coverage | Skill Level |
+|------|----------|-------|----------|-------------|
+| **trivy** | All-in-one scanning (image/K8s/filesystem) | Fast | Very broad | Beginner |
+| **grype** | Fast vulnerability scanning with SBOM | Fast | Broad | Beginner |
+| **falco** | Runtime behavior monitoring | Real-time | Broad | Intermediate |
+| **kubeaudit** | K8s security configuration audit | Fast | K8s-specific | Beginner |
+| **docker-bench-security** | CIS Docker Benchmark checks | Fast | Docker-specific | Beginner |
+| **clair** | Static vulnerability analysis service | Moderate | Broad | Intermediate |
+
+## Performance and Remediation
+
+Image scanning performance varies significantly by tool and image size. Trivy and grype complete scans of typical application images (500MB-2GB) in 10-30 seconds, while larger base images with extensive package lists can take 2-5 minutes. For large-scale deployments, use trivy in server mode with a centralized vulnerability database. Falco runtime monitoring has minimal performance impact (<2% CPU overhead). Prioritize container security remediation in order: fix Critical CVEs in base images immediately, remove privileged mode and docker.sock mounts, enforce Pod Security Standards, implement Network Policies, deploy image signing (cosign/Notary) in CI/CD, and rotate all ServiceAccount tokens after any suspected compromise.
+
 ## Hacker Laws
 
 | Law | Application in Container Security |

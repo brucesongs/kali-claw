@@ -817,6 +817,70 @@ spec:
 
 ## 14. Registry Security
 
+### CIS Docker Benchmark Validation
+
+```bash
+# Run CIS Docker Benchmark checks using docker-bench-security
+git clone https://github.com/docker/docker-bench-security.git
+cd docker-bench-security
+sudo bash docker-bench-security.sh
+
+# Run specific CIS tests (e.g., only host configuration)
+sudo bash docker-bench-security.sh -c host_configuration
+
+# Output JSON for automated processing
+sudo bash docker-bench-security.sh -json > cis-bench-results.json
+
+# Check specific CIS recommendations
+# CIS 4.1: Ensure a user for the container has been created
+docker inspect --format '{{.Config.User}}' <container>
+# CIS 4.6: Ensure HEALTHCHECK instructions have been added to the container image
+docker inspect --format '{{.Config.Healthcheck}}' <container>
+# CIS 4.7: Ensure update instructions are not used alone in the Dockerfile
+grep -n "apt-get upgrade\|yum update\|apk upgrade" Dockerfile
+```
+
+### Container Compliance Scanning
+
+```bash
+# Trivy compliance scanning for CIS benchmarks
+trivy compliance --reports cis docker
+trivy compliance --reports nsa docker
+trivy compliance --reports cis k8s
+
+# Check Kubernetes CIS benchmarks with kube-bench
+kube-bench master --benchmark cis-1.8
+kube-bench node --benchmark cis-1.8
+
+# Check Docker daemon configuration security
+cat /etc/docker/daemon.json | jq '.'
+# Verify: "userns-remap": "default", "live-restore": true, "userland-proxy": false
+```
+
+### Container Runtime Monitoring with Sysdig
+
+```bash
+# Install Falco for runtime threat detection
+helm repo add falcosecurity https://falcosecurity.github.io/charts
+helm install falco falcosecurity/falco --namespace falco --create-namespace
+
+# Custom Falco rule for detecting crypto mining in containers
+cat <<'EOF' > /etc/falco/rules.d/crypto-mining.yaml
+- rule: Detect Crypto Mining in Container
+  desc: Detect processes associated with cryptocurrency mining
+  condition: >
+    container and
+    (proc.name in (xmrig, minerd, cpuminer, cryptonight) or
+     proc.cmdline contains "stratum+tcp" or
+     proc.cmdline contains "pool.minexmr.com")
+  output: >
+    Crypto mining detected (user=%user.name container=%container.name
+    image=%container.image.repository command=%proc.cmdline)
+  priority: CRITICAL
+  tags: [container, crypto, malware]
+EOF
+```
+
 ### Image Signing Verification
 
 ```bash
@@ -931,4 +995,234 @@ spec:
         not startswith(container.image, input.parameters.repos[_])
         msg := sprintf("Image '%v' is not from an allowed registry", [container.image])
       }
+```
+
+---
+
+## 15. Secret Scanning in Container Workflows
+
+### CI/CD Pipeline Secret Detection
+
+```bash
+# Scan git history for leaked secrets in container build context
+trufflehog git file://./ --only-verified
+
+# Scan Dockerfile for secrets before build
+docker run --rm -v "$(pwd):/src" zricethezav/gitleaks detect --source /src
+
+# Check build arguments for leaked secrets
+docker history --no-trunc target-app:latest | grep -iE "SECRET|PASSWORD|TOKEN|API_KEY|AWS_"
+```
+
+### Kubernetes Secret Scanning
+
+```bash
+# Scan all Kubernetes secrets for weak values
+kubectl get secrets --all-namespaces -o json | \
+  jq '.items[] | {name: .metadata.name, namespace: .metadata.namespace, keys: (.data | keys)}'
+
+# Check for secrets in environment variables
+kubectl get pods --all-namespaces -o json | \
+  jq '.items[] | {pod: .metadata.name, ns: .metadata.namespace, env: [.spec.containers[].env[]? | select(.value != null and (.value | type) == "string") | .name]}'
+
+# Detect hardcoded secrets in Kubernetes manifests
+grep -rn "password:\|secret:\|token:\|api_key:" ./k8s-manifests/ --include="*.yaml" --include="*.yml"
+```
+
+---
+
+## 16. Container Network Security Testing
+
+### Network Policy Effectiveness Testing
+
+```bash
+# Deploy a test pod for network policy validation
+kubectl run netpol-test --image=nicolaka/netshoot --rm -it --restart=Never -- bash
+
+# From inside the test pod, verify denied connections
+for port in 22 80 443 3306 5432 6379 8080 9090; do
+  timeout 3 bash -c "echo >/dev/tcp/target-service/$port" 2>/dev/null \
+    && echo "[FAIL] Port $port: REACHABLE (should be blocked)" \
+    || echo "[PASS] Port $port: BLOCKED"
+done
+
+# Test DNS resolution from within the pod
+nslookup kubernetes.default.svc.cluster.local
+nslookup external-domain.com
+```
+
+### Container Traffic Capture
+
+```bash
+# Capture traffic from a specific container using its network namespace
+CONTAINER_PID=$(docker inspect --format '{{.State.Pid}}' <container>)
+sudo nsenter -t $CONTAINER_PID -n tcpdump -i eth0 -w /tmp/container_traffic.pcap
+
+# Analyze captured container traffic
+tshark -r /tmp/container_traffic.pcap -Y "http.request" -T fields -e http.host -e http.request.uri
+tshark -r /tmp/container_traffic.pcap -Y "dns" -T fields -e dns.qry.name
+```
+
+---
+
+## 17. Supply Chain Container Security
+
+### Base Image Vulnerability Tracking
+
+```bash
+# Check if base images are up to date and free of known vulnerabilities
+docker images --format "{{.Repository}}:{{.Tag}}" | while read image; do
+  echo "=== Scanning $image ==="
+  trivy image --severity HIGH,CRITICAL "$image" 2>/dev/null | tail -5
+done
+
+# Compare current image against a known-good baseline
+trivy image --format json --output current_scan.json target:latest
+trivy image --format json --output baseline_scan.json target:baseline
+diff <(jq '.Results[].Vulnerabilities[].ID' current_scan.json | sort) \
+     <(jq '.Results[].Vulnerabilities[].ID' baseline_scan.json | sort)
+```
+
+### Dockerfile Security Linting
+
+```bash
+# Use hadolint to check Dockerfile for security best practices
+docker run --rm -i hadolint/hadolint < Dockerfile
+
+# Check for common Dockerfile security issues
+grep -n "FROM.*latest" Dockerfile && echo "[WARN] Using :latest tag is not deterministic"
+grep -n "RUN.*apt-get.*install.*-y" Dockerfile | grep -v "upgrade\|update" && echo "[WARN] Missing apt-get update before install"
+grep -n "USER" Dockerfile || echo "[WARN] No USER directive - container runs as root"
+grep -n "ADD.*http\|ADD.*https" Dockerfile && echo "[WARN] ADD with remote URLs is insecure, use COPY + curl"
+```
+
+### SBOM Generation and Comparison
+
+```bash
+# Generate Software Bill of Materials from container image
+syft target:latest -o spdx-json > sbom-spdx.json
+syft target:latest -o cyclonedx-json > sbom-cdx.json
+
+# Scan SBOM for vulnerabilities without re-pulling the image
+grype sbom:./sbom-cdx.json --only fixed
+
+# Compare SBOMs between image versions to detect added dependencies
+syft target:v1.0 -o json > sbom-v1.json
+syft target:v2.0 -o json > sbom-v2.json
+diff <(jq '.artifacts[].name' sbom-v1.json | sort) \
+     <(jq '.artifacts[].name' sbom-v2.json | sort) | grep "^>"
+```
+
+---
+
+## 18. Container Hardening Automation
+
+### Automated Dockerfile Hardening
+
+```bash
+# Automatically apply security best practices to Dockerfile
+# Check and fix common issues
+
+# 1. Pin base image to specific digest
+docker pull alpine:3.18 --quiet
+IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' alpine:3.18)
+echo "Pinned: $IMAGE_DIGEST"
+
+# 2. Generate hardened Dockerfile from existing image
+docker history --no-trunc --format '{{.CreatedBy}}' target:latest | \
+  grep -v "ENTRYPOINT\|CMD" | tail -n +2 | \
+  sed 's/^/RUN /' > hardened_run_commands.txt
+
+# 3. Runtime hardening with security options
+docker run --rm -d \
+  --read-only \
+  --tmpfs /tmp:size=100m \
+  --tmpfs /run:size=10m \
+  --security-opt=no-new-privileges:true \
+  --security-opt seccomp=seccomp-profile.json \
+  --cap-drop ALL \
+  --pids-limit 50 \
+  --memory 512m \
+  --cpus 1.0 \
+  target:latest
+```
+
+### Kubernetes Pod Hardening Template
+
+```yaml
+# Hardened pod template with all security controls enabled
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hardened-app
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: target:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  volumes:
+  - name: tmp
+    emptyDir:
+      medium: Memory
+      sizeLimit: "64Mi"
+```
+
+---
+
+## 19. Container Incident Response
+
+### Container Compromise Investigation
+
+```bash
+# Check for modified files in a running container
+docker diff <container>  # Shows C=changed, A=added, D=deleted files
+
+# Inspect container processes for suspicious activity
+docker top <container> aux
+
+# Capture container filesystem state for forensics
+docker commit <container> forensic-snapshot:$(date +%Y%m%d-%H%M%S)
+docker save forensic-snapshot -o forensic-image.tar
+
+# Extract and analyze container logs
+docker logs <container> --since 24h 2>&1 | grep -iE "error|warn|fail|exploit|inject|reverse"
+
+# Check for unexpected network connections from container
+docker exec <container> netstat -tlnp 2>/dev/null || \
+  docker exec <container> ss -tlnp 2>/dev/null
+```
+
+### Kubernetes Audit Log Analysis
+
+```bash
+# Search Kubernetes audit logs for suspicious API calls
+kubectl get events --all-namespaces --sort-by='.lastTimestamp' | grep -iE "delete|create|exec|attach"
+
+# Check for recent pod creations in kube-system namespace
+kubectl get events -n kube-system --field-selector reason=Created --sort-by='.lastTimestamp'
+
+# Analyze audit logs for privilege escalation attempts
+cat /var/log/kubernetes/audit.log | jq 'select(.verb=="create" or .verb=="escalate") |
+  {user: .user.username, verb: .verb, resource: .objectRef.resource, namespace: .objectRef.namespace}'
 ```

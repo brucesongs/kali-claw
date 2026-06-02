@@ -98,6 +98,20 @@ Detectdirectorylistenablesituation，discoveryversioncontrolfileandenvironmentco
 
 ---
 
+## Automation and Scripting
+
+Automated misconfiguration scanning should be integrated into CI/CD pipelines to catch regressions before deployment. Shell scripts wrapping Nikto, testssl.sh, and curl header checks can produce machine-readable JSON reports that trigger failures on missing security headers or weak TLS configurations. Nuclei templates provide a continuously updated library of misconfiguration detection patterns, enabling efficient batch scanning across large inventories of targets.
+
+## Common Pitfalls
+
+A frequent oversight in security misconfiguration audits is checking only the application layer while ignoring infrastructure defaults — database servers, message queues, and container orchestration platforms often ship with permissive defaults that go unmodified in production. Another common mistake is treating security headers as a one-time configuration task; framework upgrades and CDN changes can silently remove or weaken previously configured headers. Regular automated validation prevents these regressions.
+
+## Detection Methods
+
+Effective misconfiguration detection combines active probing with passive analysis. Active methods include sending deliberately malformed requests to trigger verbose error pages, enumerating default installation paths (`/admin/`, `/phpmyadmin/`, `/server-status/`), and testing default credential lists against discovered login forms. Passive methods analyze HTTP response headers for missing or weak security configurations, inspect TLS certificate chains for expired or weak intermediates, and review DNS records for unnecessary information disclosure.
+
+---
+
 ## Hacker Laws / Hacker Laws
 
 1. **Obscurity Is Not Security (obfuscationnotissecurity )** -- hidemanagemententry point、usenon-standardport、notexposureversionnumberandnotcanblockattacker。真正 security from correct configurationandeffective accesscontrol，andnon依靠attackerfindnottotarget。any exposureinnetworkon serviceallwillbyautomated Scantooldiscovery。

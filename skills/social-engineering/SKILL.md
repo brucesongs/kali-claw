@@ -161,6 +161,18 @@ recon-ng
 > run
 ```
 
+## Detection Methods
+
+Detecting social engineering threats requires monitoring multiple communication channels simultaneously. Email header analysis (SPF, DKIM, DMARC pass/fail) identifies spoofed senders before users interact with malicious content. URL inspection tools reveal lookalike domains and credential harvesting pages. On the human side, tracking unusual request patterns — such as employees suddenly requesting sensitive data access or password resets outside normal procedures — helps identify active pretexting campaigns targeting the organization.
+
+## Reporting
+
+Social engineering assessment reports must quantify organizational risk with measurable metrics. Key metrics include click-through rate (percentage of targets who clicked phishing links), credential submission rate (percentage who entered credentials on harvesting pages), and time-to-report (how quickly targets reported the suspicious communication to security teams). Each finding should include the pretext scenario, delivery method, target demographics, and specific behavioral observations that inform training recommendations.
+
+## Common Pitfalls
+
+A frequent mistake in social engineering assessments is using generic, low-effort phishing templates that test spam filter effectiveness rather than employee awareness. Effective assessments use realistic, context-specific pretexts that mirror actual threats targeting the organization's industry. Another pitfall is neglecting the post-compromise phase — after credentials are harvested, the assessment should demonstrate the actual business impact (access to sensitive systems, data exfiltration potential) to justify remediation investment.
+
 ---
 
 ## Hacker Laws

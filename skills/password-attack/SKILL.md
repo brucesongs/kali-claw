@@ -117,6 +117,47 @@ Verification        Force               Stuffing/Spray      (impacket/wmiexec)
 - Ignoring password reuse across services (credential stuffing opportunity)
 - Not verifying cracked credentials before reporting
 
+## Reporting and Documentation
+
+Password attack findings should document the hash type, cracking method, time invested, and the dictionary or rules used for each successful crack. Report the effective cracking rate (hashes per second) alongside the hardware used, as this contextualizes the strength of the password policy. Include specific recommendations: switch from MD5/SHA to bcrypt/argon2id, increase minimum password length, implement MFA, and deploy breach-password screening (Have I Been Pwned integration). Never include plaintext cracked passwords in reports — reference them by hash and username only.
+
+## Legal and Ethical Considerations
+
+Online brute force attacks against production systems carry significant legal risk and can cause account lockouts for legitimate users. Always verify that online attacks are within the authorized scope and use low concurrency rates to avoid disruption. Offline hash cracking on extracted credential databases is generally less risky but ensure the hash extraction itself was authorized. Never use cracked credentials to access systems outside the defined scope, and destroy all credential databases after the engagement report is delivered unless retention is explicitly required.
+
+## Case Studies and Examples
+
+- **NTLM hash chain attack**: During a post-exploitation assessment, secretsdump extracted 2,400 NTLM hashes from a domain controller. Hashcat with the dive rule set cracked 38% within 4 hours using a consumer GPU, including a domain admin account with the password "Company2025!" — a pattern matching the organization's password policy but vulnerable to rule-based mutation attacks.
+- **Targeted dictionary success**: A custom dictionary built from the target company's website (cewl) combined with common mutation rules (capitalize, append year, append special character) cracked a supposedly strong password "M@nufacturing2024" in under 2 minutes that would have taken days with generic wordlists.
+- **Credential stuffing across services**: A cracked email password from a web application was reused successfully against the company's VPN, Office 365, and internal wiki — demonstrating the compounding risk of password reuse across an organization's service portfolio.
+
+## Detection Methods
+
+Defenders detect password attacks through several indicators: spikes in authentication failure rates (Event ID 4625 on Windows), unusual patterns in hash extraction attempts (LSASS memory access by unauthorized processes), high GPU utilization on employee workstations indicating local cracking, and credential stuffing detected by login correlation across multiple accounts from the same source IP. Organizations should implement canary accounts with monitored passwords to detect credential stuffing campaigns early.
+
+## Defense Evasion Techniques
+
+Evade detection during authorized password testing by: throttling online brute force attempts to match normal authentication patterns rather than aggressive parallelism, distributing requests across multiple source IPs or through a proxy chain, using password spraying (one password against many accounts) rather than targeted brute force to reduce per-account failure counts, and scheduling attacks during business hours when authentication noise is naturally higher. For offline cracking, perform hash cracking on isolated GPU rigs that are not monitored by endpoint detection tools.
+
+## Advanced Techniques
+
+Advanced password attack techniques include: combinator attacks that join words from two separate dictionaries (effective against passphrase policies), prince attacks that generate candidate passwords by combining random dictionary substrings, keyboard-walk pattern generation for passwords like "qwerty123", mask attacks informed by the target's password policy structure (e.g., `?u?l?l?l?l?d?d?d?s` for "Capital + 4 lowercase + 3 digits + special"), and using machine learning models trained on leaked password databases to generate statistically likely candidates that bypass traditional dictionaries.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Speed | Coverage | Skill Level |
+|------|----------|-------|----------|-------------|
+| **hashcat** | GPU offline cracking | Very fast | 300+ hash types | Intermediate |
+| **john** | Auto-detection, file passwords | Fast | Broad | Beginner |
+| **hydra** | Online brute force (50+ protocols) | Network-bound | 50+ protocols | Beginner |
+| **medusa** | Parallel online brute force | Network-bound | Moderate | Intermediate |
+| **cewl** | Custom wordlist generation | Slow (web crawling) | N/A | Beginner |
+| **crunch** | Pattern-based wordlist generation | Fast (local) | N/A | Beginner |
+
+## Performance and Remediation
+
+GPU cracking performance varies by hash algorithm: MD5/SHA1 achieve billions of hashes per second on modern GPUs, while bcrypt drops to thousands and argon2id to hundreds per second. For fast hashes, use large dictionaries with comprehensive rules; for slow hashes, prioritize targeted dictionaries built from OSINT data. Remediation should enforce bcrypt/argon2id with high iteration counts, implement minimum 12-character passwords, deploy MFA on all critical services, and integrate breach-password screening (Have I Been Pwned) to prevent users from choosing previously compromised passwords.
+
 ---
 
 ## Learning Resources

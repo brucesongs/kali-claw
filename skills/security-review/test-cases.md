@@ -316,3 +316,131 @@ Post-conditions: State after test completion
 | TC-SR-005 | payloads.md section 4 (Security Headers Verification) |
 | TC-SR-006 | payloads.md section 5 (Dependency Audit Commands) |
 | TC-SR-007 | payloads.md (all sections) |
+
+---
+
+## TC-SR-008: Supply Chain Dependency Review Automation
+
+- **Scenario**: Automate the full dependency security review pipeline — from dependency file discovery through vulnerability scanning, license compliance checking, integrity verification, and supply chain attack surface analysis — to produce a comprehensive supply chain risk report.
+- **Pre-conditions**:
+  - Access to project source code repository
+  - All dependency lockfiles present (`package-lock.json`, `yarn.lock`, `Pipfile.lock`, `Cargo.lock`, `go.sum`, `pom.xml`)
+  - Tools installed: `trivy`, `grype`, `npm`, `pip-audit`, `cargo audit`, `govulncheck`, `syft`, `cosign`
+  - SBOM (Software Bill of Materials) generation capability
+  - Repository commit history accessible for dependency change analysis
+- **Test Steps**:
+  1. **Discover all dependency files** in the repository:
+     ```bash
+     find . -type f \( -name "package.json" -o -name "package-lock.json" -o -name "yarn.lock" \
+       -o -name "requirements.txt" -o -name "Pipfile.lock" -o -name "poetry.lock" \
+       -o -name "Cargo.toml" -o -name "Cargo.lock" -o -name "go.mod" -o -name "go.sum" \
+       -o -name "pom.xml" -o -name "build.gradle" \) > dependency_files.txt
+     cat dependency_files.txt
+     ```
+  2. **Generate Software Bill of Materials (SBOM)**:
+     ```bash
+     # Generate SBOM using syft
+     syft dir:. -o spdx-json > sbom-spdx.json
+     syft dir:. -o cyclonedx-json > sbom-cyclonedx.json
+
+     # Count total dependencies
+     jq '.packages | length' sbom-spdx.json
+     ```
+  3. **Run multi-tool vulnerability scanning**:
+     ```bash
+     # Trivy comprehensive scan
+     trivy fs --format json --output trivy-results.json .
+
+     # Grype scan against SBOM
+     grype sbom:sbom-cyclonedx.json -o json > grype-results.json
+
+     # Language-specific audits
+     npm audit --json > npm-audit.json 2>/dev/null
+     pip-audit -r requirements.txt --format json > pip-audit.json 2>/dev/null
+     cargo audit --format json > cargo-audit.json 2>/dev/null
+     govulncheck ./... -json > go-vuln.json 2>/dev/null
+     ```
+  4. **Check dependency integrity and provenance**:
+     ```bash
+     # Verify npm package integrity (lockfile hashes)
+     npm ci --dry-run 2>&1 | grep -i "integrity\|mismatch" || echo "PASS: npm integrity verified"
+
+     # Check for typosquatting in package names
+     pip-audit --desc | grep -iE "typosquat|malicious|impersonat" || echo "No typosquatting detected"
+
+     # Verify signed packages where possible
+     cosign verify-blob --key cosign.pub --signature artifact.sig artifact.tar.gz
+     ```
+  5. **Analyze dependency change history** for supply chain risk indicators:
+     ```bash
+     # Find recently added dependencies (last 30 days)
+     git log --since="30 days ago" --diff-filter=A -- "package.json" "requirements.txt" "Cargo.toml" | head -50
+
+     # Find dependencies updated to unexpected versions
+     git log --since="30 days ago" -p -- "package-lock.json" | grep -E "^\+.*version" | head -30
+
+     # Check for version jumps (potential compromise indicator)
+     git log --oneline -- "package-lock.json" | head -20
+     ```
+  6. **License compliance check**:
+     ```bash
+     # Scan for restricted licenses
+     trivy fs --scanners license --license-full .
+
+     # Flag copyleft (GPL, AGPL) in proprietary projects
+     jq '.results[] | select(.type == "license") | .vulnerabilities[] | select(.severity == "HIGH")' trivy-results.json
+     ```
+  7. **Cross-reference with known supply chain attacks**:
+     ```bash
+     # Check against OSV database for known supply chain vulnerabilities
+     curl -s -d '{"version": "", "package": {"name": "", "ecosystem": ""}}' \
+       https://api.osv.dev/v1/querybatch -d @- < osv-query.json
+
+     # Check for dependencies from abandoned or transferred packages
+     # Flag: packages with no updates in >2 years, single maintainer, recently transferred ownership
+     ```
+  8. **Generate consolidated supply chain risk report**:
+     ```bash
+     python3 -c "
+     import json
+
+     # Load all scan results
+     trivy = json.load(open('trivy-results.json'))
+     grype = json.load(open('grype-results.json'))
+
+     # Aggregate critical/high findings
+     critical = []
+     high = []
+
+     for result in trivy.get('Results', []):
+         for vuln in result.get('Vulnerabilities', []):
+             if vuln.get('Severity') == 'CRITICAL':
+                 critical.append(f\"{vuln['PkgName']}:{vuln['InstalledVersion']} - {vuln['VulnerabilityID']}\")
+             elif vuln.get('Severity') == 'HIGH':
+                 high.append(f\"{vuln['PkgName']}:{vuln['InstalledVersion']} - {vuln['VulnerabilityID']}\")
+
+     print(f'CRITICAL: {len(critical)} findings')
+     print(f'HIGH: {len(high)} findings')
+     for c in critical[:10]: print(f'  {c}')
+     "
+     ```
+- **Expected Outcomes**:
+
+  | Check | Tool | Expected Result |
+  |-------|------|-----------------|
+  | SBOM generated | syft | Complete SBOM with all direct and transitive dependencies |
+  | Vulnerability scan | trivy + grype | No CRITICAL vulnerabilities in production dependencies |
+  | Language-specific audit | npm audit, pip-audit, cargo audit, govulncheck | No HIGH or CRITICAL CVEs |
+  | Integrity check | npm ci, cosign | All package hashes match lockfile |
+  | Typosquatting check | pip-audit, manual | No suspiciously named packages |
+  | License compliance | trivy license scanner | No restricted licenses in proprietary codebase |
+  | Change history | git log analysis | No suspicious version jumps or unexpected additions |
+  | Supply chain attacks | OSV database | No known supply chain attack patterns detected |
+
+- **Post-conditions**:
+  - Consolidated supply chain risk report with all findings prioritized by severity
+  - SBOM archived for future reference and audit compliance
+  - Dependency update recommendations with specific version targets
+  - Supply chain risk score calculated for the project
+  - Remediation plan with priority order: CRITICAL CVEs first, then HIGH, then license issues
+- **Reference**: payloads.md section 5 (Dependency Audit Commands), TC-SR-006 (Dependency Security Audit)

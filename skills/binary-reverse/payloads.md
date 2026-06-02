@@ -1017,3 +1017,116 @@ if __name__ == "__main__":
     ]
     solve_multi_stage(binary, checks)
 ```
+
+---
+
+## 11. Ghidra Headless Analysis
+
+### Automated Decompilation with Ghidra
+
+```bash
+# Run Ghidra headless analysis on a batch of binaries
+analyzeHeadless /tmp/ghidra_project BinaryName \
+  -import /path/to/binary \
+  -postScript /dev/stdin << 'EOF'
+# Ghidra Python script: export all function decompilation
+from ghidra.app.decompiler import DecompInterface
+
+decompiler = DecompInterface()
+decompiler.openProgram(currentProgram)
+
+func_manager = currentProgram.getFunctionManager()
+for func in func_manager.getFunctions(True):
+    results = decompiler.decompileFunction(func, 30, None)
+    if results and results.getDecompiledFunction():
+        code = results.getDecompiledFunction().getC()
+        print(f"=== {func.getName()} @ {func.getEntryPoint()} ===")
+        print(code)
+
+decompiler.dispose()
+EOF
+```
+
+### Ghidra Script for Vulnerability Pattern Detection
+
+```python
+# Ghidra Python script to detect dangerous function calls
+# @category Binary Analysis
+from ghidra.program.model.symbol import SymbolType
+
+dangerous_functions = [
+    'strcpy', 'strcat', 'sprintf', 'gets', 'vsprintf',
+    'scanf', 'fscanf', 'sscanf', 'system', 'exec', 'popen'
+]
+
+listing = currentProgram.getListing()
+symbol_table = currentProgram.getSymbolTable()
+
+for func_name in dangerous_functions:
+    symbols = symbol_table.getSymbols(func_name)
+    for sym in symbols:
+        refs = sym.getReferences()
+        for ref in refs:
+            from_addr = ref.getFromAddress()
+            func = listing.getFunctionContaining(from_addr)
+            caller = func.getName() if func else "unknown"
+            print(f"[!] {func_name} called from {caller} at {from_addr}")
+```
+
+---
+
+## 12. Format String Exploitation
+
+### Format String Vulnerability Detection
+
+```bash
+# Identify format string vulnerabilities using radare2
+r2 -A binary
+# Search for calls to printf/fprintf/sprintf with user-controlled format argument
+afl~printf
+axt @ sym.imp.printf
+
+# Test format string with pattern input
+# %x leaks stack values (hex)
+echo "AAAA %x %x %x %x %x %x %x %x" | ./vulnerable_binary
+
+# %p leaks pointer values
+echo "AAAA %p %p %p %p %p %p %p %p" | ./vulnerable_binary
+
+# Direct parameter access: read specific stack offset
+echo "AAAA %1\$x %2\$x %3\$x %4\$x %5\$x" | ./vulnerable_binary
+
+# Write to memory: %n writes printed byte count to address
+echo "AAAA %5\$n" | ./vulnerable_binary
+```
+
+### Automated Format String Offset Finder
+
+```python
+#!/usr/bin/env python3
+"""Find the exact stack offset where user input appears in format string."""
+import subprocess
+
+def find_offset(binary_path, marker="AAAA"):
+    for offset in range(1, 50):
+        payload = f"{marker}%{offset}$x"
+        try:
+            result = subprocess.run(
+                [binary_path],
+                input=payload + "\n",
+                capture_output=True, text=True, timeout=5
+            )
+            output = result.stdout + result.stderr
+            hex_marker = marker.encode().hex()
+            if hex_marker[:8] in output:
+                print(f"[+] Input found at offset {offset}")
+                print(f"    Payload: {payload}")
+                print(f"    Output:  {output.strip()}")
+                return offset
+        except subprocess.TimeoutExpired:
+            continue
+    print("[-] Offset not found in range 1-50")
+    return None
+
+find_offset("./vulnerable_binary")
+```

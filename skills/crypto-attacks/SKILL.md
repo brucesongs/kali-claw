@@ -118,6 +118,57 @@ hashcat -m 16500 jwt_hash.txt /usr/share/wordlists/rockyou.txt
 
 ---
 
+## Common Pitfalls
+
+- **Assuming encryption means security**: Encryption that uses AES-256 but with a hardcoded IV or ECB mode is trivially breakable. Always verify the complete cryptographic configuration — algorithm, mode, key management, IV handling — not just the algorithm name.
+- **Neglecting to check for key rotation**: Many systems generate a single encryption key at deployment and never rotate it. A key leaked through a single code repository commit compromises all data encrypted with that key since the system was deployed.
+- **Overlooking JWT in non-obvious locations**: JWTs are used in cookies, Authorization headers, URL parameters, and WebSocket upgrade requests. Testing only one transport mechanism misses attack surface.
+
+## Automation and Scripting
+
+Automate TLS configuration scanning by running testssl.sh with the `--json` output flag and piping results into a comparison script that flags deviations from security baselines. Use hashcat in benchmark mode (`hashcat -b`) to measure GPU cracking throughput before launching long-running cracking jobs. Script Padding Oracle attacks with padbuster's batch mode and custom Python wrappers that automate the byte-by-byte decryption loop with retry logic for network errors.
+
+## Reporting and Documentation
+
+Cryptographic findings should be mapped to OWASP A04:2021 (Cryptographic Failures) and include the specific misconfiguration discovered (e.g., "TLS 1.0 enabled with CBC cipher suite" rather than "weak encryption"). Document the full attack chain from discovery to impact: how the weak configuration was identified, what data could be decrypted or tampered with, and the estimated effort to exploit. Include specific remediation with library-specific configuration examples (e.g., OpenSSL cipher string, node.js TLS options).
+
+## Legal and Ethical Considerations
+
+Testing SSL/TLS configurations against production servers is generally permissible but be cautious with aggressive scanning that could trigger DoS conditions. Testing `Heartbleed` or similar memory-disclosure vulnerabilities on production systems may expose other users' sensitive data — use dedicated test environments when possible. Never store intercepted SSL private keys or decrypted session data beyond what is needed for the engagement report, and always verify that cryptographic testing is included in the scope of authorization.
+
+## Integration with Other Tools
+
+Cryptographic attack findings feed directly into several adjacent skills. Weak TLS configurations discovered through testssl.sh inform network-pentest MITM attack planning. JWT vulnerabilities (alg:none, key brute force) connect to web-auth-bypass for authentication exploitation. Hash cracking results from hashcat feed into password-attack workflows for credential stuffing. Use burpsuite to intercept and replay JWT tampering payloads against authenticated API endpoints, combining crypto analysis with web application testing.
+
+## Case Studies and Examples
+
+- **JWT algorithm confusion**: A web application used RS256 (asymmetric) for JWT signing. An attacker obtained the public key from the `/jwks.json` endpoint, then forged a token signed with HS256 using the public key as the HMAC secret. The server accepted the forged token because it trusted the key without verifying the algorithm, granting admin access.
+- **Padding Oracle in payment gateway**: An e-commerce platform's payment callback URL returned different HTTP status codes for valid versus invalid padding. Using padbuster, the attacker decrypted the encrypted order ID parameter, modified the amount to zero, and re-encrypted it — purchasing items for free.
+- **Heartbleed memory dump**: During a TLS security audit, the Heartbleed vulnerability was confirmed on a legacy load balancer. The memory dump contained database connection strings with plaintext credentials, enabling full database compromise through the cryptographic implementation flaw.
+
+## Detection and Evasion
+
+Defenders can detect cryptographic attacks through several indicators: unusual TLS negotiation patterns (downgrade attempts logged by the server), repeated decryption errors in application logs (Padding Oracle attempts), JWT validation failures with algorithm mismatches, and anomalous hash cracking activity (high GPU utilization on compromised machines). Monitor certificate transparency logs for unauthorized certificate issuance. To evade detection during testing: spread JWT brute force attempts across multiple API endpoints, use timing delays in Padding Oracle attacks to avoid triggering rate limits, and test TLS downgrade resistance through a single well-crafted ClientHello rather than a noisy scan. For hash cracking, offload to dedicated GPU rigs outside the target network.
+
+## Advanced Techniques
+
+Beyond the core attacks, advanced cryptographic testing includes: RSA key recovery from partial key exposure (known bits of p or q), Bleichenbacher attacks against PKCS#1 v1.5 padding in RSA encryption, BEAST and Lucky13 attacks against TLS CBC cipher suites, hash length extension attacks against SHA-256 and SHA-512 (not just MD5/SHA1), and cryptographic side-channel attacks using timing analysis to extract secrets. For CTF challenges, practice with RsaCtfTool for automated RSA attack selection and CyberChef for rapid encoding/decoding chain prototyping.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Speed | Coverage | Skill Level |
+|------|----------|-------|----------|-------------|
+| **testssl.sh** | Comprehensive TLS auditing | Moderate | Very broad | Beginner |
+| **sslscan** | Quick protocol/cipher check | Fast | Broad | Beginner |
+| **hashcat** | GPU hash/JWT cracking | Very fast | 300+ hash types | Intermediate |
+| **padbuster** | Padding Oracle automation | Slow (network-bound) | Narrow | Intermediate |
+| **CyberChef** | Encoding/decoding analysis | N/A (manual) | Very broad | Beginner |
+| **RsaCtfTool** | RSA attack collection | Variable | RSA-specific | Advanced |
+
+## Performance and Remediation
+
+GPU-accelerated cracking with hashcat can achieve billions of MD5 hashes per second on modern hardware, but performance drops dramatically for memory-hard algorithms like bcrypt (thousands per second) and argon2id (hundreds per second). Choose attack modes based on target hash type: dictionary + rules for fast hashes, targeted dictionaries with custom mutations for slow hashes. For TLS scanning, testssl.sh performs 200+ checks but takes 5-10 minutes per host. Prioritize cryptographic remediation by replacing the weakest components first: disable SSLv3 and TLS 1.0/1.1 immediately, migrate from CBC mode to GCM/ChaCha20-Poly1305, enforce TLS 1.3 where possible, and implement proper key management using HSMs or cloud KMS services. For JWT security, enforce algorithm allowlists, use short token lifetimes, and rotate any exposed keys.
+
 ## Hacker Laws
 
 1. **Obscurity Is Not Security** -- Relying on hidden algorithms, custom encryption, or secret IVs to protect data is the biggest trap. Kerckhoffs' principle: security should depend only on the secrecy of the key, not the secrecy of the algorithm. Homemade encryption algorithms are almost certainly weaker than AES.

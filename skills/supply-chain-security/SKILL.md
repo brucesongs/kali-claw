@@ -127,5 +127,19 @@ Register malicious packages with the same name as internal packages on public re
 **Related skills**: `skills/container-security/SKILL.md`, `skills/binary-reverse/SKILL.md`
 **External resources**: https://owasp.org/www-project-software-supply-chain-security/, https://slsa.dev/, https://www.sigstore.dev/, https://securityscorecards.dev/
 
+## Common Pitfalls
+
+Many organizations adopt SCA tools but fail to configure them properly, resulting in false-positive fatigue that leads teams to ignore genuine critical alerts. A frequent mistake is pinning dependency versions without also verifying lock file integrity hashes, which leaves the door open for registry-level tampering. Another common oversight is configuring private registries for internal packages but forgetting to block the public registry fallback path, negating the defense against dependency confusion attacks entirely.
+
+## Detection Methods
+
+Effective supply chain compromise detection combines multiple signals: monitoring npm/PyPI for newly published packages with names similar to your internal packages, alerting on post-install scripts that invoke `child_process` or `os.system`, and tracking maintainer ownership changes on critical dependencies. Continuous SBOM diffing between releases surfaces unexpected dependency additions or version regressions. Integrating Sigstore-based signature verification into CI pipelines provides build-time assurance that artifacts have not been tampered with between stages.
+
+## Automation and Scripting
+
+Supply chain security at scale requires automation across every stage of the development lifecycle. Pre-commit hooks can run `gitleaks` and `npm audit` before code enters the repository. CI pipelines should generate SBOMs with Syft, scan them with Grype, and fail builds on critical findings. Scheduled cron jobs can poll public registries for typosquat candidates matching internal package names and alert the security team within minutes. Automated PR generation via Renovate or Dependabot keeps dependencies current without developer toil, reducing the window of exposure to known vulnerabilities.
+
+---
+
 **Workspace related documents**:
 - `guides/software_supply_chain_complete_guide.md` -- OWASP A03 supply chain security complete learning guide

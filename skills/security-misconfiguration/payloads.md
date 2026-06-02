@@ -846,3 +846,82 @@ fierce --domain target.com
 # Check for open DNS resolver (amplification attack vector)
 dig +short @target ANY google.com | wc -l
 ```
+
+---
+
+## 10. CIS Benchmark Automated Checks
+
+### Linux CIS Benchmark Quick Scan
+
+```bash
+# CIS Benchmark checks for Linux system hardening
+# 1. Check password policy (CIS 5.3.x)
+grep -E "^minlen|^dcredit|^ucredit|^lcredit|^ocredit|^minclass" /etc/security/pwquality.conf
+
+# 2. Check SSH hardening (CIS 5.2.x)
+grep -E "^(PermitRootLogin|PasswordAuthentication|X11Forwarding|PermitEmptyPasswords|Protocol)" /etc/ssh/sshd_config
+
+# 3. Check file permissions (CIS 1.x)
+ls -la /etc/passwd /etc/shadow /etc/gshadow /etc/group
+stat -c '%a %U:%G %n' /etc/anacrontab /etc/crontab /etc/cron.hourly /etc/cron.daily
+
+# 4. Check for unnecessary services
+systemctl list-unit-files --state=enabled | grep -E "avahi|cups|dhcpd|vsftpd|named|smbd|snmpd|squid"
+
+# 5. Check kernel parameters (CIS 3.x)
+sysctl net.ipv4.ip_forward net.ipv4.conf.all.send_redirects net.ipv4.conf.all.accept_redirects
+
+# 6. Check for world-writable files
+find / -xdev -type f -perm -0002 2>/dev/null | head -20
+```
+
+### TLS/SSL Configuration Audit
+
+```bash
+# Comprehensive TLS audit with testssl.sh
+testssl.sh --full --quiet --color 0 target:443
+
+# Quick check for weak cipher suites
+nmap --script ssl-enum-ciphers -p 443 target | grep -E "weak|deprecated|SSLv3|TLSv1\.0|TLSv1\.1"
+
+# Check certificate validity and chain
+echo | openssl s_client -connect target:443 -servername target 2>/dev/null | openssl x509 -noout -dates -subject -issuer
+
+# Verify HSTS header is present and properly configured
+curl -sI https://target | grep -i "strict-transport-security"
+
+# Check for TLS compression (CRIME attack)
+openssl s_client -connect target:443 -compression 2>/dev/null | grep "Compression"
+
+# Verify OCSP stapling
+openssl s_client -connect target:443 -status 2>/dev/null | grep "OCSP"
+```
+
+---
+
+## 11. Automated Misconfiguration Scanner
+
+### Batch HTTP Security Header Audit
+
+```bash
+#!/bin/bash
+# Batch audit of HTTP security headers across multiple targets
+HEADER_FILE="targets.txt"
+
+echo "target,X-Frame-Options,X-Content-Type-Options,Strict-Transport-Security,CSP,X-XSS-Protection,Server,Set-Cookie-Secure" > header_audit.csv
+
+while read -r target; do
+  HEADERS=$(curl -sI "https://$target" -m 10 2>/dev/null)
+  
+  XFO=$(echo "$HEADERS" | grep -ic "x-frame-options" && echo "present" || echo "MISSING")
+  XCTO=$(echo "$HEADERS" | grep -ic "x-content-type-options" && echo "present" || echo "MISSING")
+  HSTS=$(echo "$HEADERS" | grep -ic "strict-transport-security" && echo "present" || echo "MISSING")
+  CSP=$(echo "$HEADERS" | grep -ic "content-security-policy" && echo "present" || echo "MISSING")
+  SERVER=$(echo "$HEADERS" | grep -i "^server:" | head -1 | awk '{print $2}')
+  SECURE=$(echo "$HEADERS" | grep -ic "secure" && echo "yes" || echo "no")
+  
+  echo "$target,$XFO,$XCTO,$HSTS,$CSP,$SERVER,$SECURE" >> header_audit.csv
+done < "$HEADER_FILE"
+
+echo "[+] Audit complete: header_audit.csv"
+```

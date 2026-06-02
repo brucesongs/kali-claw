@@ -1,30 +1,33 @@
 {
   "skill": "security-review",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
     "payload_word_count": 3521,
     "payload_section_count": 11,
     "payload_code_blocks": 51,
-    "test_case_count": 7,
+    "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
+    "guide_avg_words": 1572,
+    "guide_key_sections": 3,
     "skill_section_score": 0.87
   },
   "normalized_scores": {
     "payload_word": 95.2,
     "payload_section": 84.4,
     "payload_code": 80.4,
-    "test_case": 53.3,
+    "test_case": 80.0,
     "field": 100.0,
-    "guide": 80.0,
+    "guide": 81.4,
     "skill_section": 87.0
   },
   "component_scores": {
     "skill_md": 87.00,
     "payloads_md": 86.67,
-    "test_cases_md": 76.65,
-    "guides": 80.0
+    "test_cases_md": 90.00,
+    "guides": 81.4
   },
-  "overall_score": 82.0,
+  "overall_score": 86.4,
   "tier": "Excellent"
 }

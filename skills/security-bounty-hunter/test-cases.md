@@ -231,3 +231,246 @@ Validate end-to-end automated recon pipeline that discovers exploitable assets f
 
 ### Remediation
 For targets: implement asset inventory, monitor for subdomain takeover, disable unused services
+
+---
+
+## TC-SBH-006: Bug Bounty Scope Validation
+
+**Objective**: Validate that scope boundary analysis correctly identifies in-scope and out-of-scope targets before testing begins, preventing wasted effort on excluded assets and avoiding policy violations that could result in disqualification.
+
+**Severity**: HIGH
+
+**Prerequisites**:
+- Bug bounty program with documented scope (HackerOne, Bugcrowd, or private program)
+- Target organization with multiple subdomains and services
+- Subdomain enumeration tools (subfinder, amass)
+- HTTP probing tools (httpx)
+
+**Steps**:
+
+1. **Parse program scope definition**
+   ```bash
+   # Extract declared scope from program page
+   # Example scope: *.target.com (excluding admin.target.com, staging.target.com)
+   # In-scope: web applications, API endpoints
+   # Out-of-scope: DDoS, social engineering, third-party services, staging environments
+   ```
+
+2. **Enumerate all subdomains**
+   ```bash
+   subfinder -d target.com -all -o all_subs.txt
+   amass enum -passive -d target.com -o amass_subs.txt
+   cat all_subs.txt amass_subs.txt | sort -u > combined_subs.txt
+   ```
+
+3. **Probe live hosts**
+   ```bash
+   httpx -l combined_subs.txt -status-code -title -tech-detect -o live_hosts.txt
+   ```
+
+4. **Classify each live host against scope rules**
+   ```bash
+   # Automated scope classification
+   while read -r url; do
+     host=$(echo "$url" | awk -F'/' '{print $3}')
+     if echo "$host" | grep -qE "admin\.|staging\."; then
+       echo "OUT_OF_SCOPE: $url (excluded subdomain)"
+     elif echo "$host" | grep -qE "target\.com$"; then
+       echo "IN_SCOPE: $url (wildcard match)"
+     else
+       echo "UNCLEAR: $url (needs manual review)"
+     fi
+   done < live_hosts.txt > scope_classification.txt
+   ```
+
+5. **Identify scope edge cases**
+   - Third-party integrations: `checkout.target.com` (payment provider) — in scope?
+   - Mobile API: `api.target.com/v2/mobile/` — same scope as web API?
+   - CDN origin: `origin.target.com` — behind Cloudflare but directly accessible?
+   - Subdomain takeover candidates: `ghost.target.com` (CNAME to deleted GitHub Pages)
+
+6. **Validate scope boundaries with program maintainer** (if unclear)
+   - Submit scope clarification question via platform
+   - Document response as authorization evidence
+
+**Expected Result**: Scope classification document with all discovered assets categorized as IN_SCOPE, OUT_OF_SCOPE, or UNCLEAR, with evidence for each classification
+
+**Remediation**: For program maintainers: provide clear, unambiguous scope definitions; include explicit lists of in-scope and out-ofcope domains; respond promptly to scope clarification questions
+
+**Pass Criteria**:
+- [ ] All enumerated subdomains classified against scope rules
+- [ ] At least 3 scope edge cases identified and documented
+- [ ] No testing performed on OUT_OF_SCOPE assets
+- [ ] UNCLEAR assets resolved via platform question before testing
+- [ ] Scope classification document saved as engagement evidence
+
+---
+
+## TC-SBH-007: Duplicate Vulnerability Detection
+
+**Objective**: Validate that reported vulnerabilities are checked against existing reports, known CVEs, and previously resolved issues to avoid submitting duplicates that waste triage time and can result in reputation penalties.
+
+**Severity**: MEDIUM
+
+**Prerequisites**:
+- Bug bounty program with history of resolved reports
+- Discovered vulnerability with potential for duplication
+- Access to platform's resolved reports (if available)
+- CVE database access (NVD, MITRE)
+
+**Steps**:
+
+1. **Document the finding before checking for duplicates**
+   ```bash
+   # Record finding details
+   echo "Finding: Reflected XSS in search parameter"
+   echo "Endpoint: https://shop.target.com/search?q=<payload>"
+   echo "CWE: CWE-79"
+   echo "CVSS: 6.1 (Medium)"
+   ```
+
+2. **Check platform resolved reports**
+   - Search platform for: "XSS", "cross-site scripting", "search", "reflected"
+   - Review each resolved report for same endpoint and parameter
+   - Check report resolution date — was the fix deployed?
+
+3. **Check CVE databases for same technology**
+   ```bash
+   # If target uses specific technology (e.g., WordPress plugin)
+   searchsploit "plugin-name xss"
+   curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=target+technology+xss" | jq '.vulnerabilities[].cve.id'
+   ```
+
+4. **Test if the vulnerability still exists (fix verification)**
+   ```bash
+   # If resolved report exists, test if fix actually works
+   curl -s "https://shop.target.com/search?q=<script>alert(1)</script>" | \
+     grep -i "alert(1)" && echo "VULNERABILITY STILL PRESENT (not duplicate)" || \
+     echo "FIXED (do not report)"
+   ```
+
+5. **Analyze for subtle differences from existing reports**
+   - Same endpoint but different parameter? (may be a new finding)
+   - Same vulnerability type but different bypass technique? (may be a new finding)
+   - Same root cause but different exploit path? (document as variant, may be eligible)
+   - Identical finding with identical exploit path? (definite duplicate — do not submit)
+
+6. **Document duplication analysis result**
+   ```markdown
+   ## Duplication Analysis
+   - Platform search: 3 XSS reports found, none on /search endpoint
+   - CVE check: no known CVE for this specific parameter
+   - Fix verification: vulnerability still present
+   - Conclusion: NOT A DUPLICATE — safe to report
+   ```
+
+**Expected Result**: Duplication analysis report with clear verdict (DUPLICATE, NOT_DUPLICATE, or VARIANT), supporting evidence, and recommendation on whether to submit
+
+**Remediation**: For program maintainers: maintain a public list of known/reported issues to help hunters avoid duplicates; for hunters: always check before submitting
+
+**Pass Criteria**:
+- [ ] Platform resolved reports searched with relevant keywords
+- [ ] CVE databases checked for same technology and vulnerability type
+- [ ] Vulnerability verified as still present (not previously fixed)
+- [ ] Finding compared against existing reports for endpoint and parameter match
+- [ ] Clear verdict (DUPLICATE / NOT_DUPLICATE / VARIANT) with supporting evidence
+- [ ] If VARIANT: documented how it differs from existing report
+
+---
+
+## TC-SBH-008: Severity Assessment for Triage
+
+**Objective**: Validate that vulnerability severity is assessed accurately using CVSS 3.1 scoring, aligned with the bounty program's severity definitions, and includes business impact context to justify the assigned tier for fast triage.
+
+**Severity**: MEDIUM
+
+**Prerequisites**:
+- Confirmed vulnerability with reproduction steps
+- Target's business context understood (user base, data handled, revenue impact)
+- CVSS 3.1 calculator available
+- Program's severity tier definitions reviewed
+
+**Steps**:
+
+1. **Map finding to CWE**
+   ```bash
+   # Identify the CWE
+   # Example: SQL Injection → CWE-89
+   # Example: XSS → CWE-79
+   # Example: IDOR → CWE-639
+   # Example: SSRF → CWE-918
+   ```
+
+2. **Calculate CVSS 3.1 score**
+   ```bash
+   # Use CVSS calculator for the finding
+   # Example: Authenticated SQL Injection extracting user data
+   # Attack Vector (AV): Network (exploitable remotely)
+   # Attack Complexity (AC): Low (simple payload)
+   # Privileges Required (PR): Low (any authenticated user)
+   # User Interaction (UI): None
+   # Scope (S): Unchanged
+   # Confidentiality (C): High (full database access)
+   # Integrity (I): High (can modify database)
+   # Availability (A): Low (can cause limited disruption)
+   # CVSS Score: 8.8 (High)
+   ```
+
+3. **Cross-reference with program severity definitions**
+   ```markdown
+   Program tier definitions:
+   - Critical: RCE, full database access, auth bypass without credentials
+   - High: significant data access, auth bypass with credentials, SSRF with impact
+   - Medium: limited data access, self-XSS, CSRF on important actions
+   - Low: information disclosure, reflected XSS with user interaction
+
+   Our finding: SQLi with full database read → maps to Critical tier
+   ```
+
+4. **Assess business impact**
+   ```bash
+   # Document business context
+   echo "Business Impact Assessment:"
+   echo "- User accounts affected: estimated 100,000+"
+   echo "- Data exposed: email, hashed password, address, phone"
+   echo "- Financial impact: credential stuffing → account takeover → financial loss"
+   echo "- Regulatory impact: GDPR Article 32 violation, potential breach notification"
+   echo "- Reputation impact: public disclosure would damage trust"
+   ```
+
+5. **Compare CVSS score to program tier**
+   ```
+   CVSS Score: 8.8 (High)
+   Program tier for this finding: Critical (full database access)
+   Recommendation: submit as Critical with justification
+   Note: CVSS and program tier may differ — always align with program definitions
+   ```
+
+6. **Draft severity justification for report**
+   ```markdown
+   ## Severity Justification
+
+   **CVSS 3.1 Score**: 8.8 (High)
+   **CWE**: CWE-89 (SQL Injection)
+   **Program Tier**: Critical
+
+   **Justification for Critical tier**:
+   - Full database read access confirmed (SELECT queries return all rows)
+   - Database contains 100,000+ user records with PII
+   - Any authenticated user can exploit (low privilege requirement)
+   - No user interaction required
+   - Regulatory implications (GDPR breach if exploited)
+   - Aligns with program's Critical definition: "full database access"
+   ```
+
+**Expected Result**: Severity assessment with CVSS score, CWE mapping, program tier alignment, business impact analysis, and justification for the assigned tier
+
+**Remediation**: For program maintainers: provide clear severity definitions with examples; for hunters: always include severity justification with CVSS score and business impact
+
+**Pass Criteria**:
+- [ ] CWE mapping identified and documented
+- [ ] CVSS 3.1 score calculated with all vector components
+- [ ] Score cross-referenced with program's severity tier definitions
+- [ ] Business impact analysis included (user count, data types, regulatory implications)
+- [ ] Severity justification explains any discrepancy between CVSS and program tier
+- [ ] Report includes severity section ready for triage reviewer

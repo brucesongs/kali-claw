@@ -1,6 +1,7 @@
 {
   "skill": "web-xss",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
     "payload_word_count": 3195,
     "payload_section_count": 23,
@@ -8,23 +9,25 @@
     "test_case_count": 10,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
+    "guide_avg_words": 966,
+    "guide_key_sections": 3,
     "skill_section_score": 0.80
   },
   "normalized_scores": {
     "payload_word": 92.0,
-    "payload_section": 111.1,
+    "payload_section": 100.0,
     "payload_code": 80.8,
     "test_case": 85.0,
     "field": 100.0,
-    "guide": 80.0,
+    "guide": 77.6,
     "skill_section": 80.0
   },
   "component_scores": {
     "skill_md": 80.00,
-    "payloads_md": 94.63,
+    "payloads_md": 90.93,
     "test_cases_md": 92.50,
-    "guides": 80.0
+    "guides": 77.6
   },
-  "overall_score": 88.1,
+  "overall_score": 86.4,
   "tier": "Excellent"
 }

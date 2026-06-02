@@ -4,6 +4,56 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.16] - 2026-06-02
+
+### Changed
+
+- **Scoring system v2**: All component scores capped at 100 (no inflation), guide quality composite metric replaces raw file count, Distinguished tier (92+) added above Excellent (80-91.9)
+- **Core files synchronized to 49-domain reality**: CLAUDE.md (25→49), IDENTITY.md (30→49 skill rows), TOOLS.md (20→49 category rows), README.md version consistency
+- Updated USER.md, MEMORY.md, TOOLS.md, HEARTBEAT.md to reflect current project phase
+
+### Added
+
+- **TEMPLATE.md**: Authoritative template for creating new OpenClaw agent workspaces
+- **docs/tools/full-inventory.md**: Complete 518-tool inventory organized by skill domain
+- **5 cross-skill composite attack chain scenarios**:
+  - SCEN-001: Enterprise External Network Penetration Full Chain
+  - SCEN-002: Cloud Environment Attack Chain
+  - SCEN-003: Social Engineering + Internal Network Penetration
+  - SCEN-004: Mobile Application Attack Chain
+  - SCEN-005: Purple Team Defense Validation
+- HEARTBEAT.md: core file consistency checks and `__pycache__` artifact detection
+
+### Fixed
+
+- Removed `__pycache__` directories from 5 skill directories
+- Fixed score inflation (council: 99.7→87.4, max component 125.7→93.3)
+- All dangling file references resolved (bak/, docs/tools/, TEMPLATE.md)
+
+### Metrics
+
+- Scoring v2 baseline: Average 86.1, Min 80.1 (post-exploitation), Max 90.1 (cloud-security)
+- CI baseline updated to 86.1
+- 0 Distinguished, 49 Excellent — room to grow into new tier
+
+## [0.1.15] - 2026-05-31
+
+### Changed
+
+- Expanded 18 SKILL.md files from 10-14 to 17+ `##` headings (skill_section scores 68-76 → 86.7)
+
+### Added
+
+- 20 new test cases across 9 skills (all now 8+ TC)
+- Expanded 26 payloads.md files to 50+ code blocks (payload_code bottleneck eliminated)
+
+### Metrics
+
+- Average: 84.0 → 88.6 (+4.6)
+- Minimum: 80.0 → 85.3 (+5.3)
+- Maximum: 90.3 → 99.7 (+9.4)
+- CI baseline updated to 88.6
+
 ## [0.1.14] - 2026-05-29
 
 ### Added

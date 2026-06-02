@@ -1,6 +1,7 @@
 {
   "skill": "safety-guard",
-  "timestamp": "2026-05-30T11:02:59Z",
+  "timestamp": "2026-06-02T06:02:58Z",
+  "version": "v2",
   "metrics": {
     "payload_word_count": 4971,
     "payload_section_count": 20,
@@ -8,23 +9,25 @@
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
+    "guide_avg_words": 1429,
+    "guide_key_sections": 2,
     "skill_section_score": 1.00
   },
   "normalized_scores": {
-    "payload_word": 109.7,
-    "payload_section": 104.4,
+    "payload_word": 100.0,
+    "payload_section": 100.0,
     "payload_code": 40.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 80.0,
+    "guide": 70.6,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
-    "payloads_md": 84.70,
+    "payloads_md": 80.00,
     "test_cases_md": 90.00,
-    "guides": 80.0
+    "guides": 70.6
   },
-  "overall_score": 87.4,
+  "overall_score": 83.7,
   "tier": "Excellent"
 }

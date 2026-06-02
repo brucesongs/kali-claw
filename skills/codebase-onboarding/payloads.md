@@ -1172,3 +1172,274 @@ grep -rn "^\s*" --include="*.py" . | awk -F: '{
   if(depth > 4) print depth" levels | "$1":"$2
 }' | sort -rn | head -10
 ```
+
+---
+
+## Dependency Graph Generation
+
+### Visual Dependency Graph with Graphviz
+
+```bash
+# Generate a visual dependency graph from Python imports using Graphviz
+python3 << 'EOF'
+import ast
+from pathlib import Path
+from collections import defaultdict
+
+edges = defaultdict(int)
+for f in Path(".").rglob("*.py"):
+    if any(x in str(f) for x in [".git", "test", "node_modules", "__pycache__", "venv"]):
+        continue
+    src = str(f.parent.name) or "root"
+    try:
+        tree = ast.parse(f.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module:
+                pkg = node.module.split(".")[0]
+                if not pkg.startswith(("os", "sys", "json", "re", "typing", "collections")):
+                    edges[(src, pkg)] += 1
+    except (SyntaxError, UnicodeDecodeError):
+        pass
+
+print("digraph deps {")
+print("  rankdir=LR; node [shape=box];")
+for (src, dst), weight in sorted(edges.items(), key=lambda x: -x[1])[:30]:
+    print(f'  "{src}" -> "{dst}" [weight={weight}];')
+print("}")
+EOF
+
+# Go — visualize module dependency graph
+go mod graph | awk -F' ' '{print "\""$1"\" -> \""$2"\""}' | \
+  head -50 | awk 'BEGIN{print "digraph godeps {rankdir=LR;"} {print "  "$0} END{print "}"}'
+
+# Node.js — dependency graph via dependency-cruiser
+npx dependency-cruiser --include-only-reaches "src/" --output-type dot src/ | dot -Tpng -o dep-graph.png
+```
+
+### Architecture Documentation Generator
+
+```bash
+# Generate a structured architecture document from codebase analysis
+python3 << 'EOF'
+import os
+import re
+from pathlib import Path
+from collections import defaultdict
+
+layers = defaultdict(lambda: {"files": 0, "lines": 0, "languages": set()})
+layer_patterns = {
+    "Controllers": r"(controller|handler|route|endpoint)",
+    "Services": r"(service|usecase|interactor|manager)",
+    "Repositories": r"(repository|dao|store|model|entity)",
+    "Configuration": r"(config|setting|constant|env)",
+    "Utilities": r"(util|helper|common|shared|lib)",
+    "Tests": r"(test|spec|mock|fixture)",
+}
+
+for f in Path(".").rglob("*"):
+    if any(x in str(f) for x in [".git", "node_modules", "__pycache__", ".venv"]):
+        continue
+    if f.is_file() and f.suffix in (".py", ".ts", ".go", ".js", ".java"):
+        matched = False
+        for layer, pattern in layer_patterns.items():
+            if re.search(pattern, str(f).lower()):
+                try:
+                    lines = len(f.read_text().splitlines())
+                    layers[layer]["files"] += 1
+                    layers[layer]["lines"] += lines
+                    layers[layer]["languages"].add(f.suffix)
+                except: pass
+                matched = True
+                break
+        if not matched:
+            try:
+                lines = len(f.read_text().splitlines())
+                layers["Other"]["files"] += 1
+                layers["Other"]["lines"] += lines
+                layers["Other"]["languages"].add(f.suffix)
+            except: pass
+
+print("| Layer | Files | Lines | Languages |")
+print("|-------|-------|-------|-----------|")
+for layer, info in sorted(layers.items(), key=lambda x: -x[1]["lines"]):
+    langs = ", ".join(sorted(info["languages"]))
+    print(f"| {layer} | {info['files']} | {info['lines']} | {langs} |")
+EOF
+```
+
+### Call Graph Tracing
+
+```bash
+# Python — trace function call graph with static analysis
+python3 << 'EOF'
+import ast
+from pathlib import Path
+from collections import defaultdict
+
+call_graph = defaultdict(set)
+for f in Path(".").rglob("*.py"):
+    if any(x in str(f) for x in [".git", "test", "node_modules", "__pycache__"]):
+        continue
+    try:
+        tree = ast.parse(f.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                caller = node.name
+                for child in ast.walk(node):
+                    if isinstance(child, ast.Call):
+                        if isinstance(child.func, ast.Name):
+                            call_graph[caller].add(child.func.id)
+                        elif isinstance(child.func, ast.Attribute):
+                            call_graph[caller].add(child.func.attr)
+    except (SyntaxError, UnicodeDecodeError):
+        pass
+
+for caller, callees in sorted(call_graph.items()):
+    for callee in sorted(callees):
+        if callee in call_graph:
+            print(f"  {caller} -> {callee}")
+EOF
+
+# Go — static call graph visualization
+go callgraph -format digraph ./... 2>/dev/null | head -50
+
+# Generate Mermaid sequence diagram from discovered endpoints
+echo "sequenceDiagram"
+echo "  participant Client"
+echo "  participant Router"
+echo "  participant Handler"
+echo "  participant Service"
+echo "  participant Repository"
+echo "  Client->>Router: HTTP Request"
+echo "  Router->>Handler: Dispatch"
+echo "  Handler->>Service: Business Logic"
+echo "  Service->>Repository: Data Access"
+echo "  Repository-->>Service: Result"
+echo "  Service-->>Handler: Response"
+echo "  Handler-->>Client: HTTP Response"
+```
+
+### API Surface Documentation Generator
+
+```python
+#!/usr/bin/env python3
+"""Auto-generate API documentation from discovered route handlers."""
+import ast
+import json
+from pathlib import Path
+
+endpoints = []
+for f in Path(".").rglob("*.py"):
+    if any(x in str(f) for x in [".git", "test", "node_modules", "__pycache__"]):
+        continue
+    try:
+        tree = ast.parse(f.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                for dec in node.decorator_list:
+                    dec_str = ast.dump(dec)
+                    for method in ["get", "post", "put", "delete", "patch"]:
+                        if f'"{method}"' in dec_str or f"'{method}'" in dec_str:
+                            path = "/"
+                            if isinstance(dec, ast.Call) and len(dec.args) > 0:
+                                if isinstance(dec.args[0], ast.Constant):
+                                    path = dec.args[0.value]
+                            endpoints.append({
+                                "file": str(f),
+                                "line": node.lineno,
+                                "method": method.upper(),
+                                "path": path,
+                                "handler": node.name,
+                                "docstring": ast.get_docstring(node) or "",
+                            })
+    except (SyntaxError, UnicodeDecodeError):
+        pass
+
+print(f"Total endpoints discovered: {len(endpoints)}")
+print("\n| Method | Path | Handler | File | Docstring |")
+print("|--------|------|---------|------|-----------|")
+for ep in sorted(endpoints, key=lambda x: (x["method"], x["path"])):
+    doc = ep["docstring"][:40] + "..." if len(ep["docstring"]) > 40 else ep["docstring"]
+    print(f"| {ep['method']} | {ep['path']} | {ep['handler']} | {ep['file']}:{ep['line']} | {doc or 'N/A'} |")
+```
+
+### Tech Stack Identification Report
+
+```bash
+# Auto-detect technology stack and generate a summary report
+python3 << 'EOF'
+import os
+import json
+from pathlib import Path
+
+STACK_SIGNATURES = {
+    "Python": ["requirements.txt", "setup.py", "pyproject.toml", "Pipfile"],
+    "Node.js": ["package.json", "yarn.lock", "pnpm-lock.yaml"],
+    "Go": ["go.mod", "go.sum"],
+    "Rust": ["Cargo.toml", "Cargo.lock"],
+    "Java": ["pom.xml", "build.gradle", "build.gradle.kts"],
+    "PHP": ["composer.json", "artisan"],
+    "Ruby": ["Gemfile", "Gemfile.lock"],
+    "Docker": ["Dockerfile", "docker-compose.yml"],
+    "Kubernetes": ["k8s/", "helm/", "charts/"],
+    "Terraform": ["main.tf", "variables.tf"],
+}
+
+FRAMEWORK_MAP = {
+    "django": ("Python", "Django"), "flask": ("Python", "Flask"),
+    "fastapi": ("Python", "FastAPI"), "express": ("Node.js", "Express"),
+    "nestjs": ("Node.js", "NestJS"), "react": ("Node.js", "React"),
+    "gin-gonic": ("Go", "Gin"), "spring-boot": ("Java", "Spring Boot"),
+    "laravel": ("PHP", "Laravel"), "rails": ("Ruby", "Ruby on Rails"),
+}
+
+detected = []
+for tech, sigs in STACK_SIGNATURES.items():
+    for sig in sigs:
+        matches = list(Path(".").rglob(sig))
+        if matches:
+            detected.append({"technology": tech, "evidence": [str(m) for m in matches[:3]]})
+
+print("# Technology Stack Report\n")
+print("| Technology | Evidence |")
+print("|------------|----------|")
+for item in detected:
+    print(f"| {item['technology']} | {', '.join(item['evidence'][:2])} |")
+print(f"\nTotal technologies detected: {len(detected)}")
+EOF
+```
+
+### Documentation Coverage Scanner
+
+```bash
+# Check which functions and classes are missing docstrings or comments
+python3 << 'EOF'
+import ast
+from pathlib import Path
+
+undocumented = []
+for f in Path(".").rglob("*.py"):
+    if any(x in str(f) for x in [".git", "test", "node_modules", "__pycache__", "venv"]):
+        continue
+    try:
+        tree = ast.parse(f.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                doc = ast.get_docstring(node)
+                if not doc:
+                    kind = "class" if isinstance(node, ast.ClassDef) else "function"
+                    undocumented.append((str(f), node.lineno, kind, node.name))
+    except (SyntaxError, UnicodeDecodeError):
+        pass
+
+total = len(undocumented)
+print(f"### Documentation Coverage\n")
+print(f"Found **{total}** undocumented symbols:\n")
+print("| File | Line | Type | Name |")
+print("|------|------|------|------|")
+for file, line, kind, name in sorted(undocumented)[:30]:
+    print(f"| {file} | {line} | {kind} | `{name}` |")
+if total > 30:
+    print(f"\n... and {total - 30} more")
+EOF
+```

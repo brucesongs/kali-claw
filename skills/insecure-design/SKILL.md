@@ -145,6 +145,55 @@ Common security anti-patterns:
 
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
 
+## Common Pitfalls
+
+- **Treating design flaws as implementation bugs**: Attempting to patch a business logic bypass with input validation instead of redesigning the workflow with proper state machine controls. Design flaws require architectural changes, not code patches.
+- **Ignoring internal trust boundaries**: Assuming that all microservice-to-microservice communication is inherently safe because it occurs "inside" the network. Every internal API call is a trust boundary that needs authentication and authorization.
+- **Testing only the happy path**: Security testing that only covers normal user flows will miss abuse cases. Always test negative amounts, skipped steps, reversed sequences, and concurrent operations against the same resource.
+
+## Case Studies and Examples
+
+- **E-commerce negative pricing**: An online store accepted negative quantities in the cart API, allowing attackers to receive refunds for items never purchased. Root cause: the design assumed quantities are always positive without enforcing a validation state machine.
+- **Multi-step workflow bypass**: A loan application system required credit check, manager approval, and disbursement as sequential steps. An attacker called the disbursement API directly, skipping the first two steps. Root cause: no server-side state machine enforcing step prerequisites.
+- **Race condition on balance transfer**: Two concurrent transfer requests drained more funds than the account balance by exploiting the TOCTOU gap between balance check and deduction. Root cause: the design lacked idempotent operations and pessimistic locking at the database level.
+
+## Reporting and Documentation
+
+When documenting insecure design findings, include a threat model diagram showing the flawed trust boundary, an abuse case narrative describing the attacker's path, and a design-level remediation recommendation (not just a code patch). Use DFDs (Data Flow Diagrams) to visually highlight where trust boundaries are missing or bypassed. Each finding should map to a specific STRIDE category and include an estimated redesign effort.
+
+## Integration with Other Tools
+
+Combine threat modeling tools with dynamic testing for maximum coverage. Export STRIDE analysis from OWASP Threat Dragon into test case templates, then validate those abuse cases using Burp Suite's Turbo Intruder for race conditions and Repeater for workflow bypass testing. Use draw.io architecture diagrams as a reference while fuzzing API endpoints to ensure every trust boundary identified in the diagram is tested during dynamic assessment.
+
+## Automation and Scripting
+
+Automate race condition testing with Python's `threading` or `asyncio` libraries to send dozens of concurrent requests at precise timing windows. Use Burp Suite's Turbo Intruder extension for HTTP/2 single-packet race conditions that hit the server within the same millisecond. Script abuse case generation by parsing OpenAPI/Swagger specs to automatically enumerate all API endpoints and their parameter combinations for design-level fuzzing.
+
+## Defense Evasion Techniques
+
+Design-level attacks are inherently stealthy because they follow valid API paths with legitimate-looking parameters. To avoid detection during testing: use realistic-looking test accounts that match normal user behavior patterns, space out race condition attempts across multiple sessions rather than firing them all at once, and ensure that any negative-value or boundary-testing payloads appear as normal form submissions to WAF and application logs.
+
+## Remediation Strategies
+
+Effective remediation of insecure design requires architectural-level changes, not patches. Key strategies include: implementing server-side state machines for all multi-step workflows, adding idempotency keys to prevent duplicate processing, enforcing validation at every trust boundary (not just the outermost one), and integrating threat modeling into every sprint planning cycle. For existing systems, prioritize redesigning the most critical business logic flows first (payment, authentication, authorization) before addressing lower-risk workflows.
+
+## Legal and Ethical Considerations
+
+Business logic testing often involves interacting with production systems in ways that mimic real fraud. Always obtain explicit written authorization that covers design-level testing, not just standard vulnerability scanning. Document the exact scope of permitted abuse case testing (e.g., whether modifying cart quantities is allowed, whether actual fund transfers are permitted). Never test race conditions against production financial systems without a dedicated test environment or explicit stakeholder approval.
+
+## Advanced Techniques
+
+Advanced insecure design testing goes beyond simple parameter tampering. Techniques include: state machine extraction by mapping all possible state transitions through API responses, trust boundary fuzzing by systematically testing every internal API endpoint as if it were externally accessible, and design pattern abuse by identifying which software patterns the application uses (Observer, Singleton, Factory) and crafting inputs that exploit the security assumptions inherent in those patterns.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Limitations | Skill Level |
+|------|----------|-------------|-------------|
+| **OWASP Threat Dragon** | Visual STRIDE threat modeling | Limited export formats, no auto-analysis | Beginner |
+| **Burp Suite (Turbo Intruder)** | HTTP/2 single-packet race conditions | Requires Burp Pro for full features | Intermediate |
+| **Python asyncio** | Custom concurrent abuse case scripting | Must build timing and assertion logic from scratch | Advanced |
+| **draw.io** | DFD and trust boundary documentation | Manual process, no automated threat detection | Beginner |
+
 ## Hacker Laws
 
 1. **First Principles** - The essence of insecure design is "the attacker was not considered during design." Return to the fundamental question: Does the system validate at every trust boundary? Does every operation have corresponding abuse case protection? Understanding this first principle enables finding design flaws in any system.

@@ -272,6 +272,57 @@ continuous-learning → [update skill corpus for next engagement]
 
 ---
 
+## Common Pitfalls
+
+- **Testing only direct injection and ignoring indirect paths**: Many assessors test user-facing chat inputs for prompt injection but overlook indirect vectors like document uploads, API response processing, and plugin/tool outputs that reach the LLM. RAG poisoning through uploaded documents is often the highest-impact finding.
+- **Treating all refusals as evidence of security**: A model refusing a specific prompt formulation does not prove robustness — it may refuse the exact wording but comply with semantically equivalent rephrasings. Test multiple formulation variants before concluding a safety control is effective.
+- **Ignoring rate limiting on LLM endpoints**: LLM API calls are expensive. Without rate limiting, attackers can perform systematic model extraction or training data membership inference by sending thousands of queries. Check for rate limits and cost caps as part of every AI security assessment.
+
+## Reporting and Documentation
+
+AI security findings should map to the OWASP LLM Top 10 categories and include the complete prompt payload, the model's response, and the specific security policy violated. Document the attack chain step-by-step: what input was sent, how the model processed it differently than intended, and what unauthorized action resulted. Include remediation recommendations categorized as: prompt-level fixes (system prompt hardening, input sanitization), architectural fixes (output validation, human-in-the-loop), and infrastructure fixes (rate limiting, monitoring).
+
+## Legal and Ethical Considerations
+
+AI security testing raises unique ethical questions. Prompt injection testing against third-party APIs (OpenAI, Anthropic, Google) may violate their terms of service even with the application owner's authorization. Extracting system prompts or training data from commercial models may expose proprietary information. Never test AI safety bypass techniques that could generate harmful content (CBRN, exploitation material) — document that the vulnerability exists by demonstrating the bypass mechanism with benign payloads instead. Always verify that AI-specific testing is included in the engagement scope.
+
+## Integration with Other Tools
+
+AI security assessment connects to multiple adjacent domains. API endpoint discovery for LLM services uses standard api-security testing (ffuf, burpsuite). Web application testing of AI-powered chatbots combines with web-xss techniques when injection payloads are reflected to other users. RAG system assessment requires understanding of the underlying vector database infrastructure (container-security for self-hosted embeddings services). Supply chain assessment of AI models leverages supply-chain-security methodology for verifying model provenance and integrity.
+
+## Case Studies and Examples
+
+- **ChatGPT data exfiltration via indirect injection**: A researcher discovered that ChatGPT's web browsing feature could be tricked into visiting a URL containing an image tag that exfiltrated conversation history via the image's src parameter. The attack used an indirect prompt injection through a website that ChatGPT was asked to summarize.
+- **RAG poisoning in enterprise knowledge base**: A company's internal AI assistant indexed uploaded documents without sanitization. An attacker (insider threat) uploaded a document containing hidden white-text instructions that caused the AI to include malicious URLs in all future responses about company VPN configuration.
+- **Model extraction via systematic querying**: A competitor identified that a startup's "proprietary AI model" was actually a thin wrapper around GPT-4 by extracting the system prompt through careful questioning, then verified the finding by comparing output patterns against known GPT-4 behavior.
+
+## Automation and Scripting
+
+Automate AI security testing with garak for systematic vulnerability scanning across multiple probe categories (injection, jailbreak, toxicity, hallucination). Use promptfoo for config-driven regression testing that validates whether safety improvements break functionality. Build custom Python scripts for multi-turn attack chains that maintain conversation context across requests — essential for testing context-based injection persistence. Script model extraction probes that systematically query the model's capability boundaries and compile the results into a structured fingerprint.
+
+## Defense Evasion Techniques
+
+LLM safety filters can be bypassed through: multi-language prompts (instructions in a mix of languages that the safety classifier does not parse consistently), token smuggling with unicode homoglyphs or zero-width characters, base64-encoded payloads that the model decodes and executes, and many-shot attacks that normalize forbidden behavior through 20+ examples before the actual request. For production testing, use requests that appear to be normal user interactions to avoid triggering usage monitoring systems.
+
+## Advanced Techniques
+
+Advanced AI security testing includes: multi-agent attack chains where one compromised LLM agent poisons the context of another, adversarial suffix attacks that append optimized token sequences to bypass safety training, data exfiltration through model responses encoded in markdown formatting or structured data fields, and timing-based side-channel attacks that infer model internals from response latency patterns. For RAG systems, explore embedding space attacks where semantically similar but malicious documents are positioned to be retrieved alongside legitimate content.
+
+## Tool Comparison Matrix
+
+| Tool | Best For | Coverage | Skill Level |
+|------|----------|----------|-------------|
+| **garak** | Automated LLM vulnerability scanning | Very broad (20+ probe types) | Beginner |
+| **promptfoo** | Config-driven injection testing | Moderate (configurable) | Intermediate |
+| **llm-guard** | Input/output scanning | Moderate (detection) | Beginner |
+| **picklescan** | Model supply chain scanning | Narrow (pickle files) | Beginner |
+| **Custom Python** | Multi-turn attack chains | Unlimited | Advanced |
+| **Burp Suite** | LLM API request interception | Broad (HTTP-level) | Intermediate |
+
+## Performance and Remediation
+
+LLM API calls are rate-limited and incur per-token costs, making exhaustive testing prohibitively expensive for large-scale assessments. Prioritize high-impact test categories (direct injection, system prompt extraction) before lower-priority ones. Cache model responses to avoid redundant API calls, and use cheaper models for initial reconnaissance before switching to more capable models for bypass attempts. AI security remediation operates at three layers: prompt engineering (instruction hardening, input/output delimiters), architectural controls (output validation, human-in-the-loop, context isolation), and infrastructure hardening (rate limiting, RAG document sanitization). No single layer is sufficient — combine all three for defense in depth.
+
 ## Severity Classification
 
 | Level | AI Security Criteria | Example |

@@ -217,6 +217,20 @@ gcc -o target target.c -fno-stack-protector -z execstack -no-pie
 
 ---
 
+## Automation and Scripting
+
+Automated binary analysis pipelines drastically reduce manual effort when assessing large numbers of binaries. r2pipe enables Python-driven batch scanning that can process entire firmware images or package collections, flagging dangerous function calls and missing protections automatically. Combining radare2 scripting with Ghidra headless analysis creates a powerful hybrid pipeline where radare2 handles rapid triage and Ghidra performs deep decompilation on candidates that warrant closer inspection.
+
+## Common Pitfalls
+
+A frequent mistake in binary exploitation is relying solely on decompiler output without cross-referencing assembly — decompilers often misrepresent pointer arithmetic, union types, and optimized loops. Another common error is neglecting to verify ASLR status at runtime (not just at compile time), since some distributions disable ASLR for specific binaries via `personality` flags. Always confirm protection status with `checksec` and `/proc/sys/kernel/randomize_va_space` simultaneously before committing to an exploitation strategy.
+
+## Detection Methods
+
+Identifying vulnerable binaries requires systematic pattern recognition across multiple dimensions. String analysis (`strings -n 8`) reveals hardcoded paths, credentials, and format strings that may be exploitable. Symbol table inspection (`readelf -s`, `nm`) exposes dangerous imported functions like `strcpy`, `system`, and `sprintf`. Cross-reference analysis in radare2 (`axt @ sym.imp.strcpy`) maps every call site, enabling prioritized review of the most dangerous functions first.
+
+---
+
 ## Learning Resources
 
 **Supplementary files for this skill**:

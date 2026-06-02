@@ -152,6 +152,21 @@ hping3 -0 -p 80 -c 1 target
 hping3 -W -p 80 -c 1 target
 ```
 
+### 2.5 CIDR Range Discovery and Asset Mapping
+
+```bash
+# Discover ASN and IP ranges for a target organization
+whois -h whois.radb.net -- '-i origin AS12345' | grep route
+
+# Enumerate all IPs in a CIDR range
+prips 192.168.1.0/24 | head -20
+
+# Map IP ranges to cloud providers
+for ip in $(cat resolved_ips.txt | head -20); do
+  whois "$ip" 2>/dev/null | grep -iE "OrgName|Organization|netname" | head -1 | sed "s/^/$ip: /"
+done
+```
+
 ---
 
 ## 3. Subdomain Enumeration
@@ -200,6 +215,25 @@ gobuster dns -d example.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1
 
 # DNS brute force using ffuf
 ffuf -u https://FUZZ.example.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+```
+
+### 3.4 Permutation-Based Subdomain Discovery
+
+```bash
+# Generate subdomain permutations for discovery
+# Uses dnsgen to create permutations from known subdomains
+cat all_subdomains.txt | dnsgen - | dnsx -r 8.8.8.8,1.1.1.1 -a -silent | sort -u
+
+# Custom permutation generation
+python3 -c "
+import itertools
+domain = 'example.com'
+prefixes = ['dev', 'staging', 'api', 'admin', 'test', 'internal', 'vpn', 'mail',
+            'cdn', 'git', 'ci', 'jenkins', 'jira', 'wiki', 'docs', 'app']
+subs = [f'{p}.{domain}' for p in prefixes]
+subs += [f'{a}-{b}.{domain}' for a, b in itertools.combinations(prefixes[:6], 2)]
+print('\n'.join(subs))
+" | dnsx -silent -a | sort -u
 ```
 
 ---
@@ -265,6 +299,22 @@ for path in /.git/HEAD /.svn/entries /.env /wp-config.php /config.php /server-st
 done
 ```
 
+### 4.5 JavaScript File Analysis for Hidden Endpoints
+
+```bash
+# Download and analyze JavaScript files for API endpoints and secrets
+curl -s http://target/app.js | grep -oP '(https?://[^\s"'\''<>]+|/api/[^\s"'\''<>]+)' | sort -u
+
+# Extract API keys from JavaScript using regex patterns
+curl -s http://target/app.js | grep -oP '(api[_-]?key|token|secret|password|bearer)\s*[:=]\s*["\x27][^"\x27]{8,}["\x27]' -i
+
+# Batch download JS files from target and search for sensitive data
+for js_url in $(curl -s http://target | grep -oP 'src="[^"]*\.js[^"]*"' | cut -d'"' -f2); do
+  echo "=== $js_url ==="
+  curl -s "http://target${js_url}" | grep -iE "api.key|secret|token|password|endpoint"
+done
+```
+
 ---
 
 ## 5. Email Harvesting
@@ -298,6 +348,33 @@ theHarvester -d example.com -b all -f results.html
 curl "https://api.hunter.io/v2/email-finder?domain=example.com&api_key=[API_KEY]"
 ```
 
+### 5.3 Email Verification and SMTP Enumeration
+
+```bash
+# Verify email existence via SMTP VRFY/RCPT TO commands
+python3 -c "
+import smtplib, sys
+
+server = smtplib.SMTP(timeout=10)
+server.connect('mail.example.com', 25)
+server.ehlo()
+
+# Try VRFY command (often disabled but worth testing)
+code, msg = server.veriy('admin@example.com')
+print(f'VRFY: {code} {msg.decode()}')
+
+# Try RCPT TO enumeration
+server.mail('test@example.com')
+code, msg = server.rcpt('target@example.com')
+if code == 250:
+    print('[+] Email exists (RCPT TO accepted)')
+elif code == 550:
+    print('[-] Email does not exist (RCPT TO rejected)')
+else:
+    print(f'[?] Unexpected response: {code} {msg.decode()}')
+server.quit()
+"
+
 ---
 
 ## 6. Social Media OSINT
@@ -330,6 +407,31 @@ recon-ng
 > run
 ```
 
+### 6.3 LinkedIn Employee Enumeration via Google Dorks
+
+```bash
+# Find employees by role at target company
+site:linkedin.com/in "Example Corp" "engineer"
+site:linkedin.com/in "Example Corp" "administrator"
+site:linkedin.com/in "Example Corp" "CTO" OR "CISO" OR "IT Manager"
+
+# Find email patterns from LinkedIn profiles
+site:linkedin.com/in "Example Corp" "@example.com"
+```
+
+### 6.4 Twitter/X Intelligence Collection
+
+```bash
+# Search tweets mentioning target domain from employees
+twscrape -u "example.com" --search "password OR internal OR vpn"
+
+# Use snscrape for historical tweet collection
+snscrape --json twitter-search "from:example.com OR about:example.com" > tweets.json
+
+# Find employees sharing internal information
+site:twitter.com "example.com" "new job" OR "excited to join"
+```
+
 ---
 
 ## 7. Metadata Extraction
@@ -355,6 +457,22 @@ exiftool image.jpg
 
 # GPS coordinate extraction
 exiftool -gps:all image.jpg
+
+# Camera serial number extraction (link images to specific devices)
+exiftool -SerialNumber -InternalSerialNumber -Model image.jpg
+```
+
+### 7.3 Bulk Metadata Extraction and Correlation
+
+```bash
+# Download documents from target domain and extract metadata
+metagoofil -d example.com -t pdf,doc,xls,ppt -l 100 -n 50 -o /tmp/meta/
+
+# Extract all author names from downloaded documents
+exiftool -r -Creator -Author -LastModifiedBy /tmp/meta/ | grep -v "^$" | sort -u
+
+# Extract software versions used internally
+exiftool -r -Producer -Creator -Generator /tmp/meta/ | sort | uniq -c | sort -rn
 ```
 
 ---
@@ -523,6 +641,35 @@ recon-ng
 > show contacts
 ```
 
+### 10.3 Automated Recon with Final Report Generation
+
+```bash
+#!/usr/bin/env bash
+# One-command recon with HTML report output
+DOMAIN="${1:?Usage: $0 <domain>}"
+OUT="evidence/recon-$DOMAIN-$(date +%Y%m%d)"
+mkdir -p "$OUT"
+
+echo "[*] Subdomain discovery..."
+subfinder -d "$DOMAIN" -silent | sort -u > "$OUT/subdomains.txt"
+
+echo "[*] Live host check..."
+httpx -l "$OUT/subdomains.txt" -silent -status-code -title -tech-detect > "$OUT/live.txt"
+
+echo "[*] Port scanning live hosts..."
+cat "$OUT/live.txt" | awk '{print $1}' | sort -u | httpx -silent -ports 22,80,443,8080,8443
+
+echo "[*] Generating report..."
+python3 -c "
+subdomains = open('$OUT/subdomains.txt').read().strip().split('\n')
+live = open('$OUT/live.txt').read().strip().split('\n')
+print(f'<html><body><h1>Recon Report: $DOMAIN</h1>')
+print(f'<h2>Summary</h2><p>Subdomains: {len(subdomains)} | Live: {len(live)}</p>')
+print(f'<h2>Live Hosts</h2><pre>{chr(10).join(live)}</pre></body></html>')
+" > "$OUT/report.html"
+echo "[+] Report: $OUT/report.html"
+```
+
 ### 10.3 Maltego Visual Correlation
 
 ```
@@ -534,4 +681,259 @@ GUI operation workflow:
 5. Domain -> Email Address (correlate emails)
 6. Email Address -> Person (correlate people)
 7. Person -> Social Media Profile (social media profiling)
+```
+
+---
+
+## 11. Shodan & Censys Queries
+
+### 11.1 Shodan Service Discovery
+
+```bash
+# Discover all services for an organization
+shodan search "org:Example Corp" --fields ip_str,port,product,os
+
+# Find exposed databases
+shodan search "port:3306 product:MySQL org:Example Corp"
+shodan search "port:5432 product:PostgreSQL org:Example Corp"
+shodan search "port:27017 product:MongoDB org:Example Corp"
+
+# Find exposed management interfaces
+shodan search "port:8080 http.title:\"Dashboard\" org:Example Corp"
+shodan search "port:9090 product:Cockpit org:Example Corp"
+```
+
+### 11.2 Censys Certificate Search
+
+```bash
+# Find all certificates for a domain
+curl -s "https://search.censys.io/api/v2/certificates/search" \
+  -H "Authorization: Bearer $CENSYS_TOKEN" \
+  -d '{"q":"parsed.names: example.com","per_page":100}'
+
+# Find expired or self-signed certificates
+# Web UI: https://search.censys.io/certificates?q=parsed.names:example.com AND tags:untrusted
+```
+
+---
+
+## 12. DNS Interrogation Deep Dive
+
+### 12.1 DNSSEC Validation
+
+```bash
+# Check if domain uses DNSSEC
+dig example.com DNSKEY +short
+dig example.com DS +short
+
+# Validate DNSSEC chain
+dig +dnssec example.com @8.8.8.8
+# Look for RRSIG records in response
+```
+
+### 12.2 DNS Zone Walking (NSEC)
+
+```bash
+# Walk DNS zone using NSEC records (if DNSSEC is enabled with NSEC)
+dig example.com NSEC @ns1.example.com +trace
+
+# Use ldns-walk for automated zone walking
+ldns-walk example.com
+```
+
+### 12.3 Advanced DNS Reconnaissance with dnsrecon
+
+```bash
+# Comprehensive DNS reconnaissance
+dnsrecon -d example.com -t std
+dnsrecon -d example.com -t axfr
+dnsrecon -d example.com -t brt -D /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt
+
+# Cache snooping
+dnsrecon -t snoop -n 8.8.8.8 --dictionary /usr/share/seclists/Discovery/DNS/namelist.txt
+```
+
+---
+
+## 13. Email OSINT & Breach Analysis
+
+### 13.1 Email Pattern Discovery
+
+```bash
+# Discover email format using Hunter.io API
+curl -s "https://api.hunter.io/v2/email-finder?domain=example.com&api_key=$HUNTER_KEY" | jq '.data.pattern'
+
+# Verify email deliverability
+python3 -c "
+import dns.resolver
+domain = 'example.com'
+records = dns.resolver.resolve(domain, 'MX')
+for r in records:
+    print(f'MX: {r.exchange} priority={r.preference}')
+"
+```
+
+### 13.2 Breach Data Correlation
+
+```bash
+# Check email against Have I Been Pwned
+curl -s "https://haveibeenpwned.com/api/v3/breachedaccount/user@example.com" \
+  -H "hibp-api-key: $HIBP_KEY" -H "user-agent: OSINT-Research" | jq '.[].Name'
+
+# Password breach check (k-anonymity model - only sends first 5 chars of hash)
+echo -n "password123" | sha1sum | awk '{print $1}'
+HASH_PREFIX=$(echo -n "password123" | sha1sum | cut -c1-5)
+curl -s "https://api.pwnedpasswords.com/range/$HASH_PREFIX" | grep -i "$(echo -n "password123" | sha1sum | cut -c6-40)"
+```
+
+---
+
+## 14. Image OSINT & Geolocation
+
+### 14.1 Reverse Image Search
+
+```bash
+# Extract unique image identifiers for reverse search
+exiftool -ImageUniqueID -DocumentID image.jpg
+
+# Generate perceptual hash for image correlation
+phash image.jpg
+
+# Check image against Google reverse search (open in browser)
+echo "https://images.google.com/searchbyimage?image_url=IMAGE_URL"
+```
+
+### 14.2 Geolocation from EXIF GPS Data
+
+```python
+# Convert GPS coordinates from EXIF to decimal degrees
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+
+def get_gps_coordinates(image_path):
+    image = Image.open(image_path)
+    exif_data = image._getexif()
+    if not exif_data:
+        return None
+
+    gps_info = {}
+    for tag, value in exif_data.items():
+        name = TAGS.get(tag, tag)
+        if name == "GPSInfo":
+            for gps_tag in value:
+                gps_name = GPSTAGS.get(gps_tag, gps_tag)
+                gps_info[gps_name] = value[gps_tag]
+
+    def convert_to_degrees(value):
+        return float(value[0]) + float(value[1]) / 60 + float(value[2]) / 3600
+
+    if "GPSLatitude" in gps_info and "GPSLongitude" in gps_info:
+        lat = convert_to_degrees(gps_info["GPSLatitude"])
+        lon = convert_to_degrees(gps_info["GPSLongitude"])
+        if gps_info.get("GPSLatitudeRef", "N") == "S":
+            lat = -lat
+        if gps_info.get("GPSLongitudeRef", "E") == "W":
+            lon = -lon
+        return (lat, lon)
+    return None
+
+coords = get_gps_coordinates("target_image.jpg")
+if coords:
+    print(f"Location: {coords[0]:.6f}, {coords[1]:.6f}")
+    print(f"Google Maps: https://maps.google.com/?q={coords[0]},{coords[1]}")
+```
+
+---
+
+## 15. WHOIS Deep Analysis
+
+### 15.1 Bulk WHOIS with Registration Pattern Analysis
+
+```bash
+# Bulk WHOIS for related domains and extract registration patterns
+for domain in $(cat related_domains.txt); do
+  whois "$domain" 2>/dev/null | grep -E "Registrant|Creation|Expir|Name Server" | \
+    sed "s/^/$domain: /"
+  sleep 2
+done > whois_bulk_report.txt
+
+# Extract registrant email addresses across multiple domains
+grep -h "Registrant Email\|Admin Email" whois_bulk_report.txt | sort | uniq -c | sort -rn
+```
+
+### 15.2 WHOIS Historical Analysis
+
+```bash
+# Check domain age and registration changes via whois history
+# Using DomainTools or whoisrequest.com (web-based)
+
+# Parse WHOIS dates to determine domain lifecycle
+python3 -c "
+import subprocess, re
+from datetime import datetime
+
+domain = 'example.com'
+whois_data = subprocess.run(['whois', domain], capture_output=True, text=True).stdout
+
+for pattern in [r'Creation Date:\s*(.+)', r'Registry Expiry Date:\s*(.+)', r'Updated Date:\s*(.+)']:
+    match = re.search(pattern, whois_data)
+    if match:
+        date_str = match.group(1).strip().split('T')[0]
+        print(f'{pattern.split(\":\")[0]}: {date_str}')
+
+# Calculate domain age
+created = re.search(r'Creation Date:\s*(.+?)(?:\n|T)', whois_data)
+if created:
+    created_date = datetime.strptime(created.group(1).strip()[:10], '%Y-%m-%d')
+    age_days = (datetime.utcnow() - created_date).days
+    print(f'Domain age: {age_days} days ({age_days/365:.1f} years)')
+"
+```
+
+---
+
+## 16. Automated Reconnaissance Correlation
+
+### 16.1 Full Recon Pipeline with Reporting
+
+```python
+#!/usr/bin/env python3
+"""Correlate all reconnaissance results into a single intelligence report."""
+
+import json
+import subprocess
+from pathlib import Path
+
+def run_recon_correlation(domain, output_dir):
+    """Run multi-tool recon and correlate results."""
+    results_dir = Path(output_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    report = {"domain": domain, "findings": {}}
+
+    # Subdomain enumeration
+    subs = set()
+    for tool_output in results_dir.glob("subs-*.txt"):
+        for line in tool_output.read_text().splitlines():
+            if domain in line:
+                subs.add(line.strip())
+
+    # Certificate transparency
+    try:
+        ct_raw = subprocess.run(
+            ["curl", "-s", f"https://crt.sh/?q=%25.{domain}&output=json"],
+            capture_output=True, text=True, timeout=30
+        ).stdout
+        ct_domains = set(e["name_value"] for e in json.loads(ct_raw)) if ct_raw else set()
+        subs.update(ct_domains)
+    except Exception:
+        pass
+
+    report["findings"]["total_subdomains"] = len(subs)
+    report["findings"]["subdomains"] = sorted(subs)[:100]
+
+    # Write report
+    report_path = results_dir / "correlation_report.json"
+    report_path.write_text(json.dumps(report, indent=2))
+    print(f"[+] Report: {report_path} ({len(subs)} subdomains found)")
+    return report
 ```

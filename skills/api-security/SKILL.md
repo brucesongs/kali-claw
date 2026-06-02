@@ -183,6 +183,18 @@ curl -s https://target.com/api/v1/endpoint?param=value&_=$(date +%s)
 curl -s https://target.com/api/v1/./endpoint?param=value
 ```
 
+## Automation and Scripting
+
+API security testing benefits heavily from automation due to the sheer number of endpoints and parameter combinations. Postman Collection Runner and custom Python scripts using the `requests` library can systematically test every endpoint with multiple authentication levels, automatically diffing responses to detect authorization bypasses. Nuclei templates for API-specific checks (Swagger exposure, GraphQL introspection, JWT misconfigurations) enable rapid batch scanning across API inventories.
+
+## Common Pitfalls
+
+A common mistake in API testing is focusing exclusively on CRUD endpoints while overlooking less obvious attack surfaces like health-check endpoints, debug routes, and internal API documentation endpoints that may lack authentication entirely. Another pitfall is testing rate limiting with only single-threaded requests — many rate limit implementations only enforce limits within discrete time windows, making them vulnerable to burst attacks that fit between window boundaries. Always test rate limits with concurrent multi-threaded requests.
+
+## Detection Methods
+
+API vulnerability detection starts with comprehensive endpoint discovery using multiple complementary techniques: kiterunner for spec-based route enumeration, ffuf for path fuzzing, and passive analysis of JavaScript bundles for hardcoded API paths. GraphQL introspection queries and gRPC reflection services provide complete schema maps when available. Once endpoints are catalogued, automated BOLA testing swaps resource IDs across authenticated sessions while Mass Assignment testing injects additional properties into request bodies.
+
 ---
 
 ## Hacker Laws

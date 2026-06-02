@@ -308,3 +308,99 @@
 | HIGH | 4 | TC-AF-003, TC-AF-004, TC-AF-005, TC-AF-006 |
 | MEDIUM | 0 | - |
 | LOW | 0 | - |
+
+---
+
+## H. Grammar-Aware Fuzzing
+
+### TC-AF-008 | Grammar-Aware Fuzzing for Structured Input Formats
+- **Severity**: HIGH
+- **Prerequisites**: Target application accepting structured input (JSON, XML, YAML, SQL, HTML, or custom DSL); grammar specification or RFC documentation available; AFL++ with grammar-aware mutator (`afl-grammar-mutator`) or Domino `domino` tool; target compiled with Address Sanitizer; valid seed corpus in target format.
+- **Objective**: Discover vulnerabilities in structured input parsers by generating inputs that are syntactically valid enough to pass initial parsing but semantically malformed enough to trigger edge cases in deeper processing logic.
+- **Test Steps**:
+  1. **Obtain or write a grammar specification** for the target input format:
+     ```bash
+     # Example: JSON grammar for AFL++ grammar mutator (BNF notation)
+     cat > json_grammar.bnf << 'GRAMMAR'
+     <json> ::= <object> | <array> | <string> | <number> | "true" | "false" | "null"
+     <object> ::= "{" <members>? "}"
+     <members> ::= <pair> ("," <pair>)*
+     <pair> ::= <string> ":" <json>
+     <array> ::= "[" <elements>? "]"
+     <elements> ::= <json> ("," <json>)*
+     <string> ::= '"' (<char>)* '"'
+     <char> ::= <escaped> | <normal_char>
+     <escaped> ::= "\\" (<esc_char>)
+     <number> ::= <int> <frac>? <exp>?
+     <int> ::= "-"? <digits>
+     <frac> ::= "." <digits>
+     <exp> ::= ("e" | "E") ("+" | "-")? <digits>
+     <digits> ::= [0-9]+
+     GRAMMAR
+     ```
+  2. **Build the grammar-aware mutator plugin for AFL++**:
+     ```bash
+     # Build AFL++ grammar mutator
+     cd ~/AFLplusplus/grammar_mutator
+     make
+     # Generate mutator library from grammar
+     python3 grammar-generator.py json_grammar.bnf
+     ```
+  3. **Prepare seed corpus with valid samples at varying complexity levels**:
+     ```bash
+     mkdir -p grammar_seeds
+     # Minimal valid input
+     echo '{"a":1}' > grammar_seeds/seed_minimal.json
+     # Nested structure
+     echo '{"users":[{"name":"test","id":1},{"name":"admin","id":0}]}' > grammar_seeds/seed_nested.json
+     # Large array (stress test)
+     python3 -c "import json; print(json.dumps({'items': [{'x': i} for i in range(100)]}))" > grammar_seeds/seed_large.json
+     # Edge case values
+     echo '{"neg": -999999, "big": 1e308, "empty": "", "null_val": null, "unicode": "\\u0000\\uffff"}' > grammar_seeds/seed_edge.json
+     ```
+  4. **Launch AFL++ with grammar-aware mutator**:
+     ```bash
+     afl-fuzz -i grammar_seeds/ -o grammar_findings/ \
+       -m none -t 5000 \
+       -x json_grammar.bnf \
+       -- ./target_parser @@
+     ```
+  5. **Monitor grammar-specific metrics**: compare structural coverage (unique edges hit in parsing logic) against a parallel run using standard byte-level mutation:
+     ```bash
+     # Run comparison: grammar-aware vs. standard mutation
+     afl-fuzz -i grammar_seeds/ -o standard_findings/ -M std -m none -- ./target_parser @@
+     afl-fuzz -i grammar_seeds/ -o grammar_findings/ -M gram -m none -x json_grammar.bnf -- ./target_parser @@
+
+     # After 4 hours, compare:
+     # afl-whatsup -o grammar_findings/
+     # afl-whatsup -o standard_findings/
+     ```
+  6. **When crashes found, analyze with ASAN and minimize**:
+     ```bash
+     # Reproduce crash
+     ASAN_SYMBOLIZER_PATH=llvm-symbolizer ./target_parser grammar_findings/default/crashes/id:000001*
+
+     # Minimize crash input
+     afl-tmin -i grammar_findings/default/crashes/id:000001* -o minimized_crash -- ./target_parser @@
+
+     # Check if minimized input still has valid structure (grammar-aware advantage)
+     python3 -c "import json; json.load(open('minimized_crash'))" 2>&1
+     ```
+  7. **Classify crash as grammar-induced or random**: grammar-aware crashes are more likely to represent real-world attack vectors because the input structure mimics what an attacker would send:
+     ```bash
+     # Check if the crash input is parseable (passes initial validation)
+     if python3 -c "import json; json.load(open('minimized_crash'))" 2>/dev/null; then
+         echo "GRAMMAR-VALID CRASH: high severity (passes parser, crashes processor)"
+     else
+         echo "GRAMMAR-INVALID CRASH: lower severity (caught by parser but still a bug)"
+     fi
+     ```
+- **Expected Outcomes**: Grammar-aware fuzzing discovers crashes that standard byte-level mutation misses because the inputs pass the initial syntax validation layer. At least 1 crash found that standard mutation did not find within the same time budget. Minimized crash inputs are structurally plausible (parseable), indicating the vulnerability is in semantic processing rather than syntax parsing. Coverage of parsing logic branches is higher with grammar-aware mutator than standard mutator.
+- **False Positive Elimination**: Confirm crash is not from trivially malformed input (e.g., completely random bytes). Verify that the crash input has structural elements matching the grammar. Compare crash severity: grammar-valid crashes that reach deep processing logic are higher severity than syntax-level crashes.
+- **Remediation**: Add input validation at the semantic processing layer (not just syntax validation); implement fuzz testing in CI/CD with grammar-aware mutators; add property-based tests (e.g., Hypothesis library for Python) that generate structurally valid edge cases.
+- **Pass Criteria**:
+  - [ ] Grammar specification written and validated against known-good inputs
+  - [ ] Grammar-aware fuzzer achieves higher structural coverage than standard mutation
+  - [ ] At least 1 unique crash found by grammar-aware approach that standard approach missed
+  - [ ] Minimized crash input is structurally plausible (passes syntax validation)
+  - [ ] Crash root cause traced to semantic processing logic, not syntax parsing
