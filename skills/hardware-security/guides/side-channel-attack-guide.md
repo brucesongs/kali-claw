@@ -323,3 +323,11 @@ found_key = attack.scores.argmax(axis=0)
 print(f'Recovered key: {found_key.tobytes().hex()}')
 "
 ```
+
+## References
+
+- [ChipWhisperer Documentation](https://chipwhisperer.readthedocs.io/)
+- [JTAGulator Project](https://github.com/grandideastudio/jtagulator)
+- [OpenOCD Documentation](https://openocd.org/doc/html/index.html)
+- [Hacking and Countermeasure Research Lab](https://www.owasp.org/index.php/Hardware_Security)
+```

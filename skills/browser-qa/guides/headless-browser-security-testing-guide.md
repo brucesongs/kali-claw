@@ -227,4 +227,11 @@ asyncio.run(check_headers([
     "http://target.local/api/v1/users",
     "http://target.local/admin",
 ]))
+
+## References
+
+- [Playwright Documentation](https://playwright.dev/docs/intro)
+- [OWASP Testing Guide - Client-Side Testing](https://owasp.org/www-project-web-security-testing-guide/)
+- [Puppeteer API Reference](https://pptr.dev/)
+- [Browser Security Handbook (OWASP)](https://cheatsheetseries.owasp.org/cheatsheets/Browser_Security_Cheat_Sheet.html)
 ```

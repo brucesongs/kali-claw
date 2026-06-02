@@ -285,3 +285,11 @@ jq '[.components[].licenses[]?.license.id // "UNKNOWN"] | group_by(.) | map({lic
 ```
 
 SBOMs provide critical visibility into software composition. Generate them automatically in CI/CD pipelines, store them as build artifacts, and continuously correlate against vulnerability databases for proactive risk management.
+
+## References
+
+- [CycloneDX Specification](https://cyclonedx.org/specification/overview/)
+- [SPDX Specification](https://spdx.dev/specifications/)
+- [SLSA Framework](https://slsa.dev/spec/v1.0/)
+- [OWASP Supply Chain Integrity](https://owasp.org/www-project-supply-chain-integrity/)
+- [Sigstore - Software Supply Chain Security](https://www.sigstore.dev/)

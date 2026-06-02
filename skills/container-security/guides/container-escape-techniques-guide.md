@@ -2,6 +2,10 @@
 
 > Practical methods for escaping containerized environments through privileged mode abuse, kernel exploits, mount namespace manipulation, and misconfigured capabilities.
 
+## Introduction
+
+Container escape techniques involve breaking out of a containerized environment to access the host system or other containers. This guide covers practical methods for testing container isolation boundaries, including Docker socket exploitation, privileged container escapes, and Kubernetes pod security bypasses.
+
 ## 1. Detecting Escape Opportunities
 
 First, determine what privileges and capabilities the container has.

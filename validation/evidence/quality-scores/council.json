@@ -1,6 +1,6 @@
 {
   "skill": "council",
-  "timestamp": "2026-06-02T06:02:58Z",
+  "timestamp": "2026-06-02T16:58:24Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 6821,
@@ -9,8 +9,8 @@
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
-    "guide_avg_words": 1284,
-    "guide_key_sections": 2,
+    "guide_avg_words": 1289,
+    "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 69.7,
+    "guide": 79.7,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
     "payloads_md": 93.33,
     "test_cases_md": 90.00,
-    "guides": 69.7
+    "guides": 79.7
   },
-  "overall_score": 87.4,
+  "overall_score": 89.9,
   "tier": "Excellent"
 }

@@ -256,3 +256,14 @@ Confidence: 52/100 (Legacy Caveat: -12 pts — PHP 5.6, no framework, no tests, 
 6. **Authentication logic** — often rolling their own, often broken
 7. **Dependency CVEs** — old dependencies = known exploits
 8. **Insecure cryptography** — MD5/SHA1 passwords, broken cipher usage
+
+## Hands-on Exercise
+
+Practice onboarding a legacy codebase by following these steps:
+
+1. **Select a target**: Clone a 10,000+ LOC open-source project you're unfamiliar with
+2. **Architecture scan**: Run `ctags -R` and identify the top-level module structure
+3. **Entry point mapping**: Find the `main()` or equivalent entry points — trace the first 3 call chains
+4. **Dependency graph**: Run `pipdeptree` / `npm ls` / equivalent to map external dependencies
+5. **Hotspot analysis**: Use `git log --oneline | awk '{print $1}' | xargs -I{} git diff-tree --no-commit-id --name-only -r {} | sort | uniq -c | sort -rn | head -20` to find the most-changed files
+6. **Document findings**: Write a 1-page summary of the architecture, key modules, and risk areas

@@ -12,6 +12,9 @@
 - [TC-CL-004: Cross-Reference Validation — Contradiction Detection](#tc-cl-004-cross-reference-validation--contradiction-detection)
 - [TC-CL-005: Knowledge Pruning — Stale Entry Lifecycle](#tc-cl-005-knowledge-pruning--stale-entry-lifecycle)
 - [TC-CL-006: Multi-Skill Integration — Engagement Debrief Pipeline](#tc-cl-006-multi-skill-integration--engagement-debrief-pipeline)
+- [TC-CL-007: Cross-Session Knowledge Aggregation](#tc-cl-007-cross-session-knowledge-aggregation)
+- [TC-CL-008: Confidence Score Calibration](#tc-cl-008-confidence-score-calibration)
+- [TC-CL-009: Skill Reinforcement Cycle Validation](#tc-cl-009-skill-reinforcement-cycle-validation)
 
 ---
 
@@ -293,3 +296,158 @@ After completing a full penetration test engagement, the continuous learning ski
 - Low-confidence findings are queued for verification
 - Engagement debrief summary exists in the daily log
 - All cross-references are valid and bidirectional
+
+---
+
+## TC-CL-007: Cross-Session Knowledge Aggregation
+
+### Scenario
+
+The agent has completed three separate engagements over a month, each targeting different technologies but encountering the same class of vulnerability: JWT algorithm confusion. Observations are split across multiple daily logs in different session directories. The continuous learning pipeline must aggregate these independent observations into a single, high-confidence knowledge entry with complete source attribution.
+
+### Pre-conditions
+
+1. Three completed engagements exist with daily logs in `memory/`
+2. Each engagement independently discovered a JWT algorithm confusion issue:
+   - Engagement A (Node.js API): `alg: none` bypass on `/api/auth`
+   - Engagement B (Python Flask): RS256-to-HS256 key reuse on `/api/token`
+   - Engagement C (Java Spring): Unverified `alg` header leading to key leak
+3. No single knowledge entry yet covers the general JWT algorithm confusion pattern
+4. Each observation is stored as a separate KE-ATK entry at Low or Medium confidence
+
+### Test Steps
+
+1. **Scan all engagement logs**: Run pattern detection across all daily logs from the past 30 days, searching for JWT-related vulnerability indicators
+2. **Cluster related findings**: Group the three independent observations by vulnerability class (JWT algorithm confusion)
+3. **Verify independence**: Confirm each observation is from a different target, date, and technology stack
+4. **Create aggregated entry**: Merge the three KE-ATK entries into a single comprehensive KE-ATK entry covering the general pattern with technology-specific sub-variants
+5. **Assign aggregated confidence**: Apply promotion rules — three independent observations qualify for High confidence (75+ score)
+6. **Preserve source attribution**: List all three engagements as sources with dates, targets, and technology stacks
+7. **Mark individual entries as superseded**: Flag the original three KE-ATK entries as merged into the aggregated entry
+8. **Update cross-references**: Link the aggregated entry to web-auth-bypass and api-security skill entries
+
+### Expected Outcomes
+
+| Criterion | Expected Result |
+|-----------|-----------------|
+| Pattern detection across sessions | All three JWT observations identified from different engagement logs |
+| Clustering accuracy | Observations correctly grouped under JWT algorithm confusion class |
+| Independence verification | Each observation confirmed as unique target, date, and technology |
+| Aggregated entry quality | Single entry covers general pattern plus three technology-specific variants |
+| Confidence level | High (75-85 range) based on three independent observations with confirmed root causes |
+| Source attribution | Entry lists all three engagements with dates, targets, and evidence references |
+| Superseded entries | Original three entries marked as merged, not deleted |
+| Cross-reference update | Aggregated entry linked to relevant skill domains |
+
+### Post-conditions
+
+- Single aggregated KE-ATK entry exists in MEMORY.md at High confidence
+- Three original entries marked as superseded with bidirectional links
+- Daily log records the aggregation event
+- Cross-references to web-auth-bypass and api-security skills are updated
+
+---
+
+## TC-CL-008: Confidence Score Calibration
+
+### Scenario
+
+The agent's confidence scoring has drifted: recent Medium-confidence entries are proving unreliable in the field, while some Low-confidence entries have been independently verified by external sources. A calibration cycle must audit confidence assignments against actual field performance and adjust scoring weights accordingly.
+
+### Pre-conditions
+
+1. At least 20 knowledge entries exist in MEMORY.md across all confidence levels (Low, Medium, High)
+2. At least 5 entries have been tested in subsequent engagements (field validation data available)
+3. Some entries have external corroboration (CVE references, published research, community confirmation)
+4. The confidence scoring worksheet has not been reviewed in over 90 days
+
+### Test Steps
+
+1. **Inventory all entries**: Extract all knowledge entries from MEMORY.md with their current confidence scores and scoring worksheet details
+2. **Field performance audit**: For each entry that has been tested in subsequent engagements, record whether the knowledge was:
+   - Confirmed accurate (true positive)
+   - Partially accurate (needs update)
+   - Inaccurate (false positive)
+   - Not tested (no data)
+3. **Calculate accuracy rates by tier**:
+   - High tier accuracy rate = confirmed / (confirmed + inaccurate)
+   - Medium tier accuracy rate = confirmed / (confirmed + inaccurate)
+   - Low tier accuracy rate = confirmed / (confirmed + inaccurate)
+4. **Identify misaligned entries**:
+   - Medium entries with < 50% accuracy → flag for downgrade
+   - Low entries with > 80% accuracy → flag for upgrade
+   - High entries with < 70% accuracy → flag for review
+5. **Adjust scoring weights**: If systematic drift is detected (e.g., observation count is overweighted relative to root cause clarity), adjust the scoring worksheet weights
+6. **Apply corrections**: Downgrade or upgrade flagged entries with documented justification
+7. **Record calibration event**: Log the calibration results, including before/after statistics, in the daily log
+
+### Expected Outcomes
+
+| Criterion | Expected Result |
+|-----------|-----------------|
+| Field performance collected | Accuracy data gathered for all entries tested in subsequent engagements |
+| Tier accuracy rates calculated | Numeric accuracy rates computed for High, Medium, and Low tiers |
+| Misaligned entries identified | Specific entries flagged where confidence does not match field performance |
+| Downgrades executed | Overconfident entries reduced to appropriate level |
+| Upgrades executed | Underconfident entries promoted with justification |
+| Scoring weights adjusted | Worksheet parameters updated if systematic drift detected |
+| Calibration logged | Complete before/after statistics recorded in daily log |
+
+### Post-conditions
+
+- All knowledge entries reflect calibrated confidence levels
+- Scoring worksheet weights updated if drift was detected
+- Calibration statistics are available for the next review cycle
+- Daily log contains the calibration audit trail
+
+---
+
+## TC-CL-009: Skill Reinforcement Cycle Validation
+
+### Scenario
+
+The agent has not used the binary-reverse skill in 60 days. The reinforcement cycle should detect that this skill is decaying, schedule a refresher exercise, validate that the skill has been refreshed, and confirm that the skill's knowledge entries remain current. This tests the complete reinforcement loop from decay detection through re-validation.
+
+### Pre-conditions
+
+1. The binary-reverse skill has a last-used timestamp older than 45 days
+2. The skill has associated knowledge entries in MEMORY.md (tool notes, technique patterns)
+3. The reinforcement schedule defines a 30-day interval for active skills and 45-day for backup skills
+4. A refresher exercise exists in the skill's `guides/` directory
+
+### Test Steps
+
+1. **Decay detection**: Run the skill freshness check against all skills in IDENTITY.md. Verify that binary-reverse is flagged as stale (last used > 45 days ago)
+2. **Prioritize refresh**: Confirm that the stale skill is queued for refresher based on its role (active vs. backup) and time since last use
+3. **Execute refresher**: Perform the binary-reverse refresher exercise:
+   a. Read the skill's SKILL.md and top guides
+   b. Execute a practice exercise (e.g., basic ELF analysis with Ghidra)
+   c. Document the refresher session in the daily log
+4. **Validate refresh**: After the refresher exercise:
+   a. Confirm the skill's last-used timestamp is updated
+   b. Verify the skill is no longer flagged as stale
+   c. Confirm the refresher log entry exists in `memory/`
+5. **Knowledge currency check**: Verify that the skill's associated MEMORY.md entries are still accurate:
+   a. Check tool versions referenced in entries against current versions
+   b. Flag any entries referencing deprecated tools or techniques
+   c. Update entries if needed or schedule for the next knowledge maintenance cycle
+6. **Record reinforcement event**: Log the complete reinforcement cycle (detection, prioritization, execution, validation, knowledge check) in the daily log
+
+### Expected Outcomes
+
+| Criterion | Expected Result |
+|-----------|-----------------|
+| Decay detection | binary-reverse skill correctly flagged as stale |
+| Prioritization | Skill queued with correct priority based on role and age |
+| Refresher execution | Practice exercise completed with documented results |
+| Timestamp update | Skill's last-used timestamp reflects the refresher date |
+| Staleness cleared | Skill no longer appears in the stale skills list |
+| Knowledge currency | Tool version references validated; deprecated entries flagged |
+| Complete audit trail | Daily log contains full reinforcement cycle documentation |
+
+### Post-conditions
+
+- binary-reverse skill is marked as refreshed with updated timestamp
+- Refresher exercise results are documented in the daily log
+- Knowledge entries are validated for currency or flagged for update
+- The reinforcement cycle is verified end-to-end for future automated execution

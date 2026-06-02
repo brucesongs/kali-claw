@@ -1,6 +1,6 @@
 {
   "skill": "browser-qa",
-  "timestamp": "2026-06-02T06:02:58Z",
+  "timestamp": "2026-06-02T16:58:24Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 5173,
@@ -9,8 +9,8 @@
     "test_case_count": 10,
     "field_completeness_score": 1.00,
     "guide_file_count": 5,
-    "guide_avg_words": 759,
-    "guide_key_sections": 2,
+    "guide_avg_words": 763,
+    "guide_key_sections": 3,
     "skill_section_score": 0.80
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 81.2,
     "test_case": 85.0,
     "field": 100.0,
-    "guide": 65.1,
+    "guide": 75.2,
     "skill_section": 80.0
   },
   "component_scores": {
     "skill_md": 80.00,
     "payloads_md": 93.73,
     "test_cases_md": 92.50,
-    "guides": 65.1
+    "guides": 75.2
   },
-  "overall_score": 84.1,
+  "overall_score": 86.7,
   "tier": "Excellent"
 }

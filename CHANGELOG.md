@@ -4,6 +4,37 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## [0.1.17] - 2026-06-03
+
+### Added
+
+- **15 skills fixed key sections** (Introduction, Hands-on, References): verification-loop, council, browser-qa, crypto-attacks, hardware-security, insecure-design, supply-chain-security, web-ssrf, container-security, password-attack, safety-guard, codebase-onboarding, web-access-control, ai-fuzzing, post-exploitation
+- **10 new guides for bottom 5 skills**:
+  - post-exploitation: persistence-techniques-guide, lateral-movement-practical-guide
+  - ai-fuzzing: web-api-fuzzing-guide, crash-triage-guide
+  - password-attack: hashcat-rules-guide, password-policy-audit-guide
+  - insecure-design: abuse-case-development-guide, secure-design-patterns-guide
+- **3 test cases added** to continuous-learning (TC-CL-007 to TC-CL-009, now 9 total)
+- **35 new guides for Distinguished sprint** (10 target skills × 3-4 guides each):
+  - cloud-security: aws-pentest-lab-guide, azure-privilege-escalation-guide, cloud-post-exploitation-guide
+  - vulnerability-assessment: automated-scanning-pipeline-guide, manual-testing-techniques-guide, risk-rating-methodology-guide
+  - article-writing: pentest-report-template-guide, cve-advisory-writing-guide, security-blog-writing-guide
+  - autonomous-loops: watch-loop-patterns-guide, batch-processing-guide, error-recovery-guide
+  - osint: dark-web-intelligence-guide, corporate-recon-guide, data-aggregation-analysis-guide
+  - ai-security: prompt-injection-lab-guide, ai-red-team-guide (model-extraction already existed)
+  - security-misconfiguration: cloud-misconfiguration-checklist-guide, web-server-hardening-lab-guide, default-credential-audit-guide
+  - network-pentest: 3 guides (from batch agent)
+  - security-bounty-hunter: 3 guides (from batch agent)
+  - social-intelligence: 3 guides (from batch agent)
+
+### Changed
+
+- Average quality score: 86.1 → 87.5 (+1.4)
+- Minimum quality score: 80.1 → 84.3 (+4.2)
+- All 15 key-section-deficient skills now have 3/3 key sections
+- All 49 skills remain Excellent tier (80+)
+- CI quality gate baseline: 86.1 → 87.5
+
 ## [0.1.16] - 2026-06-02
 
 ### Changed

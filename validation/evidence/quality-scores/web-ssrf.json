@@ -1,6 +1,6 @@
 {
   "skill": "web-ssrf",
-  "timestamp": "2026-06-02T06:02:58Z",
+  "timestamp": "2026-06-02T16:58:24Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 2864,
@@ -9,8 +9,8 @@
     "test_case_count": 11,
     "field_completeness_score": 0.86,
     "guide_file_count": 6,
-    "guide_avg_words": 969,
-    "guide_key_sections": 2,
+    "guide_avg_words": 972,
+    "guide_key_sections": 3,
     "skill_section_score": 0.92
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 87.5,
     "field": 86.0,
-    "guide": 70.3,
+    "guide": 80.4,
     "skill_section": 92.0
   },
   "component_scores": {
     "skill_md": 92.00,
     "payloads_md": 87.30,
     "test_cases_md": 86.75,
-    "guides": 70.3
+    "guides": 80.4
   },
-  "overall_score": 83.6,
+  "overall_score": 86.1,
   "tier": "Excellent"
 }

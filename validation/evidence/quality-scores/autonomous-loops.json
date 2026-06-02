@@ -1,6 +1,6 @@
 {
   "skill": "autonomous-loops",
-  "timestamp": "2026-06-02T06:02:58Z",
+  "timestamp": "2026-06-02T16:58:24Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 6350,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 50,
     "test_case_count": 10,
     "field_completeness_score": 1.00,
-    "guide_file_count": 5,
-    "guide_avg_words": 1381,
+    "guide_file_count": 8,
+    "guide_avg_words": 1026,
     "guide_key_sections": 3,
     "skill_section_score": 0.88
   },
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 85.0,
     "field": 100.0,
-    "guide": 80.3,
+    "guide": 86.2,
     "skill_section": 88.0
   },
   "component_scores": {
     "skill_md": 88.00,
     "payloads_md": 93.33,
     "test_cases_md": 92.50,
-    "guides": 80.3
+    "guides": 86.2
   },
-  "overall_score": 89.0,
+  "overall_score": 90.5,
   "tier": "Excellent"
 }

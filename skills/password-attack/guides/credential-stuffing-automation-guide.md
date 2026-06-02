@@ -2,6 +2,10 @@
 
 > Practical reference for automated credential attacks using Hydra, Medusa, and custom tooling. Covers wordlist optimization, rate limiting bypass, and protocol-specific configurations.
 
+## Introduction
+
+Credential stuffing automates the testing of leaked username/password pairs against target services. This guide covers practical techniques for building and executing credential stuffing campaigns, including proxy rotation, rate limit bypass, and result analysis workflows.
+
 ## 1. Hydra Basic Usage
 
 Hydra supports 50+ protocols. Master the common syntax patterns.

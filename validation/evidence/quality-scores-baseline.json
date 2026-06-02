@@ -1,246 +1,1618 @@
 [
   {
     "skill": "ai-fuzzing",
-    "overall_score": 82.4,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4301,
+      "payload_section_count": 14,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 7,
+      "guide_avg_words": 1432,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.84
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 91.1,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 85.9,
+      "skill_section": 84.0
+    },
+    "component_scores": {
+      "skill_md": 84.0,
+      "payloads_md": 90.37,
+      "test_cases_md": 90.0,
+      "guides": 85.9
+    },
+    "overall_score": 88.2,
     "tier": "Excellent"
   },
   {
     "skill": "ai-security",
-    "overall_score": 88.1,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4475,
+      "payload_section_count": 12,
+      "payload_code_blocks": 70,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 7,
+      "guide_avg_words": 1045,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 86.7,
+      "payload_code": 88.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 83.6,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 91.57,
+      "test_cases_md": 90.0,
+      "guides": 83.6
+    },
+    "overall_score": 89.2,
     "tier": "Excellent"
   },
   {
     "skill": "api-security",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2890,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 20,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1259,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 88.9,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 100.0,
+      "field": 86.0,
+      "guide": 79.6,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 87.4,
+      "test_cases_md": 93.0,
+      "guides": 79.6
+    },
     "overall_score": 86.5,
     "tier": "Excellent"
   },
   {
     "skill": "article-writing",
-    "overall_score": 89.2,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4842,
+      "payload_section_count": 31,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 706,
+      "guide_key_sections": 3,
+      "skill_section_score": 1.0
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 82.5,
+      "skill_section": 100.0
+    },
+    "component_scores": {
+      "skill_md": 100.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 90.0,
+      "guides": 82.5
+    },
+    "overall_score": 90.6,
     "tier": "Excellent"
   },
   {
     "skill": "autonomous-loops",
-    "overall_score": 89.0,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 6350,
+      "payload_section_count": 25,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 1026,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.88
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 86.2,
+      "skill_section": 88.0
+    },
+    "component_scores": {
+      "skill_md": 88.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 92.5,
+      "guides": 86.2
+    },
+    "overall_score": 90.5,
     "tier": "Excellent"
   },
   {
     "skill": "binary-reverse",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3767,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1090,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 97.7,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 78.5,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 90.33,
+      "test_cases_md": 93.75,
+      "guides": 78.5
+    },
     "overall_score": 87.3,
     "tier": "Excellent"
   },
   {
     "skill": "browser-qa",
-    "overall_score": 84.1,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 5173,
+      "payload_section_count": 18,
+      "payload_code_blocks": 53,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 763,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.8
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 81.2,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 75.2,
+      "skill_section": 80.0
+    },
+    "component_scores": {
+      "skill_md": 80.0,
+      "payloads_md": 93.73,
+      "test_cases_md": 92.5,
+      "guides": 75.2
+    },
+    "overall_score": 86.7,
     "tier": "Excellent"
   },
   {
     "skill": "chronicle",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4743,
+      "payload_section_count": 35,
+      "payload_code_blocks": 35,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1254,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.95
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 40.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 79.5,
+      "skill_section": 95.0
+    },
+    "component_scores": {
+      "skill_md": 95.0,
+      "payloads_md": 80.0,
+      "test_cases_md": 90.0,
+      "guides": 79.5
+    },
     "overall_score": 85.1,
     "tier": "Excellent"
   },
   {
     "skill": "cloud-security",
-    "overall_score": 90.1,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4209,
+      "payload_section_count": 22,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 1340,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.87
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 88.0,
+      "skill_section": 87.0
+    },
+    "component_scores": {
+      "skill_md": 87.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 93.75,
+      "guides": 88.0
+    },
+    "overall_score": 91.2,
     "tier": "Excellent"
   },
   {
     "skill": "codebase-onboarding",
-    "overall_score": 83.8,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 6275,
+      "payload_section_count": 16,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1192,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.89
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 95.6,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 86.0,
+      "guide": 79.1,
+      "skill_section": 89.0
+    },
+    "component_scores": {
+      "skill_md": 89.0,
+      "payloads_md": 91.87,
+      "test_cases_md": 85.5,
+      "guides": 79.1
+    },
+    "overall_score": 86.3,
     "tier": "Excellent"
   },
   {
     "skill": "container-security",
-    "overall_score": 87.0,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3958,
+      "payload_section_count": 19,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1088,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 99.6,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 78.5,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 93.2,
+      "test_cases_md": 93.75,
+      "guides": 78.5
+    },
+    "overall_score": 89.5,
     "tier": "Excellent"
   },
   {
     "skill": "continuous-learning",
-    "overall_score": 81.6,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 5540,
+      "payload_section_count": 34,
+      "payload_code_blocks": 50,
+      "test_case_count": 9,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1390,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.91
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 82.5,
+      "field": 86.0,
+      "guide": 80.3,
+      "skill_section": 91.0
+    },
+    "component_scores": {
+      "skill_md": 91.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 84.25,
+      "guides": 80.3
+    },
+    "overall_score": 87.0,
     "tier": "Excellent"
   },
   {
     "skill": "council",
-    "overall_score": 87.4,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 6821,
+      "payload_section_count": 49,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1289,
+      "guide_key_sections": 3,
+      "skill_section_score": 1.0
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 79.7,
+      "skill_section": 100.0
+    },
+    "component_scores": {
+      "skill_md": 100.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 90.0,
+      "guides": 79.7
+    },
+    "overall_score": 89.9,
     "tier": "Excellent"
   },
   {
     "skill": "crypto-attacks",
-    "overall_score": 86.2,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4368,
+      "payload_section_count": 16,
+      "payload_code_blocks": 51,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 6,
+      "guide_avg_words": 833,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.89
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 95.6,
+      "payload_code": 80.4,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 78.7,
+      "skill_section": 89.0
+    },
+    "component_scores": {
+      "skill_md": 89.0,
+      "payloads_md": 92.0,
+      "test_cases_md": 93.75,
+      "guides": 78.7
+    },
+    "overall_score": 88.7,
     "tier": "Excellent"
   },
   {
     "skill": "data-scraper-agent",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4798,
+      "payload_section_count": 19,
+      "payload_code_blocks": 52,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 833,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.8
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.8,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 76.0,
+      "skill_section": 80.0
+    },
+    "component_scores": {
+      "skill_md": 80.0,
+      "payloads_md": 93.6,
+      "test_cases_md": 92.5,
+      "guides": 76.0
+    },
     "overall_score": 86.8,
     "tier": "Excellent"
   },
   {
     "skill": "deep-research",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2818,
+      "payload_section_count": 16,
+      "payload_code_blocks": 37,
+      "test_case_count": 13,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 838,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 88.2,
+      "payload_section": 95.6,
+      "payload_code": 42.7,
+      "test_case": 92.5,
+      "field": 100.0,
+      "guide": 76.0,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 75.5,
+      "test_cases_md": 96.25,
+      "guides": 76.0
+    },
     "overall_score": 84.3,
     "tier": "Excellent"
   },
   {
     "skill": "digital-forensics",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4670,
+      "payload_section_count": 20,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1080,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 86.0,
+      "guide": 78.5,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 85.5,
+      "guides": 78.5
+    },
     "overall_score": 87.1,
     "tier": "Excellent"
   },
   {
     "skill": "docker-patterns",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3609,
+      "payload_section_count": 16,
+      "payload_code_blocks": 47,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1159,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.85
+    },
+    "normalized_scores": {
+      "payload_word": 96.1,
+      "payload_section": 95.6,
+      "payload_code": 56.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 79.0,
+      "skill_section": 85.0
+    },
+    "component_scores": {
+      "skill_md": 85.0,
+      "payloads_md": 82.57,
+      "test_cases_md": 92.5,
+      "guides": 79.0
+    },
     "overall_score": 85.0,
     "tier": "Excellent"
   },
   {
     "skill": "exa-search",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3966,
+      "payload_section_count": 20,
+      "payload_code_blocks": 51,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 852,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.8
+    },
+    "normalized_scores": {
+      "payload_word": 99.7,
+      "payload_section": 100.0,
+      "payload_code": 80.4,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 76.2,
+      "skill_section": 80.0
+    },
+    "component_scores": {
+      "skill_md": 80.0,
+      "payloads_md": 93.37,
+      "test_cases_md": 92.5,
+      "guides": 76.2
+    },
     "overall_score": 86.8,
     "tier": "Excellent"
   },
   {
     "skill": "hardware-security",
-    "overall_score": 85.4,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3851,
+      "payload_section_count": 20,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1423,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.81
+    },
+    "normalized_scores": {
+      "payload_word": 98.5,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 80.5,
+      "skill_section": 81.0
+    },
+    "component_scores": {
+      "skill_md": 81.0,
+      "payloads_md": 92.83,
+      "test_cases_md": 92.5,
+      "guides": 80.5
+    },
+    "overall_score": 87.9,
     "tier": "Excellent"
   },
   {
     "skill": "insecure-design",
-    "overall_score": 82.7,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3084,
+      "payload_section_count": 16,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 7,
+      "guide_avg_words": 975,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.89
+    },
+    "normalized_scores": {
+      "payload_word": 90.8,
+      "payload_section": 95.6,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 86.0,
+      "guide": 83.0,
+      "skill_section": 89.0
+    },
+    "component_scores": {
+      "skill_md": 89.0,
+      "payloads_md": 88.8,
+      "test_cases_md": 85.5,
+      "guides": 83.0
+    },
+    "overall_score": 86.4,
     "tier": "Excellent"
   },
   {
     "skill": "knowledge-ops",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4735,
+      "payload_section_count": 34,
+      "payload_code_blocks": 45,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1182,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.91
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 53.3,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 79.1,
+      "skill_section": 91.0
+    },
+    "component_scores": {
+      "skill_md": 91.0,
+      "payloads_md": 84.43,
+      "test_cases_md": 90.0,
+      "guides": 79.1
+    },
     "overall_score": 85.8,
     "tier": "Excellent"
   },
   {
     "skill": "logging-monitoring",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3757,
+      "payload_section_count": 18,
+      "payload_code_blocks": 51,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1091,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.76
+    },
+    "normalized_scores": {
+      "payload_word": 97.6,
+      "payload_section": 100.0,
+      "payload_code": 80.4,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 78.5,
+      "skill_section": 76.0
+    },
+    "component_scores": {
+      "skill_md": 76.0,
+      "payloads_md": 92.67,
+      "test_cases_md": 92.5,
+      "guides": 78.5
+    },
     "overall_score": 86.6,
     "tier": "Excellent"
   },
   {
     "skill": "mcp-server-patterns",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4937,
+      "payload_section_count": 23,
+      "payload_code_blocks": 51,
+      "test_case_count": 8,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1539,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.4,
+      "test_case": 80.0,
+      "field": 86.0,
+      "guide": 81.2,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 93.47,
+      "test_cases_md": 83.0,
+      "guides": 81.2
+    },
     "overall_score": 85.7,
     "tier": "Excellent"
   },
   {
     "skill": "mobile-security",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2869,
+      "payload_section_count": 17,
+      "payload_code_blocks": 51,
+      "test_case_count": 10,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 2075,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.87
+    },
+    "normalized_scores": {
+      "payload_word": 88.7,
+      "payload_section": 97.8,
+      "payload_code": 80.4,
+      "test_case": 85.0,
+      "field": 86.0,
+      "guide": 84.0,
+      "skill_section": 87.0
+    },
+    "component_scores": {
+      "skill_md": 87.0,
+      "payloads_md": 88.97,
+      "test_cases_md": 85.5,
+      "guides": 84.0
+    },
     "overall_score": 86.4,
     "tier": "Excellent"
   },
   {
     "skill": "multi-agent-collaboration",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 5512,
+      "payload_section_count": 15,
+      "payload_code_blocks": 47,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1794,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.84
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 93.3,
+      "payload_code": 56.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 82.8,
+      "skill_section": 84.0
+    },
+    "component_scores": {
+      "skill_md": 84.0,
+      "payloads_md": 83.1,
+      "test_cases_md": 90.0,
+      "guides": 82.8
+    },
     "overall_score": 85.2,
     "tier": "Excellent"
   },
   {
     "skill": "network-pentest",
-    "overall_score": 88.9,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3683,
+      "payload_section_count": 19,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 9,
+      "guide_avg_words": 743,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.89
+    },
+    "normalized_scores": {
+      "payload_word": 96.8,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 86.9,
+      "skill_section": 89.0
+    },
+    "component_scores": {
+      "skill_md": 89.0,
+      "payloads_md": 92.27,
+      "test_cases_md": 93.75,
+      "guides": 86.9
+    },
+    "overall_score": 90.9,
     "tier": "Excellent"
   },
   {
     "skill": "osint",
-    "overall_score": 89.0,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3304,
+      "payload_section_count": 27,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 845,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.95
+    },
+    "normalized_scores": {
+      "payload_word": 93.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 84.1,
+      "skill_section": 95.0
+    },
+    "component_scores": {
+      "skill_md": 95.0,
+      "payloads_md": 91.0,
+      "test_cases_md": 92.5,
+      "guides": 84.1
+    },
+    "overall_score": 90.3,
     "tier": "Excellent"
   },
   {
     "skill": "password-attack",
-    "overall_score": 82.5,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3479,
+      "payload_section_count": 12,
+      "payload_code_blocks": 53,
+      "test_case_count": 12,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 7,
+      "guide_avg_words": 864,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.87
+    },
+    "normalized_scores": {
+      "payload_word": 94.8,
+      "payload_section": 86.7,
+      "payload_code": 81.2,
+      "test_case": 90.0,
+      "field": 86.0,
+      "guide": 81.7,
+      "skill_section": 87.0
+    },
+    "component_scores": {
+      "skill_md": 87.0,
+      "payloads_md": 87.57,
+      "test_cases_md": 88.0,
+      "guides": 81.7
+    },
+    "overall_score": 86.1,
     "tier": "Excellent"
   },
   {
     "skill": "post-exploitation",
-    "overall_score": 80.1,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3070,
+      "payload_section_count": 16,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 7,
+      "guide_avg_words": 685,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 90.7,
+      "payload_section": 95.6,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 86.0,
+      "guide": 79.5,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 88.77,
+      "test_cases_md": 86.75,
+      "guides": 79.5
+    },
+    "overall_score": 86.3,
     "tier": "Excellent"
   },
   {
     "skill": "recon-osint",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2954,
+      "payload_section_count": 16,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 11,
+      "guide_avg_words": 440,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.81
+    },
+    "normalized_scores": {
+      "payload_word": 89.5,
+      "payload_section": 95.6,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 86.0,
+      "guide": 86.8,
+      "skill_section": 81.0
+    },
+    "component_scores": {
+      "skill_md": 81.0,
+      "payloads_md": 88.37,
+      "test_cases_md": 86.75,
+      "guides": 86.8
+    },
     "overall_score": 86.4,
     "tier": "Excellent"
   },
   {
     "skill": "repo-scan",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4847,
+      "payload_section_count": 19,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1211,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.84
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 79.3,
+      "skill_section": 84.0
+    },
+    "component_scores": {
+      "skill_md": 84.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 90.0,
+      "guides": 79.3
+    },
     "overall_score": 87.4,
     "tier": "Excellent"
   },
   {
     "skill": "safety-guard",
-    "overall_score": 83.7,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4971,
+      "payload_section_count": 20,
+      "payload_code_blocks": 35,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1437,
+      "guide_key_sections": 3,
+      "skill_section_score": 1.0
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 40.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 80.6,
+      "skill_section": 100.0
+    },
+    "component_scores": {
+      "skill_md": 100.0,
+      "payloads_md": 80.0,
+      "test_cases_md": 90.0,
+      "guides": 80.6
+    },
+    "overall_score": 86.2,
     "tier": "Excellent"
   },
   {
     "skill": "search-first",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4147,
+      "payload_section_count": 20,
+      "payload_code_blocks": 46,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1299,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.85
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 54.7,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 79.8,
+      "skill_section": 85.0
+    },
+    "component_scores": {
+      "skill_md": 85.0,
+      "payloads_md": 84.9,
+      "test_cases_md": 92.5,
+      "guides": 79.8
+    },
     "overall_score": 85.9,
     "tier": "Excellent"
   },
   {
     "skill": "security-bounty-hunter",
-    "overall_score": 88.4,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3408,
+      "payload_section_count": 22,
+      "payload_code_blocks": 51,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 1463,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.87
+    },
+    "normalized_scores": {
+      "payload_word": 94.1,
+      "payload_section": 100.0,
+      "payload_code": 80.4,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 88.8,
+      "skill_section": 87.0
+    },
+    "component_scores": {
+      "skill_md": 87.0,
+      "payloads_md": 91.5,
+      "test_cases_md": 90.0,
+      "guides": 88.8
+    },
+    "overall_score": 89.7,
     "tier": "Excellent"
   },
   {
     "skill": "security-misconfiguration",
-    "overall_score": 87.5,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3462,
+      "payload_section_count": 17,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 880,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 94.6,
+      "payload_section": 97.8,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 100.0,
+      "guide": 84.6,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 90.8,
+      "test_cases_md": 93.75,
+      "guides": 84.6
+    },
+    "overall_score": 89.0,
     "tier": "Excellent"
   },
   {
     "skill": "security-review",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3521,
+      "payload_section_count": 11,
+      "payload_code_blocks": 51,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1572,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.87
+    },
+    "normalized_scores": {
+      "payload_word": 95.2,
+      "payload_section": 84.4,
+      "payload_code": 80.4,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 81.4,
+      "skill_section": 87.0
+    },
+    "component_scores": {
+      "skill_md": 87.0,
+      "payloads_md": 86.67,
+      "test_cases_md": 90.0,
+      "guides": 81.4
+    },
     "overall_score": 86.4,
     "tier": "Excellent"
   },
   {
     "skill": "social-engineering",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 5628,
+      "payload_section_count": 18,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 886,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 76.6,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 92.5,
+      "guides": 76.6
+    },
     "overall_score": 87.3,
     "tier": "Excellent"
   },
   {
     "skill": "social-intelligence",
-    "overall_score": 88.2,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4363,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 956,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.95
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 85.5,
+      "skill_section": 95.0
+    },
+    "component_scores": {
+      "skill_md": 95.0,
+      "payloads_md": 91.1,
+      "test_cases_md": 90.0,
+      "guides": 85.5
+    },
+    "overall_score": 90.0,
     "tier": "Excellent"
   },
   {
     "skill": "supply-chain-security",
-    "overall_score": 85.3,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4442,
+      "payload_section_count": 13,
+      "payload_code_blocks": 52,
+      "test_case_count": 12,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 6,
+      "guide_avg_words": 904,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 88.9,
+      "payload_code": 80.8,
+      "test_case": 90.0,
+      "field": 100.0,
+      "guide": 79.5,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 89.9,
+      "test_cases_md": 95.0,
+      "guides": 79.5
+    },
+    "overall_score": 87.8,
     "tier": "Excellent"
   },
   {
     "skill": "terminal-ops",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4760,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1149,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 78.9,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 91.1,
+      "test_cases_md": 92.5,
+      "guides": 78.9
+    },
     "overall_score": 87.3,
     "tier": "Excellent"
   },
   {
     "skill": "verification-loop",
-    "overall_score": 87.5,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3642,
+      "payload_section_count": 30,
+      "payload_code_blocks": 50,
+      "test_case_count": 8,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1856,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.97
+    },
+    "normalized_scores": {
+      "payload_word": 96.4,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 80.0,
+      "field": 100.0,
+      "guide": 83.1,
+      "skill_section": 97.0
+    },
+    "component_scores": {
+      "skill_md": 97.0,
+      "payloads_md": 92.13,
+      "test_cases_md": 90.0,
+      "guides": 83.1
+    },
+    "overall_score": 90.0,
     "tier": "Excellent"
   },
   {
     "skill": "vulnerability-assessment",
-    "overall_score": 89.3,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 4559,
+      "payload_section_count": 24,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 8,
+      "guide_avg_words": 839,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 100.0,
+      "payload_section": 100.0,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 84.1,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 93.33,
+      "test_cases_md": 92.5,
+      "guides": 84.1
+    },
+    "overall_score": 90.6,
     "tier": "Excellent"
   },
   {
     "skill": "web-access-control",
-    "overall_score": 84.4,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3582,
+      "payload_section_count": 17,
+      "payload_code_blocks": 50,
+      "test_case_count": 13,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 6,
+      "guide_avg_words": 1083,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.83
+    },
+    "normalized_scores": {
+      "payload_word": 95.8,
+      "payload_section": 97.8,
+      "payload_code": 80.0,
+      "test_case": 92.5,
+      "field": 86.0,
+      "guide": 81.2,
+      "skill_section": 83.0
+    },
+    "component_scores": {
+      "skill_md": 83.0,
+      "payloads_md": 91.2,
+      "test_cases_md": 89.25,
+      "guides": 81.2
+    },
+    "overall_score": 86.9,
     "tier": "Excellent"
   },
   {
     "skill": "web-auth-bypass",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3430,
+      "payload_section_count": 16,
+      "payload_code_blocks": 50,
+      "test_case_count": 17,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 5,
+      "guide_avg_words": 1490,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.81
+    },
+    "normalized_scores": {
+      "payload_word": 94.3,
+      "payload_section": 95.6,
+      "payload_code": 80.0,
+      "test_case": 100.0,
+      "field": 86.0,
+      "guide": 80.9,
+      "skill_section": 81.0
+    },
+    "component_scores": {
+      "skill_md": 81.0,
+      "payloads_md": 89.97,
+      "test_cases_md": 93.0,
+      "guides": 80.9
+    },
     "overall_score": 87.3,
     "tier": "Excellent"
   },
   {
     "skill": "web-sqli",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 1874,
+      "payload_section_count": 17,
+      "payload_code_blocks": 48,
+      "test_case_count": 14,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 24,
+      "guide_avg_words": 834,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.76
+    },
+    "normalized_scores": {
+      "payload_word": 57.5,
+      "payload_section": 97.8,
+      "payload_code": 57.3,
+      "test_case": 95.0,
+      "field": 100.0,
+      "guide": 92.0,
+      "skill_section": 76.0
+    },
+    "component_scores": {
+      "skill_md": 76.0,
+      "payloads_md": 70.87,
+      "test_cases_md": 97.5,
+      "guides": 92.0
+    },
     "overall_score": 84.9,
     "tier": "Excellent"
   },
   {
     "skill": "web-ssrf",
-    "overall_score": 83.6,
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2864,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 11,
+      "field_completeness_score": 0.86,
+      "guide_file_count": 6,
+      "guide_avg_words": 972,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.92
+    },
+    "normalized_scores": {
+      "payload_word": 88.6,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 87.5,
+      "field": 86.0,
+      "guide": 80.4,
+      "skill_section": 92.0
+    },
+    "component_scores": {
+      "skill_md": 92.0,
+      "payloads_md": 87.3,
+      "test_cases_md": 86.75,
+      "guides": 80.4
+    },
+    "overall_score": 86.1,
     "tier": "Excellent"
   },
   {
     "skill": "web-xss",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 3195,
+      "payload_section_count": 23,
+      "payload_code_blocks": 52,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 966,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.8
+    },
+    "normalized_scores": {
+      "payload_word": 92.0,
+      "payload_section": 100.0,
+      "payload_code": 80.8,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 77.6,
+      "skill_section": 80.0
+    },
+    "component_scores": {
+      "skill_md": 80.0,
+      "payloads_md": 90.93,
+      "test_cases_md": 92.5,
+      "guides": 77.6
+    },
     "overall_score": 86.4,
     "tier": "Excellent"
   },
   {
     "skill": "wifi-pentest",
+    "timestamp": "2026-06-02T16:58:24Z",
+    "version": "v2",
+    "metrics": {
+      "payload_word_count": 2976,
+      "payload_section_count": 15,
+      "payload_code_blocks": 50,
+      "test_case_count": 10,
+      "field_completeness_score": 1.0,
+      "guide_file_count": 5,
+      "guide_avg_words": 1018,
+      "guide_key_sections": 3,
+      "skill_section_score": 0.89
+    },
+    "normalized_scores": {
+      "payload_word": 89.8,
+      "payload_section": 93.3,
+      "payload_code": 80.0,
+      "test_case": 85.0,
+      "field": 100.0,
+      "guide": 78.1,
+      "skill_section": 89.0
+    },
+    "component_scores": {
+      "skill_md": 89.0,
+      "payloads_md": 87.7,
+      "test_cases_md": 92.5,
+      "guides": 78.1
+    },
     "overall_score": 86.9,
     "tier": "Excellent"
   }

@@ -34,7 +34,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "=== Quality Gate: Score Regression Check ==="
-          BASELINE_AVG=86.1
+          BASELINE_AVG=87.5
           CURRENT_AVG=$(find validation/evidence/quality-scores -name "*.json" -exec jq -r '.overall_score' {} \; | awk '{sum+=$1; n++} END {printf "%.1f", sum/n}')
           echo "Baseline average: $BASELINE_AVG"
           echo "Current average: $CURRENT_AVG"

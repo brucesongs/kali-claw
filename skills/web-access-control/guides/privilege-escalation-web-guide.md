@@ -236,3 +236,14 @@ Confirm that privilege escalation fixes are effective:
 - Confirm that token refresh does not preserve escalated privileges
 - Test that downgrading a user's role immediately invalidates existing sessions
 - Verify GraphQL resolvers enforce field-level authorization
+
+## Hands-on Exercise
+
+Practice privilege escalation using DVWA or WebGoat:
+
+1. **Lab setup**: Deploy DVWA with security level "low"
+2. **IDOR testing**: Access user profiles by modifying the `id` parameter in the URL — try sequential values
+3. **Role manipulation**: Intercept requests with Burp Suite and modify the `role` parameter from `user` to `admin`
+4. **Forced browsing**: Navigate directly to `/admin/`, `/administrator/`, `/manage/` endpoints
+5. **API enumeration**: Use `ffuf -u https://target/api/FUZZ -w api-endpoints.txt` to discover hidden endpoints
+6. **Document findings**: Record each successful bypass with the request/response evidence

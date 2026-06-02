@@ -1,6 +1,6 @@
 {
   "skill": "ai-fuzzing",
-  "timestamp": "2026-06-02T06:02:58Z",
+  "timestamp": "2026-06-02T16:58:24Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4301,
@@ -8,9 +8,9 @@
     "payload_code_blocks": 50,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 5,
-    "guide_avg_words": 1765,
-    "guide_key_sections": 1,
+    "guide_file_count": 7,
+    "guide_avg_words": 1432,
+    "guide_key_sections": 3,
     "skill_section_score": 0.84
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 62.6,
+    "guide": 85.9,
     "skill_section": 84.0
   },
   "component_scores": {
     "skill_md": 84.00,
     "payloads_md": 90.37,
     "test_cases_md": 90.00,
-    "guides": 62.6
+    "guides": 85.9
   },
-  "overall_score": 82.4,
+  "overall_score": 88.2,
   "tier": "Excellent"
 }

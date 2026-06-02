@@ -2,6 +2,10 @@
 
 > Practical patterns for preventing XSS, SQL injection, and command injection attacks. Covers server-side validation, output encoding, parameterized queries, and safe command execution across common frameworks and languages.
 
+## Introduction
+
+Input sanitization is the first line of defense against injection attacks. This guide covers practical patterns for sanitizing user input across different contexts (HTML, SQL, command-line, URL), with hands-on examples of common bypass techniques and proper defensive implementations.
+
 ---
 
 ## 1. XSS Prevention: Output Encoding

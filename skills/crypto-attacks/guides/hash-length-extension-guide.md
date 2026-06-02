@@ -205,3 +205,10 @@ def verify_mac(secret: bytes, message: bytes, provided_mac: str) -> bool:
 ```
 
 Key defenses: use HMAC (RFC 2104), SHA-3/BLAKE2 (not Merkle-Damgard), or encrypt-then-MAC constructions.
+
+## References
+
+- [Cryptographic Failures - OWASP Top 10](https://owasp.org/Top10/A02_2021-Cryptographic_Failures/)
+- [Padding Oracle Attack Paper](https://en.wikipedia.org/wiki/Padding_oracle_attack)
+- [TLS Testing Guide (SSL Labs)](https://www.ssllabs.com/projects/documentation/)
+- [Crypto 101 Book](https://www.crypto101.io/)

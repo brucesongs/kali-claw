@@ -426,3 +426,10 @@ curl -H "Auth: token" "http://target/api/data"
 - **web-sqli**: SQLi-specific verification patterns
 - **web-xss**: XSS-specific verification patterns
 - **network-pentest**: Network remediation verification
+
+## References
+
+- [OWASP Verification Standard](https://owasp.org/www-project-application-security-verification-standard/)
+- [NIST SP 800-115 Technical Guide to Security Testing](https://csrc.nist.gov/publications/detail/sp/800-115/final)
+- [PTES Technical Guidelines](http://www.pentest-standard.org/index.php/PTES_Technical_Guidelines)
+- [Burp Suite Documentation](https://portswigger.net/burp/documentation)

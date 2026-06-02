@@ -236,3 +236,10 @@ echo "[*] Shell should arrive within 60 seconds"
 ```
 
 Key principles: always verify internal service accessibility before crafting payloads, use Gopher for raw TCP protocols, and chain multiple internal services when direct RCE is not possible.
+
+## References
+
+- [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
+- [SSRF Bible (Assetnote)](https://assetnote.io/research/)
+- [PortSwigger SSRF Labs](https://portswigger.net/web-security/ssrf)
+- [Cloud SSRF Techniques](https://hackerone.com/hacktivity)

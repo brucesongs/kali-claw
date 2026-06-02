@@ -343,3 +343,10 @@ Council produces structured decision documents with clear perspective attributio
 **Detection**: If all auditor findings are classified as Medium or below regardless of actual compliance impact, the perspective is being undervalued.
 
 **Fix**: Remember that compliance failures can have financial penalties, legal consequences, and reputational impact equal to or greater than technical vulnerabilities. A GDPR fine can exceed the cost of a data breach. Treat compliance findings with the same rigor as technical findings.
+
+## References
+
+- [NIST Risk Management Framework](https://www.nist.gov/programs-projects/risk-management-framework)
+- [OWASP Risk Assessment Methodology](https://owasp.org/www-community/OWASP_Risk_Assessment_Methodology)
+- [FAIR Risk Framework](https://www.fairinstitute.org/)
+- [STRIDE Threat Modeling (Microsoft)](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)

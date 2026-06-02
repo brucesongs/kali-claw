@@ -1,5 +1,9 @@
 # Coverage-Guided Fuzzing: Deep Dive
 
+## Introduction
+
+Coverage-guided fuzzing is a dynamic testing technique that uses code coverage feedback to generate inputs that explore new execution paths. This guide covers the theory and practice of coverage-guided fuzzing using AFL++, libFuzzer, and Honggfuzz, with real-world examples of vulnerability discovery through fuzzing.
+
 > Companion to `skills/ai-fuzzing/SKILL.md`. This guide covers AFL++ internals, corpus management, mutation operators, parallel fuzzing strategies, crash triage workflows, and performance tuning.
 
 ---
@@ -599,3 +603,11 @@ afl-fuzz -i seeds/ -o findings/ -m none -- ./target_persistent
 afl-clang-lto -o target_cmplog -c 0 target.c
 afl-fuzz -i seeds/ -o findings/ -S cmplog -c 0 -m none -- ./target_cmplog @@
 ```
+
+## References
+
+- [AFL++ Documentation](https://github.com/AFLplusplus/AFLplusplus)
+- [libFuzzer Tutorial (LLVM)](https://llvm.org/docs/LibFuzzer.html)
+- [Honggfuzz GitHub](https://github.com/google/honggfuzz)
+- [OSS-Fuzz - Continuous Fuzzing Platform](https://google.github.io/oss-fuzz/)
+- [Fuzzing Book](https://www.fuzzingbook.org/)

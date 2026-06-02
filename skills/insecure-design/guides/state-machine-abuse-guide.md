@@ -296,3 +296,10 @@ print(f"\n[*] Found {len(unauthorized)} unauthorized state transitions")
 - Multi-party approval workflows often lack per-role transition enforcement
 - Document the intended state machine (from documentation or observation) before testing deviations
 - Automated fuzzing of all state permutations reveals transitions developers forgot to block
+
+## References
+
+- [OWASP Threat Modeling](https://owasp.org/www-community/Threat_Modeling)
+- [STRIDE/DREAD Methodology](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)
+- [Business Logic Vulnerabilities (PortSwigger)](https://portswigger.net/web-security/logic-flaws)
+- [MITRE ATT&CK - Technique T1059](https://attack.mitre.org/techniques/T1059/)

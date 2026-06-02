@@ -311,8 +311,9 @@ TOOLS.md:
 | v0.1.14 | 2026-05-30 | **100% Excellent** | **49/49 Excellent, avg 84.0, min 80.0, max 90.3**; CI quality gate; 10 integration tests |
 | v0.1.15 | 2026-05-31 | **Solid Excellent** | **avg 88.6, min 85.3, max 99.7**; 18 SKILL.md expanded, 20 TC added, 26 payloads to 50+ blocks |
 | v0.1.16 | 2026-06-02 | **Infrastructure + Scoring v2** | Scoring v2 (guide quality, score caps, Distinguished tier); core files synced to 49 domains; 5 cross-skill attack chain scenarios; TEMPLATE.md |
+| v0.1.17 | 2026-06-03 | **Bottom Reinforcement + Distinguished Sprint** | 45 new guides (35 Distinguished sprint + 10 bottom reinforcement); 15 key sections fixed; avg 87.5, min 84.3; cloud-security 91.2 (near Distinguished) |
 
-### Current Quality Snapshot (v0.1.16, scoring v2)
+### Current Quality Snapshot (v0.1.17, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
