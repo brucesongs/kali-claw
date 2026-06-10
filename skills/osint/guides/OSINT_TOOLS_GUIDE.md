@@ -612,3 +612,11 @@ sn0int run <module>
 sn0int --help
 ```
 
+
+## Hands-on Exercises
+
+Practice the techniques described in this guide against authorized targets or lab environments. Document your findings and methodology for each exercise.
+## References
+
+- OWASP Testing Guide — https://owasp.org/www-project-web-security-testing-guide/
+- PTES Technical Guidelines — http://www.pentest-standard.org/

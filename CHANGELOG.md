@@ -4,6 +4,27 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.24 (2026-06-10) — 8 Distinguished Milestone, Distinguished Sprint + Bottom Lift
+
+### Distinguished Sprint: 3 New Distinguished Skills
+- **osint** reached 92.5 — expanded 4 guides (info-gathering-cli-reference, automated-osint-pipeline, enterprise-pentest-case-study, corporate-recon); added Introduction/Hands-on/References to 8 guides
+- **social-intelligence** reached 93.8 — expanded 5 guides (community-monitoring, reddit-hn, social-graph, target-profiling, twitter-youtube); added 4 payload sections (TikTok, Instagram, Discord, Mastodon/Fediverse); added 2 test cases
+- **verification-loop** reached 92.6 — expanded 1 guide (automated-exploit-verification); added key sections to 5 guides; created 3 new guides (false-positive-triage, cross-tool-verification, finding-documentation-evidence)
+
+### Bottom Lift: 5 Lowest Skills Improved
+- **engagement-manager** 82.8 → 86.0 — expanded SKILL.md (10→16 sections: Phase Entry/Exit, Evidence Requirements, Timeline, Communication Templates, Risk Matrix, Post-Engagement Checklist)
+- **tool-mastery** 82.8 → 85.4 — expanded SKILL.md (11→16 sections: Tool Selection Matrix, Learning Path, Tool Failure Recovery, Common Pitfalls, Output Formats)
+- **email-protocol-attack** 83.1 → 85.2 — added payload code block (Email Header Forensic Analysis)
+- **steganography** 84.9 → 86.4 — added payload code blocks (Chi-Square, Audio, PDF); created 2 new guides (audio-video-steganography, network-protocol-steganography)
+- **av-edr-evasion** 88.3 → 89.1 — created 2 new guides (shellcode-encoding, process-injection-techniques)
+
+### Stats
+- Distinguished: 5 → 8 (+3)
+- Excellent: 69 → 66
+- Total: 74
+- Average: 87.0 → 87.3
+- Min: 83.3 (vpn-attack)
+
 ## v0.1.23 (2026-06-10) — 5 Distinguished Milestone, Guide Quality Sprint
 
 ### Quality Milestone: 5 Distinguished Skills

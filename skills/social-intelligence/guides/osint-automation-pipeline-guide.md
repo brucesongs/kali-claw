@@ -381,3 +381,16 @@ diff_osint "target.com"
 - Correlate data across tools to identify patterns invisible in individual tool outputs
 - Schedule recurring scans to detect infrastructure changes between engagement phases
 - Store results in structured formats (JSON) for programmatic analysis and reporting
+
+## Introduction
+
+This guide covers social intelligence gathering techniques for authorized security research and OSINT operations.
+
+## References
+
+- OWASP Testing Guide — https://owasp.org/www-project-web-security-testing-guide/
+- OSINT Framework — https://osintframework.com/
+
+## Hands-on Exercises
+
+Practice these techniques against public data sources and authorized targets. Always respect privacy laws and terms of service.

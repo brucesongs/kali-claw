@@ -1,6 +1,6 @@
 {
   "skill": "engagement-manager",
-  "timestamp": "2026-06-10T12:42:51Z",
+  "timestamp": "2026-06-10T13:26:01Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4144,
@@ -11,7 +11,7 @@
     "guide_file_count": 3,
     "guide_avg_words": 1162,
     "guide_key_sections": 3,
-    "skill_section_score": 0.60
+    "skill_section_score": 0.81
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 82.5,
     "field": 100.0,
     "guide": 73.6,
-    "skill_section": 60.0
+    "skill_section": 81.0
   },
   "component_scores": {
-    "skill_md": 60.00,
+    "skill_md": 81.00,
     "payloads_md": 93.47,
     "test_cases_md": 91.25,
     "guides": 73.6
   },
-  "overall_score": 82.8,
+  "overall_score": 86.0,
   "tier": "Excellent"
 }

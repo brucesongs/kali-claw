@@ -1,33 +1,33 @@
 {
   "skill": "steganography",
-  "timestamp": "2026-06-10T12:42:51Z",
+  "timestamp": "2026-06-10T13:26:01Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 3678,
-    "payload_section_count": 15,
-    "payload_code_blocks": 35,
+    "payload_word_count": 5145,
+    "payload_section_count": 21,
+    "payload_code_blocks": 49,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 3,
-    "guide_avg_words": 1426,
+    "guide_file_count": 5,
+    "guide_avg_words": 1244,
     "guide_key_sections": 3,
     "skill_section_score": 0.91
   },
   "normalized_scores": {
-    "payload_word": 96.8,
-    "payload_section": 93.3,
-    "payload_code": 40.0,
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 58.7,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 75.2,
+    "guide": 79.5,
     "skill_section": 91.0
   },
   "component_scores": {
     "skill_md": 91.00,
-    "payloads_md": 76.70,
+    "payloads_md": 86.23,
     "test_cases_md": 90.00,
-    "guides": 75.2
+    "guides": 79.5
   },
-  "overall_score": 82.5,
+  "overall_score": 86.4,
   "tier": "Excellent"
 }

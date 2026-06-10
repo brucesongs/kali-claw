@@ -433,3 +433,10 @@ curl -H "Auth: token" "http://target/api/data"
 - [NIST SP 800-115 Technical Guide to Security Testing](https://csrc.nist.gov/publications/detail/sp/800-115/final)
 - [PTES Technical Guidelines](http://www.pentest-standard.org/index.php/PTES_Technical_Guidelines)
 - [Burp Suite Documentation](https://portswigger.net/burp/documentation)
+## Introduction
+
+This guide provides practical techniques for security verification and validation in authorized penetration testing engagements.
+
+## Hands-on Exercises
+
+Practice the verification techniques described in this guide against authorized targets. Document your methodology and results.

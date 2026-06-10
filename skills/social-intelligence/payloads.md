@@ -1307,3 +1307,551 @@ def analyze_stealer_logs(log_entries, target_domain):
         "latest_exposure": max((m["infection_date"] for m in matches), default=None)
     }
 ```
+
+---
+
+## 16. TikTok Intelligence Gathering
+
+### Profile Discovery & Metadata Extraction
+
+```bash
+# Search TikTok for target mentions via Google dorking
+site:tiktok.com "@<target-company>" OR "<target-technology>"
+site:tiktok.com "@<target-username>"
+
+# TikTok public API — search users (unauthenticated)
+curl -s "https://www.tiktok.com/api/user/search/?keyword=<target-company>&count=20" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+  | jq '.user_list[].user_info | {unique_id, nickname, signature, follower_count, video_count}'
+
+# TikTok video search by hashtag
+curl -s "https://www.tiktok.com/api/search/item/full/?keyword=<target-technology>+security&count=20" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+  | jq '.item_list[] | {desc, author: .author.unique_id, stats: .stats, created_time: .create_time}'
+```
+
+### Video Content Analysis
+
+```bash
+# Download TikTok video metadata without watermark
+yt-dlp --dump-json "https://www.tiktok.com/@<username>/video/<video-id>" \
+  | jq '{title: .description, upload_date, view_count, like_count, comment_count, repost_count, uploader, uploader_id}'
+
+# Batch download videos from a target user for offline analysis
+yt-dlp -o "/tmp/tiktok/%(uploader)s/%(id)s.%(ext)s" \
+  "https://www.tiktok.com/@<username>" --max-downloads 50 --write-description
+
+# Extract video descriptions containing security keywords
+find /tmp/tiktok -name "*.description" -exec grep -liE "password|VPN|firewall|server|breach|hack|exploit|credential" {} \; \
+  | while read f; do echo "=== $f ==="; cat "$f"; echo; done
+```
+
+### Employee TikTok Activity Monitoring
+
+```python
+import requests
+import json
+from datetime import datetime
+
+def search_tiktok_users(keyword):
+    """Search TikTok for users matching a keyword (company name, etc.)"""
+    url = "https://www.tiktok.com/api/user/search/"
+    params = {"keyword": keyword, "count": 20}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
+    resp = requests.get(url, params=params, headers=headers)
+    if resp.status_code != 200:
+        return []
+
+    data = resp.json()
+    results = []
+    for user_entry in data.get("user_list", []):
+        user = user_entry.get("user_info", {})
+        results.append({
+            "username": user.get("unique_id"),
+            "display_name": user.get("nickname"),
+            "bio": user.get("signature"),
+            "followers": user.get("follower_count"),
+            "videos": user.get("video_count"),
+            "verified": user.get("verified"),
+            "bio_keywords": extract_security_keywords(user.get("signature", ""))
+        })
+    return results
+
+def extract_security_keywords(text):
+    """Extract security-relevant keywords from bio or video descriptions"""
+    sec_keywords = [
+        "security", "cybersecurity", "hacker", "pentest", "redteam",
+        "blueteam", "CTF", "OSCP", "defcon", "blackhat", "infosec",
+        "CVE", "exploit", "vulnerability", "firewall", "VPN",
+        "SOC", "SIEM", "cloud security", "DevSecOps"
+    ]
+    text_lower = text.lower()
+    return [kw for kw in sec_keywords if kw.lower() in text_lower]
+```
+
+### TikTok Hashtag Intelligence
+
+```bash
+# Discover trending hashtags related to target industry
+curl -s "https://www.tiktok.com/api/search/item/full/?keyword=<target-industry>+breach+OR+security+OR+hacked&count=30" \
+  -H "User-Agent: Mozilla/5.0" | \
+  jq '[.item_list[].desc | scan("#[^\\s]+")] | flatten | .[]' | sort | uniq -c | sort -rn | head -20
+
+# Monitor TikTok for company name mentions via RSS-like polling
+while true; do
+  COUNT=$(curl -s "https://www.tiktok.com/api/search/item/full/?keyword=%22<target-company>%22&count=10" \
+    -H "User-Agent: Mozilla/5.0" | jq '.item_list | length')
+  echo "$(date +%Y-%m-%dT%H:%M:%S) — <target-company> mentions: $COUNT"
+  sleep 3600
+done
+```
+
+---
+
+## 17. Instagram OSINT Techniques
+
+### Profile Enumeration & Public Data
+
+```bash
+# Instagram public profile via Google dorking
+site:instagram.com "<target-company>" OR "<target-username>"
+site:instagram.com/p/ "<target-company>" (office OR workplace OR datacenter)
+
+# instaloader — public profile scraping without login
+instaloader --no-pictures --no-videos --no-captions \
+  --metadata-json <target-username>
+
+# Extract profile metadata from downloaded JSON
+find . -name "*.json.xz" -exec jq '{username: .node.username, full_name: .node.full_name, biography: .node.biography, followers: .node.edge_followed_by.count, following: .node.edge_follow.count, is_private: .node.is_private, is_verified: .node.is_verified, external_url: .node.external_url}' {} \;
+```
+
+### Geolocation Extraction from Posts
+
+```bash
+# Download location-tagged posts (requires login for private data)
+instaloader --login=$INSTA_USER --password=$INSTA_PASS \
+  --no-pictures --no-videos --geotags <target-username>
+
+# Extract all geotag data from metadata files
+find . -name "*.json.xz" | while read f; do
+  jq -r '.node.location | select(. != null) | "\(.name) | \(.lat), \(.lng) | \(.id)"' "$f" 2>/dev/null
+done | sort -u > /tmp/instagram-geotags.txt
+
+# Generate Google Maps links from extracted locations
+while IFS=' | ' read -r name lat lng id; do
+  [ -n "$lat" ] && echo "$name: https://www.google.com/maps?q=${lat},${lng}"
+done < /tmp/instagram-geotags.txt
+```
+
+### Instagram Network Analysis
+
+```python
+import json
+from collections import Counter
+
+def analyze_instagram_network(followers_data, following_data):
+    """Analyze Instagram follower/following relationships for intel"""
+    followers = {u["id"]: u for u in followers_data}
+    following = {u["id"]: u for u in following_data}
+
+    # Identify mutual connections (likely real-world relationships)
+    mutual_ids = set(followers.keys()) & set(following.keys())
+    mutual_profiles = [followers[uid] for uid in mutual_ids]
+
+    # Categorize mutuals by bio keywords
+    categorized = {"coworkers": [], "industry": [], "security": [], "other": []}
+    for profile in mutual_profiles:
+        bio = profile.get("biography", "").lower()
+        if any(kw in bio for kw in ["@target-company", "target-company"]):
+            categorized["coworkers"].append(profile)
+        elif any(kw in bio for kw in ["security", "infosec", "cyber", "pentest", "hack"]):
+            categorized["security"].append(profile)
+        elif any(kw in bio for kw in ["engineer", "developer", "devops", "cloud"]):
+            categorized["industry"].append(profile)
+        else:
+            categorized["other"].append(profile)
+
+    return {
+        "total_followers": len(followers),
+        "total_following": len(following),
+        "mutual_connections": len(mutual_ids),
+        "mutual_profiles": mutual_profiles[:50],
+        "categorized": {k: len(v) for k, v in categorized.items()},
+        "coworker_profiles": categorized["coworkers"]
+    }
+```
+
+### Instagram Story & Highlight Monitoring
+
+```bash
+# Download stories and highlights (requires login)
+instaloader --login=$INSTA_USER --password=$INSTA_PASS \
+  --stories --highlights <target-username>
+
+# Extract text from story images using OCR
+for img in /tmp/target-stories/*.jpg; do
+  TEXT=$(tesseract "$img" stdout 2>/dev/null | grep -iE "password|login|server|VPN|office|badge|key|token")
+  [ -n "$TEXT" ] && echo "FILE: $img — TEXT: $TEXT"
+done
+
+# Monitor for new stories on schedule (check every 30 minutes)
+while true; do
+  instaloader --login=$INSTA_USER --password=$INSTA_PASS \
+    --stories --no-pictures --no-videos --metadata-json \
+    --dirname-pattern /tmp/insta-monitor/{target} <target-username> 2>/dev/null
+  sleep 1800
+done
+```
+
+### Instagram Hashtag & Location Intelligence
+
+```bash
+# Search posts by hashtag related to target company
+instaloader --login=$INSTA_USER --password=$INSTA_PASS \
+  "#<target-company>" --max-count=100 \
+  --no-pictures --no-videos --metadata-json \
+  --dirname-pattern /tmp/insta-hashtags/{target}
+
+# Search posts by location (requires location ID from Instagram)
+# Find location IDs: https://www.instagram.com/explore/locations/?query=<city>
+instaloader --login=$INSTA_USER --password=$INSTA_PASS \
+  "%<location-id>" --max-count=50 \
+  --metadata-json --dirname-pattern /tmp/insta-locations/{target}
+
+# Extract captions for keyword analysis
+find /tmp/insta-hashtags -name "*.json.xz" | while read f; do
+  jq -r '.node.edge_media_to_caption.edges[0].node.text // empty' "$f" 2>/dev/null
+done | grep -iE "<target-company>|security|office|server|datacenter|badge" > /tmp/insta-caption-matches.txt
+```
+
+---
+
+## 18. Discord Server Enumeration
+
+### Server Discovery & Invite Link Hunting
+
+```bash
+# Google dorking for Discord invite links related to target
+site:discord.com/invite "<target-company>" OR "<target-technology>"
+site:discord.gg "<target-company>"
+"<target-company>" "discord.gg/" OR "discord.com/invite/"
+
+# Search GitHub for embedded Discord invite links
+curl -s "https://api.github.com/search/code?q=discord.gg+<target-company>" \
+  -H "Authorization: token $GITHUB_TOKEN" | \
+  jq '.items[] | {repository: .repository.full_name, path: .path, html_url: .html_url}'
+
+# Search Reddit for Discord server invites
+curl -s "https://oauth.reddit.com/search?q=discord.gg+<target-company>&sort=new&limit=25" \
+  -H "Authorization: Bearer $REDDIT_TOKEN" \
+  -H "User-Agent: kali-claw/1.0" | \
+  jq '.data.children[].data | {title, selftext: .selftext[:300], url, permalink}'
+```
+
+### Discord Server Enumeration via API
+
+```python
+import requests
+import json
+from datetime import datetime
+
+def enumerate_discord_server(invite_code, discord_token=None):
+    """Enumerate Discord server via invite link metadata"""
+    headers = {"User-Agent": "Mozilla/5.0"}
+    if discord_token:
+        headers["Authorization"] = discord_token
+
+    # Get invite metadata (works without authentication)
+    resp = requests.get(
+        f"https://discord.com/api/v10/invites/{invite_code}?with_counts=true&with_expiration=true",
+        headers=headers
+    )
+
+    if resp.status_code != 200:
+        return {"error": f"HTTP {resp.status_code}", "body": resp.text}
+
+    data = resp.json()
+    guild = data.get("guild", {})
+    channel = data.get("channel", {})
+    inviter = data.get("inviter", {})
+
+    return {
+        "server_name": guild.get("name"),
+        "server_id": guild.get("id"),
+        "member_count": data.get("approximate_member_count"),
+        "active_count": data.get("approximate_presence_count"),
+        "description": guild.get("description"),
+        "is_nsfw": guild.get("nsfw"),
+        "verification_level": guild.get("verification_level"),
+        "vanity_url": guild.get("vanity_url_code"),
+        "channel_name": channel.get("name"),
+        "channel_type": channel.get("type"),
+        "inviter": inviter.get("username"),
+        "features": guild.get("features", []),
+        "icon_hash": guild.get("icon"),
+        "banner_hash": guild.get("banner"),
+        "boost_level": guild.get("premium_tier"),
+        "boost_count": guild.get("premium_subscription_count")
+    }
+```
+
+### Discord User Activity Analysis
+
+```python
+def analyze_discord_user(user_id, messages, guild_id=None):
+    """Analyze Discord user activity patterns from collected messages"""
+    activity = {
+        "user_id": user_id,
+        "message_count": len(messages),
+        "channels_active": set(),
+        "mentioned_users": Counter(),
+        "mentioned_roles": Counter(),
+        "shared_links": [],
+        "shared_files": [],
+        "keywords_found": [],
+        "activity_hours": Counter(),
+        "first_seen": None,
+        "last_seen": None
+    }
+
+    security_keywords = [
+        "password", "token", "api_key", "secret", "credential",
+        "exploit", "CVE", "vulnerability", "breach", "hack",
+        "payload", "reverse_shell", "backdoor", "phishing"
+    ]
+
+    for msg in messages:
+        ts = datetime.fromisoformat(msg["timestamp"])
+        activity["channels_active"].add(msg.get("channel_id"))
+        activity["activity_hours"][ts.hour] += 1
+
+        if activity["first_seen"] is None or ts < activity["first_seen"]:
+            activity["first_seen"] = ts
+        if activity["last_seen"] is None or ts > activity["last_seen"]:
+            activity["last_seen"] = ts
+
+        content = msg.get("content", "").lower()
+        for kw in security_keywords:
+            if kw in content and kw not in activity["keywords_found"]:
+                activity["keywords_found"].append(kw)
+
+        for mention in msg.get("mentions", []):
+            activity["mentioned_users"][mention.get("id")] += 1
+
+        for attachment in msg.get("attachments", []):
+            activity["shared_files"].append({
+                "filename": attachment.get("filename"),
+                "size": attachment.get("size"),
+                "url": attachment.get("url")
+            })
+
+        for embed in msg.get("embeds", []):
+            if embed.get("url"):
+                activity["shared_links"].append(embed["url"])
+
+    activity["channels_active"] = len(activity["channels_active"])
+    return activity
+```
+
+### Discord Webhook & Integration Discovery
+
+```bash
+# Search for exposed Discord webhooks related to target
+curl -s "https://api.github.com/search/code?q=discord.com+api+webhooks+<target-company>" \
+  -H "Authorization: token $GITHUB_TOKEN" | \
+  jq '.items[] | {repository: .repository.full_name, path: .path, html_url: .html_url}'
+
+# Google dorking for exposed webhook URLs
+"discord.com/api/webhooks/" "<target-company>" OR "<target-technology>"
+
+# Search for Discord bot tokens in public repositories
+curl -s "https://api.github.com/search/code?q=DISCORD_TOKEN+OR+DISCORD_BOT_TOKEN+<target-company>" \
+  -H "Authorization: token $GITHUB_TOKEN" | \
+  jq '.items[] | {repository: .repository.full_name, path: .path}'
+
+# Enumerate Discord bots present in a server (requires server access)
+# Check bot presence via gateway events or member list
+curl -s "https://discord.com/api/v10/guilds/<guild-id>/members?limit=100" \
+  -H "Authorization: Bot $DISCORD_BOT_TOKEN" | \
+  jq '[.[] | select(.user.bot == true) | {id: .user.id, username: .user.username, roles: .roles}]'
+```
+
+---
+
+## 19. Mastodon/Fediverse Monitoring
+
+### Instance Discovery & User Search
+
+```bash
+# Search for target across multiple Mastodon instances via Google dorking
+site:mastodon.social "@<target-username>"
+site:mastodon.online "<target-company>"
+site:infosec.exchange "<target-technology>" security
+
+# Federated search across known Mastodon instances
+INSTANCES=("mastodon.social" "mastodon.online" "infosec.exchange" "fosstodon.org" "hachyderm.io" "securitymastod.one")
+
+for instance in "${INSTANCES[@]}"; do
+  echo "[MASTODON] Searching $instance for <target-username>"
+  curl -s "https://${instance}/api/v2/search?q=<target-username>&type=accounts&limit=20" \
+    -H "Authorization: Bearer $MASTODON_TOKEN" | \
+    jq ".accounts[] | {id, username, display_name, acct, followers_count, following_count, statuses_count, note: .note[:200], bot, verified_at: (.fields // [] | map(select(.verified_at != null)) | length)}"
+done
+```
+
+### Mastodon Account Profiling
+
+```python
+import requests
+import json
+from datetime import datetime
+
+def profile_mastodon_account(instance, username, access_token=None):
+    """Profile a Mastodon account and extract intelligence"""
+    headers = {}
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+
+    # Get account info
+    resp = requests.get(
+        f"https://{instance}/api/v1/accounts/lookup?acct={username}",
+        headers=headers
+    )
+    if resp.status_code != 200:
+        return {"error": f"Account not found on {instance}"}
+
+    account = resp.json()
+
+    profile = {
+        "instance": instance,
+        "username": account["username"],
+        "display_name": account["display_name"],
+        "bio": account.get("note", ""),
+        "followers": account["followers_count"],
+        "following": account["following_count"],
+        "statuses": account["statuses_count"],
+        "created_at": account["created_at"],
+        "is_bot": account.get("bot", False),
+        "is_locked": account.get("locked", False),
+        "profile_fields": [],
+        "avatar_url": account.get("avatar"),
+        "header_url": account.get("header"),
+        "recent_posts": []
+    }
+
+    # Extract verified profile fields
+    for field in account.get("fields", []):
+        profile["profile_fields"].append({
+            "name": field["name"],
+            "value": field["value"],
+            "verified": field.get("verified_at") is not None
+        })
+
+    # Get recent posts
+    account_id = account["id"]
+    resp = requests.get(
+        f"https://{instance}/api/v1/accounts/{account_id}/statuses?limit=40",
+        headers=headers
+    )
+    if resp.status_code == 200:
+        for status in resp.json():
+            profile["recent_posts"].append({
+                "content": status.get("content", "")[:500],
+                "created_at": status["created_at"],
+                "reblogs": status.get("reblogs_count", 0),
+                "favourites": status.get("favourites_count", 0),
+                "tags": [t["name"] for t in status.get("tags", [])],
+                "media_attachments": len(status.get("media_attachments", [])),
+                "in_reply_to": status.get("in_reply_to_id"),
+                "visibility": status.get("visibility")
+            })
+
+    return profile
+```
+
+### Fediverse Instance Monitoring
+
+```python
+import requests
+from collections import Counter
+from datetime import datetime, timedelta
+
+class FediverseMonitor:
+    """Monitor multiple Fediverse instances for target mentions"""
+
+    def __init__(self, instances, access_tokens=None):
+        self.instances = instances
+        self.tokens = access_tokens or {}
+        self.seen_status_ids = set()
+
+    def search_public_timeline(self, query, instance):
+        """Search public timeline on a specific instance"""
+        headers = {}
+        if instance in self.tokens:
+            headers["Authorization"] = f"Bearer {self.tokens[instance]}"
+
+        resp = requests.get(
+            f"https://{instance}/api/v2/search",
+            params={"q": query, "type": "statuses", "limit": 40},
+            headers=headers
+        )
+        if resp.status_code != 200:
+            return []
+
+        results = []
+        for status in resp.json().get("statuses", []):
+            if status["id"] not in self.seen_status_ids:
+                self.seen_status_ids.add(status["id"])
+                results.append({
+                    "instance": instance,
+                    "id": status["id"],
+                    "content": self._strip_html(status.get("content", "")),
+                    "author": status["account"]["acct"],
+                    "author_followers": status["account"]["followers_count"],
+                    "created_at": status["created_at"],
+                    "reblogs": status.get("reblogs_count", 0),
+                    "favourites": status.get("favourites_count", 0),
+                    "tags": [t["name"] for t in status.get("tags", [])],
+                    "url": status.get("url")
+                })
+        return results
+
+    def monitor_all_instances(self, query):
+        """Search across all configured instances"""
+        all_results = []
+        for instance in self.instances:
+            try:
+                results = self.search_public_timeline(query, instance)
+                all_results.extend(results)
+            except requests.RequestException:
+                continue
+        return all_results
+
+    @staticmethod
+    def _strip_html(text):
+        """Remove HTML tags from Mastodon content"""
+        import re
+        return re.sub(r"<[^>]+>", "", text).strip()
+```
+
+### Fediverse Tag & Trend Analysis
+
+```bash
+# Monitor trending tags on security-focused Mastodon instances
+curl -s "https://infosec.exchange/api/v1/trends/tags?limit=20" | \
+  jq '.[] | {name, url, history: .history[-7:] | map({day: .day, uses: .uses, accounts: .accounts})}'
+
+# Get statuses for a specific hashtag
+curl -s "https://mastodon.social/api/v1/timelines/tag/cybersecurity?limit=40" | \
+  jq '.[] | {content: .content[:200], account: .account.acct, created_at, reblogs_count, tags: [.tags[].name]}'
+
+# Monitor Fediverse for target company mentions across instances
+QUERY="<target-company>"
+for instance in mastodon.social infosec.exchange fosstodon.org hachyderm.io; do
+  echo "[FEDI] $instance: searching for '$QUERY'"
+  curl -s "https://${instance}/api/v2/search?q=${QUERY}&type=statuses&limit=20" | \
+    jq --arg inst "$instance" '[.statuses[] | {instance: $inst, content: (.content | gsub("<[^>]+>"; "") | .[0:200]), author: .account.acct, created_at}]'
+  sleep 1
+done
+```

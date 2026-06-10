@@ -366,3 +366,16 @@ jq -s '.' /opt/security/metrics/2025*.json > /opt/security/metrics/trend.json
 
 echo "Metrics written to $METRICS_FILE"
 ```
+
+## Introduction
+
+This guide provides practical techniques for security verification and validation in authorized penetration testing engagements.
+
+## References
+
+- OWASP Testing Guide — https://owasp.org/www-project-web-security-testing-guide/
+- PTES Technical Guidelines — http://www.pentest-standard.org/
+
+## Hands-on Exercises
+
+Practice the verification techniques described in this guide against authorized targets. Document your methodology and results.

@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: forensics
   tool_count: 6
-  guide_count: 3
+  guide_count: 5
 ---
 
 

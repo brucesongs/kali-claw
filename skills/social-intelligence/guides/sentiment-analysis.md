@@ -186,3 +186,16 @@ Based on sentiment analysis, the following SE vectors are most likely to succeed
 - Anonymize specific individuals in reports (use roles, not names)
 - Focus on organizational patterns, not individual complaints
 - Respect platform terms of service when collecting data
+
+## Introduction
+
+This guide covers social intelligence gathering techniques for authorized security research and OSINT operations.
+
+## References
+
+- OWASP Testing Guide — https://owasp.org/www-project-web-security-testing-guide/
+- OSINT Framework — https://osintframework.com/
+
+## Hands-on Exercises
+
+Practice these techniques against public data sources and authorized targets. Always respect privacy laws and terms of service.

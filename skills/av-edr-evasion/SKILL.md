@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: exploitation
   tool_count: 7
-  guide_count: 3
+  guide_count: 5
   mitre: "TA0005-Defense Evasion"
 ---
 

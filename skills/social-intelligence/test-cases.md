@@ -11,7 +11,9 @@
 | A. Target Profiling | 2 | MEDIUM - HIGH |
 | B. Technology & Vulnerability Discovery | 2 | MEDIUM - HIGH |
 | C. Monitoring & Sentiment | 1 | HIGH |
-| **Total** | **5** | **MEDIUM - HIGH** |
+| D. Anomaly Detection & Analysis | 3 | HIGH |
+| E. Platform-Specific Intelligence | 2 | MEDIUM - HIGH |
+| **Total** | **10** | **MEDIUM - HIGH** |
 
 ---
 
@@ -116,6 +118,11 @@
 | TC-SI-003 | Vulnerability Discussion Tracking | HIGH | Technology & Vulnerability Discovery |
 | TC-SI-004 | Pre-Engagement Sentiment Analysis | MEDIUM | Technology & Vulnerability Discovery |
 | TC-SI-005 | Dark Web Mention Monitoring | HIGH | Monitoring & Sentiment |
+| TC-SI-006 | Social Graph Anomaly Detection | HIGH | Anomaly Detection & Analysis |
+| TC-SI-007 | Cross-Platform Identity Correlation | HIGH | Anomaly Detection & Analysis |
+| TC-SI-008 | Influence Campaign Analysis | HIGH | Anomaly Detection & Analysis |
+| TC-SI-009 | Multi-Platform Social Media Intelligence Correlation | HIGH | Platform-Specific Intelligence |
+| TC-SI-010 | Fediverse and Alternative Platform Threat Intelligence | MEDIUM | Platform-Specific Intelligence |
 
 ---
 
@@ -168,3 +175,38 @@
 | **False Positive Risk** | MEDIUM — Genuine customer complaints can cluster after service outages; negative news coverage can trigger organic negative sentiment; competitor mentions may be coincidental timing |
 | **Remediation** | Correlate sentiment spikes with real-world events (outages, news, earnings reports) before attributing to campaigns; require multiple coordination signals (timing + content similarity + account characteristics) before confirming campaign; differentiate between organic negative sentiment and coordinated amplification |
 | **Related Tools** | Twitter/X API, Reddit API, HN Algolia API, sentiment analysis (VADER, TextBlob), Botometer, Gephi, NetworkX |
+
+---
+
+## E. Platform-Specific Intelligence
+
+### TC-SI-009: Multi-Platform Social Media Intelligence Correlation
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-SI-009 |
+| **Name** | Multi-Platform Social Media Intelligence Correlation |
+| **Severity** | HIGH |
+| **Category** | Platform-Specific Intelligence |
+| **Objective** | Correlate intelligence gathered from TikTok, Instagram, Discord, and Mastodon/Fediverse platforms to build a comprehensive target profile, identifying cross-platform behavioral patterns, technology leaks, and social engineering attack surfaces |
+| **Prerequisites** | Target organization name and known employee identifiers (from TC-SI-001), TikTok/Instagram/Discord/Mastodon API access where available, instaloader and yt-dlp installed, monitoring infrastructure capable of scheduled polling |
+| **Test Steps** | 1. Search TikTok for target company employee accounts using company name and known usernames (API or Google dorking)<br>2. Extract profile metadata, bio keywords, and follower counts from discovered TikTok accounts<br>3. Search Instagram for target employees via instaloader and Google dorking — capture geotags, followers, and bio links<br>4. Hunt for target-related Discord server invite links via Google (site:discord.gg, site:discord.com/invite), GitHub code search, and Reddit posts<br>5. Enumerate discovered Discord servers via invite metadata API — record member counts, channel names, and verification levels<br>6. Search multiple Mastodon/Fediverse instances (mastodon.social, infosec.exchange, fosstodon.org, hachyderm.io) for target employee accounts<br>7. Extract profile fields, verified links, recent posts, and tag usage from discovered Mastodon accounts<br>8. Cross-correlate findings: match usernames across all four platforms, identify shared biographical details, detect technology mentions in posts/stories/videos<br>9. Build unified target profile: confirmed accounts per platform, technology stack mentions, behavioral patterns (posting frequency, active hours, interaction networks)<br>10. Identify social engineering vectors: personal interests, travel patterns (Instagram geotags), community affiliations (Discord servers), professional opinions (Mastodon posts) |
+| **Expected Results** | Multi-platform intelligence report with: per-platform account inventory with confidence scores, cross-platform identity correlation matrix, unified technology stack mentions aggregated from all platforms, behavioral pattern analysis (posting times, platform preferences, interaction styles), geolocation data from Instagram/TikTok, community affiliation map from Discord servers, professional opinion summary from Mastodon/Fediverse, and prioritized social engineering vectors ranked by exploitability |
+| **False Positive Risk** | MEDIUM — Common usernames on different platforms may belong to different individuals; TikTok/Instagram accounts may be personal and unrelated to work; Discord server membership does not imply active participation; Mastodon account verification does not guarantee identity |
+| **Remediation** | Require minimum 2 corroborating data points for cross-platform identity correlation; weight professional platform (Mastodon, LinkedIn) evidence higher than entertainment platforms (TikTok, Instagram); flag Discord membership as lower confidence than active posting; verify Fediverse accounts by checking profile field verifications and posting history consistency |
+| **Related Tools** | instaloader, yt-dlp, Sherlock, Maigret, Discord API (invite metadata), Mastodon API (v1/v2), Google dorking, tesseract OCR, jq, curl |
+
+### TC-SI-010: Fediverse and Alternative Platform Threat Intelligence
+
+| Field | Value |
+|------|-----|
+| **Name** | Fediverse and Alternative Platform Threat Intelligence |
+| **Severity** | MEDIUM |
+| **Category** | Platform-Specific Intelligence |
+| **Objective** | Monitor Mastodon/Fediverse instances and alternative social platforms (Discord, TikTok) for early-stage threat intelligence signals including vulnerability disclosures, exploit discussions, credential leaks, and coordinated attack planning targeting the organization |
+| **Prerequisites** | Target organization name and technology stack (from TC-SI-002), access to multiple Mastodon/Fediverse instances (accounts on at least 3 instances), Discord server access (via discovered invite links from TC-SI-009), TikTok monitoring capability, threat intelligence vocabulary and CVE tracking tools |
+| **Test Steps** | 1. Configure Fediverse monitoring across security-focused instances (infosec.exchange, securitymastod.one, fosstodon.org) for target technology keywords<br>2. Set up hashtag monitoring on Mastodon for target-specific tags: #CVE, #0day, #exploit, #<target-technology>, #data breach<br>3. Monitor public timelines on configured instances for mentions of target organization name, domains, and product names<br>4. Search Discord servers (discovered in TC-SI-009) for security-relevant channel names (#security, #bugs, #exploits, #pentest, #ctf)<br>5. Analyze Discord message history in security channels for discussions of target technologies, shared PoC code, or credential references<br>6. Search TikTok for videos tagged with target technology names plus security keywords (exploit, hack, vulnerability, bypass)<br>7. Cross-reference discovered vulnerability discussions with NVD/CVE databases to assess relevance to target stack<br>8. Identify early disclosure signals: mentions of unpatched vulnerabilities, proof-of-concept code sharing, coordinated disclosure timeline leaks<br>9. Categorize findings by threat level: imminent threat (active exploit sharing), emerging threat (vulnerability discussion without exploit), informational (general security discussion)<br>10. Produce actionable threat intelligence report with recommended defensive actions |
+| **Expected Results** | Threat intelligence report with: platform-by-platform finding inventory, vulnerability discussions mapped to CVEs and target technologies, exploit availability assessment per platform, early disclosure timeline (Fediverse discussion vs. official advisory), Discord-sourced PoC code references, TikTok video-based attack technique documentation, threat categorization (imminent/emerging/informational), and prioritized list of recommended defensive actions with source evidence |
+| **False Positive Risk** | HIGH — Security researchers routinely discuss vulnerabilities without malicious intent; CTF and educational content may reference target technologies without posing real threats; Discord exploit discussions may be theoretical or outdated; TikTok security content is often sensationalized or inaccurate |
+| **Remediation** | Cross-reference all vulnerability claims with official NVD/vendor advisories; differentiate between educational/CTF content and genuine threat actor discussions; verify exploit PoC code functionality before escalating; weight proximity to target (direct mentions vs. tangential technology discussion); require multiple corroborating sources before classifying as imminent threat |
+| **Related Tools** | Mastodon API, Discord API, TikTok API, yt-dlp, NVD API, CVE databases, AlienVault OTX, sentiment analysis tools, jq, curl |

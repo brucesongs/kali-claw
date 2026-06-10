@@ -1105,3 +1105,444 @@ print(f'Modified pixels: {(diff > 0).sum()} / {diff.size}')
 print(f'Modification ratio: {(diff > 0).sum() / diff.size * 100:.2f}%')
 "
 ```
+
+---
+
+## 16. Video Steganography Deep Dive
+
+### Frame Difference Analysis
+
+```bash
+# Extract consecutive frames and compute pixel differences
+ffmpeg -i suspicious.mp4 -qscale 0 frames/frame_%05d.png
+
+# Detect frames with anomalous modifications
+python3 -c "
+from PIL import Image
+import os, glob
+
+frames = sorted(glob.glob('frames/frame_*.png'))
+print(f'Total frames: {len(frames)}')
+
+for i in range(1, min(len(frames), 30)):
+    prev = Image.open(frames[i-1]).convert('RGB')
+    curr = Image.open(frames[i]).convert('RGB')
+    if prev.size != curr.size:
+        continue
+    diff_count = 0
+    for y in range(0, prev.size[1], 10):
+        for x in range(0, prev.size[0], 10):
+            if prev.getpixel((x, y)) != curr.getpixel((x, y)):
+                diff_count += 1
+    if diff_count > 0:
+        print(f'Frame {i}: {diff_count} sample differences detected')
+"
+```
+
+### Video LSB Extraction
+
+```bash
+# Extract LSB data from video frames programmatically
+python3 -c "
+from PIL import Image
+import glob, struct
+
+frames = sorted(glob.glob('frames/frame_*.png'))
+bits = []
+for frame_path in frames[:100]:
+    img = Image.open(frame_path).convert('RGB')
+    pixels = list(img.getdata())[:1000]
+    for p in pixels:
+        for ch in p:
+            bits.append(str(ch & 1))
+
+# Convert bits to bytes
+byte_arr = bytearray()
+for i in range(0, len(bits) - 7, 8):
+    byte_arr.append(int(''.join(bits[i:i+8]), 2))
+
+try:
+    text = byte_arr[:500].decode('ascii', errors='replace')
+    print(f'Extracted text: {text}')
+except:
+    print(f'Binary: {byte_arr[:100].hex()}')
+"
+```
+
+---
+
+## 17. Network Steganography Techniques
+
+### HTTP Header Covert Channel
+
+```bash
+# Encode data into HTTP headers (X-Custom fields)
+python3 -c "
+import base64
+message = 'secret_message_here'
+encoded = base64.b64encode(message.encode()).decode()
+print(f'X-Custom-Data: {encoded}')
+# Receiver decodes: base64.b64decode(header_value)
+"
+```
+
+### TCP/IP Timestamp Covert Channel
+
+```bash
+# Detect covert data in TCP timestamp options
+tshark -r capture.pcap -Y "tcp.flags.syn==1" \
+  -T fields -e tcp.options.timestamp.tsval 2>/dev/null | head -20
+
+# Decode low bits of TCP timestamps
+python3 -c "
+import subprocess
+result = subprocess.run(['tshark', '-r', 'capture.pcap',
+    '-Y', 'tcp.flags.syn==1',
+    '-T', 'fields', '-e', 'tcp.options.timestamp.tsval'],
+    capture_output=True, text=True)
+timestamps = [int(t) for t in result.stdout.strip().split('\n') if t]
+bits = ''.join(str(t & 1) for t in timestamps)
+byte_arr = bytearray()
+for i in range(0, len(bits) - 7, 8):
+    byte_arr.append(int(bits[i:i+8], 2))
+print(f'Extracted from TCP timestamps: {byte_arr[:100]}')
+"
+```
+
+---
+
+## 18. Whitespace Steganography
+
+### Detecting Whitespace Hidden Data
+
+```bash
+# Check for trailing whitespace in text files
+python3 -c "
+with open('suspicious.txt', 'r') as f:
+    lines = f.readlines()
+
+hidden_bits = []
+for line in lines:
+    trailing = line.rstrip('\n')
+    stripped = trailing.rstrip()
+    spaces = trailing[len(stripped):]
+    for ch in spaces:
+        if ch == ' ':
+            hidden_bits.append('0')
+        elif ch == '\t':
+            hidden_bits.append('1')
+
+if hidden_bits:
+    byte_arr = bytearray()
+    for i in range(0, len(hidden_bits) - 7, 8):
+        byte_arr.append(int(''.join(hidden_bits[i:i+8]), 2))
+    try:
+        print(f'Hidden message: {byte_arr.decode(\"ascii\", errors=\"replace\")}')
+    except:
+        print(f'Hidden data (hex): {byte_arr.hex()}')
+else:
+    print('No trailing whitespace hidden data found')
+"
+```
+
+### Embedding Data in Whitespace
+
+```bash
+# Embed a message using spaces (0) and tabs (1) at line ends
+python3 -c "
+import sys
+
+cover_file = 'cover_text.txt'
+message = 'hidden'
+
+bits = ''.join(format(ord(c), '08b') for c in message)
+with open(cover_file, 'r') as f:
+    lines = f.readlines()
+
+output = []
+bit_idx = 0
+for line in lines:
+    line = line.rstrip('\n')
+    if bit_idx < len(bits):
+        ws = ''
+        for _ in range(8):
+            if bit_idx < len(bits):
+                ws += '\t' if bits[bit_idx] == '1' else ' '
+                bit_idx += 1
+        output.append(line + ws)
+    else:
+        output.append(line)
+
+with open('stego_text.txt', 'w') as f:
+    f.write('\n'.join(output))
+print(f'Embedded {len(message)} chars using whitespace steganography')
+"
+```
+
+---
+
+## 19. Metadata-Based Steganalysis
+
+### Comprehensive Metadata Forensics
+
+```bash
+# Check for inconsistencies between metadata and actual content
+python3 -c "
+from PIL import Image
+import subprocess, json
+
+img = Image.open('suspicious.jpg')
+print(f'Image resolution: {img.size}')
+print(f'Image mode: {img.mode}')
+
+meta = subprocess.run(['exiftool', '-json', 'suspicious.jpg'],
+    capture_output=True, text=True)
+data = json.loads(meta.stdout)[0]
+
+# Check for editing software indicators
+software = data.get('Software', data.get('CreatorTool', ''))
+print(f'Software: {software}')
+
+# Check for timestamp inconsistencies
+create_date = data.get('CreateDate', '')
+modify_date = data.get('ModifyDate', '')
+print(f'CreateDate: {create_date}')
+print(f'ModifyDate: {modify_date}')
+
+# Check for unusual metadata fields
+standard_fields = {'SourceFile', 'ExifToolVersion', 'FileName', 'Directory',
+    'FileSize', 'FileModifyDate', 'FileAccessDate', 'FileInodeChangeDate',
+    'FileType', 'FileTypeExtension', 'MIMEType'}
+extra_fields = set(data.keys()) - standard_fields
+print(f'Non-standard metadata fields: {extra_fields}')
+"
+```
+
+### Stegseek Fast Steghide Cracker
+
+```bash
+# Stegseek is a fast steghide brute-forcer (much faster than stegcracker)
+# Install: apt install stegseek
+stegseek --crack suspicious.jpg -xf extracted.txt /usr/share/wordlists/rockyou.txt
+
+# Extract with known passphrase using stegseek
+stegseek --extract --steghide suspicious.jpg -xf output.txt -p "password"
+
+# Show extraction info without extracting
+stegseek --seed suspicious.jpg
+```
+
+---
+
+## 20. Emoji and Unicode Steganography
+
+### Zero-Width Character Steganography
+
+```python
+# Detect zero-width characters hidden in text
+with open('suspicious_text.txt', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# Zero-width characters used for steganography
+ZW_CHARS = {
+    '​': '0',  # Zero-width space
+    '‌': '1',  # Zero-width non-joiner
+    '‍': '',    # Zero-width joiner (separator)
+    '﻿': '',    # BOM
+    '⁠': '',    # Word joiner
+}
+
+bits = []
+for ch in text:
+    if ch in ZW_CHARS and ZW_CHARS[ch]:
+        bits.append(ZW_CHARS[ch])
+
+if bits:
+    byte_arr = bytearray()
+    for i in range(0, len(bits) - 7, 8):
+        byte_arr.append(int(''.join(bits[i:i+8]), 2))
+    try:
+        print(f'Hidden message: {byte_arr.decode("utf-8", errors="replace")}')
+    except:
+        print(f'Hidden data: {byte_arr.hex()}')
+else:
+    print('No zero-width characters found')
+```
+
+### Emoji Encoding Detection
+
+```python
+# Check for emoji-based steganography (e.g., using variant selectors)
+import re
+
+with open('suspicious_text.txt', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# Emoji variation selectors (VS-1 through VS-16, FE00-FE0F)
+vs_pattern = re.compile(r'[︀-️]')
+matches = vs_pattern.findall(text)
+print(f'Variation selectors found: {len(matches)}')
+
+if matches:
+    # Some schemes use VS selectors to encode bits
+    bits = ''.join(str(ord(m) & 0x0F % 2) for m in matches)
+    byte_arr = bytearray()
+    for i in range(0, len(bits) - 7, 8):
+        byte_arr.append(int(bits[i:i+8], 2))
+    print(f'Decoded: {byte_arr[:200]}')
+```
+
+---
+
+## 21. Statistical Detection and Stegbenchmarks
+
+### RS Steganalysis
+
+```python
+#!/usr/bin/env python3
+"""
+RS (Regular/Singular) steganalysis for detecting LSB embedding in images.
+Classifies pixel groups as Regular or Singular based on flipping operations.
+"""
+from PIL import Image
+
+def rs_steganalysis(image_path, block_size=4):
+    img = Image.open(image_path).convert('L')
+    pixels = list(img.getdata())
+    width = img.size[0]
+
+    regular_pos = 0
+    singular_pos = 0
+    regular_neg = 0
+    singular_neg = 0
+
+    for i in range(0, len(pixels) - block_size, block_size):
+        block = pixels[i:i + block_size]
+        # Calculate smoothness (sum of absolute differences)
+        f_orig = sum(abs(block[j+1] - block[j]) for j in range(len(block)-1))
+        # Positive flip (LSB flipped)
+        flipped_pos = [(p ^ 1) for p in block]
+        f_pos = sum(abs(flipped_pos[j+1] - flipped_pos[j]) for j in range(len(flipped_pos)-1))
+        # Negative flip (all bits flipped except LSB approximation)
+        flipped_neg = [(p ^ 1 if j % 2 == 0 else p) for j, p in enumerate(block)]
+        f_neg = sum(abs(flipped_neg[j+1] - flipped_neg[j]) for j in range(len(flipped_neg)-1))
+
+        if f_pos > f_orig:
+            regular_pos += 1
+        elif f_pos < f_orig:
+            singular_pos += 1
+
+        if f_neg > f_orig:
+            regular_neg += 1
+        elif f_neg < f_orig:
+            singular_neg += 1
+
+    rm = regular_pos - singular_pos
+    sm = regular_neg - singular_neg
+    ratio = rm / sm if sm != 0 else float('inf')
+    print(f'R+={regular_pos} S+={singular_pos} R-={regular_neg} S-={singular_neg}')
+    print(f'RM={rm} SM={sm} Ratio={ratio:.4f}')
+    if ratio > 1.1:
+        print('WARNING: RS analysis suggests possible LSB embedding')
+    else:
+        print('RS analysis: no significant LSB embedding detected')
+
+rs_steganalysis('suspicious.png')
+```
+
+### Visual Steganalysis with Chi-Square Attack
+
+```bash
+# Chi-square statistical attack on suspected LSB embedding
+python3 -c "
+from PIL import Image
+import numpy as np
+from collections import Counter
+
+img = Image.open('suspect_image.png')
+pixels = np.array(img).flatten()
+
+# Build pair histogram for chi-square
+even = pixels[::2] & 1  # LSBs at even positions
+odd = pixels[1::2] & 1   # LSBs at odd positions
+
+pairs = list(zip(even, odd))
+counts = Counter(pairs)
+total = len(pairs)
+expected = total / 4.0
+
+chi_sq = sum((counts.get(k, 0) - expected)**2 / expected for k in [(0,0),(0,1),(1,0),(1,1)])
+print(f'Chi-square statistic: {chi_sq:.2f}')
+print(f'Expected for uniform: {expected:.2f} per pair')
+
+if chi_sq > 20.0:
+    print('ALERT: Non-random LSB distribution detected - likely embedding')
+else:
+    print('Chi-square: LSB distribution appears random - no embedding detected')
+"
+```
+
+### Audio Steganography with Spectrograms
+
+```bash
+# Analyze audio file for hidden spectrogram messages
+ffmpeg -i secret_audio.wav -lavfi showspectrumpic=s=1024x512 spectrogram.png 2>/dev/null
+
+# Check for hidden data in audio metadata
+ffprobe -v quiet -show_format -show_streams secret_audio.wav | grep -E "comment|description|lyrics"
+
+# Extract LSB-encoded data from WAV audio
+python3 -c "
+import wave
+with wave.open('secret_audio.wav', 'rb') as w:
+    frames = w.readframes(w.getnframes())
+    # Extract LSB from each sample byte
+    bits = [str(b & 1) for b in frames]
+    # Group into bytes
+    message = []
+    for i in range(0, len(bits)-7, 8):
+        byte = int(''.join(bits[i:i+8]), 2)
+        if byte == 0:  # null terminator
+            break
+        message.append(chr(byte))
+    print('Hidden message:', ''.join(message[:200]))
+"
+```
+
+### PDF Steganography Detection
+
+```bash
+# Check PDF for hidden layers or white-on-white text
+python3 -c "
+import subprocess
+result = subprocess.run(['pdftotext', '-layout', 'suspect.pdf', '-'], capture_output=True, text=True)
+lines = result.stdout.split('\n')
+non_empty = [l for l in lines if l.strip()]
+print(f'Visible text lines: {len(non_empty)}')
+# Check file size vs text content ratio
+import os
+file_size = os.path.getsize('suspect.pdf')
+text_size = len(result.stdout.encode())
+ratio = file_size / max(text_size, 1)
+print(f'File size: {file_size} bytes')
+print(f'Text content: {text_size} bytes')
+print(f'Ratio: {ratio:.1f}x')
+if ratio > 10:
+    print('WARNING: High file-to-text ratio - possible hidden content')
+"
+
+# Extract embedded files from PDF
+binwalk -e suspect.pdf
+
+# Check for JavaScript or form fields that might hide data
+python3 -c "
+with open('suspect.pdf', 'rb') as f:
+    content = f.read()
+    if b'/JavaScript' in content:
+        print('ALERT: JavaScript found in PDF')
+    if b'/EmbeddedFile' in content:
+        print('ALERT: Embedded files found in PDF')
+    if b'/Annot' in content:
+        print('Note: Annotations/form fields present')
+"
+```
