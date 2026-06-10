@@ -1,0 +1,33 @@
+{
+  "skill": "web-deserialization",
+  "timestamp": "2026-06-10T01:16:00Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3825,
+    "payload_section_count": 10,
+    "payload_code_blocks": 53,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 2222,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.83
+  },
+  "normalized_scores": {
+    "payload_word": 98.2,
+    "payload_section": 82.2,
+    "payload_code": 81.2,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 78.7,
+    "skill_section": 83.0
+  },
+  "component_scores": {
+    "skill_md": 83.00,
+    "payloads_md": 87.20,
+    "test_cases_md": 90.00,
+    "guides": 78.7
+  },
+  "overall_score": 85.3,
+  "tier": "Excellent"
+}

@@ -1894,3 +1894,478 @@ Impact: Target flagged in results for manual investigation; does not block pipel
 
 ---
 ```
+
+---
+
+## 16. Pipeline Orchestration Scripts
+
+### Multi-Tool Pipeline with Dependency Management
+
+```bash
+#!/usr/bin/env bash
+# Full pentest pipeline: recon -> scan -> enumerate -> report
+# Each phase depends on the output of the previous phase
+
+TARGET="$1"
+OUTPUT_DIR="evidence/pipeline-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"/{recon,scan,enum,report}
+PHASE_LOG="$OUTPUT_DIR/pipeline.log"
+
+log() { echo "[$(date -Iseconds)] [PHASE-$1] $2" | tee -a "$PHASE_LOG"; }
+
+# Phase 1: Reconnaissance
+log "RECON" "Starting passive reconnaissance on $TARGET"
+nmap -sn -n "$TARGET" -oA "$OUTPUT_DIR/recon/host-discovery" 2>&1 | tail -3
+log "RECON" "Host discovery complete"
+
+# Phase 2: Port Scanning (depends on Phase 1)
+log "SCAN" "Starting full port scan"
+nmap -sS -sV -T4 -p- -oA "$OUTPUT_DIR/scan/full-scan" "$TARGET" 2>&1 | tail -3
+log "SCAN" "Port scan complete"
+
+# Phase 3: Service Enumeration (depends on Phase 2)
+open_ports=$(grep "open" "$OUTPUT_DIR/scan/full-scan.nmap" | awk '{print $1}' | tr '\n' ',')
+log "ENUM" "Open ports: $open_ports"
+nmap -sV -sC -p "$(echo $open_ports | tr -d '/tcp')" -oA "$OUTPUT_DIR/enum/service-enum" "$TARGET" 2>&1 | tail -3
+log "ENUM" "Service enumeration complete"
+
+# Phase 4: Report Generation (depends on all previous)
+log "REPORT" "Generating findings summary"
+grep -E "open|Open" "$OUTPUT_DIR/scan/full-scan.nmap" > "$OUTPUT_DIR/report/open-ports.txt"
+xsltproc "$OUTPUT_DIR/scan/full-scan.xml" -o "$OUTPUT_DIR/report/scan-report.html" 2>/dev/null
+log "REPORT" "Pipeline complete. Results in $OUTPUT_DIR"
+```
+
+### DAG-Based Task Scheduler
+
+```python
+#!/usr/bin/env python3
+"""Directed Acyclic Graph (DAG) task scheduler for pentest workflow phases."""
+
+from dataclasses import dataclass, field
+from typing import List, Dict, Callable
+import subprocess
+import json
+
+@dataclass
+class Task:
+    name: str
+    command: List[str]
+    depends_on: List[str] = field(default_factory=list)
+    output_files: List[str] = field(default_factory=list)
+    timeout: int = 300
+    status: str = "pending"
+
+class DAGScheduler:
+    def __init__(self):
+        self.tasks: Dict[str, Task] = {}
+        self.results: Dict[str, dict] = {}
+
+    def add_task(self, task: Task):
+        self.tasks[task.name] = task
+
+    def run_ready_tasks(self):
+        """Find and execute tasks whose dependencies are all complete."""
+        ready = []
+        for name, task in self.tasks.items():
+            if task.status != "pending":
+                continue
+            deps_met = all(
+                self.tasks.get(dep, Task("", [])).status == "complete"
+                for dep in task.depends_on
+            )
+            if deps_met:
+                ready.append(task)
+
+        for task in ready:
+            task.status = "running"
+            print(f"[DAG] Running: {task.name}")
+            try:
+                result = subprocess.run(
+                    task.command, capture_output=True, text=True, timeout=task.timeout
+                )
+                task.status = "complete"
+                self.results[task.name] = {
+                    "returncode": result.returncode,
+                    "stdout": result.stdout[:500],
+                    "stderr": result.stderr[:200]
+                }
+            except subprocess.TimeoutExpired:
+                task.status = "timeout"
+            except Exception as e:
+                task.status = "error"
+
+    def run_all(self, max_iterations=50):
+        for _ in range(max_iterations):
+            pending = [t for t in self.tasks.values() if t.status == "pending"]
+            if not pending:
+                break
+            self.run_ready_tasks()
+        return {name: t.status for name, t in self.tasks.items()}
+
+# Usage: Define a pentest pipeline as a DAG
+scheduler = DAGScheduler()
+scheduler.add_task(Task("recon", ["nmap", "-sn", "-n", "192.168.1.0/24", "-oG", "/tmp/recon.gnmap"]))
+scheduler.add_task(Task("scan", ["nmap", "-sV", "-T4", "-p-", "-oA", "/tmp/full-scan", "192.168.1.100"], depends_on=["recon"]))
+scheduler.add_task(Task("vuln", ["nmap", "--script", "vuln", "-p", "22,80,443", "192.168.1.100"], depends_on=["scan"]))
+results = scheduler.run_all()
+print(json.dumps(results, indent=2))
+```
+
+---
+
+## 17. Parallel Execution Patterns
+
+### GNU Parallel for Security Scanning
+
+```bash
+# Use GNU parallel to scan multiple targets simultaneously with rate control
+# Max 10 concurrent jobs, 2s delay between starts
+
+# Parallel port scanning across subnets
+cat subnets.txt | parallel -j 10 --delay 2 \
+  "nmap -sV -T4 --top-ports 100 -oA evidence/scan-{} {} 2>/dev/null && echo '[DONE] {}'"
+
+# Parallel Nuclei scanning with output per target
+cat targets.txt | parallel -j 5 --delay 1 \
+  "nuclei -u {} -t cves/ -t vulnerabilities/ -severity critical,high -silent -o evidence/nuclei-$(echo {} | md5sum | cut -c1-8).txt"
+
+# Parallel web screenshot capture
+cat urls.txt | parallel -j 3 --delay 1 \
+  "chromium --headless --screenshot=evidence/screenshot-$(echo {} | tr '/' '_').png --window-size=1920,1080 {}"
+
+# Parallel DNS enumeration
+cat domains.txt | parallel -j 20 --delay 0.1 \
+  "dig +short {} A @8.8.8.8 2>/dev/null | grep -v '^$' && echo '[DNS] {}'"
+```
+
+### Python ThreadPool Executor for Network Tasks
+
+```python
+#!/usr/bin/env python3
+"""Parallel network scanning using ThreadPoolExecutor with rate limiting."""
+
+import subprocess
+import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
+
+class ParallelScanner:
+    def __init__(self, max_workers=5, rate_limit_per_sec=2):
+        self.max_workers = max_workers
+        self.rate_limit = rate_limit_per_sec
+        self.results = []
+
+    def _run_command(self, target, command_template):
+        """Execute a command for a single target with rate limiting."""
+        cmd = command_template.format(target=target)
+        start = time.time()
+        try:
+            result = subprocess.run(
+                cmd.split(), capture_output=True, text=True, timeout=120
+            )
+            elapsed = time.time() - start
+            entry = {
+                "target": target,
+                "returncode": result.returncode,
+                "output": result.stdout[:500],
+                "duration_sec": round(elapsed, 2),
+                "success": result.returncode == 0
+            }
+        except Exception as e:
+            entry = {"target": target, "error": str(e), "success": False}
+        self.results.append(entry)
+        return entry
+
+    def scan_targets(self, targets, command_template):
+        """Scan multiple targets in parallel with rate limiting."""
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = {}
+            for target in targets:
+                future = executor.submit(self._run_command, target, command_template)
+                futures[future] = target
+                time.sleep(1.0 / self.rate_limit)  # Rate limit
+
+            for future in as_completed(futures):
+                target = futures[future]
+                result = future.result()
+                status = "OK" if result.get("success") else "FAIL"
+                print(f"[PARALLEL] {target}: {status}")
+
+        return sorted(self.results, key=lambda x: x.get("target", ""))
+
+# Usage
+scanner = ParallelScanner(max_workers=5, rate_limit_per_sec=2)
+targets = [f"192.168.1.{i}" for i in range(1, 51)]
+results = scanner.scan_targets(targets, "nmap -sV -T4 --top-ports 100 {target}")
+print(f"Scanned {len(results)} targets")
+```
+
+---
+
+## 18. Result Aggregation Scripts
+
+### Multi-Tool Result Normalizer
+
+```python
+#!/usr/bin/env python3
+"""Aggregate and normalize results from multiple scanning tools into a unified schema."""
+
+import json
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from datetime import datetime
+
+def normalize_nmap(xml_path):
+    """Parse Nmap XML output into normalized findings."""
+    tree = ET.parse(xml_path)
+    findings = []
+    for host in tree.iter('host'):
+        addr = host.find('address').get('addr')
+        for port in host.iter('port'):
+            state = port.find('state').get('state')
+            if state == 'open':
+                svc = port.find('service')
+                findings.append({
+                    'source': 'nmap',
+                    'host': addr,
+                    'port': int(port.get('portid')),
+                    'protocol': port.get('protocol'),
+                    'service': svc.get('name', '') if svc is not None else '',
+                    'version': svc.get('version', '') if svc is not None else '',
+                    'timestamp': datetime.utcnow().isoformat()
+                })
+    return findings
+
+def normalize_nuclei(json_path):
+    """Parse Nuclei JSON output into normalized findings."""
+    findings = []
+    with open(json_path) as f:
+        for line in f:
+            if line.strip():
+                data = json.loads(line)
+                findings.append({
+                    'source': 'nuclei',
+                    'template': data.get('template-id', ''),
+                    'severity': data.get('info', {}).get('severity', ''),
+                    'host': data.get('host', ''),
+                    'matched_at': data.get('matched-at', ''),
+                    'timestamp': data.get('timestamp', '')
+                })
+    return findings
+
+def aggregate_results(evidence_dir):
+    """Aggregate all scan results into a single normalized dataset."""
+    all_findings = []
+    for xml_file in Path(evidence_dir).glob('*.xml'):
+        all_findings.extend(normalize_nmap(str(xml_file)))
+    for json_file in Path(evidence_dir).glob('*.json'):
+        all_findings.extend(normalize_nuclei(str(json_file)))
+
+    report = {
+        'generated_at': datetime.utcnow().isoformat(),
+        'total_findings': len(all_findings),
+        'sources': list(set(f['source'] for f in all_findings)),
+        'unique_hosts': list(set(f.get('host', '') for f in all_findings)),
+        'findings': all_findings
+    }
+
+    output_path = f"{evidence_dir}/aggregated_results.json"
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2, default=str)
+    print(f"[AGGREGATE] {len(all_findings)} findings from {report['sources']} saved to {output_path}")
+    return report
+
+# Usage: aggregate_results("evidence/pipeline-20260610")
+```
+
+### Statistical Report from Loop Execution
+
+```python
+#!/usr/bin/env python3
+"""Generate statistical report from autonomous loop execution logs."""
+
+import json
+from collections import Counter, defaultdict
+from datetime import datetime
+
+def generate_loop_report(log_dir):
+    """Parse execution logs and generate statistics."""
+    all_iterations = []
+    for log_file in Path(log_dir).glob('*.json'):
+        with open(log_file) as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                all_iterations.extend(data)
+            elif 'results' in data:
+                all_iterations.extend(data['results'])
+
+    if not all_iterations:
+        print("[REPORT] No iteration data found")
+        return
+
+    total = len(all_iterations)
+    successful = sum(1 for i in all_iterations if i.get('success'))
+    failed = total - successful
+    tools_used = Counter(i.get('tool', 'unknown') for i in all_iterations)
+    error_types = Counter(
+        i.get('error_type', 'unknown') for i in all_iterations if not i.get('success')
+    )
+    by_target = defaultdict(lambda: {'total': 0, 'success': 0, 'failed': 0})
+    for i in all_iterations:
+        target = i.get('target', 'unknown')
+        by_target[target]['total'] += 1
+        if i.get('success'):
+            by_target[target]['success'] += 1
+        else:
+            by_target[target]['failed'] += 1
+
+    report = f"""# Autonomous Loop Execution Report
+Generated: {datetime.utcnow().isoformat()}
+
+## Summary
+- Total iterations: {total}
+- Successful: {successful} ({successful/total*100:.1f}%)
+- Failed: {failed} ({failed/total*100:.1f}%)
+
+## Tools Used
+"""
+    for tool, count in tools_used.most_common():
+        report += f"- {tool}: {count} iterations\n"
+
+    report += "\n## Error Breakdown\n"
+    for err, count in error_types.most_common():
+        report += f"- {err}: {count}\n"
+
+    report += "\n## Per-Target Results\n"
+    for target, stats in sorted(by_target.items()):
+        report += f"- {target}: {stats['success']}/{stats['total']} successful\n"
+
+    print(report)
+    return report
+```
+
+---
+
+## 19. Error Recovery Patterns
+
+### Automatic Retry with Circuit Breaker
+
+```python
+#!/usr/bin/env python3
+"""Circuit breaker pattern for autonomous operations — stops calling failing services."""
+
+import time
+from enum import Enum
+from dataclasses import dataclass, field
+
+class CircuitState(Enum):
+    CLOSED = "closed"      # Normal operation
+    OPEN = "open"          # Failing, reject calls
+    HALF_OPEN = "half_open"  # Testing recovery
+
+@dataclass
+class CircuitBreaker:
+    name: str
+    failure_threshold: int = 5
+    recovery_timeout: float = 30.0
+    state: CircuitState = CircuitState.CLOSED
+    failure_count: int = 0
+    last_failure_time: float = 0.0
+    success_count: int = 0
+    history: list = field(default_factory=list)
+
+    def call(self, func, *args, **kwargs):
+        """Execute function through the circuit breaker."""
+        if self.state == CircuitState.OPEN:
+            if time.time() - self.last_failure_time > self.recovery_timeout:
+                self.state = CircuitState.HALF_OPEN
+                print(f"[CIRCUIT-{self.name}] State: OPEN -> HALF_OPEN (testing recovery)")
+            else:
+                raise Exception(f"Circuit {self.name} is OPEN — rejecting call")
+
+        try:
+            result = func(*args, **kwargs)
+            self._on_success()
+            return result
+        except Exception as e:
+            self._on_failure()
+            raise
+
+    def _on_success(self):
+        self.failure_count = 0
+        self.success_count += 1
+        if self.state == CircuitState.HALF_OPEN:
+            self.state = CircuitState.CLOSED
+            print(f"[CIRCUIT-{self.name}] State: HALF_OPEN -> CLOSED (recovered)")
+
+    def _on_failure(self):
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        if self.failure_count >= self.failure_threshold:
+            self.state = CircuitState.OPEN
+            print(f"[CIRCUIT-{self.name}] State: CLOSED -> OPEN ({self.failure_count} failures)")
+
+# Usage: Protect nmap scans with circuit breaker
+# cb = CircuitBreaker("nmap-scan", failure_threshold=3, recovery_timeout=60)
+# result = cb.call(subprocess.run, ["nmap", "-sV", target], capture_output=True, text=True)
+```
+
+### Self-Healing Pipeline
+
+```bash
+#!/usr/bin/env bash
+# Self-healing pipeline that detects failures and applies automatic remediation
+# Types of self-healing: retry, skip, alternative tool, reduced scope
+
+TARGET="$1"
+MAX_RETRIES=2
+OUTPUT_DIR="evidence/selfheal-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+
+run_with_healing() {
+  local phase="$1"
+  shift
+  local attempts=0
+
+  while [ $attempts -le $MAX_RETRIES ]; do
+    attempts=$((attempts + 1))
+    echo "[SELF-HEAL] $phase attempt $attempts/$((MAX_RETRIES + 1))"
+
+    output=$("$@" 2>&1)
+    exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
+      echo "$output" >> "$OUTPUT_DIR/${phase}-success.log"
+      echo "[SELF-HEAL] $phase succeeded on attempt $attempts"
+      return 0
+    fi
+
+    echo "$output" >> "$OUTPUT_DIR/${phase}-failed.log"
+
+    # Analyze failure and apply healing strategy
+    if echo "$output" | grep -qi "connection refused\|timed out"; then
+      echo "[SELF-HEAL] $phase: Network error — waiting 10s before retry"
+      sleep 10
+    elif echo "$output" | grep -qi "rate limit\|429\|throttl"; then
+      echo "[SELF-HEAL] $phase: Rate limited — doubling wait time"
+      sleep $((5 * 2 ** attempts))
+    elif echo "$output" | grep -qi "permission denied\|access denied"; then
+      echo "[SELF-HEAL] $phase: Permission error — trying with sudo"
+      sudo "$@"
+      return $?
+    else
+      echo "[SELF-HEAL] $phase: Unknown error — skipping"
+      return 1
+    fi
+  done
+
+  echo "[SELF-HEAL] $phase: All $attempts attempts failed"
+  return 1
+}
+
+# Run pipeline phases with self-healing
+run_with_healing "recon" nmap -sn -n "$TARGET"
+run_with_healing "scan" nmap -sV -T4 --top-ports 100 "$TARGET"
+run_with_healing "vuln" nmap --script vuln -p 22,80,443 "$TARGET"
+```

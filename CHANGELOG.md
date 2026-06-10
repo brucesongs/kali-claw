@@ -4,6 +4,43 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.21 (2026-06-10) — First Distinguished, web-deserialization + email-protocol-attack
+
+### New Skill Domains
+- **web-deserialization** (6 tools) — Insecure deserialization attacks (OWASP A08:2021) covering Java ysoserial, PHP phpggc, .NET ysoserial.net, Python pickle, Ruby Marshal, Jackson/Fastjson. Includes blind detection, gadget chain analysis, and WAF bypass.
+- **email-protocol-attack** (8 tools) — Email protocol attacks covering SMTP enumeration, open relay testing, SPF/DKIM/DMARC bypass, email forgery with swaks, IMAP/POP3 brute force, Exchange server exploitation, and STARTTLS testing.
+
+### Quality Milestone: First Distinguished Skill
+- **network-pentest** reached 92.0 — the first Distinguished tier skill
+- 72/72 Excellent or above (100%), avg 86.9
+- 1 Distinguished / 71 Excellent / 0 Strong / 0 Adequate
+
+### Distinguished Sprint (Top 5)
+- network-pentest: 91.2 → 92.0 (Distinguished!)
+- cloud-security: 91.3 → 91.8
+- autonomous-loops: 90.9 → 91.3
+- vulnerability-assessment: 90.7 → 91.1
+- article-writing: 90.6 → 91.0
+
+### Bottom 5 Consolidation (all to 83+)
+- privilege-escalation: 80.2 → 85.8
+- web-xxe: 81.3 → 87.3
+- cms-framework-attack: 81.7 → 85.8
+- network-sniffing-mitm: 81.7 → 85.8
+- ad-ldap-attack: 82.2 → 85.8
+
+### Guide Additions (5 new guides)
+- web-access-control: CSRF Attack Guide
+- api-security: WebSocket Security Testing Guide
+- web-xss: SSTI Attack Guide + WAF Bypass XSS Guide
+- web-sqli: WAF Bypass SQLi Guide
+
+### Stats
+- Skill domains: 70 → 72
+- Tool references: +14 (ysoserial, phpggc, marshalsec, smtp-user-enum, swaks, etc.)
+- New files: 19 (2×7 core + 5 guides)
+- Average score: 86.5 → 86.9
+
 ## v0.1.20 (2026-06-10) — 70/70 Excellent, AD/LDAP Attack Domain
 
 ### New Skill Domain

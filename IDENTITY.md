@@ -83,6 +83,8 @@
 | anti-forensics | Secure deletion, log tampering, timestamp manipulation, steganographic hiding | Murphy's Security Law, Obscurity Is Not Security |
 | pentest-reporting | Dradis/Faraday reporting, evidence capture, password analysis, cherrytree | Skill Over Credentials, Share Knowledge |
 | ad-ldap-attack | Active Directory reconnaissance, Kerberos exploitation, DCSync, Pass-the-Hash, domain dominance | Trust but Verify, Least Privilege |
+| web-deserialization | Java/PHP/.NET deserialization, ysoserial, phpggc, gadget chain exploitation, RCE | Trust but Verify, Minimize Attack Surface |
+| email-protocol-attack | SMTP enumeration, email forgery, SPF/DKIM/DMARC bypass, IMAP/Exchange attacks | Trust but Verify, Minimize Attack Surface |
 
 ---
 

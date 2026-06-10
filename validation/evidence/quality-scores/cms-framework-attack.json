@@ -1,11 +1,11 @@
 {
   "skill": "cms-framework-attack",
-  "timestamp": "2026-06-09T19:14:48Z",
+  "timestamp": "2026-06-10T01:16:00Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 3246,
-    "payload_section_count": 9,
-    "payload_code_blocks": 36,
+    "payload_word_count": 4707,
+    "payload_section_count": 15,
+    "payload_code_blocks": 55,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 3,
@@ -14,9 +14,9 @@
     "skill_section_score": 0.93
   },
   "normalized_scores": {
-    "payload_word": 92.5,
-    "payload_section": 80.0,
-    "payload_code": 41.3,
+    "payload_word": 100.0,
+    "payload_section": 93.3,
+    "payload_code": 82.0,
     "test_case": 80.0,
     "field": 100.0,
     "guide": 77.5,
@@ -24,10 +24,10 @@
   },
   "component_scores": {
     "skill_md": 93.00,
-    "payloads_md": 71.27,
+    "payloads_md": 91.77,
     "test_cases_md": 90.00,
     "guides": 77.5
   },
-  "overall_score": 81.7,
+  "overall_score": 87.9,
   "tier": "Excellent"
 }

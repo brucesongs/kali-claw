@@ -1,0 +1,33 @@
+{
+  "skill": "email-protocol-attack",
+  "timestamp": "2026-06-10T01:16:00Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3430,
+    "payload_section_count": 10,
+    "payload_code_blocks": 45,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1917,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.80
+  },
+  "normalized_scores": {
+    "payload_word": 94.3,
+    "payload_section": 82.2,
+    "payload_code": 53.3,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 78.2,
+    "skill_section": 80.0
+  },
+  "component_scores": {
+    "skill_md": 80.00,
+    "payloads_md": 76.60,
+    "test_cases_md": 90.00,
+    "guides": 78.2
+  },
+  "overall_score": 81.5,
+  "tier": "Excellent"
+}

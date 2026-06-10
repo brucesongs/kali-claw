@@ -1,11 +1,11 @@
 {
   "skill": "privilege-escalation",
-  "timestamp": "2026-06-09T19:14:48Z",
+  "timestamp": "2026-06-10T01:16:00Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 2891,
-    "payload_section_count": 14,
-    "payload_code_blocks": 35,
+    "payload_word_count": 4801,
+    "payload_section_count": 20,
+    "payload_code_blocks": 55,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 3,
@@ -14,9 +14,9 @@
     "skill_section_score": 0.89
   },
   "normalized_scores": {
-    "payload_word": 88.9,
-    "payload_section": 91.1,
-    "payload_code": 40.0,
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 82.0,
     "test_case": 80.0,
     "field": 100.0,
     "guide": 71.6,
@@ -24,10 +24,10 @@
   },
   "component_scores": {
     "skill_md": 89.00,
-    "payloads_md": 73.33,
+    "payloads_md": 94.00,
     "test_cases_md": 90.00,
     "guides": 71.6
   },
-  "overall_score": 80.2,
+  "overall_score": 86.4,
   "tier": "Excellent"
 }

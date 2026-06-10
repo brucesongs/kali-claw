@@ -99,6 +99,8 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | anti-forensics | 7 | Mastered | skills/anti-forensics/SKILL.md |
 | pentest-reporting | 7 | Mastered | skills/pentest-reporting/SKILL.md |
 | ad-ldap-attack | 15 | Mastered | skills/ad-ldap-attack/SKILL.md |
+| web-deserialization | 6 | Mastered | skills/web-deserialization/SKILL.md |
+| email-protocol-attack | 8 | Mastered | skills/email-protocol-attack/SKILL.md |
 
 ---
 

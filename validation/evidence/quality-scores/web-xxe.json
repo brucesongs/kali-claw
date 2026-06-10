@@ -1,11 +1,11 @@
 {
   "skill": "web-xxe",
-  "timestamp": "2026-06-09T19:14:48Z",
+  "timestamp": "2026-06-10T01:16:00Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 2321,
-    "payload_section_count": 14,
-    "payload_code_blocks": 39,
+    "payload_word_count": 3669,
+    "payload_section_count": 21,
+    "payload_code_blocks": 56,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 3,
@@ -14,9 +14,9 @@
     "skill_section_score": 0.93
   },
   "normalized_scores": {
-    "payload_word": 83.2,
-    "payload_section": 91.1,
-    "payload_code": 45.3,
+    "payload_word": 96.7,
+    "payload_section": 100.0,
+    "payload_code": 82.4,
     "test_case": 80.0,
     "field": 100.0,
     "guide": 73.6,
@@ -24,10 +24,10 @@
   },
   "component_scores": {
     "skill_md": 93.00,
-    "payloads_md": 73.20,
+    "payloads_md": 93.03,
     "test_cases_md": 90.00,
     "guides": 73.6
   },
-  "overall_score": 81.3,
+  "overall_score": 87.3,
   "tier": "Excellent"
 }

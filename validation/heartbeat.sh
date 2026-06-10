@@ -83,7 +83,7 @@ echo "" >&2
 echo "── Skill Domain Completeness ──" >&2
 
 SKILL_COUNT=$(find "$ROOT_DIR/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
-EXPECTED_SKILLS=70  # 69 v0.1.19 + 1 new v0.1.20
+EXPECTED_SKILLS=72  # 70 v0.1.20 + 2 new v0.1.21
 
 if [ "$SKILL_COUNT" -ge 69 ]; then
     check_pass "Skill domains" "$SKILL_COUNT directories found"

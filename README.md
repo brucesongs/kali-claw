@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 70 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 72 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **70 Security Skill Domains** — From OSINT and web exploitation to cloud security, AI/LLM security, exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, and anti-forensics, each with structured payloads, test cases, and learning guides
+- **72 Security Skill Domains** — From OSINT and web exploitation to cloud security, AI/LLM security, exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, and anti-forensics, each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 70 security skill domains
+├── skills/              # 72 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -112,7 +112,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (70 domains total)
+│   └── ... (72 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -144,7 +144,7 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 
 ## Security Skills
 
-37 domains organized by the OWASP and MITRE frameworks + 12 additional domains (knowledge operations, AI/LLM, hardware, multi-agent, MCP, bounty hunting, etc.) + 21 expanded domains (exploit development, privilege escalation, payload generation, AV/EDR evasion, DNS attacks, web XXE, file inclusion, CMS attack, steganography, network sniffing & MITM, Bluetooth/RFID/NFC, network tunneling & proxy, firmware reverse, SCADA/ICS security, database attack, VoIP/SIP attack, anti-forensics, pentest reporting, engagement manager, tool mastery, AD/LDAP attack):
+37 domains organized by the OWASP and MITRE frameworks + 12 additional domains (knowledge operations, AI/LLM, hardware, multi-agent, MCP, bounty hunting, etc.) + 23 expanded domains (exploit development, privilege escalation, payload generation, AV/EDR evasion, DNS attacks, web XXE, file inclusion, CMS attack, steganography, network sniffing & MITM, Bluetooth/RFID/NFC, network tunneling & proxy, firmware reverse, SCADA/ICS security, database attack, VoIP/SIP attack, anti-forensics, pentest reporting, engagement manager, tool mastery, AD/LDAP attack, web deserialization, email protocol attack):
 
 | Domain | Description | Key Topics |
 |--------|-------------|------------|
@@ -202,6 +202,8 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 | `anti-forensics` | Anti-forensic techniques | Secure deletion, log tampering, timestamp manipulation, steganographic hiding |
 | `pentest-reporting` | Pentest reporting & evidence | Dradis, Faraday, screenshot capture, password analysis, evidence management |
 | `ad-ldap-attack` | Enterprise | Active Directory/LDAP/Kerberos attacks, domain reconnaissance, Kerberos exploitation (AS-REP Roasting, Kerberoasting, Golden/Silver Tickets), DCSync, Pass-the-Hash, lateral movement, domain dominance | impacket-suite, bloodhound, ldapsearch, enum4linux, enum4linux-ng, kerberoast, crackmapexec, ldeep, ldapdomaindump, rpcclient |
+| `web-deserialization` | Web Attack | Java/PHP/.NET deserialization, ysoserial, phpggc, gadget chains, blind detection, RCE | ysoserial, phpggc, marshalsec, ysoserial.net, gadgetprobe |
+| `email-protocol-attack` | Network | SMTP enumeration, email forgery, SPF/DKIM/DMARC bypass, IMAP/Exchange attacks | smtp-user-enum, swaks, sendemail, nailgun, smtpmap, mutt, openssl |
 
 Each skill contains:
 - **SKILL.md** — Description, use cases, tools, and workflow
@@ -262,7 +264,7 @@ rm -rf chronicle/
 The following are universal and reusable as-is:
 - **Hacker Laws** in `SOUL.md` — applies to all security agents
 - **Heartbeat framework** in `HEARTBEAT.md`
-- **All 70 skills** in `skills/`
+- **All 72 skills** in `skills/`
 - **All guides** in `skills/*/guides/`
 
 ### Example: Web Security Agent
@@ -324,18 +326,19 @@ TOOLS.md:
 | v0.1.18 | 2026-06-04 | **10 New Skill Domains** | 10 new skills (exploit-dev, privilege-escalation, payload-gen, av-edr-evasion, dns-attacks, web-xxe, file-inclusion, cms-attack, network-sniffing-mitm, steganography); 72 new tool references; 51→61 domains |
 | v0.1.19 | 2026-06-09 | **8 New Blank-Coverage Domains** | 8 new skills (bluetooth-rfid-nfc, network-tunneling-proxy, firmware-reverse, scada-ics-security, database-attack, voip-sip-attack, anti-forensics, pentest-reporting); 70 new tool references; 61→69 domains |
 | v0.1.20 | 2026-06-10 | **+1 domain (ad-ldap-attack), 70/70 Excellent (100%)** | +1 domain (ad-ldap-attack), 70/70 Excellent (100%), avg 86.5 |
+| v0.1.21 | 2026-06-10 | **+2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9** | +2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9 |
 
-### Current Quality Snapshot (v0.1.20, scoring v2)
+### Current Quality Snapshot (v0.1.21, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | 0 | — |
-| Excellent (80-91.9) | **70** | All skill domains |
+| Distinguished (92+) | **1** | network-pentest (92.0) |
+| Excellent (80-91.9) | **71** | All remaining skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 86.5** | **All 70 skills at Excellent tier**
+**Average score: 86.9** | **72/72 Excellent or above** | **1 Distinguished: network-pentest (92.0)**
 
 ### Future Exploration
 
@@ -366,10 +369,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.20 |
+| **Version** | 0.1.21 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 70 |
+| **Skill Domains** | 72 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 

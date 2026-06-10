@@ -1385,3 +1385,513 @@ if __name__ == "__main__":
     for i, (score, f) in enumerate(calculate_priority(findings), 1):
         print(f"| P{i} | {score:.1f} | {f.get('title', 'Untitled')[:40]} | {f.get('severity', 'N/A')} |")
 ```
+
+---
+
+## Markdown Automation Scripts
+
+### Bulk Markdown to PDF Conversion Pipeline
+
+```bash
+#!/bin/bash
+# Convert a directory of Markdown findings into a combined PDF report
+# Requires: pandoc, xelatex
+
+FINDINGS_DIR="${1:-findings/}"
+OUTPUT="reports/combined-report-$(date +%Y%m%d).pdf"
+TEMP_MD="/tmp/combined-report.md"
+
+echo "# Penetration Test Report - Combined Findings" > "$TEMP_MD"
+echo "" >> "$TEMP_MD"
+echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$TEMP_MD"
+echo "" >> "$TEMP_MD"
+
+# Concatenate all findings with separators
+for f in "$FINDINGS_DIR"/*.md; do
+  [ -f "$f" ] || continue
+  echo "" >> "$TEMP_MD"
+  echo "---" >> "$TEMP_MD"
+  echo "" >> "$TEMP_MD"
+  cat "$f" >> "$TEMP_MD"
+done
+
+# Convert to PDF with professional formatting
+pandoc "$TEMP_MD" -o "$OUTPUT" \
+  --pdf-engine=xelatex \
+  --toc --toc-depth=3 \
+  --number-sections \
+  -V geometry:margin=1in \
+  -V fontsize=11pt \
+  -V colorlinks=true \
+  -V linkcolor=blue \
+  --highlight-style=tango \
+  --metadata title="Security Assessment Report"
+
+echo "[REPORT] Combined PDF: $OUTPUT ($(wc -w < "$TEMP_MD") words)"
+```
+
+### Markdown Table of Contents Generator
+
+```bash
+#!/bin/bash
+# Generate a table of contents from Markdown headers
+# Usage: ./generate-toc.sh report.md > toc.md
+
+MARKDOWN_FILE="${1:-report.md}"
+
+echo "## Table of Contents"
+echo ""
+
+grep -n "^#" "$MARKDOWN_FILE" | while IFS=: read -r linenum header; do
+  # Count header level
+  level=$(echo "$header" | grep -o "^#" | wc -c)
+  indent=$(printf '%*s' $((level * 2 - 2)) '')
+
+  # Extract title text
+  title=$(echo "$header" | sed 's/^#* *//')
+
+  # Generate anchor
+  anchor=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g;s/^-//;s/-$//')
+
+  echo "${indent}- [${title}](#${anchor})"
+done
+```
+
+### Markdown Link Checker
+
+```bash
+#!/bin/bash
+# Check all external links in a Markdown report for broken references
+# Usage: ./check-links.sh report.md
+
+REPORT="${1:-report.md}"
+BROKEN=0
+CHECKED=0
+
+grep -oE 'https?://[^)\"]+' "$REPORT" | sort -u | while read -r url; do
+  CHECKED=$((CHECKED + 1))
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L --max-time 10 "$url" 2>/dev/null || echo "000")
+
+  if [ "$STATUS" = "200" ]; then
+    echo "[OK] $STATUS $url"
+  else
+    echo "[BROKEN] $STATUS $url"
+    BROKEN=$((BROKEN + 1))
+  fi
+  sleep 0.5
+done
+
+echo ""
+echo "Checked $CHECKED links, $BROKEN broken"
+```
+
+---
+
+## CVSS Calculator Automation
+
+### Interactive CVSS Vector Builder
+
+```python
+#!/usr/bin/env python3
+"""Interactive CVSS v3.1 vector builder with real-time score calculation."""
+
+import math
+
+METRICS = {
+    "AV": {
+        "label": "Attack Vector",
+        "options": {"N": "Network", "A": "Adjacent", "L": "Local", "P": "Physical"},
+        "weights": {"N": 0.85, "A": 0.62, "L": 0.55, "P": 0.20}
+    },
+    "AC": {
+        "label": "Attack Complexity",
+        "options": {"L": "Low", "H": "High"},
+        "weights": {"L": 0.77, "H": 0.44}
+    },
+    "PR": {
+        "label": "Privileges Required",
+        "options": {"N": "None", "L": "Low", "H": "High"},
+        "weights": {"N": 0.85, "L": 0.62, "H": 0.27}
+    },
+    "UI": {
+        "label": "User Interaction",
+        "options": {"N": "None", "R": "Required"},
+        "weights": {"N": 0.85, "R": 0.62}
+    },
+    "S": {
+        "label": "Scope",
+        "options": {"U": "Unchanged", "C": "Changed"},
+        "weights": {}
+    },
+    "C": {
+        "label": "Confidentiality",
+        "options": {"H": "High", "L": "Low", "N": "None"},
+        "weights": {"H": 0.56, "L": 0.22, "N": 0}
+    },
+    "I": {
+        "label": "Integrity",
+        "options": {"H": "High", "L": "Low", "N": "None"},
+        "weights": {"H": 0.56, "L": 0.22, "N": 0}
+    },
+    "A": {
+        "label": "Availability",
+        "options": {"H": "High", "L": "Low", "N": "None"},
+        "weights": {"H": 0.56, "L": 0.22, "N": 0}
+    }
+}
+
+def calculate_score(selections):
+    """Calculate CVSS score from metric selections."""
+    scope_changed = selections["S"] == "C"
+    av = METRICS["AV"]["weights"][selections["AV"]]
+    ac = METRICS["AC"]["weights"][selections["AC"]]
+    pr = METRICS["PR"]["weights"][selections["PR"]]
+    ui = METRICS["UI"]["weights"][selections["UI"]]
+    c = METRICS["C"]["weights"][selections["C"]]
+    i = METRICS["I"]["weights"][selections["I"]]
+    a = METRICS["A"]["weights"][selections["A"]]
+
+    exploitability = 8.22 * av * ac * pr * ui
+    isc = 1 - ((1 - c) * (1 - i) * (1 - a))
+
+    if scope_changed:
+        impact = 7.52 * (isc - 0.029) - 3.25 * ((isc - 0.02) ** 15)
+    else:
+        impact = 6.42 * isc
+
+    if impact <= 0:
+        return 0.0
+
+    if scope_changed:
+        score = min(1.08 * (impact + exploitability), 10.0)
+    else:
+        score = min(impact + exploitability, 10.0)
+
+    return math.ceil(score * 10) / 10
+
+def build_vector(selections):
+    """Build CVSS vector string from selections."""
+    parts = [f"{k}:{v}" for k, v in selections.items()]
+    return "CVSS:3.1/" + "/".join(parts)
+
+# Example: programmatic usage
+example_selections = {"AV": "N", "AC": "L", "PR": "N", "UI": "N", "S": "U", "C": "H", "I": "H", "A": "H"}
+score = calculate_score(example_selections)
+vector = build_vector(example_selections)
+print(f"Vector: {vector}")
+print(f"Score: {score}")
+severity = "Critical" if score >= 9.0 else "High" if score >= 7.0 else "Medium" if score >= 4.0 else "Low"
+print(f"Severity: {severity}")
+```
+
+### CVSS Vector Batch Processor
+
+```bash
+#!/bin/bash
+# Batch process CVSS vectors from a file and generate a severity report
+# Input file format: one vector per line
+
+VECTORS_FILE="${1:-cvss_vectors.txt}"
+OUTPUT="cvss_report_$(date +%Y%m%d).md"
+
+echo "# CVSS Batch Scoring Report" > "$OUTPUT"
+echo "" >> "$OUTPUT"
+echo "| # | Vector | Score | Severity |" >> "$OUTPUT"
+echo "|---|--------|-------|----------|" >> "$OUTPUT"
+
+COUNT=0
+while IFS= read -r vector; do
+  [ -z "$vector" ] && continue
+  COUNT=$((COUNT + 1))
+
+  # Calculate using Python
+  RESULT=$(python3 -c "
+import math
+parts = dict(p.split(':') for p in '$vector'.replace('CVSS:3.1/', '').split('/'))
+scope_changed = parts['S'] == 'C'
+av = {'N':0.85,'A':0.62,'L':0.55,'P':0.20}[parts['AV']]
+ac = {'L':0.77,'H':0.44}[parts['AC']]
+pr = {'N':0.85,'L':0.62,'H':0.27}[parts['PR']]
+ui = {'N':0.85,'R':0.62}[parts['UI']]
+c = {'H':0.56,'L':0.22,'N':0}[parts['C']]
+i = {'H':0.56,'L':0.22,'N':0}[parts['I']]
+a = {'H':0.56,'L':0.22,'N':0}[parts['A']]
+exploitability = 8.22 * av * ac * pr * ui
+isc = 1 - ((1-c)*(1-i)*(1-a))
+impact = (7.52*(isc-0.029)-3.25*((isc-0.02)**15)) if scope_changed else (6.42*isc)
+score = min((1.08*(impact+exploitability) if scope_changed else (impact+exploitability)), 10.0) if impact > 0 else 0.0
+score = math.ceil(score*10)/10
+sev = 'Critical' if score>=9.0 else 'High' if score>=7.0 else 'Medium' if score>=4.0 else 'Low'
+print(f'{score}|{sev}')
+")
+
+  SCORE=$(echo "$RESULT" | cut -d'|' -f1)
+  SEVERITY=$(echo "$RESULT" | cut -d'|' -f2)
+  echo "| $COUNT | \`$vector\` | $SCORE | $SEVERITY |" >> "$OUTPUT"
+done < "$VECTORS_FILE"
+
+echo "" >> "$OUTPUT"
+echo "Total vectors processed: $COUNT" >> "$OUTPUT"
+echo "[CVSS] Report saved to $OUTPUT ($COUNT vectors)"
+```
+
+---
+
+## Vulnerability Disclosure Formatting
+
+### Responsible Disclosure Timeline Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate a responsible disclosure timeline with automated date calculations."""
+
+from datetime import datetime, timedelta
+import json
+
+def generate_disclosure_timeline(discovery_date, vendor_contact_date=None,
+                                  patch_deadline_days=90, grace_period_days=14):
+    """Generate a full disclosure timeline following responsible disclosure practices."""
+    discovery = datetime.fromisoformat(discovery_date) if isinstance(discovery_date, str) else discovery_date
+    contact = datetime.fromisoformat(vendor_contact_date) if vendor_contact_date else discovery + timedelta(days=1)
+
+    timeline = {
+        "discovery_date": discovery.isoformat()[:10],
+        "vendor_notification": contact.isoformat()[:10],
+        "vendor_ack_deadline": (contact + timedelta(days=7)).isoformat()[:10],
+        "initial_patch_deadline": (contact + timedelta(days=patch_deadline_days)).isoformat()[:10],
+        "extended_patch_deadline": (contact + timedelta(days=patch_deadline_days + 30)).isoformat()[:10],
+        "public_disclosure_date": (contact + timedelta(days=patch_deadline_days + grace_period_days)).isoformat()[:10],
+        "milestones": []
+    }
+
+    timeline["milestones"] = [
+        {"date": discovery.isoformat()[:10], "event": "Vulnerability discovered", "actor": "Researcher"},
+        {"date": contact.isoformat()[:10], "event": "Vendor notified via secure channel", "actor": "Researcher"},
+        {"date": timeline["vendor_ack_deadline"], "event": "Vendor acknowledgment deadline (7 days)", "actor": "Vendor"},
+        {"date": (contact + timedelta(days=45)).isoformat()[:10], "event": "Follow-up if no response", "actor": "Researcher"},
+        {"date": timeline["initial_patch_deadline"], "event": "Initial patch deadline (90 days)", "actor": "Vendor"},
+        {"date": timeline["public_disclosure_date"], "event": "Planned public disclosure", "actor": "Researcher"},
+    ]
+
+    return timeline
+
+# Example
+timeline = generate_disclosure_timeline("2026-05-01")
+print(json.dumps(timeline, indent=2))
+for milestone in timeline["milestones"]:
+    print(f"  {milestone['date']}: {milestone['event']} ({milestone['actor']})")
+```
+
+### CVE Description Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate standardized CVE description from vulnerability evidence."""
+
+import json
+
+def generate_cve_description(evidence):
+    """Create a NVD-style CVE description from structured evidence data."""
+    vuln_type = evidence.get("vulnerability_type", "Unknown")
+    component = evidence.get("component", "Unknown")
+    version = evidence.get("affected_version", "Unknown")
+    attack_vector = evidence.get("attack_vector", "network")
+    auth_required = evidence.get("authentication_required", True)
+    impact = evidence.get("impact", "Unknown")
+
+    auth_phrase = "an unauthenticated" if not auth_required else "an authenticated"
+    vector_phrase = {
+        "network": "remotely via the network",
+        "adjacent": "via an adjacent network",
+        "local": "locally on the affected system",
+        "physical": "through physical access"
+    }.get(attack_vector, "via an unknown vector")
+
+    description = (
+        f"A {vuln_type.lower()} vulnerability exists in {component} version {version}. "
+        f"The flaw allows {auth_phrase} attacker to {impact.lower()} {vector_phrase}. "
+        f"The vulnerability is due to {evidence.get('root_cause', 'improper input validation')}. "
+        f"Successful exploitation could lead to {evidence.get('worst_case_impact', 'complete system compromise')}."
+    )
+
+    return {
+        "cve_id": evidence.get("cve_id", "CVE-YYYY-NNNNN"),
+        "description": description,
+        "cvss_vector": evidence.get("cvss_vector", ""),
+        "references": evidence.get("references", []),
+        "cwe": evidence.get("cwe", "CWE-Unknown"),
+        "affected_product": f"{component} {version}",
+        "remediation": evidence.get("remediation", "Update to the latest version.")
+    }
+
+# Example
+evidence = {
+    "cve_id": "CVE-2026-1234",
+    "vulnerability_type": "SQL Injection",
+    "component": "WebApp Framework",
+    "affected_version": "prior to 3.2.1",
+    "attack_vector": "network",
+    "authentication_required": False,
+    "impact": "execute arbitrary SQL commands and extract sensitive data",
+    "root_cause": "insufficient sanitization of user-supplied input in the search parameter",
+    "worst_case_impact": "complete database compromise including credential extraction",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "cwe": "CWE-89",
+    "remediation": "Upgrade to version 3.2.1 or later which implements parameterized queries."
+}
+
+cve_desc = generate_cve_description(evidence)
+print(json.dumps(cve_desc, indent=2))
+```
+
+---
+
+## Technical Writing Checklists
+
+### Pre-Publication Quality Gate Script
+
+```bash
+#!/bin/bash
+# Pre-publication quality gate for security reports
+# Checks: word count, severity coverage, evidence links, broken references
+
+REPORT="${1:-report.md}"
+ISSUES=0
+
+echo "=== Pre-Publication Quality Gate ==="
+echo "Report: $REPORT"
+echo ""
+
+# Check 1: Required sections exist
+for section in "Executive Summary" "Scope" "Methodology" "Findings" "Remediation"; do
+  if grep -qi "## .*$section" "$REPORT"; then
+    echo "[PASS] Section found: $section"
+  else
+    echo "[FAIL] Missing section: $section"
+    ISSUES=$((ISSUES + 1))
+  fi
+done
+
+# Check 2: CVSS scores present for all findings
+findings_count=$(grep -ci "cvss" "$REPORT")
+if [ "$findings_count" -ge 1 ]; then
+  echo "[PASS] CVSS scores present ($findings_count references)"
+else
+  echo "[FAIL] No CVSS scores found"
+  ISSUES=$((ISSUES + 1))
+fi
+
+# Check 3: No placeholder text remaining
+if grep -qi "TODO\|FIXME\|PLACEHOLDER\|\[INSERT\|TBD" "$REPORT"; then
+  echo "[FAIL] Placeholder text still present"
+  grep -ni "TODO\|FIXME\|PLACEHOLDER\|\[INSERT\|TBD" "$REPORT"
+  ISSUES=$((ISSUES + 1))
+else
+  echo "[PASS] No placeholder text found"
+fi
+
+# Check 4: Evidence references valid
+evidence_links=$(grep -oE 'evidence/[^)\"]+' "$REPORT" 2>/dev/null)
+for link in $evidence_links; do
+  if [ ! -f "$link" ]; then
+    echo "[FAIL] Missing evidence file: $link"
+    ISSUES=$((ISSUES + 1))
+  fi
+done
+echo "[PASS] Evidence file references checked"
+
+# Check 5: Minimum report length
+word_count=$(wc -w < "$REPORT")
+if [ "$word_count" -lt 500 ]; then
+  echo "[FAIL] Report too short: $word_count words (minimum 500)"
+  ISSUES=$((ISSUES + 1))
+else
+  echo "[PASS] Report length: $word_count words"
+fi
+
+# Check 6: Sanitization check for real IPs and credentials
+if grep -qE '(?<!\[REDACTED\])\b(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b' "$REPORT" 2>/dev/null; then
+  echo "[WARN] Possible unsanitized private IPs found — review manually"
+fi
+
+echo ""
+if [ "$ISSUES" -eq 0 ]; then
+  echo "=== RESULT: PASS (0 issues) ==="
+else
+  echo "=== RESULT: FAIL ($ISSUES issues found) ==="
+fi
+```
+
+### Report Section Completeness Checker
+
+```python
+#!/usr/bin/env python3
+"""Check a security report for completeness against required elements."""
+
+import re
+import sys
+
+REQUIRED_SECTIONS = [
+    "Executive Summary",
+    "Scope and Methodology",
+    "Findings Summary",
+    "Detailed Findings",
+    "Remediation Recommendations",
+    "Risk Assessment"
+]
+
+REQUIRED_PER_FINDING = [
+    "Description",
+    "Impact",
+    "Remediation",
+    "CVSS",
+    "Proof of Concept",
+    "Severity"
+]
+
+def check_report(filepath):
+    with open(filepath) as f:
+        content = f.read()
+
+    issues = []
+
+    # Check required sections
+    for section in REQUIRED_SECTIONS:
+        pattern = re.compile(r'##.*' + re.escape(section), re.IGNORECASE)
+        if not pattern.search(content):
+            issues.append(f"Missing required section: '{section}'")
+
+    # Count findings
+    finding_pattern = re.compile(r'###\s+(FIND-\d+|CVE-\d{4}-\d+|Finding\s+\d+)', re.IGNORECASE)
+    findings = finding_pattern.findall(content)
+
+    if not findings:
+        issues.append("No findings detected — check formatting")
+    else:
+        print(f"[OK] Found {len(findings)} findings")
+
+    # Check each finding has required elements
+    finding_sections = re.split(r'###\s+(?:FIND-\d+|CVE-\d{4}-\d+|Finding\s+\d+)', content)[1:]
+    for i, section in enumerate(finding_sections):
+        for element in REQUIRED_PER_FINDING:
+            pattern = re.compile(r'\*\*' + re.escape(element) + r'\*\*', re.IGNORECASE)
+            if not pattern.search(section):
+                issues.append(f"Finding {i+1}: Missing '{element}' element")
+
+    # Check sanitization
+    private_ips = re.findall(r'(?<!\d\.)\b(10\.\d{1,3}\.\d{1,3}\.\d{1,3})\b', content)
+    if private_ips:
+        issues.append(f"Possible unsanitized private IPs: {set(private_ips)}")
+
+    if issues:
+        print(f"[FAIL] {len(issues)} issues found:")
+        for issue in issues:
+            print(f"  - {issue}")
+    else:
+        print("[PASS] Report meets all completeness requirements")
+
+    return issues
+
+if __name__ == "__main__":
+    check_report(sys.argv[1] if len(sys.argv) > 1 else "report.md")
+```

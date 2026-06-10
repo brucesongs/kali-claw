@@ -23,7 +23,7 @@ import re
 import sys
 
 SKILLS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills")
-VERSION = "0.1.20"
+VERSION = "0.1.21"
 ORIGIN = "openclaw"
 
 COMPATIBILITY = ["openclaw", "claude-code", "cursor", "windsurf"]
@@ -56,7 +56,9 @@ ATTACK_SKILLS = {
     "bluetooth-rfid-nfc", "network-tunneling-proxy", "firmware-reverse",
     "scada-ics-security", "database-attack", "voip-sip-attack",
     "anti-forensics",
-    "ad-ldap-attack"
+    "ad-ldap-attack",
+    "web-deserialization",
+    "email-protocol-attack"
 }
 
 DOMAIN_MAP = {
@@ -97,6 +99,8 @@ DOMAIN_MAP = {
     "database-attack": "database", "voip-sip-attack": "voip",
     "anti-forensics": "forensics", "pentest-reporting": "reporting",
     "ad-ldap-attack": "enterprise",
+    "web-deserialization": "web-attack",
+    "email-protocol-attack": "network-attack",
 }
 
 OWASP_MAP = {
@@ -111,6 +115,7 @@ OWASP_MAP = {
     "security-misconfiguration": "A02:2025-Misconfiguration",
     "logging-monitoring": "A09:2021-Logging Failures",
     "supply-chain-security": "A08:2021-Software Integrity",
+    "web-deserialization": "A08:2021-Software Integrity Failures",
 }
 
 MITRE_MAP = {
@@ -140,6 +145,8 @@ MITRE_MAP = {
     "anti-forensics": "TA0005-Defense Evasion",
     "network-tunneling-proxy": "TA0008-Lateral Movement",
     "ad-ldap-attack": "TA0006-Credential Access",
+    "web-deserialization": "T1190-Exploit Public-Facing App",
+    "email-protocol-attack": "T1114-Email Collection",
 }
 
 # Non-tool entries to skip in tool tables
