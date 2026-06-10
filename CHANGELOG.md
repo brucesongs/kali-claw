@@ -4,6 +4,22 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.23 (2026-06-10) — 5 Distinguished Milestone, Guide Quality Sprint
+
+### Quality Milestone: 5 Distinguished Skills
+- **article-writing** reached 93.6 — expanded 5 guides (pentest-report-template, report-structure, cve-advisory, security-blog, vulnerability-writing)
+- **vulnerability-assessment** reached 93.0 — expanded 4 guides (automated-scanning-pipeline, manual-testing, risk-rating, vuln-analysis-tools)
+- **autonomous-loops** reached 92.6 — expanded 3 guides (watch-loop-patterns, batch-processing, error-recovery)
+- cloud-security maintained 92.1
+- network-pentest maintained 92.0
+
+### Stats
+- Distinguished: 2 → 5 (+3)
+- Excellent: 72 → 69
+- Total: 74
+- Average: 86.9 → 87.0
+- Guides expanded: 12 (all from ~300-800 words to 2000+ words)
+
 ## v0.1.22 (2026-06-10) — SDR/RF + VPN Attack, 2 Distinguished
 
 ### New Skill Domains

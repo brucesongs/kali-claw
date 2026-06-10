@@ -327,19 +327,20 @@ TOOLS.md:
 | v0.1.19 | 2026-06-09 | **8 New Blank-Coverage Domains** | 8 new skills (bluetooth-rfid-nfc, network-tunneling-proxy, firmware-reverse, scada-ics-security, database-attack, voip-sip-attack, anti-forensics, pentest-reporting); 70 new tool references; 61→69 domains |
 | v0.1.20 | 2026-06-10 | **+1 domain (ad-ldap-attack), 70/70 Excellent (100%)** | +1 domain (ad-ldap-attack), 70/70 Excellent (100%), avg 86.5 |
 | v0.1.21 | 2026-06-10 | **+2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9** | +2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9 |
-| v0.1.22 | 2026-06-10 | **+2 domains (sdr-rf-attack, vpn-attack), 2 Distinguished, avg 87.x** | +2 domains (sdr-rf-attack, vpn-attack); Distinguished sprint: cloud-security 92.1; 72→74 domains |
+| v0.1.22 | 2026-06-10 | **+2 domains (sdr-rf-attack, vpn-attack), 2 Distinguished, avg 87.0** | +2 domains (sdr-rf-attack, vpn-attack); Distinguished sprint: cloud-security 92.1; 72→74 domains |
+| v0.1.23 | 2026-06-10 | **5 Distinguished milestone, guide quality sprint** | article-writing 93.6, vulnerability-assessment 93.0, autonomous-loops 92.6; 12 guides expanded; avg 87.0 |
 
-### Current Quality Snapshot (v0.1.22, scoring v2)
+### Current Quality Snapshot (v0.1.23, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **2** | cloud-security (92.1), network-pentest (92.0) |
-| Excellent (80-91.9) | **72** | All remaining skill domains |
+| Distinguished (92+) | **5** | article-writing (93.6), vulnerability-assessment (93.0), autonomous-loops (92.6), cloud-security (92.1), network-pentest (92.0) |
+| Excellent (80-91.9) | **69** | All remaining skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 86.9** | **74/74 Excellent or above** | **2 Distinguished: cloud-security (92.1), network-pentest (92.0)**
+**Average score: 87.0** | **74/74 Excellent or above** | **5 Distinguished**
 
 ### Future Exploration
 
