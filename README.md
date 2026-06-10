@@ -330,18 +330,19 @@ TOOLS.md:
 | v0.1.22 | 2026-06-10 | **+2 domains (sdr-rf-attack, vpn-attack), 2 Distinguished, avg 87.0** | +2 domains (sdr-rf-attack, vpn-attack); Distinguished sprint: cloud-security 92.1; 72→74 domains |
 | v0.1.23 | 2026-06-10 | **5 Distinguished milestone, guide quality sprint** | article-writing 93.6, vulnerability-assessment 93.0, autonomous-loops 92.6; 12 guides expanded; avg 87.0 |
 | v0.1.24 | 2026-06-10 | **8 Distinguished milestone, Distinguished sprint + bottom lift** | +3 Distinguished (osint 92.5, social-intelligence 93.8, verification-loop 92.6); 5 bottom skills lifted; avg 87.3 |
+| v0.1.25 | 2026-06-10 | **11 Distinguished milestone, Distinguished sprint + bottom lift** | +3 Distinguished (security-misconfiguration 92.8, security-bounty-hunter 92.0, web-xss 92.0); 3 bottom skills lifted (+6 avg); avg 87.7 |
 
-### Current Quality Snapshot (v0.1.24, scoring v2)
+### Current Quality Snapshot (v0.1.25, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **8** | social-intelligence (93.8), article-writing (93.6), vulnerability-assessment (93.0), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), cloud-security (92.1), network-pentest (92.0) |
-| Excellent (80-91.9) | **66** | All remaining skill domains |
+| Distinguished (92+) | **11** | social-intelligence (93.8), article-writing (93.6), vulnerability-assessment (93.0), security-misconfiguration (92.8), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), cloud-security (92.1), network-pentest (92.0), security-bounty-hunter (92.0), web-xss (92.0) |
+| Excellent (80-91.9) | **63** | All remaining skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 87.3** | **74/74 Excellent or above** | **8 Distinguished**
+**Average score: 87.7** | **74/74 Excellent or above** | **11 Distinguished**
 
 ### Future Exploration
 

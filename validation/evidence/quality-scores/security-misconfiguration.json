@@ -1,6 +1,6 @@
 {
   "skill": "security-misconfiguration",
-  "timestamp": "2026-06-10T13:26:01Z",
+  "timestamp": "2026-06-10T14:18:36Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3462,
@@ -9,9 +9,9 @@
     "test_case_count": 11,
     "field_completeness_score": 1.00,
     "guide_file_count": 8,
-    "guide_avg_words": 880,
+    "guide_avg_words": 2013,
     "guide_key_sections": 3,
-    "skill_section_score": 0.84
+    "skill_section_score": 0.96
   },
   "normalized_scores": {
     "payload_word": 94.6,
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 87.5,
     "field": 100.0,
-    "guide": 84.6,
-    "skill_section": 84.0
+    "guide": 92.0,
+    "skill_section": 96.0
   },
   "component_scores": {
-    "skill_md": 84.00,
+    "skill_md": 96.00,
     "payloads_md": 90.80,
     "test_cases_md": 93.75,
-    "guides": 84.6
+    "guides": 92.0
   },
-  "overall_score": 89.1,
-  "tier": "Excellent"
+  "overall_score": 92.8,
+  "tier": "Distinguished"
 }

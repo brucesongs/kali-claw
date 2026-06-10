@@ -174,3 +174,173 @@ Effective misconfiguration detection combines active probing with passive analys
  - [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/) -- TLS bestpracticeconfigurationgeneratetool
  - [SecurityHeaders.com](https://securityheaders.com/) -- online HTTP security Header Detect
  - [HackTricks - Pentesting Methodology](https://book.hacktricks.xyz/pentesting-web/pentesting-web)
+
+---
+
+## Misconfiguration Categories
+
+Understanding misconfiguration types helps prioritize testing. Each category has distinct detection methods and remediation strategies.
+
+| Category | OWASP Reference | Detection Complexity | Exploit Impact |
+|----------|----------------|---------------------|----------------|
+| Default Credentials | A02:2025 | Low (automated) | Critical (full system access) |
+| Unnecessary Services | A02:2025 | Low (port scanning) | High (attack surface expansion) |
+| Verbose Error Messages | A04:2021 | Low (manual probing) | Medium (information disclosure) |
+| Missing Security Headers | A02:2025 | Low (curl/nmap) | Medium (XSS/clickjacking enablement) |
+| Directory Listing | A02:2025 | Low (curl/ffuf) | High (source code, config exposure) |
+| TLS/SSL Weaknesses | A02:2025 | Medium (testssl.sh) | High (MITM, credential interception) |
+| Cloud Storage Exposure | A02:2025 | Medium (cloud tools) | Critical (data breach) |
+| CORS Misconfiguration | A02:2025 | Medium (manual testing) | High (cross-origin data theft) |
+| Cookie Misconfiguration | A02:2025 | Low (curl) | Medium (session hijacking) |
+| Debug Mode Enabled | A02:2025 | Low (ffuf/nuclei) | Critical (RCE, secrets exposure) |
+
+**Testing priority**: Start with default credentials and debug endpoints (highest ROI), then move to headers and TLS, then cloud storage and CORS.
+
+---
+
+## Hardening Checklist
+
+Use this checklist to verify that a system is properly hardened against common misconfigurations. Each item maps to a specific remediation action.
+
+### Network Layer
+- [ ] All unnecessary ports closed (only 80, 443 for web servers)
+- [ ] Management interfaces (SSH, RDP, databases) restricted to internal IPs
+- [ ] Firewall rules follow default-deny policy
+- [ ] No services running on non-standard ports (scan all 65535 ports to verify)
+- [ ] ICMP responses disabled where not needed
+
+### Application Layer
+- [ ] Debug mode disabled in production (`APP_DEBUG=false`, `DEBUG=False`, `display_errors=Off`)
+- [ ] Default pages removed (Apache test page, Nginx default, Tomcat welcome)
+- [ ] Default credentials changed on all services
+- [ ] Directory listing disabled globally
+- [ ] Custom error pages configured (no stack traces)
+- [ ] Admin panels require authentication and IP restriction
+
+### HTTP Security Headers
+- [ ] `Strict-Transport-Security` (HSTS) with `includeSubDomains` and `preload`
+- [ ] `Content-Security-Policy` with strict `default-src` and `script-src`
+- [ ] `X-Content-Type-Options: nosniff`
+- [ ] `X-Frame-Options: DENY` or `SAMEORIGIN`
+- [ ] `Referrer-Policy: strict-origin-when-cross-origin`
+- [ ] `Permissions-Policy` restricting camera, microphone, geolocation
+
+### TLS/SSL
+- [ ] TLS 1.2 minimum; TLS 1.0 and 1.0 disabled
+- [ ] Strong cipher suites only (no RC4, no DES, no 3DES)
+- [ ] Certificate valid and not expired
+- [ ] HSTS header present and configured
+- [ ] Certificate chain complete (no missing intermediates)
+
+### File and Data Protection
+- [ ] `.git`, `.svn`, `.env` files not accessible via web
+- [ ] Backup files (`.bak`, `.old`, `.sql`) not in web root
+- [ ] Sensitive directories (`/admin`, `/backup`, `/config`) access-controlled
+- [ ] Upload directories do not allow script execution
+- [ ] No sensitive data in client-accessible JavaScript files
+
+---
+
+## Configuration Auditing Tools
+
+Automated configuration auditing catches misconfigurations at scale. Integrate these tools into CI/CD pipelines and regular security reviews.
+
+| Tool | Scope | Output Format | CI/CD Integration |
+|------|-------|--------------|-------------------|
+| **Nikto** | Web server configuration | HTML, CSV, XML | Yes (exit codes) |
+| **testssl.sh** | TLS/SSL configuration | JSON, CSV, HTML | Yes |
+| **Nuclei** | Broad misconfiguration templates | JSON, SARIF | Yes |
+| **ScoutSuite** | Cloud configuration audit | HTML report | Limited |
+| **Prowler** | AWS CIS compliance | JSON, CSV, HTML | Yes |
+| **Lynis** | OS hardening audit | Plain text report | Yes |
+| **OpenSCAP** | OS compliance (DISA STIG, CIS) | HTML, XCCDF | Yes |
+| **Checkov** | Infrastructure-as-Code scanning | JSON, SARIF | Yes (native) |
+| **tfsec** | Terraform security scanning | JSON, SARIF | Yes (native) |
+
+**Automation pipeline example:**
+
+```bash
+#!/bin/bash
+# config-audit.sh — Run automated configuration audit
+TARGET="$1"
+REPORT_DIR="reports/$(date +%Y%m%d)"
+
+mkdir -p "$REPORT_DIR"
+
+# Web server audit
+nikto -h "https://$TARGET" -o "$REPORT_DIR/nikto.html" -Format htm
+
+# TLS audit
+testssl.sh --json-pretty "$TARGET:443" > "$REPORT_DIR/tls.json"
+
+# Header audit (custom script)
+curl -sI "https://$TARGET" | grep -iE "strict-transport|content-security|x-frame|x-content-type" \
+  > "$REPORT_DIR/headers.txt"
+
+# Nuclei misconfiguration templates
+nuclei -u "https://$TARGET" -t misconfiguration/ -o "$REPORT_DIR/nuclei.txt"
+
+echo "[+] Audit complete. Reports in $REPORT_DIR/"
+```
+
+---
+
+## Baseline Comparison
+
+Configuration drift occurs when deployed systems deviate from the approved security baseline. Regular baseline comparison catches unauthorized changes and configuration regressions.
+
+**Baseline comparison workflow:**
+
+1. **Create baseline**: After hardening a system, capture a snapshot of all security-relevant configurations
+2. **Store securely**: Save the baseline in version control or a secure document store
+3. **Schedule comparisons**: Run weekly or after every deployment
+4. **Alert on drift**: Any deviation from the baseline triggers an investigation
+
+```bash
+#!/bin/bash
+# Baseline creation script
+BASELINE_DIR="/opt/security-baselines/$(hostname)/$(date +%Y%m%d)"
+mkdir -p "$BASELINE_DIR"
+
+# Capture security-relevant configurations
+cp /etc/apache2/apache2.conf "$BASELINE_DIR/" 2>/dev/null
+cp /etc/nginx/nginx.conf "$BASELINE_DIR/" 2>/dev/null
+cp /etc/ssh/sshd_config "$BASELINE_DIR/" 2>/dev/null
+cp /etc/mysql/my.cnf "$BASELINE_DIR/" 2>/dev/null
+
+# Capture security headers
+curl -sI "https://$(hostname)" > "$BASELINE_DIR/security_headers.txt"
+
+# Capture open ports
+nmap -sT -O "$(hostname)" > "$BASELINE_DIR/open_ports.txt"
+
+# Capture TLS configuration
+testssl.sh --quiet "$(hostname):443" > "$BASELINE_DIR/tls_config.txt"
+
+# Capture installed packages
+dpkg -l > "$BASELINE_DIR/packages.txt" 2>/dev/null
+rpm -qa > "$BASELINE_DIR/packages.txt" 2>/dev/null
+
+echo "[+] Baseline saved to $BASELINE_DIR"
+echo "[+] Run baseline-diff.sh to compare against this baseline"
+```
+
+```bash
+#!/bin/bash
+# Baseline comparison script
+CURRENT="/tmp/current_baseline"
+BASELINE="/opt/security-baselines/$(hostname)/latest"
+
+# Create current snapshot (same commands as baseline creation)
+# ... (same capture commands)
+
+# Compare
+echo "=== Security Header Changes ==="
+diff "$BASELINE/security_headers.txt" "$CURRENT/security_headers.txt"
+
+echo "=== Open Port Changes ==="
+diff "$BASELINE/open_ports.txt" "$CURRENT/open_ports.txt"
+
+echo "=== Package Changes ==="
+diff "$BASELINE/packages.txt" "$CURRENT/packages.txt"
+```

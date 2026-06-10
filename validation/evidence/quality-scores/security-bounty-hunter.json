@@ -1,33 +1,33 @@
 {
   "skill": "security-bounty-hunter",
-  "timestamp": "2026-06-10T13:26:01Z",
+  "timestamp": "2026-06-10T14:18:36Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3408,
     "payload_section_count": 22,
     "payload_code_blocks": 51,
-    "test_case_count": 8,
+    "test_case_count": 10,
     "field_completeness_score": 1.00,
     "guide_file_count": 8,
-    "guide_avg_words": 1463,
+    "guide_avg_words": 1893,
     "guide_key_sections": 3,
-    "skill_section_score": 0.88
+    "skill_section_score": 0.93
   },
   "normalized_scores": {
     "payload_word": 94.1,
     "payload_section": 100.0,
     "payload_code": 80.4,
-    "test_case": 80.0,
+    "test_case": 85.0,
     "field": 100.0,
-    "guide": 88.8,
-    "skill_section": 88.0
+    "guide": 91.4,
+    "skill_section": 93.0
   },
   "component_scores": {
-    "skill_md": 88.00,
+    "skill_md": 93.00,
     "payloads_md": 91.50,
-    "test_cases_md": 90.00,
-    "guides": 88.8
+    "test_cases_md": 92.50,
+    "guides": 91.4
   },
-  "overall_score": 89.9,
-  "tier": "Excellent"
+  "overall_score": 92.0,
+  "tier": "Distinguished"
 }

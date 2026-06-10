@@ -165,3 +165,132 @@ References:
 - OWASP Bug Bounty Template: https://owasp.org/www-project-bug-bounty-template/
 - CVSS Calculator: https://www.first.org/cvss/calculator/3.1
 - PortSwigger Web Security Academy: https://portswigger.net/web-security
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Select a vulnerability from HackerOne Hacktivity and rewrite the disclosure using the report template above, improving clarity and adding business impact analysis
+2. **Exercise 2**: Write two reports for the same hypothetical XSS finding -- one "bad" report and one "excellent" report. Compare them side-by-side and identify specific improvements
+3. **Exercise 3**: Create a report for a chained vulnerability (SSRF to internal service access) that includes a visual attack flow diagram and demonstrates why the combined severity is higher than individual findings
+
+---
+
+## Advanced Report Techniques
+
+### Adding Video Evidence
+
+Video recordings dramatically improve triage speed and reduce back-and-forth clarification:
+
+```bash
+# Record a PoC video on macOS
+# Open QuickTime Player → File → New Screen Recording → record the PoC
+
+# Record on Linux with recordmydesktop
+recordmydesktop --output poc_sqli.ogv --windowid $(xdotool getactivewindow)
+
+# Convert to a reasonable size
+ffmpeg -i poc_sqli.ogv -c:v libx264 -crf 28 -preset fast poc_sqli.mp4
+
+# Upload to a private YouTube video or include as attachment
+```
+
+**Video best practices:**
+- Keep under 2 minutes; triagers will not watch 15-minute videos
+- Start from a clean browser state (no cookies, no cached data)
+- Show the login step if authentication is required
+- Narrate or add text overlays explaining each step
+- Display the URL bar prominently so the endpoint is visible
+
+### Handling Triager Pushback
+
+Sometimes triagers downgrade severity or mark reports as duplicates. Here is how to respond professionally:
+
+```markdown
+## Response to Duplicate Marking
+
+Thank you for reviewing my report. I believe this finding differs from #12345
+in the following ways:
+
+1. **Different endpoint**: My finding affects /api/v2/users/{id}, while #12345
+   reports on /api/v1/users/{id}
+2. **Different exploit path**: The v2 API enforces role-based access control,
+   but the bypass I found exploits a separate authorization middleware
+3. **Different impact**: My finding exposes payment data (PCI scope) in addition
+   to the PII covered by the original report
+
+Would you like me to provide a side-by-side comparison with additional evidence?
+```
+
+**Escalation options:**
+- Request re-triage through the platform's dispute process
+- Provide additional evidence that differentiates your finding
+- Demonstrate a higher impact than the original report showed
+- Document the business impact that the duplicate report did not cover
+
+### Report Templates by Vulnerability Class
+
+Different vulnerability types require different report structures. Here are optimized templates for common bounty findings:
+
+**SQL Injection Report Template:**
+
+```markdown
+Title: SQL Injection in [endpoint] allows [impact]
+
+Severity: [CRITICAL/HIGH]
+CVSS Score: [X.X]
+CWE: CWE-89
+
+Description:
+The [parameter] parameter in [endpoint] is vulnerable to SQL injection.
+The application concatenates user input directly into SQL queries
+without parameterization, allowing an attacker to extract the full
+database contents.
+
+Steps to Reproduce:
+1. Navigate to [endpoint]
+2. Insert the following payload into [parameter]: ' UNION SELECT 1,2,3--
+3. Observe the application returns 3 columns in the response
+4. Extract database version: ' UNION SELECT @@version,2,3--
+5. Extract table names: ' UNION SELECT table_name,2,3 FROM information_schema.tables--
+
+Proof of Concept:
+```bash
+curl -s "https://target.com/api/search?q=' UNION SELECT username,password,3 FROM users--"
+```
+
+Impact:
+- Full database read access confirmed
+- Database contains [X] user records with PII
+- Any authenticated user (or unauthenticated) can exploit
+
+Remediation:
+- Use parameterized queries / prepared statements
+- Implement input validation with allowlists
+- Apply least-privilege database permissions
+```
+
+**IDOR Report Template:**
+
+```markdown
+Title: IDOR in [endpoint] allows unauthorized access to [resource]
+
+Severity: [HIGH/CRITICAL]
+CWE: CWE-639
+
+Description:
+The [endpoint] endpoint does not verify that the requesting user
+is authorized to access the requested resource. By changing the
+[ID parameter] value, an attacker can access any user's [resource].
+
+Steps to Reproduce:
+1. Authenticate as User A (attacker@test.com)
+2. Request: GET /api/v1/users/42/profile
+3. Observe: Returns User B's profile data (name, email, phone, address)
+4. Iterate IDs 1-100 to confirm mass data exposure
+
+Impact:
+- [X] user records accessible without authorization
+- Data includes [list PII types]
+- No rate limiting on API endpoint enables mass enumeration
+```

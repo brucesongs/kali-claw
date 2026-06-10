@@ -867,4 +867,181 @@ if __name__ == "__main__":
 **Document Version**: 1.0
 **Created**: 2026-03-26 18:27
 **Learningwhen length**: estimated 4-5 Hours
-**Learning Status**: 🟢 In Progress
+**Learning Status**: In Progress
+
+---
+
+## 9. Docker and Container Misconfiguration
+
+Containers introduce unique misconfiguration risks due to their ephemeral nature and the tendency to prioritize convenience over security during development.
+
+### 9.1 Docker Daemon Misconfiguration
+
+```bash
+# Check if Docker daemon is exposed without TLS
+curl -s "http://target:2375/containers/json" | jq '.[].Names'
+
+# Check if Docker daemon is exposed with TLS but no auth
+curl -sk "https://target:2376/containers/json" | jq '.[].Names'
+
+# Docker socket mounted in container (critical misconfiguration)
+# If you have shell access inside a container:
+ls -la /var/run/docker.sock
+# If this file exists, the container can control the host Docker daemon
+```
+
+**Docker security checklist:**
+
+| Check | Secure Configuration | Risk if Misconfigured |
+|-------|---------------------|---------------------|
+| Daemon socket | Unix socket only, not TCP | Remote code execution on host |
+| TLS for TCP | Enabled with client certs | Unauthenticated container management |
+| User namespace | `--userns-remap` enabled | Container escape via UID 0 |
+| Read-only filesystem | `--read-only` flag | Container modification persistence |
+| Capability dropping | `--cap-drop=ALL` + minimal adds | Privilege escalation via capabilities |
+| Seccomp profile | Custom profile applied | Unrestricted syscall access |
+| Network isolation | Custom bridge network | Lateral movement between containers |
+| Resource limits | `--memory`, `--cpus` set | DoS via resource exhaustion |
+
+### 9.2 Docker Compose Security Review
+
+```yaml
+# Insecure Docker Compose example (identify the issues)
+version: '3'
+services:
+  web:
+    image: nginx:latest       # Issue: no pinning, latest is mutable
+    ports:
+      - "0.0.0.0:80:80"      # Issue: bound to all interfaces
+    privileged: true          # Issue: privileged mode enables container escape
+    volumes:
+      - /:/host               # Issue: host filesystem mounted
+  database:
+    image: mysql:5.7          # Issue: outdated version
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Issue: hardcoded default credential
+    ports:
+      - "3306:3306"           # Issue: database exposed to internet
+```
+
+```yaml
+# Hardened Docker Compose example
+version: '3'
+services:
+  web:
+    image: nginx:1.24.0-alpine    # Pinned version, minimal base
+    ports:
+      - "127.0.0.1:80:80"         # Bound to localhost only
+    read_only: true                # Read-only filesystem
+    cap_drop:
+      - ALL                        # Drop all capabilities
+    cap_add:
+      - NET_BIND_SERVICE           # Add only what is needed
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+  database:
+    image: mysql:8.0               # Current version
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_password  # Use Docker secrets
+    ports:
+      - "127.0.0.1:3306:3306"     # Localhost only
+    secrets:
+      - db_password
+    volumes:
+      - db_data:/var/lib/mysql
+secrets:
+  db_password:
+    file: ./db_password.txt
+volumes:
+  db_data:
+```
+
+### 9.3 Kubernetes Misconfiguration Detection
+
+```bash
+# Check for pods running as root
+kubectl get pods -A -o json | \
+  jq '.items[] | select(.spec.containers[].securityContext.runAsUser == 0) | .metadata.name'
+
+# Check for privileged pods
+kubectl get pods -A -o json | \
+  jq '.items[] | select(.spec.containers[].securityContext.privileged == true) | .metadata.name'
+
+# Check for pods with hostPath mounts
+kubectl get pods -A -o json | \
+  jq '.items[] | select(.spec.volumes[]?.hostPath != null) | {name: .metadata.name, mounts: [.spec.volumes[]?.hostPath.path]}'
+
+# Check for services with type LoadBalancer (externally exposed)
+kubectl get services -A -o json | \
+  jq '.items[] | select(.spec.type == "LoadBalancer") | {name: .metadata.name, namespace: .metadata.namespace, ports: .spec.ports[].port}'
+
+# Check for default service account with automountToken
+kubectl get serviceaccounts default -o json | \
+  jq '.automountServiceAccountToken'
+```
+
+---
+
+## 10. CI/CD Pipeline Misconfiguration
+
+CI/CD pipelines are high-value targets because they have access to source code, secrets, and production deployment credentials.
+
+### 10.1 GitHub Actions Security
+
+```yaml
+# Common misconfigurations in GitHub Actions
+# Issue 1: Using pull_request_target with checkout of PR code
+# This allows attackers to steal secrets via malicious PRs
+on:
+  pull_request_target:  # Dangerous when combined with PR checkout
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # Checks out PR code
+      - run: echo "Using secret ${{ secrets.DEPLOY_KEY }}"  # Secret exposed to PR code
+```
+
+**GitHub Actions hardening checklist:**
+- Pin action versions by SHA, not tag (`uses: actions/checkout@abc123def` not `@v4`)
+- Use `pull_request` instead of `pull_request_target` unless you need fork access
+- Never expose secrets to PR code execution context
+- Set `permissions:` block to minimum required
+- Use OIDC authentication instead of long-lived secrets where possible
+- Enable required status checks before merge
+
+### 10.2 Jenkins Security Misconfiguration
+
+```bash
+# Check if Jenkins script console is accessible (RCE)
+curl -s -u "admin:admin" "http://target:8080/scriptText" \
+  -d 'script=println+"whoami:"+%22whoami%22.execute().text'
+
+# Check for unprotected Jenkins instance
+curl -s "http://target:8080/api/json" | jq '.jobs[].name'
+
+# Check for stored credentials (requires admin access)
+curl -s -u "admin:admin" "http://target:8080/credentials/store/system/domain/_/api/json" | \
+  jq '.credentials[].id'
+```
+
+**Jenkins hardening checklist:**
+- Enable security realm and authorization strategy
+- Disable script console for non-admin users
+- Use credential bindings instead of hardcoded secrets in pipelines
+- Enable CSRF protection
+- Set up agent-to-master security subsystem
+- Remove unused plugins (each plugin is an attack surface)
+
+---
+
+## 11. Hands-on Exercises
+
+1. **Exercise 1**: Deploy a Docker Compose environment with the insecure configuration shown in Section 9.2. Identify all security issues using the checklist, then reconfigure using the hardened example. Verify the improvements by running security scanning tools against both configurations
+2. **Exercise 2**: Set up a Kubernetes cluster with intentionally misconfigured pods (running as root, privileged, hostPath mounts). Use the detection commands from Section 9.3 to identify all misconfigured pods and create a remediation plan
+3. **Exercise 3**: Review a GitHub Actions workflow file for security issues. Identify at least 5 misconfigurations from the checklist in Section 10.1 and provide the corrected workflow
+4. **Exercise 4**: Build a comprehensive misconfiguration scanning script that combines directory enumeration, source code leak detection, configuration file scanning, admin interface discovery, and cloud storage auditing. Test it against a lab environment with 10+ intentional misconfigurations and verify that all are detected

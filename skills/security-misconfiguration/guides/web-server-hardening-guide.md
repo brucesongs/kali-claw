@@ -305,3 +305,282 @@ location /uploads/ {
 - [ ] File upload restrictions enforced
 - [ ] Admin panels access-restricted
 - [ ] PHP/ASP information disclosure disabled
+
+---
+
+## Logging and Monitoring Configuration
+
+Proper logging configuration is essential for detecting attacks and investigating incidents. Web servers should log all requests with enough detail for forensic analysis without logging sensitive data.
+
+### Nginx Logging
+
+```nginx
+# Custom log format with useful security information
+log_format security '$remote_addr - $remote_user [$time_local] '
+                    '"$request" $status $body_bytes_sent '
+                    '"$http_referer" "$http_user_agent" '
+                    '$request_time $upstream_response_time';
+
+access_log /var/log/nginx/security.log security;
+error_log /var/log/nginx/error.log warn;
+
+# Log rate-limited requests
+limit_req_log_level warn;
+
+# Do not log health check requests
+location /health {
+    access_log off;
+    return 200 "OK";
+}
+```
+
+### Apache Logging
+
+```apache
+# Custom log format with additional security fields
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D %{X-Forwarded-For}i" security
+CustomLog /var/log/apache2/security.log security
+
+# Do not log certain paths (reduce noise)
+SetEnvIf Request_URI "^/health$" dontlog
+CustomLog /var/log/apache2/access.log combined env=!dontlog
+```
+
+### Log Analysis for Security Events
+
+```bash
+# Find most frequent 404s (possible scanning activity)
+awk '$9 == 404 {print $7}' /var/log/nginx/security.log | sort | uniq -c | sort -rn | head -20
+
+# Find requests with suspicious user agents
+grep -iE "nikto|nmap|sqlmap|dirbuster|gobuster|masscan" /var/log/nginx/security.log
+
+# Find requests to sensitive paths
+grep -iE "/\.env|/\.git|/admin|/phpmyadmin|/wp-config|/backup" /var/log/nginx/security.log
+
+# Find potential SQL injection attempts
+grep -iE "union.*select|or.*1=1|--|;.*drop|concat\(" /var/log/nginx/security.log
+
+# Find requests with unusually large bodies (potential buffer overflow)
+awk '$10 > 1000000 {print $0}' /var/log/nginx/security.log
+```
+
+---
+
+## Reverse Proxy Security
+
+When Nginx or Apache serves as a reverse proxy, additional hardening is needed to prevent proxy-based attacks.
+
+### Nginx Reverse Proxy Hardening
+
+```nginx
+# Prevent Host header injection
+server {
+    listen 80;
+    server_name _;  # Default server for unknown hosts
+    return 444;     # Drop connection
+}
+
+# Actual server block
+server {
+    listen 80;
+    server_name target.com;
+
+    # Validate Host header
+    if ($host != "target.com") {
+        return 444;
+    }
+
+    location / {
+        proxy_pass http://backend:8080;
+
+        # Hide backend server information
+        proxy_hide_header X-Powered-By;
+        proxy_hide_header Server;
+
+        # Prevent SSRF via proxy
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Block proxy access to internal networks
+        # (prevent SSRF through the reverse proxy)
+        # This must be handled at the application layer
+    }
+}
+```
+
+### Apache Reverse Proxy Hardening
+
+```apache
+# Prevent proxy requests to internal networks
+<Proxy "http://127.0.0.1*">
+    Require all denied
+</Proxy>
+<Proxy "http://10.*">
+    Require all denied
+</Proxy>
+<Proxy "http://192.168.*">
+    Require all denied
+</Proxy>
+<Proxy "http://169.254.*">
+    Require all denied
+</Proxy>
+
+# Set proper headers
+ProxyAddHeaders Off
+RequestHeader set X-Forwarded-Proto "https"
+RequestHeader set X-Forwarded-Port "443"
+```
+
+### WebSocket Proxy Security
+
+```nginx
+# WebSocket proxy with security hardening
+location /ws/ {
+    proxy_pass http://backend:8080;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+
+    # Limit WebSocket message size (prevent large payload attacks)
+    proxy_buffers 8 4k;
+
+    # Timeout settings (prevent resource exhaustion)
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
+
+    # Rate limit WebSocket connections
+    limit_req zone=ws burst=5 nodelay;
+}
+```
+
+---
+
+## Content Security Policy (CSP) Configuration
+
+CSP is one of the most powerful but often misconfigured security headers. A well-tuned CSP prevents XSS, clickjacking, and code injection. This section covers progressive CSP deployment, testing, and common patterns for different application types.
+
+### Progressive CSP Deployment
+
+```nginx
+# Step 1: Report-only mode (monitor without blocking)
+add_header Content-Security-Policy-Report-Only "default-src 'self'; report-uri /csp-report" always;
+
+# Step 2: Restrictive CSP for production
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.trusted.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.target.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+```
+
+**CSP directive reference:**
+
+| Directive | Purpose | Recommended Value |
+|-----------|---------|-------------------|
+| `default-src` | Fallback for all fetches | `'self'` |
+| `script-src` | JavaScript sources | `'self'` (avoid `unsafe-inline`, `unsafe-eval`) |
+| `style-src` | CSS sources | `'self' 'unsafe-inline'` (often required by frameworks) |
+| `img-src` | Image sources | `'self' data: https:` |
+| `connect-src` | AJAX/WebSocket targets | `'self'` plus specific API domains |
+| `frame-ancestors` | Who can embed this page | `'none'` (replaces X-Frame-Options) |
+| `base-uri` | Restricts `<base>` tag | `'self'` |
+| `form-action` | Restricts form submissions | `'self'` |
+| `object-src` | Flash/Java plugins | `'none'` |
+
+### CSP Testing Workflow
+
+```bash
+# Start with report-only mode and collect violations
+# Monitor /csp-report endpoint for violation reports
+curl -s "https://target.com/csp-reports" | jq '.[] | .["violated-directive"]' | sort | uniq -c | sort -rn
+
+# Common CSP violations and their fixes:
+# 1. inline scripts → Move to external files, use nonces or hashes
+# 2. eval() usage → Refactor code to avoid eval, new Function()
+# 3. CDN resources → Add specific CDN domains to script-src
+# 4. Inline styles → Add 'unsafe-inline' to style-src (acceptable risk)
+
+# Generate CSP nonces in Nginx
+# Requires ngx_http_sub_module or Lua module
+# Example with Nginx JavaScript:
+js_set $csp_nonce "function() { return require('crypto').randomBytes(16).toString('base64') }";
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'nonce-$csp_nonce'" always;
+```
+
+### CSP for Specific Frameworks
+
+**React/Next.js CSP:**
+
+```nginx
+# React applications often need specific CSP settings
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.target.com https://*.sentry.io" always;
+# Note: 'unsafe-eval' is needed by some bundlers; remove in production if possible
+```
+
+**Django CSP (via django-csp middleware):**
+
+```python
+# settings.py
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # Django admin needs inline styles
+CSP_IMG_SRC = ("'self'", "data:")
+CSP_CONNECT_SRC = ("'self'",)
+CSP_FRAME_ANCESTORS = ("'none'",)
+CSP_REPORT_URI = "/csp-report/"
+CSP_REPORT_ONLY = False  # Set True during testing
+```
+
+CSP is one of the most powerful but often misconfigured security headers. A well-tuned CSP prevents XSS, clickjacking, and code injection.
+
+### Progressive CSP Deployment
+
+```nginx
+# Step 1: Report-only mode (monitor without blocking)
+add_header Content-Security-Policy-Report-Only "default-src 'self'; report-uri /csp-report" always;
+
+# Step 2: Restrictive CSP for production
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.trusted.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://api.target.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+```
+
+**CSP directive reference:**
+
+| Directive | Purpose | Recommended Value |
+|-----------|---------|-------------------|
+| `default-src` | Fallback for all fetches | `'self'` |
+| `script-src` | JavaScript sources | `'self'` (avoid `unsafe-inline`, `unsafe-eval`) |
+| `style-src` | CSS sources | `'self' 'unsafe-inline'` (often required by frameworks) |
+| `img-src` | Image sources | `'self' data: https:` |
+| `connect-src` | AJAX/WebSocket targets | `'self'` plus specific API domains |
+| `frame-ancestors` | Who can embed this page | `'none'` (replaces X-Frame-Options) |
+| `base-uri` | Restricts `<base>` tag | `'self'` |
+| `form-action` | Restricts form submissions | `'self'` |
+| `object-src` | Flash/Java plugins | `'none'` |
+
+### CSP Testing Workflow
+
+```bash
+# Start with report-only mode and collect violations
+# Monitor /csp-report endpoint for violation reports
+curl -s "https://target.com/csp-reports" | jq '.[] | .["violated-directive"]' | sort | uniq -c | sort -rn
+
+# Common CSP violations and their fixes:
+# 1. inline scripts → Move to external files, use nonces or hashes
+# 2. eval() usage → Refactor code to avoid eval, new Function()
+# 3. CDN resources → Add specific CDN domains to script-src
+# 4. Inline styles → Add 'unsafe-inline' to style-src (acceptable risk)
+
+# Generate CSP nonces in Nginx
+# Requires ngx_http_sub_module or Lua module
+# Example with Nginx JavaScript:
+js_set $csp_nonce "function() { return require('crypto').randomBytes(16).toString('base64') }";
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'nonce-$csp_nonce'" always;
+```
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Deploy Apache with default configuration. Run Nikto and document all findings. Apply every hardening step from this guide and re-run Nikto. Create a before/after comparison table showing eliminated findings
+2. **Exercise 2**: Configure Nginx as a reverse proxy for a backend application. Implement all security headers, rate limiting, and TLS hardening. Test with testssl.sh and aim for an A+ rating on SecurityHeaders.com
+3. **Exercise 3**: Set up a custom log format in Nginx that captures security-relevant information. Simulate common attacks (directory traversal, SQL injection, XSS) and verify that each attack is logged with enough detail for forensic analysis
+4. **Exercise 4**: Build an automated hardening verification script that checks all items in the audit checklist above, outputs pass/fail for each, and provides the specific command or configuration needed to fix any failures

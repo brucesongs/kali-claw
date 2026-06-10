@@ -278,3 +278,232 @@ Practice building and testing proxy chains with TLS wrapping:
 - [3proxy Documentation](https://3proxy.org/doc/)
 - [stunnel Documentation](https://www.stunnel.org/)
 - [HackTricks - Proxychains](https://book.hacktricks.xyz/generic-methodologies-and-resources/pivoting/proxychains)
+
+---
+
+## 6. Advanced Proxy Chain Topologies
+
+### Tiered Proxy Architecture
+
+For complex engagements requiring access to multiple isolated network segments, a tiered proxy architecture provides organized access paths to each segment without cross-contamination.
+
+```bash
+# Tier 1: DMZ access (low privilege)
+# SOCKS proxy on port 1080 for DMZ network (10.0.0.0/24)
+chisel client http://dmz-relay:8080 R:1080:socks
+
+# Tier 2: Application network (medium privilege)
+# SOCKS proxy on port 1081 for application network (10.10.0.0/24)
+# Routes through Tier 1 DMZ proxy
+proxychains4 chisel client http://app-relay:8080 R:1081:socks
+
+# Tier 3: Database network (high privilege)
+# SOCKS proxy on port 1082 for database network (192.168.50.0/24)
+# Routes through Tier 1 and Tier 2 proxies
+proxychains4 -f /etc/proxychains-tier2.conf chisel client http://db-relay:8080 R:1082:socks
+
+# Proxy configuration for each tier
+cat > /etc/proxychains-tier1.conf << 'EOF'
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+EOF
+
+cat > /etc/proxychains-tier2.conf << 'EOF'
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+socks5 127.0.0.1 1081
+EOF
+
+cat > /etc/proxychains-tier3.conf << 'EOF'
+strict_chain
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+socks5 127.0.0.1 1081
+socks5 127.0.0.1 1082
+EOF
+```
+
+### Load-Balanced Proxy Pools
+
+```bash
+# Distribute scanning traffic across multiple SOCKS proxies
+cat > /etc/proxychains-loadbalanced.conf << 'EOF'
+random_chain
+chain_len = 1
+proxy_dns
+[ProxyList]
+socks5 127.0.0.1 1080
+socks5 127.0.0.1 1081
+socks5 127.0.0.1 1082
+socks5 127.0.0.1 1083
+EOF
+
+# Each connection randomly selects one proxy, distributing load
+proxychains4 -f /etc/proxychains-loadbalanced.conf nmap -sT -Pn 10.0.0.0/24 --top-ports 100
+
+# Round-robin proxy selection for even distribution
+cat > /etc/proxychains-roundrobin.conf << 'EOF'
+round_robin_chain
+proxy_dns
+[ProxyList]
+socks5 proxy1.example.com 1080
+socks5 proxy2.example.com 1080
+socks5 proxy3.example.com 1080
+EOF
+```
+
+## 7. TLS Certificate Management for Tunnels
+
+### Valid Certificate Setup
+
+Self-signed certificates work for testing but trigger certificate validation warnings and can be flagged by TLS inspection systems. Using certificates from a trusted CA (like Let's Encrypt) makes tunnel traffic indistinguishable from legitimate HTTPS.
+
+```bash
+# Obtain a Let's Encrypt certificate for tunnel infrastructure
+certbot certonly --standalone -d tunnel.example.com
+
+# Convert to stunnel format
+cat /etc/letsencrypt/live/tunnel.example.com/privkey.pem \
+    /etc/letsencrypt/live/tunnel.example.com/fullchain.pem > /etc/stunnel/tunnel.pem
+
+# Configure stunnel with valid certificate
+cat > /etc/stunnel/server.conf << 'EOF'
+cert = /etc/stunnel/tunnel.pem
+options = NO_SSLv2
+options = NO_SSLv3
+ciphers = HIGH:!aNULL:!MD5
+
+[chisel-tls]
+accept = 0.0.0.0:443
+connect = 127.0.0.1:8080
+EOF
+
+stunnel /etc/stunnel/server.conf
+
+# Auto-renewal with certbot (Let's Encrypt certificates expire in 90 days)
+echo "0 0 1 * * certbot renew --quiet --post-hook 'systemctl restart stunnel'" | crontab -
+```
+
+### Certificate Pinning Bypass
+
+```bash
+# When target infrastructure uses certificate pinning
+# Generate certificates that match the pinned attributes
+
+# Create a certificate with specific Subject Alternative Names
+cat > /etc/stunnel/tunnel.cnf << 'EOF'
+[req]
+default_bits = 2048
+prompt = no
+distinguished_name = dn
+req_extensions = v3_req
+
+[dn]
+CN = legitimate-service.example.com
+O = Legitimate Organization
+
+[v3_req]
+subjectAltName = DNS:legitimate-service.example.com,DNS:www.example.com
+EOF
+
+openssl req -new -x509 -days 365 -nodes -keyout /etc/stunnel/tunnel.key \
+  -out /etc/stunnel/tunnel.crt -config /etc/stunnel/tunnel.cnf
+cat /etc/stunnel/tunnel.key /etc/stunnel/tunnel.crt > /etc/stunnel/tunnel.pem
+```
+
+## 8. Application-Specific Proxy Configuration
+
+Many security tools do not natively support SOCKS proxies. Understanding how to configure specific applications is essential for effective proxy chain usage.
+
+### Database Client Proxy Configuration
+
+```bash
+# MySQL through proxy chain
+proxychains4 mysql -h 10.10.10.50 -u admin -p
+
+# PostgreSQL through proxy chain
+proxychains4 psql -h 10.10.10.50 -U admin -d postgres
+
+# MSSQL through proxy chain (using sqsh)
+proxychains4 sqsh -S 10.10.10.50 -U sa -P password
+
+# MongoDB through proxy chain
+proxychains4 mongo --host 10.10.10.50 --port 27017
+
+# Redis through proxy chain (using redis-cli)
+proxychains4 redis-cli -h 10.10.10.50 -p 6379
+```
+
+### Remote Desktop Through Proxy
+
+```bash
+# RDP through proxy chain (xfreerdp)
+proxychains4 xfreerdp /v:10.10.10.100 /u:admin /p:password /cert:ignore
+
+# SSH through proxy chain
+proxychains4 ssh user@10.10.10.5
+
+# VNC through proxy chain
+proxychains4 vncviewer 10.10.10.100:5900
+
+# WinRM (PowerShell Remoting) through proxy
+proxychains4 evil-winrm -i 10.10.10.100 -u admin -p password
+```
+
+### Web Application Testing Through Proxy
+
+```bash
+# Configure Burp Suite upstream proxy to route through SOCKS chain
+# Burp Suite -> Project Options -> Connections -> Upstream Proxy Servers
+# Add proxy: SOCKS5, 127.0.0.1, 1080
+
+# Nikto through proxy
+proxychains4 nikto -h https://10.10.10.50
+
+# Gobuster through proxy
+proxychains4 gobuster dir -u https://10.10.10.50 -w /usr/share/wordlists/dirb/common.txt
+
+# SQLMap through proxy
+proxychains4 sqlmap -u "http://10.10.10.50/page?id=1" --dbs
+# Or use sqlmap's built-in proxy support:
+sqlmap -u "http://10.10.10.50/page?id=1" --proxy="socks5://127.0.0.1:1080" --dbs
+```
+
+## 9. Proxy Chain Performance Optimization
+
+### Latency Reduction Techniques
+
+```bash
+# Measure latency at each proxy hop
+for port in 1080 1081 1082; do
+  echo -n "Proxy on port $port: "
+  curl -s --socks5 127.0.0.1:$port -o /dev/null -w "DNS: %{time_namelookup}s, Connect: %{time_connect}s, Total: %{time_total}s\n" http://10.0.0.1
+done
+
+# Optimize proxychains timeout for responsive networks
+cat > /etc/proxychains-fast.conf << 'EOF'
+strict_chain
+proxy_dns
+tcp_read_time_out 5000
+tcp_connect_time_out 3000
+[ProxyList]
+socks5 127.0.0.1 1080
+EOF
+
+# Use nmap timing templates appropriate for tunneled connections
+# T2 (polite) or T3 (normal) work best through proxy chains
+proxychains4 nmap -sT -Pn -T3 10.0.0.0/24 --top-ports 50
+
+# Parallel connections through proxy for faster scanning
+# proxychains does not support parallelism well
+# Use multiple proxychains instances with different proxy ports instead
+for subnet in 10.0.0.{1..64}; do
+  proxychains4 nmap -sT -Pn -T4 $subnet --top-ports 20 &
+done
+wait
+```

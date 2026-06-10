@@ -162,6 +162,114 @@ When testing IKEv2 gateways, pay special attention to the supported authenticati
 
 When documenting IPSec VPN enumeration results, include the following for each discovered gateway: IP address, IKE version (v1/v2), accepted transform sets (highlighting any weak algorithms), vendor identification, aggressive mode status, and any captured PSK hashes. Prioritize findings based on the Common Vulnerability Scoring System (CVSS) and provide specific remediation recommendations.
 
+## IKEv2 Specific Considerations
+
+IKEv2 introduces several security improvements over IKEv1, including mutual authentication by default, simpler message exchange (4 messages instead of 6 for Main Mode), and built-in NAT traversal via encapsulation of ESP packets within UDP (RFC 5996 section 2.23). The IKEv2 protocol uses a SA_INIT exchange followed by an AUTH exchange, making it more resistant to DoS attacks through cookie-based puzzle mechanisms.
+
+When testing IKEv2 gateways, pay special attention to the supported authentication methods. While certificate-based authentication (EAP-TLS) is recommended, many deployments still use PSK with IKEv2. The EAP methods supported by the gateway also affect security posture. EAP-TLS provides mutual certificate-based authentication and is the gold standard. EAP-MSCHAPv2, while convenient, is vulnerable to offline dictionary attacks if the IKE handshake can be captured. EAP-TTLS and PEAP provide a tunneled approach where an outer TLS session protects an inner authentication method.
+
+IKEv2 also introduces the concept of IKE SA rekeying without disrupting existing IPsec SAs, which is a significant operational improvement. However, rekeying can be exploited for DoS if the gateway does not properly validate rekey requests. Test for rekey handling by initiating a connection and observing how the gateway behaves during SA lifetime expiration.
+
+```bash
+# IKEv2 transform enumeration
+ike-scan -2 --trans='1,1,1,1' --trans='5,1,2,2' -M 192.168.1.1
+
+# IKEv2 with EAP method detection
+ike-scan -2 -M 192.168.1.1 | grep -i "eap\|auth"
+
+# Test IKEv2 cookie mechanism (DoS protection)
+ike-scan -2 --cookie -M 192.168.1.1
+```
+
+## Advanced Fingerprinting Techniques
+
+Beyond basic Vendor ID matching, advanced fingerprinting techniques can identify the exact VPN gateway model and firmware version, enabling targeted vulnerability testing.
+
+### Timing-Based Fingerprinting
+
+Different VPN implementations respond to IKE packets with characteristic timing patterns. By measuring response times across multiple probe types, you can build a behavioral fingerprint that identifies the gateway even when Vendor IDs are stripped or spoofed.
+
+```bash
+# Measure response timing across multiple probes
+for i in $(seq 1 10); do
+  start_time=$(date +%s%N)
+  ike-scan -M 192.168.1.1 2>/dev/null | grep -q "SA" && echo "Round $i: $(( ($(date +%s%N) - start_time) / 1000000 ))ms"
+done
+
+# Compare timing with known gateway profiles
+# Cisco ASA: typically 30-100ms response time
+# Fortinet FortiGate: typically 10-50ms
+# strongSwan: typically 1-10ms (software-based)
+# Palo Alto: typically 20-80ms
+```
+
+### Vendor-Specific Probe Patterns
+
+```bash
+# Fortinet-specific: test for FortiGate management interface
+curl -k -s https://192.168.1.1/remote/login | grep -i "fortinet\|fortigate\|mrhyde\|fgt_lang"
+
+# Cisco-specific: test for AnyConnect detection
+curl -k -s https://192.168.1.1/+CSCOE+/logon.html | grep -i "anyconnect\|webvpn"
+
+# Check Point-specific: test for Mobile Access portal
+curl -k -s https://192.168.1.1/sslvpn/Login/Login.asp | grep -i "checkpoint\|ssl network extender"
+
+# Juniper-specific: test for Pulse Secure / Juniper SA
+curl -k -s https://192.168.1.1/dana-na/auth/url_default/welcome.cgi | grep -i "juniper\|pulse\|dana"
+```
+
+### Passive Fingerprinting
+
+When active scanning is too risky, passive observation of VPN traffic can reveal information about the gateway implementation. ESP packet sizes, IKE retry behavior, and DH group preferences all leak information about the underlying VPN stack.
+
+```bash
+# Passive capture and analysis of IKE negotiation patterns
+tcpdump -i any -w passive_ike.pcap 'udp port 500 or udp port 4500' -c 100
+
+# Analyze captured IKE packets for vendor patterns
+tshark -r passive_ike.pcap -Y "isakmp" -T fields \
+  -e ip.src -e ip.dst -e isakmp.type -e isakmp.dh_group \
+  -e isakmg.encryption_algorithm -e isakmp.hash_algorithm 2>/dev/null
+
+# Extract and decode Vendor ID payloads from passive captures
+tshark -r passive_ike.pcap -Y "isakmp.type == 0" -T fields \
+  -e data.data 2>/dev/null | sort -u
+```
+
+## Reporting Findings
+
+When documenting IPSec VPN enumeration results, include the following for each discovered gateway: IP address, IKE version (v1/v2), accepted transform sets (highlighting any weak algorithms), vendor identification, aggressive mode status, and any captured PSK hashes. Prioritize findings based on the Common Vulnerability Scoring System (CVSS) and provide specific remediation recommendations.
+
+### Finding Categories
+
+1. **CRITICAL**: Aggressive mode enabled with weak PSK. Expired or self-signed certificates. PPTP protocol supported.
+2. **HIGH**: Weak encryption algorithms accepted (DES, 3DES, MD5). Default or weak PSK values. Missing multi-factor authentication.
+3. **MEDIUM**: IKEv1 still enabled alongside IKEv2. Split tunneling allowed without restrictions. Long IKE SA lifetimes (24+ hours).
+4. **LOW**: Information disclosure through Vendor ID payloads. Non-standard IKE port configurations. Missing dead peer detection.
+
+### Report Template
+
+```markdown
+## VPN Gateway Assessment: [IP Address]
+
+### Gateway Information
+- **IP**: [IP Address]
+- **Vendor**: [Identified vendor and version]
+- **IKE Version**: [v1, v2, or both]
+- **Protocols**: [IPSec, SSL VPN, PPTP, L2TP]
+
+### Accepted Transform Sets
+| Encryption | Hash | DH Group | Authentication |
+|------------|------|----------|----------------|
+| [value]    | [value] | [value] | [value] |
+
+### Security Issues
+1. [Issue description] — Severity: [CRITICAL/HIGH/MEDIUM/LOW]
+   - Impact: [description]
+   - Remediation: [specific fix]
+```
+
 ## References
 
 - RFC 7296 — IKEv2 specification
@@ -171,3 +279,5 @@ When documenting IPSec VPN enumeration results, include the following for each d
 - VPN security assessment methodology — OWASP Testing Guide
 - VPN Penetration Testing Guide — PTES Technical Guidelines
 - IPSec VPN Security Assessment — NIST SP 800-77
+- RFC 5996 — IKEv2 improvements and clarification
+- VPN Fingerprinting Techniques — SANS Reading Room

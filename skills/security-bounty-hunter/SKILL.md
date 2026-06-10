@@ -183,6 +183,90 @@ recon-osint → security-bounty-hunter → verification-loop → article-writing
 
 ---
 
+## Bug Bounty Platforms
+
+Major platforms differ in scope model, payout ranges, and triage quality. Choosing the right platform maximizes both learning speed and earnings.
+
+| Platform | Model | Typical Payout Range | Notes |
+|----------|-------|---------------------|-------|
+| HackerOne | Public + Private | $50 - $100,000+ | Largest community; VDP programs pay $0 but build reputation |
+| Bugcrowd | Public + Private | $50 - $100,000+ | Strong API testing programs; good triage quality |
+| Synack | Invite-only | $500 - $100,000+ | Higher barrier to entry; better payout consistency |
+| Intigriti | Public + Private | EUR 50 - EUR 50,000+ | EU-based; growing program inventory |
+| YesWeHack | Public + Private | EUR 50 - EUR 50,000+ | EU-focused; strong GDPR-aligned programs |
+
+**Platform selection strategy:**
+- New hunters: Start with HackerOne public programs to build reputation and learn triage expectations
+- Intermediate: Apply for private programs on Bugcrowd and HackerOne once you have 10+ valid reports
+- Advanced: Pursue Synack Red Team invite or focus on high-paying private programs
+- Specialization: Some platforms have more API/IoT/mobile programs; match your skill set
+
+## Responsible Disclosure
+
+When no formal bug bounty program exists, responsible disclosure is the ethical and often legally safest path.
+
+**Disclosure process:**
+
+1. **Identify the contact channel** -- Check for SECURITY.md, security@domain, or GitHub Security Advisory
+2. **Report privately** -- Never disclose to a third party before the vendor has had reasonable time to fix
+3. **Set a timeline** -- 90 days is the industry standard; extend for good-faith vendor engagement
+4. **Request CVE** -- Use GitHub Security Advisory or MITRE to obtain a CVE identifier
+5. **Coordinate public disclosure** -- Publish details only after a fix is available or the timeline expires
+
+**Legal considerations:**
+- Always stay within authorized scope
+- Document all communication with the vendor
+- Avoid accessing data beyond what is necessary to demonstrate the vulnerability
+- Some jurisdictions have safe-harbor provisions for good-faith security research; know your local laws
+
+## Payout Optimization
+
+Maximizing bounty earnings requires strategic target selection and efficient reporting:
+
+**Target selection heuristics:**
+- Programs with high maximum bounties but few active hunters (new programs, niche industries)
+- Targets undergoing rapid feature development (new features = new bugs)
+- Programs that reward "interesting" findings at higher tiers than standard CVSS suggests
+- Mobile and API endpoints that receive less attention than web front-ends
+
+**Report strategies for higher payouts:**
+- Chain vulnerabilities to demonstrate higher impact (XSS + CSRF = account takeover)
+- Include business impact analysis (regulatory, financial, reputation) alongside technical impact
+- Demonstrate the widest possible blast radius in your PoC (how many users/data records affected)
+- Report variants as separate findings when they affect different code paths
+
+**Time management:**
+- Allocate 70% of effort to recon and attack surface discovery, 30% to exploitation
+- Track time-per-finding to identify which vulnerability classes give the best return
+- Use automated recon to maintain a pipeline of targets; switch targets when progress stalls
+
+## Report Writing for Bounties
+
+The quality of your report directly affects triage speed, bounty amount, and reputation score.
+
+**Report quality tiers:**
+
+| Tier | Characteristics | Triage Speed | Typical Payout |
+|------|----------------|--------------|----------------|
+| Excellent | Clear PoC, business impact, remediation, video evidence | < 24 hours | Full bounty |
+| Good | Working PoC, clear impact statement | 1-3 days | 80-100% bounty |
+| Adequate | Vulnerability demonstrated but unclear impact | 3-7 days | 50-80% bounty |
+| Poor | Incomplete PoC, missing steps, vague description | 7+ days or N/A | Rejected or downgraded |
+
+**Critical report elements:**
+1. **Descriptive title** -- `[Vuln Type] in [Component] allows [Impact] ([Severity])`
+2. **Step-by-step reproduction** -- Numbered, copy-pasteable, starting from authentication
+3. **Minimal PoC** -- One-click exploit script or curl command; no unnecessary complexity
+4. **Impact analysis** -- Business consequences, number of affected users, data at risk
+5. **Remediation** -- Specific, actionable fix recommendations with code examples
+6. **Evidence** -- Screenshots, HTTP request/response pairs, video recordings
+
+**Common report rejection reasons:**
+- Out of scope (always verify scope before testing)
+- Duplicate (check resolved reports before submitting)
+- Informative (finding does not demonstrate real impact)
+- Cannot reproduce (PoC is environment-specific or relies on race conditions without clear steps)
+
 ## Quality Gate
 
 Before submitting any report:

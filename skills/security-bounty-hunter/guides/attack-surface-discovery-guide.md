@@ -307,3 +307,97 @@ low_priority:
 ```
 
 A thorough attack surface discovery phase typically reveals 3-5x more testable endpoints than what is visible from the main application alone. The hidden assets — forgotten subdomains, undocumented APIs, exposed internal tools — are where the highest-severity bugs live.
+
+---
+
+## 9. Parameter Discovery and Testing
+
+Hidden parameters are a goldmine for bug bounty hunters. Many applications accept undocumented parameters that control authorization, filtering, and internal behavior.
+
+```bash
+# Discover hidden parameters with arjun
+arjun -u "https://target.com/api/users" -m GET,POST -oJ hidden_params.json
+
+# Use ffuf for parameter fuzzing
+ffuf -u "https://target.com/api/users?FUZZ=test" \
+  -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt \
+  -mc 200,301,302,403,500 -o param_fuzz.json
+
+# Test for mass assignment (try adding admin fields to profile update)
+curl -X PATCH "https://target.com/api/v1/users/me" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"name":"test","role":"admin","is_admin":true}'
+
+# Check for debug parameters
+for param in debug test admin internal verbose trace; do
+  status=$(curl -s -o /dev/null -w "%{http_code}" "https://target.com/api/users?${param}=1")
+  [ "$status" != "404" ] && echo "[INTERESTING] ?${param}=1 → $status"
+done
+```
+
+**Parameter priority matrix:**
+
+| Parameter Name | Likelihood of Finding | Typical Impact |
+|---------------|----------------------|----------------|
+| `admin`, `role`, `is_admin` | Medium | Privilege escalation |
+| `debug`, `test`, `internal` | High | Information disclosure |
+| `redirect`, `next`, `return_to` | High | Open redirect, SSRF |
+| `file`, `path`, `include` | Medium | Path traversal, LFI |
+| `url`, `uri`, `dest` | Medium | SSRF |
+| `callback`, `jsonp` | Low | XSS, information disclosure |
+| `limit`, `offset`, `count` | High | Data exposure, DoS |
+
+---
+
+## 10. Cloud Asset Enumeration
+
+Cloud resources are frequently exposed due to misconfigured permissions. Systematic enumeration can uncover S3 buckets, Azure blobs, GCP storage, and leaked cloud credentials.
+
+```bash
+# S3 bucket enumeration with permutations
+for prefix in target target-com target-prod target-dev target-staging \
+  target-backup target-assets target-uploads target-reports target-data \
+  target-static target-media target-cdn target-logs target-config; do
+  if aws s3 ls "s3://${prefix}" --no-sign-request 2>/dev/null | head -1 | grep -q "."; then
+    echo "[PUBLIC BUCKET] s3://${prefix}"
+    aws s3 ls "s3://${prefix}" --no-sign-request --recursive | head -20
+  fi
+done
+
+# Azure blob storage enumeration
+for container in target target-backup target-data target-uploads; do
+  az storage blob list --account-name "$container" --auth-mode login 2>/dev/null | \
+    jq '.[].name' && echo "[ACCESSIBLE] $container"
+done
+
+# Check for exposed .env files on discovered subdomains
+for host in $(cat live_hosts.txt | jq -r '.url'); do
+  for path in /.env /.env.production /.env.local /.env.staging /app.env; do
+    status=$(curl -sk -o /dev/null -w "%{http_code}" "${host}${path}")
+    if [ "$status" = "200" ]; then
+      echo "[LEAKED ENV] ${host}${path}"
+      curl -sk "${host}${path}" | grep -iE "key|secret|password|token" | head -5
+    fi
+  done
+done
+```
+
+**Cloud asset discovery tools comparison:**
+
+| Tool | Cloud Provider | Speed | Coverage | Notes |
+|------|---------------|-------|----------|-------|
+| `aws s3 ls` | AWS | Fast | Single bucket | Manual but reliable |
+| `s3scanner` | AWS | Medium | Bulk scanning | Best for batch enumeration |
+| `CloudEnum` | Multi-cloud | Slow | Comprehensive | Tests AWS, Azure, GCP |
+| `ScoutSuite` | Multi-cloud | Slow | Audit-focused | Finds misconfigurations |
+| `Prowler` | AWS | Medium | CIS compliance | Best for AWS audits |
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Run the complete subdomain enumeration pipeline against a target with wildcard scope. Document how many subdomains are discovered by each source (subfinder, crt.sh, brute force, permutations) and calculate the overlap
+2. **Exercise 2**: Perform JavaScript analysis on a target SPA application. Extract all API endpoints from JS bundles, identify hardcoded secrets, and map undocumented routes. Compare discovered endpoints against the documented API
+3. **Exercise 3**: Set up the automated asset inventory pipeline from Section 7. Run it against a target, then run it again one week later. Document any new assets that appeared and investigate whether they introduce new attack surfaces
+4. **Exercise 4**: Enumerate cloud assets for a target organization using the techniques in Section 10. Identify any publicly accessible storage buckets and document the type of data exposed

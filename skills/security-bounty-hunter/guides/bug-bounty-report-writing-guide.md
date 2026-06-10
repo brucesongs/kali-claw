@@ -324,3 +324,82 @@ rejection_reasons:
 ```
 
 Reports that demonstrate clear impact, provide reproducible PoCs, and frame findings in business terms consistently receive higher bounties and faster triage times.
+
+---
+
+## 9. Platform-Specific Report Guidelines
+
+Different platforms have different triage processes and expectations. Tailoring your report format to the platform improves acceptance rates.
+
+### HackerOne Report Best Practices
+
+- Use the platform's built-in severity calculator for CVSS scoring
+- Attach screenshots directly in the report (not external links)
+- Include a 30-second video demonstration when possible
+- Reference specific program policy sections when justifying severity
+- HackerOne triagers handle 50+ reports daily; keep reports under 500 words for the initial submission
+
+### Bugcrowd Report Best Practices
+
+- Use Bugcrowd's Vulnerability Rating Taxonomy (VRT) for classification
+- Map findings to the program's specific bounty table
+- Include "Attack Scenario" section describing a realistic attack chain
+- Bugcrowd triage is often faster; shorter reports work well
+
+### Synack Report Best Practices
+
+- Synack targets are higher-value; expect more thorough triage
+- Include network diagrams when reporting complex vulnerabilities
+- Document the full attack chain, not just the endpoint
+- Synack requires "Clear, Actionable, Impactful" reports; all three elements are mandatory
+
+---
+
+## 10. Severity Negotiation Techniques
+
+When a triager downgrades your finding, a professional response can often restore the original severity:
+
+**Response template for severity downgrade:**
+
+```markdown
+Thank you for the triage. I'd like to respectfully discuss the severity
+assessment. I believe this finding warrants [original severity] rather
+than [downgraded severity] based on the following:
+
+1. **Blast radius**: The vulnerability affects [X] users/records, not
+   just the single account demonstrated in the PoC. I confirmed this by
+   [describe additional testing].
+
+2. **Attack simplicity**: The exploit requires no special tools or skills.
+   A [describe attacker profile] could replicate this in under 5 minutes.
+
+3. **Business impact**: Beyond the technical vulnerability, this exposes
+   the organization to [regulatory/compliance/financial] risk because
+   [specific reason].
+
+4. **Program severity criteria**: Per the program's policy, [severity level]
+   is defined as "[quote policy]". My finding matches this definition because
+   [specific mapping].
+
+Would you like me to provide additional evidence or a more comprehensive
+impact demonstration?
+```
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Write a complete bounty report for a hypothetical SQL injection finding using the report structure framework. Include all sections: title, severity, summary, steps to reproduce, impact, PoC, and remediation. Aim for under 500 words while maintaining all critical information
+2. **Exercise 2**: Take the same SQL injection finding and write it in three different styles: HackerOne format, Bugcrowd format, and a raw email to a vendor for responsible disclosure. Compare the differences in tone, structure, and level of detail
+3. **Exercise 3**: Practice severity negotiation. Write a response to a triager who has downgraded your Critical finding to Medium. Include specific evidence, program policy references, and business impact arguments
+
+---
+
+## References
+
+- HackerOne Hacktivity: https://hackerone.com/hacktivity
+- Bugcrowd VRT: https://bugcrowd.com/vulnerability-rating-taxonomy
+- OWASP Bug Bounty Guide: https://owasp.org/www-community/vulnerabilities/
+- CVSS 3.1 Calculator: https://www.first.org/cvss/calculator/3.1
+- CWE Database: https://cwe.mitre.org/
+- PortSwigger Web Security Academy: https://portswigger.net/web-security

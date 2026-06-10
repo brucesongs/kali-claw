@@ -347,3 +347,101 @@ curl -s "http://target/" -H "X-Debug: true" | \
 ```
 
 Debug endpoints are among the most impactful misconfigurations because they often provide direct access to secrets, internal architecture details, and sometimes even remote code execution capabilities — all without requiring any authentication.
+
+---
+
+## 9. Django Debug Mode Detection
+
+Django applications with `DEBUG=True` expose detailed error pages, SQL queries, and local variables when an exception occurs:
+
+```bash
+# Trigger a 404 error and check for Django debug page
+curl -s "https://target.com/nonexistent_path_debug_test/" | \
+  grep -q "Django Debug Toolbar\|You're seeing this error because you have" && \
+  echo "DJANGO DEBUG MODE ENABLED"
+
+# Trigger a 500 error to leak more information
+curl -s -X POST "https://target.com/api/endpoint" \
+  -H "Content-Type: application/json" \
+  -d '{"invalid": "'"'"}' | \
+  grep -iE "Traceback|Exception Type|Exception Value|Python Executable|Server time"
+
+# Extract local variables from Django debug pages
+curl -s "https://target.com/trigger_error/" | \
+  grep -oP 'name="variables"[^>]*>.*?</pre>' | \
+  sed 's/<[^>]*>//g' | head -50
+```
+
+**Django debug page information disclosed:**
+- Full Python traceback with file paths
+- Local variables at each stack frame (may contain secrets, database credentials)
+- SQL queries executed during the request
+- Request META headers (including server environment variables)
+- Installed middleware and applications list
+- Template debugging information
+
+---
+
+## 10. ASP.NET Debug Mode and Custom Errors
+
+ASP.NET applications with `customErrors mode="Off"` or `debug="true"` expose detailed stack traces and framework version information:
+
+```bash
+# Check ASP.NET custom errors mode
+curl -s "https://target.com/nonexistent_aspx_page.aspx" | \
+  grep -iE "Runtime Error|Server Error|Stack Trace|Version Information"
+
+# Trigger errors to detect debug mode
+curl -s "https://target.com/api/values/abc" | \
+  grep -iE "System\.|Exception|at [A-Z]" | head -20
+
+# Check for Elmah error logging exposure
+curl -s "https://target.com/elmah.axd" | head -50
+
+# Check for Glimpse diagnostic tool
+curl -s "https://target.com/glimpse.axd" | head -50
+```
+
+**ASP.NET web.config hardening:**
+
+```xml
+<system.web>
+  <!-- Disable debug mode in production -->
+  <compilation debug="false" />
+  <!-- Enable custom errors -->
+  <customErrors mode="On" defaultRedirect="/error.html">
+    <error statusCode="404" redirect="/404.html" />
+    <error statusCode="500" redirect="/500.html" />
+  </customErrors>
+  <!-- Hide version header -->
+  <httpRuntime enableVersionHeader="false" />
+</system.web>
+```
+
+---
+
+## 11. Debug Endpoint Impact Classification
+
+Not all debug endpoints carry the same risk. Use this classification to prioritize findings:
+
+| Endpoint | Information Exposed | Severity | Exploitability |
+|----------|-------------------|----------|----------------|
+| `/actuator/heapdump` | Full JVM memory (credentials, tokens, keys) | CRITICAL | Immediate -- download and parse with strings/Eclipse MAT |
+| `/actuator/env` | Environment variables (database URLs, API keys) | CRITICAL | Immediate -- credentials visible in plaintext |
+| `/.env` | Application secrets, database credentials | CRITICAL | Immediate -- secrets in plaintext |
+| `/actuator/configprops` | Configuration properties with decrypted values | HIGH | Moderate -- requires understanding of config keys |
+| `/debug/pprof/heap` | Memory allocation data, internal code paths | HIGH | Moderate -- reveals architecture and dependencies |
+| `/actuator/mappings` | All registered URL routes including hidden APIs | MEDIUM | Moderate -- enables targeted testing |
+| `/phpinfo.php` | PHP version, extensions, configuration | MEDIUM | Low -- mostly useful for follow-up exploitation |
+| `/swagger-ui.html` | API documentation with parameters and auth details | MEDIUM | Moderate -- enables targeted API testing |
+| `/server-status` | Active connections, request URIs, client IPs | LOW | Low -- operational information only |
+| `/health` | Application health status | INFO | Negligible -- no sensitive data |
+
+---
+
+## Hands-on Exercises
+
+1. **Exercise 1**: Deploy a Spring Boot application with Actuator endpoints enabled. Use the techniques from this guide to discover all exposed endpoints, extract environment variables, and download the heap dump. Analyze the heap dump with `strings` to find embedded credentials
+2. **Exercise 2**: Set up a Go web server with pprof enabled on port 6060. Download the goroutine dump and heap profile. Identify internal package names, file paths, and any secrets visible in memory
+3. **Exercise 3**: Build a custom debug endpoint scanner that extends the Python scanner in Section 7 with Django, ASP.NET, and Node.js debug detection. Test it against a lab environment with intentionally exposed debug endpoints
+4. **Exercise 4**: Configure a Spring Boot application to properly secure Actuator endpoints. Verify that only `/actuator/health` is accessible without authentication and that `/actuator/env`, `/actuator/heapdump`, and other sensitive endpoints return 401/403
