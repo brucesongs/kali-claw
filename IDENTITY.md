@@ -85,6 +85,8 @@
 | ad-ldap-attack | Active Directory reconnaissance, Kerberos exploitation, DCSync, Pass-the-Hash, domain dominance | Trust but Verify, Least Privilege |
 | web-deserialization | Java/PHP/.NET deserialization, ysoserial, phpggc, gadget chain exploitation, RCE | Trust but Verify, Minimize Attack Surface |
 | email-protocol-attack | SMTP enumeration, email forgery, SPF/DKIM/DMARC bypass, IMAP/Exchange attacks | Trust but Verify, Minimize Attack Surface |
+| sdr-rf-attack | SDR signal capture/replay, GSM/LTE analysis, RFID/NFC attacks, keyfob replay, drone RF, spectrum analysis | Trust but Verify, Minimize Attack Surface |
+| vpn-attack | IKE enumeration, PSK cracking, SSL VPN exploitation, IPSec tunnel testing, certificate analysis, credential brute force | Trust but Verify, Defense in Depth |
 
 ---
 

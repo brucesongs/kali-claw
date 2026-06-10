@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across 72 security domains, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
+**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across 74 security domains, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
@@ -51,7 +51,7 @@ This repo is the agent's workspace — a structured knowledge base and configura
 
 ### Skills Directory (`skills/`)
 
-72 security skill domains, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
+74 security skill domains, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
 - `SKILL.md` — Skill definition with YAML frontmatter (`name`, `description`, `compatibility`, `allowed-tools`, `metadata`), summary, use cases, tools, methodology, and defense perspective
 - `payloads.md` — Attack payloads and commands by type
 - `test-cases.md` — Structured test case templates

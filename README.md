@@ -2,7 +2,7 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 72 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 74 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 72 security skill domains
+├── skills/              # 74 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -112,7 +112,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (72 domains total)
+│   └── ... (74 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -264,7 +264,7 @@ rm -rf chronicle/
 The following are universal and reusable as-is:
 - **Hacker Laws** in `SOUL.md` — applies to all security agents
 - **Heartbeat framework** in `HEARTBEAT.md`
-- **All 72 skills** in `skills/`
+- **All 74 skills** in `skills/`
 - **All guides** in `skills/*/guides/`
 
 ### Example: Web Security Agent
@@ -327,18 +327,19 @@ TOOLS.md:
 | v0.1.19 | 2026-06-09 | **8 New Blank-Coverage Domains** | 8 new skills (bluetooth-rfid-nfc, network-tunneling-proxy, firmware-reverse, scada-ics-security, database-attack, voip-sip-attack, anti-forensics, pentest-reporting); 70 new tool references; 61→69 domains |
 | v0.1.20 | 2026-06-10 | **+1 domain (ad-ldap-attack), 70/70 Excellent (100%)** | +1 domain (ad-ldap-attack), 70/70 Excellent (100%), avg 86.5 |
 | v0.1.21 | 2026-06-10 | **+2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9** | +2 domains (web-deserialization, email-protocol-attack), first Distinguished (network-pentest 92.0), avg 86.9 |
+| v0.1.22 | 2026-06-10 | **+2 domains (sdr-rf-attack, vpn-attack), 2 Distinguished, avg 87.x** | +2 domains (sdr-rf-attack, vpn-attack); Distinguished sprint: cloud-security 92.1; 72→74 domains |
 
-### Current Quality Snapshot (v0.1.21, scoring v2)
+### Current Quality Snapshot (v0.1.22, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **1** | network-pentest (92.0) |
-| Excellent (80-91.9) | **71** | All remaining skill domains |
+| Distinguished (92+) | **2** | cloud-security (92.1), network-pentest (92.0) |
+| Excellent (80-91.9) | **72** | All remaining skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 86.9** | **72/72 Excellent or above** | **1 Distinguished: network-pentest (92.0)**
+**Average score: 86.9** | **74/74 Excellent or above** | **2 Distinguished: cloud-security (92.1), network-pentest (92.0)**
 
 ### Future Exploration
 

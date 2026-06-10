@@ -1,11 +1,11 @@
 {
   "skill": "article-writing",
-  "timestamp": "2026-06-10T01:16:00Z",
+  "timestamp": "2026-06-10T09:37:21Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 6617,
-    "payload_section_count": 35,
-    "payload_code_blocks": 59,
+    "payload_word_count": 8177,
+    "payload_section_count": 50,
+    "payload_code_blocks": 66,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
     "guide_file_count": 8,
@@ -16,7 +16,7 @@
   "normalized_scores": {
     "payload_word": 100.0,
     "payload_section": 100.0,
-    "payload_code": 83.6,
+    "payload_code": 86.4,
     "test_case": 80.0,
     "field": 100.0,
     "guide": 82.5,
@@ -24,10 +24,10 @@
   },
   "component_scores": {
     "skill_md": 100.00,
-    "payloads_md": 94.53,
+    "payloads_md": 95.47,
     "test_cases_md": 90.00,
     "guides": 82.5
   },
-  "overall_score": 91.0,
+  "overall_score": 91.3,
   "tier": "Excellent"
 }

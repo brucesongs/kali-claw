@@ -23,7 +23,7 @@ import re
 import sys
 
 SKILLS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills")
-VERSION = "0.1.21"
+VERSION = "0.1.22"
 ORIGIN = "openclaw"
 
 COMPATIBILITY = ["openclaw", "claude-code", "cursor", "windsurf"]
@@ -58,7 +58,9 @@ ATTACK_SKILLS = {
     "anti-forensics",
     "ad-ldap-attack",
     "web-deserialization",
-    "email-protocol-attack"
+    "email-protocol-attack",
+    "sdr-rf-attack",
+    "vpn-attack"
 }
 
 DOMAIN_MAP = {
@@ -101,6 +103,8 @@ DOMAIN_MAP = {
     "ad-ldap-attack": "enterprise",
     "web-deserialization": "web-attack",
     "email-protocol-attack": "network-attack",
+    "sdr-rf-attack": "wireless",
+    "vpn-attack": "network-attack",
 }
 
 OWASP_MAP = {
@@ -147,6 +151,8 @@ MITRE_MAP = {
     "ad-ldap-attack": "TA0006-Credential Access",
     "web-deserialization": "T1190-Exploit Public-Facing App",
     "email-protocol-attack": "T1114-Email Collection",
+    "sdr-rf-attack": "TA0046-Initial Access",
+    "vpn-attack": "TA0046-Initial Access",
 }
 
 # Non-tool entries to skip in tool tables

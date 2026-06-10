@@ -143,6 +143,8 @@ All tools are at **Mastered** status. Tool counts are approximate and based on t
 | Domain | Tools | Count |
 |--------|-------|-------|
 | email-protocol-attack | smtp-user-enum, swaks, sendemail, nailgun, smtpmap, mutt, openssl | 8 |
+| sdr-rf-attack | gnuradio, gr-gsm, hackrf, rtl-sdr, urh, gqrx, inspectrum | 7 |
+| vpn-attack | ike-scan, ikeforce, ikecrack, vpnc, strongswan | 5 |
 
 ---
 

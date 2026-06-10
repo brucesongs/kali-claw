@@ -1895,3 +1895,454 @@ def check_report(filepath):
 if __name__ == "__main__":
     check_report(sys.argv[1] if len(sys.argv) > 1 else "report.md")
 ```
+
+---
+
+## Markdown Report Generation Scripts
+
+### Report Skeleton Generator with Auto-Population
+
+```bash
+#!/bin/bash
+# Generate a complete pentest report skeleton and auto-populate from evidence
+# Usage: ./generate-report.sh <engagement_id> <evidence_dir>
+
+ENG_ID="${1:-ENG-001}"
+EVIDENCE_DIR="${2:-evidence/}"
+OUTPUT="reports/${ENG_ID}-report-$(date +%Y%m%d).md"
+mkdir -p reports
+
+# Count findings by severity from evidence JSON files
+if ls "$EVIDENCE_DIR"/*.json 1>/dev/null 2>&1; then
+  CRITICAL=$(cat "$EVIDENCE_DIR"/*.json 2>/dev/null | jq -s '[.[] | select(.severity=="Critical")] | length' 2>/dev/null || echo 0)
+  HIGH=$(cat "$EVIDENCE_DIR"/*.json 2>/dev/null | jq -s '[.[] | select(.severity=="High")] | length' 2>/dev/null || echo 0)
+  MEDIUM=$(cat "$EVIDENCE_DIR"/*.json 2>/dev/null | jq -s '[.[] | select(.severity=="Medium")] | length' 2>/dev/null || echo 0)
+  LOW=$(cat "$EVIDENCE_DIR"/*.json 2>/dev/null | jq -s '[.[] | select(.severity=="Low")] | length' 2>/dev/null || echo 0)
+else
+  CRITICAL=0; HIGH=0; MEDIUM=0; LOW=0
+fi
+
+TOTAL=$((CRITICAL + HIGH + MEDIUM + LOW))
+
+cat > "$OUTPUT" << REPORT
+# Penetration Test Report
+
+**Engagement ID**: $ENG_ID
+**Date**: $(date -u +%Y-%m-%d)
+**Classification**: Confidential
+
+## Executive Summary
+
+A security assessment identified **${TOTAL}** vulnerabilities:
+- **Critical**: ${CRITICAL}
+- **High**: ${HIGH}
+- **Medium**: ${MEDIUM}
+- **Low**: ${LOW}
+
+$([ "$CRITICAL" -gt 0 ] && echo "**WARNING**: ${CRITICAL} critical vulnerabilities require immediate remediation.")
+
+## Findings Summary
+
+| # | Title | Severity | CVSS | Component | Status |
+|---|-------|----------|------|-----------|--------|
+REPORT
+
+# Auto-populate findings table
+COUNT=0
+for f in "$EVIDENCE_DIR"/*.json; do
+  [ -f "$f" ] || continue
+  COUNT=$((COUNT + 1))
+  TITLE=$(jq -r '.title // "Untitled"' "$f" 2>/dev/null)
+  SEV=$(jq -r '.severity // "Unknown"' "$f" 2>/dev/null)
+  CVSS=$(jq -r '.cvss_score // "N/A"' "$f" 2>/dev/null)
+  COMP=$(jq -r '.component // "N/A"' "$f" 2>/dev/null)
+  STATUS=$(jq -r '.status // "Open"' "$f" 2>/dev/null)
+  echo "| $COUNT | $TITLE | $SEV | $CVSS | $COMP | $STATUS |" >> "$OUTPUT"
+done
+
+cat >> "$OUTPUT" << FOOTER
+
+## Detailed Findings
+
+<!-- Insert individual finding sections here -->
+
+## Remediation Roadmap
+
+### P1 - Immediate (24-48 hours)
+<!-- Critical and high findings -->
+
+### P2 - Short-term (1-2 weeks)
+<!-- Medium findings -->
+
+### P3 - Long-term (1-3 months)
+<!-- Low findings and best practices -->
+
+## Appendices
+
+### A. Tool Output
+### B. Raw Evidence
+FOOTER
+
+echo "[REPORT] Generated: $OUTPUT ($TOTAL findings auto-populated)"
+```
+
+### Markdown to PDF with Custom Security Template
+
+```bash
+#!/bin/bash
+# Convert Markdown report to professional PDF with security branding
+# Usage: ./report-to-pdf.sh report.md
+
+REPORT="${1:-report.md}"
+OUTPUT="${2:-${REPORT%.md}.pdf}"
+COMPANY="${3:-Security Team}"
+
+# Create LaTeX header for security report
+cat > /tmp/security-header.tex << 'TEX'
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\definecolor{darkred}{RGB}{139,0,0}
+\pagestyle{fancy}
+\fancyhead[L]{\textcolor{darkred}{CONFIDENTIAL}}
+\fancyhead[R]{\textcolor{darkred}{Security Assessment}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+TEX
+
+pandoc "$REPORT" -o "$OUTPUT" \
+  --pdf-engine=xelatex \
+  --toc --toc-depth=3 \
+  --number-sections \
+  -H /tmp/security-header.tex \
+  -V geometry:margin=1in \
+  -V fontsize=11pt \
+  -V colorlinks=true \
+  -V linkcolor=blue \
+  --highlight-style=tango \
+  --metadata title="Penetration Test Report" \
+  --metadata author="$COMPANY"
+
+echo "[PDF] Generated: $OUTPUT"
+```
+
+---
+
+## CVSS Score Calculation Automation
+
+### Batch CVSS Calculator with NVD Lookup
+
+```python
+#!/usr/bin/env python3
+"""Batch CVSS score calculator that validates against NVD API."""
+
+import json
+import math
+import time
+import urllib.request
+
+def calculate_cvss_v31(vector_string):
+    """Calculate CVSS v3.1 base score from vector string."""
+    weights = {
+        'AV': {'N': 0.85, 'A': 0.62, 'L': 0.55, 'P': 0.20},
+        'AC': {'L': 0.77, 'H': 0.44},
+        'PR': {'N': {'U': 0.85, 'C': 0.85}, 'L': {'U': 0.62, 'C': 0.68}, 'H': {'U': 0.27, 'C': 0.50}},
+        'UI': {'N': 0.85, 'R': 0.62},
+        'C': {'H': 0.56, 'L': 0.22, 'N': 0},
+        'I': {'H': 0.56, 'L': 0.22, 'N': 0},
+        'A': {'H': 0.56, 'L': 0.22, 'N': 0}
+    }
+
+    parts = dict(p.split(':') for p in vector_string.replace('CVSS:3.1/', '').split('/'))
+    scope_changed = parts['S'] == 'C'
+
+    av = weights['AV'][parts['AV']]
+    ac = weights['AC'][parts['AC']]
+    pr = weights['PR'][parts['PR']]['C' if scope_changed else 'U']
+    ui = weights['UI'][parts['UI']]
+
+    exploitability = 8.22 * av * ac * pr * ui
+    c, i, a = weights['C'][parts['C']], weights['I'][parts['I']], weights['A'][parts['A']]
+    isc = 1 - ((1 - c) * (1 - i) * (1 - a))
+
+    if scope_changed:
+        impact = 7.52 * (isc - 0.029) - 3.25 * (isc - 0.02) ** 15
+    else:
+        impact = 6.42 * isc
+
+    if impact <= 0:
+        return 0.0
+
+    score = min(1.08 * (impact + exploitability), 10.0) if scope_changed else min(impact + exploitability, 10.0)
+    return math.ceil(score * 10) / 10
+
+def lookup_nvd(cve_id):
+    """Look up CVSS score from NVD API for validation."""
+    url = f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve_id}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "cvss-calc/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+            metrics = data.get('vulnerabilities', [{}])[0].get('cve', {}).get('metrics', {})
+            cvss_data = metrics.get('cvssMetricV31', [{}])[0].get('cvssData', {})
+            return cvss_data.get('baseScore'), cvss_data.get('vectorString')
+    except Exception:
+        return None, None
+
+def batch_calculate(cve_vectors):
+    """Process a batch of CVE-vector pairs."""
+    results = []
+    for entry in cve_vectors:
+        cve_id = entry.get('cve_id', 'Unknown')
+        vector = entry.get('vector', '')
+        calculated = calculate_cvss_v31(vector) if vector else None
+        nvd_score, nvd_vector = lookup_nvd(cve_id)
+        match = "MATCH" if calculated and nvd_score and abs(calculated - nvd_score) < 0.1 else "DIFF"
+        results.append({
+            'cve_id': cve_id,
+            'calculated': calculated,
+            'nvd_score': nvd_score,
+            'match': match,
+            'vector': vector
+        })
+        time.sleep(0.6)  # NVD rate limit
+    return results
+
+# Usage:
+# entries = [{"cve_id": "CVE-2024-3094", "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"}]
+# results = batch_calculate(entries)
+```
+
+---
+
+## Vulnerability Disclosure Templates
+
+### Coordinated Disclosure Notification Generator
+
+```python
+#!/usr/bin/env python3
+"""Generate a coordinated vulnerability disclosure notification email."""
+
+import json
+from datetime import datetime, timedelta
+
+def generate_disclosure_email(vulnerability, researcher):
+    """Generate a formatted disclosure email from vulnerability data."""
+    disclosure_date = datetime.now() + timedelta(days=90)
+
+    email = f"""Subject: [SECURITY] Vulnerability Disclosure: {vulnerability.get('title', 'Untitled')}
+
+Dear {vulnerability.get('vendor_security_team', 'Security Team')},
+
+We are writing to responsibly disclose a security vulnerability discovered in
+{vulnerability.get('product', 'your product')} version {vulnerability.get('affected_version', 'N/A')}.
+
+## Vulnerability Summary
+
+- **Title**: {vulnerability.get('title', 'N/A')}
+- **Type**: {vulnerability.get('type', 'N/A')}
+- **Severity**: {vulnerability.get('severity', 'N/A')} (CVSS {vulnerability.get('cvss_score', 'N/A')})
+- **Attack Vector**: {vulnerability.get('attack_vector', 'N/A')}
+- **Authentication Required**: {vulnerability.get('auth_required', 'Unknown')}
+- **CWE**: {vulnerability.get('cwe', 'N/A')}
+
+## Description
+
+{vulnerability.get('description', 'Please see attached advisory for details.')}
+
+## Impact
+
+{vulnerability.get('impact', 'Please see attached advisory for details.')}
+
+## Proof of Concept
+
+{vulnerability.get('poc', 'Available upon request after acknowledgment.')}
+
+## Disclosure Timeline
+
+- **Discovery Date**: {vulnerability.get('discovery_date', datetime.now().strftime('%Y-%m-%d'))}
+- **Vendor Notification**: {datetime.now().strftime('%Y-%m-%d')}
+- **Acknowledgment Deadline**: {(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')}
+- **Planned Disclosure**: {disclosure_date.strftime('%Y-%m-%d')} (90-day policy)
+
+We are committed to responsible disclosure. Please acknowledge receipt within
+72 hours. We will delay public disclosure until a patch is available or 90 days
+have elapsed, whichever comes first.
+
+Best regards,
+{researcher.get('name', 'Security Researcher')}
+{researcher.get('organization', '')}
+"""
+    return email
+
+# Example usage
+vuln = {
+    "title": "SQL Injection in Search Endpoint",
+    "product": "WebApp Framework",
+    "affected_version": "< 3.2.1",
+    "type": "SQL Injection",
+    "severity": "Critical",
+    "cvss_score": "9.8",
+    "cwe": "CWE-89"
+}
+researcher = {"name": "Security Team", "organization": "Security Lab"}
+print(generate_disclosure_email(vuln, researcher))
+```
+
+---
+
+## Technical Writing Quality Checks
+
+### Report Readability Analyzer
+
+```python
+#!/usr/bin/env python3
+"""Analyze security report readability and technical writing quality."""
+
+import re
+import sys
+from pathlib import Path
+
+def analyze_readability(filepath):
+    """Score a security report on readability metrics."""
+    with open(filepath) as f:
+        content = f.read()
+
+    issues = []
+
+    # Check for passive voice
+    passive_patterns = [
+        r'\bwas\s+\w+ed\b', r'\bwere\s+\w+ed\b', r'\bbeen\s+\w+ed\b',
+        r'\bis\s+\w+ed\b', r'\bare\s+\w+ed\b', r'\bwas\s+found\b'
+    ]
+    for pattern in passive_patterns:
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        if len(matches) > 5:
+            issues.append(f"Excessive passive voice: '{pattern}' found {len(matches)} times")
+
+    # Check for vague language
+    vague_words = ['some', 'various', 'certain', 'things', 'stuff', 'it appears', 'it seems']
+    for word in vague_words:
+        count = len(re.findall(r'\b' + word + r'\b', content, re.IGNORECASE))
+        if count > 0:
+            issues.append(f"Vague language: '{word}' used {count} times")
+
+    # Check sentence length
+    sentences = re.split(r'[.!?]+', content)
+    long_sentences = [s for s in sentences if len(s.split()) > 30]
+    if len(long_sentences) > 5:
+        issues.append(f"{len(long_sentences)} sentences exceed 30 words")
+
+    # Check evidence references exist
+    evidence_refs = re.findall(r'evidence/[^\s)\"]+', content)
+    broken_refs = [ref for ref in evidence_refs if not Path(ref).exists()]
+    if broken_refs:
+        issues.append(f"Broken evidence references: {broken_refs[:5]}")
+
+    score = max(0, 100 - len(issues) * 10)
+
+    print(f"=== Readability Report: {filepath} ===")
+    print(f"Quality Score: {score}/100")
+    if issues:
+        print(f"\n{len(issues)} issues found:")
+        for issue in issues:
+            print(f"  - {issue}")
+    else:
+        print("No issues found. Report passes all quality checks.")
+
+    return {'score': score, 'issues': issues}
+
+if __name__ == "__main__":
+    target = sys.argv[1] if len(sys.argv) > 1 else "report.md"
+    analyze_readability(target)
+```
+
+---
+
+## Report Formatting Pipelines
+
+### Multi-Format Report Export with Watermarking
+
+```bash
+#!/bin/bash
+# Export security report to PDF, DOCX, and HTML with CONFIDENTIAL watermark
+# Usage: ./export-report.sh report.md
+
+REPORT="${1:-report.md}"
+BASENAME=$(basename "$REPORT" .md)
+OUTPUT_DIR="exports/$(date +%Y%m%d)"
+mkdir -p "$OUTPUT_DIR"
+
+echo "[EXPORT] Processing $REPORT..."
+
+# Generate PDF with confidential watermark and TOC
+pandoc "$REPORT" -o "$OUTPUT_DIR/${BASENAME}.pdf" \
+  --pdf-engine=xelatex \
+  --toc --toc-depth=3 \
+  --number-sections \
+  -V geometry:margin=1in \
+  -V fontsize=11pt \
+  -V colorlinks=true \
+  -V header-includes='\\usepackage{draftwatermark}\\SetWatermarkText{CONFIDENTIAL}\\SetWatermarkScale{0.5}' \
+  --highlight-style=tango
+
+# Generate DOCX
+pandoc "$REPORT" -o "$OUTPUT_DIR/${BASENAME}.docx" --toc
+
+# Generate standalone HTML
+pandoc "$REPORT" -o "$OUTPUT_DIR/${BASENAME}.html" --standalone --toc --self-contained
+
+# Generate summary text file
+echo "Report: $BASENAME" > "$OUTPUT_DIR/${BASENAME}-summary.txt"
+echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUTPUT_DIR/${BASENAME}-summary.txt"
+echo "Words: $(wc -w < "$REPORT")" >> "$OUTPUT_DIR/${BASENAME}-summary.txt"
+echo "Findings: $(grep -c '###.*FIND-\|###.*CVE-' "$REPORT" 2>/dev/null || echo 0)" >> "$OUTPUT_DIR/${BASENAME}-summary.txt"
+
+echo "[EXPORT] All formats generated in $OUTPUT_DIR/"
+ls -la "$OUTPUT_DIR/${BASENAME}".*
+```
+
+### Report Diff Comparison Tool
+
+```bash
+#!/bin/bash
+# Compare two report versions to track changes between revisions
+# Usage: ./report-diff.sh report_v1.md report_v2.md
+
+REPORT_OLD="${1:-report_v1.md}"
+REPORT_NEW="${2:-report_v2.md}"
+OUTPUT="reports/diff-$(date +%Y%m%d-%H%M%S).md"
+
+echo "# Report Change Log" > "$OUTPUT"
+echo "" >> "$OUTPUT"
+echo "Comparing: $(basename "$REPORT_OLD") vs $(basename "$REPORT_NEW")" >> "$OUTPUT"
+echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$OUTPUT"
+echo "" >> "$OUTPUT"
+
+# Find added findings
+echo "## New Findings" >> "$OUTPUT"
+comm -23 \
+  <(grep -oP '(?<=### ).*' "$REPORT_NEW" | sort) \
+  <(grep -oP '(?<=### ).*' "$REPORT_OLD" | sort) >> "$OUTPUT" 2>/dev/null
+
+echo "" >> "$OUTPUT"
+
+# Find removed findings
+echo "## Removed Findings" >> "$OUTPUT"
+comm -13 \
+  <(grep -oP '(?<=### ).*' "$REPORT_NEW" | sort) \
+  <(grep -oP '(?<=### ).*' "$REPORT_OLD" | sort) >> "$OUTPUT" 2>/dev/null
+
+echo "" >> "$OUTPUT"
+
+# Word count comparison
+OLD_WORDS=$(wc -w < "$REPORT_OLD")
+NEW_WORDS=$(wc -w < "$REPORT_NEW")
+DELTA=$((NEW_WORDS - OLD_WORDS))
+
+echo "## Statistics" >> "$OUTPUT"
+echo "- Old version: $OLD_WORDS words" >> "$OUTPUT"
+echo "- New version: $NEW_WORDS words" >> "$OUTPUT"
+echo "- Change: ${DELTA} words" >> "$OUTPUT"
+
+echo "[DIFF] Comparison saved to $OUTPUT"
+```
