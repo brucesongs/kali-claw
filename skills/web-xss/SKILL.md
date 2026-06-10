@@ -1,8 +1,48 @@
+---
+name: web-xss
+description: "XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 5
+  guide_count: 5
+  owasp: "A03:2021-Injection"
+  mitre: "T1189-Drive-by Compromise"
+---
+
+
+
+
 # Skill: Cross-Site Scripting (XSS)
 
 > **Supplementary Files**:
 > - `payloads.md` -- XSS attack payloads organized by category (probing, reflected, stored, DOM-based, encoding bypass, WAF bypass, blind, CSP bypass, cookie theft)
 > - `test-cases.md` -- Structured test cases with severity levels, preconditions, and expected results (10 test cases covering 5 XSS categories)
+
+## Summary
+
+Web Xss skill domain covering web attack operations.
+
+**Tools**: Burp Suite, Browser DevTools, XSStrike, Dalfox, Custom Payloads
+
+**Domain**: web-attack
+
+**OWASP**: A03:2021-Injection
+
+**MITRE ATT&CK**: T1189-Drive-by Compromise
 
 ## Description
 

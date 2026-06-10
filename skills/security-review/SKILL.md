@@ -1,9 +1,42 @@
+---
+name: security-review
+description: "Comprehensive security checklist and review patterns for analyzing applications, configurations, and infrastructure. This skill provides structured review methodology to identify vulnerabilities across OWASP Top 10 categories during penetration testing."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: assessment
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Security Review
 
 > **Supplementary Files**:
 > - `payloads.md` — Security review commands, test payloads, and audit scripts organized by OWASP category
 > - `test-cases.md` — Structured test cases for security review checklists covering secrets, input validation, injection, authentication, and data exposure
 > - `guides/` — Deep-dive methodology guides for systematic security auditing
+
+## Summary
+
+This skill provides structured review methodology to identify vulnerabilities across OWASP Top 10 categories during penetration testing.
+
+**Domain**: assessment
 
 ## Description
 

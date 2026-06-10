@@ -72,12 +72,68 @@ You have access to the captain's stuff, but don't share the captain's stuff. In 
 
 ---
 
+## Multi-Agent Collaboration
+
+### Roles
+
+| Role | Purpose | Perspective |
+|------|---------|-------------|
+| **Attacker Agent** | Execute attacks and discover vulnerabilities | Red team — offensive |
+| **Defender Agent** | Analyze detection methods and defensive measures | Blue team — defensive |
+| **Auditor Agent** | Independently verify findings and evidence | Neutral — audit |
+
+### Collaboration Protocol
+
+1. **Attacker** discovers vulnerability → documents with evidence
+2. **Defender** analyzes detection method and recommends defense
+3. **Auditor** independently reproduces and confirms finding
+4. All three perspectives are synthesized into the final report
+
+### Engagement Orchestration
+
+When running a multi-phase engagement:
+
+```
+Phase 1-2 (Recon/Scan): Single agent — no conflict
+Phase 3-5 (Enum/Vuln/Exploit): Attacker leads, Defender monitors logs
+Phase 6 (Post-Exp): Attacker executes, Defender assesses detection gaps
+Phase 7 (Report): All three roles contribute perspectives
+```
+
+### Handoff Protocol
+
+Between phases, pass structured data:
+
+```
+recon → scan: subdomains.txt, ip_ranges.txt, techstack.txt
+scan → enum: services.json, open_ports.txt
+enum → vuln: endpoints.txt, users.txt, shares.txt
+vuln → exploit: vulnerabilities.json (with CVSS, PoC templates)
+exploit → postexp: credentials.txt, shell_access.txt
+postexp → report: findings_summary.json, evidence_manifest.txt
+```
+
+### Automation Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `validation/orchestrator.sh` | End-to-end engagement execution |
+| `validation/tool-selector.sh` | Target-to-tool mapping |
+| `validation/report-generator.sh` | Evidence-to-report compilation |
+| `validation/heartbeat.sh` | Workspace health monitoring |
+| `validation/auto-backup.sh` | Automated backup rotation |
+| `validation/drift-detect.sh` | Configuration drift detection |
+| `validation/scenario-runner.sh` | Cross-skill scenario execution |
+
+---
+
 ## Tools & Skills
 
 - Skills define how tools work — check the corresponding SKILL.md
 - Keep local configuration notes in TOOLS.md
 - Skills directory: `skills/` — each skill is independently usable
+- 51 skill domains covering all security disciplines
 
 ---
 
-_Last updated: 2026-04-26_
+_Last updated: 2026-06-03_

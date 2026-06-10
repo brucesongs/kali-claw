@@ -1,6 +1,6 @@
 {
   "skill": "recon-osint",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 2954,
@@ -11,7 +11,7 @@
     "guide_file_count": 11,
     "guide_avg_words": 440,
     "guide_key_sections": 3,
-    "skill_section_score": 0.81
+    "skill_section_score": 0.83
   },
   "normalized_scores": {
     "payload_word": 89.5,
@@ -20,14 +20,14 @@
     "test_case": 87.5,
     "field": 86.0,
     "guide": 86.8,
-    "skill_section": 81.0
+    "skill_section": 83.0
   },
   "component_scores": {
-    "skill_md": 81.00,
+    "skill_md": 83.00,
     "payloads_md": 88.37,
     "test_cases_md": 86.75,
     "guides": 86.8
   },
-  "overall_score": 86.4,
+  "overall_score": 86.7,
   "tier": "Excellent"
 }

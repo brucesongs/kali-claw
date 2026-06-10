@@ -1,8 +1,45 @@
+---
+name: cloud-security
+description: "Cloud security covers security assessment for major cloud platforms including AWS, Azure, and GCP, with core focus on IAM misconfiguration detection, storage bucket exposure scanning, metadata service attacks, container escape, and Kubernetes RBAC auditing."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: cloud
+  tool_count: 6
+  guide_count: 8
+  mitre: "TA0008-Lateral Movement"
+---
+
+
+
+
 # Skill: Cloud Security
 
 > **Supplementary Files**:
 > - `payloads.md` -- Cloud security attack payloads organized by category (AWS/Azure/GCP enumeration, IAM analysis, S3 exposure, metadata exploitation, container/K8s exploitation)
 > - `test-cases.md` -- Structured test cases covering cloud reconnaissance, IAM & access testing, storage security, network security, and advanced exploitation
+
+## Summary
+
+Cloud Security skill domain covering cloud operations.
+
+**Tools**: pacu, scoutsuite, awscli, s3scanner, kubeaudit, trivy
+
+**Domain**: cloud
+
+**MITRE ATT&CK**: TA0008-Lateral Movement
 
 ## Description
 

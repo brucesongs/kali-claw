@@ -1,8 +1,41 @@
+---
+name: terminal-ops
+description: "Evidence-first execution workflow for running security commands, inspecting system state, debugging tool failures, and making verified changes. This skill enforces a disciplined approach: inspect before acting, keep changes narrow, and report exact execution state."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: workflow
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Terminal Operations
 
 > **Supplementary Files**:
 > - `payloads.md` — Common pentest terminal command patterns organized by task (recon, exploitation, post-exploitation, reporting)
 > - `test-cases.md` — Structured test scenarios for terminal operations workflow
+
+## Summary
+
+This skill enforces a disciplined approach: inspect before acting, keep changes narrow, and report exact execution state.
+
+**Domain**: workflow
 
 ## Description
 

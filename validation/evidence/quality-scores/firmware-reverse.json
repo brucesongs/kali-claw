@@ -1,0 +1,33 @@
+{
+  "skill": "firmware-reverse",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 4346,
+    "payload_section_count": 16,
+    "payload_code_blocks": 51,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1537,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.81
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 95.6,
+    "payload_code": 80.4,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 75.9,
+    "skill_section": 81.0
+  },
+  "component_scores": {
+    "skill_md": 81.00,
+    "payloads_md": 92.00,
+    "test_cases_md": 90.00,
+    "guides": 75.9
+  },
+  "overall_score": 85.7,
+  "tier": "Excellent"
+}

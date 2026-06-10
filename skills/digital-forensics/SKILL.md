@@ -1,8 +1,42 @@
+---
+name: digital-forensics
+description: "Digital forensics covers the complete workflow of disk forensics, memory forensics, network forensics, file recovery/carving, and chain of custody."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: forensics
+  tool_count: 10
+  guide_count: 5
+---
+
+
+
+
 # Skill: Digital Forensics
 
 > **Supplementary Files**:
 > - `payloads.md` — Forensics command reference covering disk imaging, filesystem analysis, memory forensics, network forensics, log analysis, timeline reconstruction, file carving, anti-forensics detection, Windows/Linux forensics, and more
 > - `test-cases.md` — Structured test case list covering evidence acquisition, filesystem analysis, memory forensics, network forensics, and anti-forensics detection
+
+## Summary
+
+Digital Forensics skill domain covering forensics operations.
+
+**Tools**: autopsy, sleuth kit, volatility, wireshark/tshark, binwalk, foremost, Autopsy, SleuthKit (+2 more)
+
+**Domain**: forensics
 
 ## Description
 

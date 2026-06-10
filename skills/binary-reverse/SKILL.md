@@ -1,8 +1,42 @@
+---
+name: binary-reverse
+description: "Binary reverse engineering covers the complete chain from static analysis, dynamic debugging, to vulnerability discovery, exploit development, and malware analysis."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: binary-analysis
+  tool_count: 10
+  guide_count: 5
+---
+
+
+
+
 # Skill: Binary Analysis & Reverse Engineering
 
 > **Supplementary Files**:
 > - `payloads.md` — Command and payload collection organized by 10 major phases (binary identification, radare2 analysis, GDB debugging, buffer overflow, shellcode, ROP chain, ret2libc, format string, r2pipe scripting, firmware extraction)
 > - `test-cases.md` — Structured test case templates (11 cases covering binary identification, vulnerability discovery, exploit development, defense bypass — 4 categories)
+
+## Summary
+
+Binary Reverse skill domain covering binary analysis operations.
+
+**Tools**: radare2, ghidra, objdump, gdb, checksec, ROPgadget, binwalk, readelf (+2 more)
+
+**Domain**: binary-analysis
 
 ## Description
 

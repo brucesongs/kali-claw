@@ -1,8 +1,43 @@
+---
+name: recon-osint
+description: "The most critical first step in penetration testing. Information gathering determines the precision and efficiency of subsequent attacks."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: osint
+  tool_count: 0
+  guide_count: 11
+  mitre: "TA0043-Reconnaissance"
+---
+
+
+
+
 # Skill: Recon & OSINT
 
 > **Supplementary Files**:
 > - `payloads.md` — Complete command set categorized by Passive Recon, Active Scanning, Subdomain Enumeration, Technology Fingerprinting, Email Harvesting, Social Media OSINT, Metadata Extraction, and Google Dorks
 > - `test-cases.md` — 11 structured test cases covering passive reconnaissance, active scanning, OSINT collection, and technology fingerprinting, with severity levels and verification criteria
+
+## Summary
+
+Information gathering determines the precision and efficiency of subsequent attacks.
+
+**Domain**: osint
+
+**MITRE ATT&CK**: TA0043-Reconnaissance
 
 ## Description
 

@@ -1,3 +1,31 @@
+---
+name: web-sqli
+description: "SQL injection attacks and defense - covering all major SQLi types including error-based, union-based, blind (boolean/time), double query (error-based), stacked queries, and out-of-band injection."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 5
+  guide_count: 14
+  owasp: "A03:2021-Injection"
+  mitre: "T1190-Exploit Public-Facing App"
+---
+
+
+
+
 # Skill: SQL Injection
 
 > **Supplementary Files**:
@@ -5,6 +33,18 @@
 > - `test-cases.md` — Structured test case templates (12 cases covering injection detection, UNION, Error-based, Blind, advanced exploitation - 5 categories)
 > - `sqli-double-query-guide.md` — Double Query injection complete guide（extractvalue/updatexml/floor allcovering）
 > - `sqli-cross-db-guide.md` — MySQL/PostgreSQL/MSSQL/Oracle cross-database injection guide
+
+## Summary
+
+Web Sqli skill domain covering web attack operations.
+
+**Tools**: sqlmap, Burp Suite, curl, manual injection, browsetool DevTools
+
+**Domain**: web-attack
+
+**OWASP**: A03:2021-Injection
+
+**MITRE ATT&CK**: T1190-Exploit Public-Facing App
 
 ## Description
 

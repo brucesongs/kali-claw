@@ -1,9 +1,42 @@
+---
+name: multi-agent-collaboration
+description: "Coordinating multiple specialized agents to conduct complex penetration testing engagements through task decomposition, parallel execution, result aggregation, and conflict resolution."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: infrastructure
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Multi-Agent Collaboration
 
 > **Supplementary Files**:
 > - `payloads.md` — Task decomposition templates, agent role definition prompts, coordinator dispatch templates, result aggregation JSON schema, deduplication checklist, conflict resolution decision tree, and coverage verification matrix
 > - `test-cases.md` — Structured test cases for parallel recon, multi-target aggregation, deduplication conflicts, coverage auditing, and full coordinator-worker engagements
 > - `guides/coordinated-pentest-playbook.md` — Deep-dive guide on agent role design, task decomposition methodology, communication protocol, result integration, quality gates, and common failure modes
+
+## Summary
+
+Multi Agent Collaboration skill domain covering infrastructure operations.
+
+**Domain**: infrastructure
 
 ## Skill Identity
 

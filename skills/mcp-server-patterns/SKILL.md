@@ -1,3 +1,30 @@
+---
+name: mcp-server-patterns
+description: "Building and security-testing MCP (Model Context Protocol) servers for Kali Linux security tools."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: infrastructure
+  tool_count: 5
+  guide_count: 5
+---
+
+
+
+
 # Skill: MCP Server Patterns
 
 > **Supplementary Files**:
@@ -5,17 +32,17 @@
 > - `test-cases.md` — Structured test cases covering tool wrapping verification, input validation enforcement, authentication testing, rate limiting, and full MCP security audit
 > - `guides/security-mcp-server-design.md` — Deep-dive guide on tool selection, protocol fundamentals, secure wrapping principles, implementation walkthrough, testing, and deployment
 
+## Summary
+
+Mcp Server Patterns skill domain covering infrastructure operations.
+
+**Tools**: Tools, Resources, Prompts, stdio, HTTP/SSE
+
+**Domain**: infrastructure
+
 ## Description
 
-Two complementary focuses drive this skill:
-
-**Focus 1 — Building**: Wrapping Kali Linux security tools as MCP (Model Context Protocol) servers so the agent can call them programmatically via structured tool calls. This covers schema design, input validation, subprocess safety, structured output, authentication, and rate limiting for production-grade security tool APIs.
-
-**Focus 2 — Testing**: Security auditing of MCP server implementations — authentication weakness, authorization gaps, input validation bypass, command injection via tool parameters, schema abuse, and information disclosure through error messages.
-
-Runtime environment: Kali Linux 2025-2 ARM64.
-
-MCP is Anthropic's open protocol for connecting AI models to external tools. An MCP server exposes tools, resources, and prompts that an AI agent calls. This skill treats MCP servers as both a force-multiplier for the agent (wrap tools, gain structured access) and as a target class (MCP servers are network services with real attack surfaces).
+Building and security-testing MCP (Model Context Protocol) servers for Kali Linux security tools. Covers wrapping tools as structured APIs with input validation, subprocess safety, authentication, and rate limiting, plus auditing MCP server implementations for authentication weakness, command injection, schema abuse, and information disclosure.
 
 ## Use Cases
 

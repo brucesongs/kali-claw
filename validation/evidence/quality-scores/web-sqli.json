@@ -1,6 +1,6 @@
 {
   "skill": "web-sqli",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 1874,
@@ -11,7 +11,7 @@
     "guide_file_count": 24,
     "guide_avg_words": 834,
     "guide_key_sections": 3,
-    "skill_section_score": 0.76
+    "skill_section_score": 0.80
   },
   "normalized_scores": {
     "payload_word": 57.5,
@@ -20,14 +20,14 @@
     "test_case": 95.0,
     "field": 100.0,
     "guide": 92.0,
-    "skill_section": 76.0
+    "skill_section": 80.0
   },
   "component_scores": {
-    "skill_md": 76.00,
+    "skill_md": 80.00,
     "payloads_md": 70.87,
     "test_cases_md": 97.50,
     "guides": 92.0
   },
-  "overall_score": 84.9,
+  "overall_score": 85.5,
   "tier": "Excellent"
 }

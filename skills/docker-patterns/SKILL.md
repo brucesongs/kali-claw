@@ -1,10 +1,48 @@
+---
+name: docker-patterns
+description: "Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says \"lab\", \"docker lab."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: infrastructure
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Docker Patterns for Security Testing
 
 > **Supplementary Files**:
 > - `payloads.md` — Quick launch commands, additional lab configurations, evidence extraction patterns, and cleanup commands
 > - `test-cases.md` — Structured test cases for lab deployment, attack chain setup, evidence extraction, and safety verification
 
-Pre-built Docker Compose configurations for safe, isolated security testing labs. Provides standardized environments for practicing and verifying attack techniques without affecting production systems.
+## Summary
+
+Docker Patterns skill domain covering infrastructure operations.
+
+**Domain**: infrastructure
+
+## Use Cases
+
+1. **Vulnerable Web App Lab** — Deploy intentionally vulnerable applications (DVWA, WebGoat, Juice Shop) for safe practice
+2. **Network Pentest Lab** — Create multi-host network environments with routers, firewalls, and services for lateral movement practice
+3. **Attack Chain Lab** — Build complete kill chain scenarios (initial access → persistence → exfiltration) in isolated containers
+4. **Disposable Testing** — Spin up and tear down test environments without affecting host system or production infrastructure
+5. **Tool Validation** — Test new security tools and exploits in a known, controlled environment before engagement use
 
 ## Activation
 

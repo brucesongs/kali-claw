@@ -1,0 +1,69 @@
+{
+    "target_types": {
+        "web": {
+            "description": "Web application penetration test",
+            "phases": ["recon", "scan", "enum", "vuln", "exploit", "postexp"],
+            "skills": ["web-xss", "web-sqli", "web-auth-bypass", "web-access-control", "web-ssrf"],
+            "default_scope": ["https://target.com"]
+        },
+        "cloud": {
+            "description": "Cloud infrastructure assessment",
+            "phases": ["recon", "scan", "enum", "vuln", "exploit", "postexp"],
+            "skills": ["cloud-security", "container-security", "api-security"],
+            "default_scope": ["aws:account-id", "azure:subscription-id"]
+        },
+        "network": {
+            "description": "Internal/external network penetration test",
+            "phases": ["recon", "scan", "enum", "vuln", "exploit", "postexp"],
+            "skills": ["network-pentest", "password-attack", "post-exploitation"],
+            "default_scope": ["10.0.0.0/8", "192.168.0.0/16"]
+        },
+        "mobile": {
+            "description": "Mobile application security assessment",
+            "phases": ["recon", "scan", "enum", "vuln", "exploit"],
+            "skills": ["mobile-security", "binary-reverse"],
+            "default_scope": ["android:apk", "ios:ipa"]
+        },
+        "api": {
+            "description": "API security assessment",
+            "phases": ["recon", "scan", "enum", "vuln", "exploit"],
+            "skills": ["api-security", "web-auth-bypass", "web-access-control"],
+            "default_scope": ["https://api.target.com"]
+        }
+    },
+    "severity_levels": {
+        "critical": {
+            "cvss_range": [9.0, 10.0],
+            "description": "Immediate exploitation possible, full system compromise",
+            "sla_hours": 24
+        },
+        "high": {
+            "cvss_range": [7.0, 8.9],
+            "description": "Significant impact, requires moderate effort to exploit",
+            "sla_hours": 72
+        },
+        "medium": {
+            "cvss_range": [4.0, 6.9],
+            "description": "Moderate impact, requires specific conditions to exploit",
+            "sla_hours": 168
+        },
+        "low": {
+            "cvss_range": [0.1, 3.9],
+            "description": "Limited impact, informational or best-practice recommendations",
+            "sla_hours": 720
+        },
+        "info": {
+            "cvss_range": [0.0, 0.0],
+            "description": "Informational finding, no direct security impact",
+            "sla_hours": null
+        }
+    },
+    "safety_rules": [
+        "Never attempt denial-of-service attacks unless explicitly authorized",
+        "Do not access or exfiltrate real user data (use test data only)",
+        "Stop testing immediately if production systems show instability",
+        "Document all actions with timestamps",
+        "Report critical findings to client within 4 hours of discovery",
+        "All credentials discovered must be reported and not reused beyond the engagement"
+    ]
+}

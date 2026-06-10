@@ -1,9 +1,46 @@
+---
+name: web-auth-bypass
+description: "Authentication Bypass refers to attackers exploiting design flaws or implementation vulnerabilities in authentication mechanisms to bypass the normal authentication process and gain unauthorized access."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 5
+  guide_count: 5
+  owasp: "A07:2021-Identification"
+---
+
+
+
+
 # Skill: Authentication Bypass
 
 > **Supplementary Files**:
 > - `payloads.md` — Payload collection organized by 8 major attack types (username enumeration, brute force, JWT, session, MFA, OAuth, password reset)
 > - `test-cases.md` — Structured test case templates (17 cases covering enumeration, brute force, JWT, session, MFA, OAuth — 6 categories)
 > - `auth-bypass-guide.md` — Complete guide to authentication failures (password policy bypass, credential stuffing, session management, complete offensive and defensive code examples for MFA bypass)
+
+## Summary
+
+Web Auth Bypass skill domain covering web attack operations.
+
+**Tools**: Burp Suite, Hydra, Medusa, jwt_tool, Hashcat
+
+**Domain**: web-attack
+
+**OWASP**: A07:2021-Identification
 
 ## Description
 

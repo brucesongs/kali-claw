@@ -1,0 +1,33 @@
+{
+  "skill": "tool-mastery",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 4182,
+    "payload_section_count": 14,
+    "payload_code_blocks": 50,
+    "test_case_count": 10,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1127,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.64
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 91.1,
+    "payload_code": 80.0,
+    "test_case": 85.0,
+    "field": 100.0,
+    "guide": 73.4,
+    "skill_section": 64.0
+  },
+  "component_scores": {
+    "skill_md": 64.00,
+    "payloads_md": 90.37,
+    "test_cases_md": 92.50,
+    "guides": 73.4
+  },
+  "overall_score": 82.8,
+  "tier": "Excellent"
+}

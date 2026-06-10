@@ -1,4 +1,37 @@
+---
+name: data-scraper-agent
+description: "Automated data collection from structured sources: CVE databases, threat intelligence feeds, exploit databases, and security advisories. Transform unstructured web data into structured knowledge units."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: research
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Data Scraper Agent
+
+## Summary
+
+Transform unstructured web data into structured knowledge units.
+
+**Domain**: research
 
 ## Skill Identity
 

@@ -1,6 +1,6 @@
 {
   "skill": "web-access-control",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3582,
@@ -11,7 +11,7 @@
     "guide_file_count": 6,
     "guide_avg_words": 1083,
     "guide_key_sections": 3,
-    "skill_section_score": 0.83
+    "skill_section_score": 0.84
   },
   "normalized_scores": {
     "payload_word": 95.8,
@@ -20,14 +20,14 @@
     "test_case": 92.5,
     "field": 86.0,
     "guide": 81.2,
-    "skill_section": 83.0
+    "skill_section": 84.0
   },
   "component_scores": {
-    "skill_md": 83.00,
+    "skill_md": 84.00,
     "payloads_md": 91.20,
     "test_cases_md": 89.25,
     "guides": 81.2
   },
-  "overall_score": 86.9,
+  "overall_score": 87.0,
   "tier": "Excellent"
 }

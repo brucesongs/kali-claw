@@ -1,6 +1,6 @@
 {
   "skill": "container-security",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3958,
@@ -11,7 +11,7 @@
     "guide_file_count": 5,
     "guide_avg_words": 1088,
     "guide_key_sections": 3,
-    "skill_section_score": 0.92
+    "skill_section_score": 0.93
   },
   "normalized_scores": {
     "payload_word": 99.6,
@@ -20,14 +20,14 @@
     "test_case": 87.5,
     "field": 100.0,
     "guide": 78.5,
-    "skill_section": 92.0
+    "skill_section": 93.0
   },
   "component_scores": {
-    "skill_md": 92.00,
+    "skill_md": 93.00,
     "payloads_md": 93.20,
     "test_cases_md": 93.75,
     "guides": 78.5
   },
-  "overall_score": 89.5,
+  "overall_score": 89.7,
   "tier": "Excellent"
 }

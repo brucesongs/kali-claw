@@ -62,6 +62,27 @@
 | hardware-security | JTAG/UART debugging, firmware extraction, side-channel analysis, RFID/NFC attacks | First Principles, Assume Breach |
 | multi-agent-collaboration | Task decomposition, agent specialization, parallel execution, result aggregation | Divergent Thinking, First Principles |
 | mcp-server-patterns | Security tool API wrapping, custom MCP server design, tool integration, authentication | First Principles, Trust but Verify |
+| engagement-manager | Engagement lifecycle, scope management, evidence chain, kill chain orchestration | Trust but Verify, Defense in Depth, Assume Breach |
+| tool-mastery | Tool proficiency assessment, tool combination strategy, command verification | First Principles, Divergent Thinking, Skill Over Credentials |
+| network-sniffing-mitm | Traffic interception, ARP spoofing, credential harvesting, protocol analysis | Trust but Verify, Minimize Attack Surface |
+| privilege-escalation | Linux/Windows local privesc, kernel exploits, GTFOBins, sudo abuse | First Principles, Least Privilege |
+| exploit-development | Buffer overflows, ROP chains, shellcode, pwntools exploit writing | First Principles, Divergent Thinking |
+| payload-generation | Reverse shells, msfvenom payloads, encoding, delivery mechanisms | Murphy's Security Law |
+| av-edr-evasion | AV/EDR bypass, payload obfuscation, in-memory execution, direct syscalls | First Principles, Trust but Verify |
+| dns-attacks | DNS enumeration, spoofing, tunneling, exfiltration, dnscat2 C2 | Trust but Verify, Minimize Attack Surface |
+| web-xxe | XML External Entity injection, blind XXE, OOB exfiltration, Office XXE | Trust but Verify, Minimize Attack Surface |
+| file-inclusion | LFI/RFI exploitation, path traversal, PHP wrappers, log poisoning | Trust but Verify, Minimize Attack Surface |
+| cms-framework-attack | WordPress/Joomla/Drupal pentesting, CMS scanning, plugin exploitation | Trust but Verify, Skill Over Credentials |
+| steganography | Data hiding/extraction, steghide, zsteg, CTF stego challenges | First Principles, Trust but Verify |
+| bluetooth-rfid-nfc | Bluetooth/BLE device discovery, GATT exploitation, RFID/NFC card cloning | First Principles, Trust but Verify |
+| network-tunneling-proxy | SSH/HTTP/DNS/ICMP tunneling, SOCKS proxy chains, pivoting | Assume Breach, Defense in Depth |
+| firmware-reverse | Firmware extraction, filesystem analysis, QEMU emulation, backdoor detection | First Principles, Trust but Verify |
+| scada-ics-security | Modbus/S7comm/EtherNet/IP attacks, PLC enumeration, ICS honeypots | Minimize Attack Surface, Safety First |
+| database-attack | Oracle TNS exploitation, Redis/MongoDB unauth, DB brute-force | Trust but Verify, Least Privilege |
+| voip-sip-attack | SIP enumeration, VoIP eavesdropping, VLAN hopping, DoS | Trust but Verify, Minimize Attack Surface |
+| anti-forensics | Secure deletion, log tampering, timestamp manipulation, steganographic hiding | Murphy's Security Law, Obscurity Is Not Security |
+| pentest-reporting | Dradis/Faraday reporting, evidence capture, password analysis, cherrytree | Skill Over Credentials, Share Knowledge |
+| ad-ldap-attack | Active Directory reconnaissance, Kerberos exploitation, DCSync, Pass-the-Hash, domain dominance | Trust but Verify, Least Privilege |
 
 ---
 
@@ -74,4 +95,4 @@
 
 ---
 
-_Last updated: 2026-05-16_
+_Last updated: 2026-06-10_

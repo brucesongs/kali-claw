@@ -1,4 +1,37 @@
+---
+name: exa-search
+description: "Semantic search using Exa API for security research queries. Unlike keyword-based search, Exa understands context and retrieves high-quality, relevant results for technical research."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: research
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Exa Search
+
+## Summary
+
+Unlike keyword-based search, Exa understands context and retrieves high-quality, relevant results for technical research.
+
+**Domain**: research
 
 ## Skill Identity
 

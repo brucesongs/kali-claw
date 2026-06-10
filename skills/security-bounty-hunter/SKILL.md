@@ -1,8 +1,40 @@
+---
+name: security-bounty-hunter
+description: "Hunt for exploitable, bounty-worthy security issues in target systems. Focuses on remotely reachable vulnerabilities that qualify for real reports and responsible disclosure, not broad best-practices reviews or theoretical findings."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: assessment
+  tool_count: 0
+  guide_count: 8
+---
+
+
+
+
 # Skill: Security Bounty Hunter
 
 > **Supplementary Files**:
 > - `payloads.md` — Static analysis commands, triage scripts, and PoC templates organized by vulnerability class
 > - `test-cases.md` — Structured test cases for bounty-worthy vulnerability discovery, triage, and reporting
+
+## Summary
+
+Focuses on remotely reachable vulnerabilities that qualify for real reports and responsible disclosure, not broad best-practices reviews or theoretical findings.
+
+**Domain**: assessment
 
 ## Description
 

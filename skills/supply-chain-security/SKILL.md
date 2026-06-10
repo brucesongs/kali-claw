@@ -1,12 +1,49 @@
+---
+name: supply-chain-security
+description: "Software supply chain security covering the entire lifecycle from code development to deployment: dependency vulnerabilities (known-vulnerable third-party packages), malicious packages (injection and typosquatting."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: supply-chain
+  tool_count: 6
+  guide_count: 5
+  owasp: "A08:2021-Software Integrity"
+---
+
+
+
+
 # Skill: Software Supply Chain Security
 
 > **Supplementary Files**:
 > - `payloads.md` — Supply chain security testing commands and payloads categorized by dependency scanning, package integrity, typosquatting detection, CI/CD auditing, SBOM analysis, dependency confusion attacks, etc.
 > - `test-cases.md` — Structured test case list with severity classification and statistics
 
+## Summary
+
+Supply Chain Security skill domain covering supply chain operations.
+
+**Tools**: Trivy, Snyk, Dependabot, OWASP Dependency-Check, npm audit, Safety / pip-audit
+
+**Domain**: supply-chain
+
+**OWASP**: A08:2021-Software Integrity
+
 ## Description
 
-Software Supply Chain Security covers security issues across the entire lifecycle from code development to deployment — including dependency vulnerabilities (known-vulnerable third-party dependencies), malicious packages (malicious package injection and typosquatting), CI/CD pipeline attacks (build pipeline hijacking and backdoor injection), and code injection via dependencies (code injection propagated through dependency chains). Due to their "one breach, widespread impact" nature, software supply chain attacks have become one of the most destructive attack vectors.
+Software supply chain security covering the entire lifecycle from code development to deployment: dependency vulnerabilities (known-vulnerable third-party packages), malicious packages (injection and typosquatting), CI/CD pipeline attacks (build hijacking and backdoor injection), and dependency chain code propagation. Supply chain attacks have "one breach, widespread impact" characteristics making them among the most destructive attack vectors.
 
 **Core Attack Types**:
 

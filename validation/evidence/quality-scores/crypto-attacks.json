@@ -1,6 +1,6 @@
 {
   "skill": "crypto-attacks",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4368,
@@ -11,7 +11,7 @@
     "guide_file_count": 6,
     "guide_avg_words": 833,
     "guide_key_sections": 3,
-    "skill_section_score": 0.89
+    "skill_section_score": 0.91
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 87.5,
     "field": 100.0,
     "guide": 78.7,
-    "skill_section": 89.0
+    "skill_section": 91.0
   },
   "component_scores": {
-    "skill_md": 89.00,
+    "skill_md": 91.00,
     "payloads_md": 92.00,
     "test_cases_md": 93.75,
     "guides": 78.7
   },
-  "overall_score": 88.7,
+  "overall_score": 89.0,
   "tier": "Excellent"
 }

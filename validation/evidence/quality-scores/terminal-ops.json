@@ -1,6 +1,6 @@
 {
   "skill": "terminal-ops",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4760,
@@ -11,7 +11,7 @@
     "guide_file_count": 5,
     "guide_avg_words": 1149,
     "guide_key_sections": 3,
-    "skill_section_score": 0.83
+    "skill_section_score": 0.84
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 85.0,
     "field": 100.0,
     "guide": 78.9,
-    "skill_section": 83.0
+    "skill_section": 84.0
   },
   "component_scores": {
-    "skill_md": 83.00,
+    "skill_md": 84.00,
     "payloads_md": 91.10,
     "test_cases_md": 92.50,
     "guides": 78.9
   },
-  "overall_score": 87.3,
+  "overall_score": 87.4,
   "tier": "Excellent"
 }

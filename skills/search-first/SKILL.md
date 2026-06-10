@@ -1,8 +1,41 @@
+---
+name: search-first
+description: "Systematizes the \"search for existing tools, exploits, and techniques before writing custom ones\" workflow."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: workflow
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Search First — Research Before You Exploit
 
 > **Supplementary Files**:
 > - `payloads.md` — Search templates for ExploitDB, GitHub, Metasploit, Nuclei, and Kali packages with evaluation scoring
 > - `test-cases.md` — Structured test cases for CVE discovery, tool discovery, technique research, and custom build decisions
+
+## Summary
+
+Search First skill domain covering workflow operations.
+
+**Domain**: workflow
 
 ## Description
 

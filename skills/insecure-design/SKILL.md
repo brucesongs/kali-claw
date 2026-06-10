@@ -1,8 +1,45 @@
+---
+name: insecure-design
+description: "Insecure Design (OWASP A06:2025) focuses on security flaws in system architecture and design phases, rather than code implementation-level bugs."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: design
+  tool_count: 2
+  guide_count: 7
+  owasp: "A06:2025-Insecure Design"
+---
+
+
+
+
 # Skill: Insecure Design
 
 > **Supplementary Files**:
 > - `payloads.md` — Attack payloads for business logic testing, race condition exploitation, rate limiting bypass, IDOR, mass assignment, and threat modeling
 > - `test-cases.md` — Structured test cases with severity levels covering business logic, race conditions, asset management, and design flaws
+
+## Summary
+
+Insecure Design skill domain covering design operations.
+
+**Tools**: Burp Suite, draw.io
+
+**Domain**: design
+
+**OWASP**: A06:2025-Insecure Design
 
 ## Description
 

@@ -124,6 +124,12 @@ All tools are at **Mastered** status. Tool counts are approximate and based on t
 | multi-agent-collaboration | langchain, crewai, autogen | 3 |
 | mcp-server-patterns | mcp-sdk, fastapi, uvicorn | 3 |
 
+## Enterprise Attack
+
+| Domain | Tools | Count |
+|--------|-------|-------|
+| ad-ldap-attack | impacket-suite, bloodhound, bloodhound-python, ldapsearch, enum4linux, enum4linux-ng, kerberoast, crackmapexec, ldeep, ldapdomaindump, nbtscan, rpcclient, secretsdump, mimikatz, rubeus | 15 |
+
 ---
 
-_Last updated: 2026-06-02_
+_Last updated: 2026-06-10_

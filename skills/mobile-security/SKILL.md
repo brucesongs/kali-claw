@@ -1,8 +1,42 @@
+---
+name: mobile-security
+description: "Mobile security covers the complete attack/defense chain of Android/iOS application security testing, APK/IPA reverse engineering, runtime manipulation, certificate pinning bypass, and mobile data protection."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: mobile
+  tool_count: 6
+  guide_count: 5
+---
+
+
+
+
 # Skill: Mobile Security
 
 > **Supplementary Files**:
 > - `payloads.md` — Complete mobile security attack/defense chain payloads (APK/IPA analysis, Frida hooks, SSL bypass, storage extraction, Intent attacks, etc.)
 > - `test-cases.md` — Structured test cases (static analysis, dynamic analysis, runtime manipulation, network testing, data protection)
+
+## Summary
+
+Mobile Security skill domain covering mobile operations.
+
+**Tools**: frida, objection, apktool, jadx, mobsf, drozer
+
+**Domain**: mobile
 
 ## Description
 

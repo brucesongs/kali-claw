@@ -1,4 +1,37 @@
+---
+name: article-writing
+description: "Transform technical findings into clear, structured written content: penetration test reports, vulnerability disclosures, security blog posts, and technical documentation."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: knowledge
+  tool_count: 0
+  guide_count: 8
+---
+
+
+
+
 # Article Writing
+
+## Summary
+
+Article Writing skill domain covering knowledge operations.
+
+**Domain**: knowledge
 
 ## Skill Identity
 
@@ -119,7 +152,9 @@ Follow the appropriate template (see below) for the article type. Outline before
 **CVSS**: 9.8 (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)
 **Affected Systems**: [list]
 
-#### Description
+##
+
+## Description
 
 [What is the vulnerability? How does it work?]
 
@@ -182,10 +217,6 @@ Follow the appropriate template (see below) for the article type. Outline before
 **CVE ID**: [if assigned, otherwise "Pending"]
 
 ---
-
-## Summary
-
-[One-paragraph description of the vulnerability]
 
 ## Affected Products
 

@@ -1,4 +1,37 @@
+---
+name: codebase-onboarding
+description: "Rapidly acquire a mental model of any unfamiliar codebase — from a 500-line script to a 100M+ line monorepo. This skill transforms raw code into structured intelligence: architecture maps, entry points, data flows, security surfaces, and onboarding confidence scores."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: knowledge
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Codebase Onboarding
+
+## Summary
+
+This skill transforms raw code into structured intelligence: architecture maps, entry points, data flows, security surfaces, and onboarding confidence scores.
+
+**Domain**: knowledge
 
 ## Skill Identity
 

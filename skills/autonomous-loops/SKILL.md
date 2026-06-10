@@ -1,3 +1,30 @@
+---
+name: autonomous-loops
+description: "Performing repetitive enumeration across many targets - Running batch vulnerability scans on multiple hosts - Monitoring for changes in target environment - Executing attack chains that require iterative steps - User says \"loop\", \"automate\", \"batch\", \"repeat."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: infrastructure
+  tool_count: 0
+  guide_count: 8
+---
+
+
+
+
 # Autonomous Loops
 
 > **Supplementary Files**:
@@ -5,7 +32,19 @@
 > - `test-cases.md` — Structured test cases for sequential pipeline, watch loop, batch processing, learning cycle, scope violation, and rate limit backoff
 > - `guides/safe-autonomous-pentest.md` — Deep-dive guide on autonomous vs manual decision making, scope lock construction, loop composition, and monitoring
 
-Controlled autonomous execution patterns for repetitive security tasks. Provides safe, supervised loop constructs with scope locks, rate limiting, and evidence logging.
+## Summary
+
+Autonomous Loops skill domain covering infrastructure operations.
+
+**Domain**: infrastructure
+
+## Use Cases
+
+1. **Sequential Pipeline** — Chain multiple security tools in order (recon → scan → exploit) with automatic phase transitions
+2. **Watch Loop** — Monitor a target for changes (new ports, updated services) over extended periods
+3. **Batch Processing** — Run the same test against multiple targets with rate limiting and error recovery
+4. **Learning Cycle** — Execute a skill, capture results, extract patterns, and update knowledge base automatically
+5. **Scope-Locked Automation** — Run autonomous loops with hard boundaries that prevent actions outside authorized scope
 
 ## Activation
 

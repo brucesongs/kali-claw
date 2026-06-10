@@ -1,6 +1,6 @@
 {
   "skill": "data-scraper-agent",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4798,
@@ -11,7 +11,7 @@
     "guide_file_count": 5,
     "guide_avg_words": 833,
     "guide_key_sections": 3,
-    "skill_section_score": 0.80
+    "skill_section_score": 0.81
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 85.0,
     "field": 100.0,
     "guide": 76.0,
-    "skill_section": 80.0
+    "skill_section": 81.0
   },
   "component_scores": {
-    "skill_md": 80.00,
+    "skill_md": 81.00,
     "payloads_md": 93.60,
     "test_cases_md": 92.50,
     "guides": 76.0
   },
-  "overall_score": 86.8,
+  "overall_score": 87.0,
   "tier": "Excellent"
 }

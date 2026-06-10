@@ -1,0 +1,33 @@
+{
+  "skill": "av-edr-evasion",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 2919,
+    "payload_section_count": 16,
+    "payload_code_blocks": 38,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1715,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.93
+  },
+  "normalized_scores": {
+    "payload_word": 89.2,
+    "payload_section": 95.6,
+    "payload_code": 44.0,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 77.0,
+    "skill_section": 93.0
+  },
+  "component_scores": {
+    "skill_md": 93.00,
+    "payloads_md": 76.27,
+    "test_cases_md": 90.00,
+    "guides": 77.0
+  },
+  "overall_score": 83.1,
+  "tier": "Excellent"
+}

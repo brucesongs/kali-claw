@@ -1,4 +1,37 @@
+---
+name: browser-qa
+description: "Automated browser-based security testing using Playwright and browser devtools. Interact with web applications as a user would — click, type, navigate — while monitoring network traffic, JavaScript execution, and DOM changes for security issues."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: testing
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Browser QA
+
+## Summary
+
+Interact with web applications as a user would — click, type, navigate — while monitoring network traffic, JavaScript execution, and DOM changes for security issues.
+
+**Domain**: testing
 
 ## Skill Identity
 

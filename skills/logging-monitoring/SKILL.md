@@ -1,8 +1,45 @@
+---
+name: logging-monitoring
+description: "Security logging and monitoring deficiencies (OWASP A09:2021) refer to applications failing to properly record security events or lacking effective monitoring, resulting in attacks going undetected, malicious activities being untraceable."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: defense
+  tool_count: 6
+  guide_count: 5
+  owasp: "A09:2021-Logging Failures"
+---
+
+
+
+
 # Skill: Logging & Monitoring Security
 
 > **Supplementary Files**:
 > - `payloads.md` — Complete attack payload collection covering log injection, evasion, SIEM bypass, audit tampering, WAF flooding, and more
 > - `test-cases.md` — Structured test cases categorized by log injection, log evasion, monitoring blind spots, and detection bypass with severity ratings
+
+## Summary
+
+Logging Monitoring skill domain covering defense operations.
+
+**Tools**: ELK Stack, Splunk, Wazuh, OSSEC, auditd, Zeek
+
+**Domain**: defense
+
+**OWASP**: A09:2021-Logging Failures
 
 ## Description
 

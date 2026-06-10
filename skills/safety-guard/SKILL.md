@@ -1,6 +1,45 @@
+---
+name: safety-guard
+description: "Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says \"safe?"
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: defense
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Safety Guard
 
-Safety enforcement layer for penetration testing operations. Provides scope checking, dangerous command interception, and incident response protocols.
+## Summary
+
+Safety Guard skill domain covering defense operations.
+
+**Domain**: defense
+
+## Use Cases
+
+1. **Scope Enforcement** — Verify every command and target stays within authorized engagement boundaries before execution
+2. **Dangerous Command Interception** — Block or require confirmation for destructive commands (rm, format, drop table, mass delete)
+3. **Rate Limiting** — Prevent excessive requests that could trigger target IPS/IDS alerts or cause denial of service
+4. **Incident Response** — Provide structured response procedures when a safety violation or unexpected event occurs
+5. **Rules of Engagement Compliance** — Track and enforce client-specified constraints (no social engineering, no exfiltration, time windows)
 
 ## Activation
 

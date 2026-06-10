@@ -1,8 +1,45 @@
+---
+name: crypto-attacks
+description: "Cryptographic Attacks target implementation flaws and algorithm weaknesses in encryption systems, covering OWASP A04: Cryptographic Failures."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: cryptography
+  tool_count: 7
+  guide_count: 5
+  owasp: "A04:2021-Cryptographic Failures"
+---
+
+
+
+
 # Skill: Cryptographic Attacks
 
 > **Supplementary Files**:
 > - `payloads.md` — Cryptographic attack payload collection: weak algorithm detection, hash cracking, Padding Oracle, Hash Length Extension, ECB mode, JWT attacks, RSA attacks, SSL/TLS test commands
 > - `test-cases.md` — Structured test cases: complete test checklist covering cryptographic detection, hash cracking, protocol attacks, JWT attacks, and advanced techniques
+
+## Summary
+
+Crypto Attacks skill domain covering cryptography operations.
+
+**Tools**: openssl, sslscan, testssl.sh, hashcat, CyberChef, padbuster, RsaCtfTool
+
+**Domain**: cryptography
+
+**OWASP**: A04:2021-Cryptographic Failures
 
 ## Description
 

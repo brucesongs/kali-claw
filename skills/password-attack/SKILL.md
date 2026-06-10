@@ -1,8 +1,45 @@
+---
+name: password-attack
+description: "Password attacks encompass the complete attack chain from hash extraction, hash type identification, dictionary attacks, rule-based attacks, and bruteforcing to online service brute forcing."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: credential-access
+  tool_count: 6
+  guide_count: 7
+  mitre: "TA0006-Credential Access"
+---
+
+
+
+
 # Skill: Password Attacks
 
 > **Supplementary Files**:
 > - `payloads.md` — Complete attack payloads organized into eight categories: Online Attacks, Offline Hash Cracking, Wordlist Generation, Hash Identification, Password Spray, Credential Stuffing, NTLM/NetNTLM, and Password Policy Analysis
 > - `test-cases.md` — 12 structured test cases covering Online Attacks, Offline Cracking, Wordlist & Mutation, and Advanced Techniques, with severity levels and statistics
+
+## Summary
+
+Password Attack skill domain covering credential access operations.
+
+**Tools**: hashcat, john, hydra, medusa, cewl, crunch
+
+**Domain**: credential-access
+
+**MITRE ATT&CK**: TA0006-Credential Access
 
 ## Description
 

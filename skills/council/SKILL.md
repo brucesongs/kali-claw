@@ -1,4 +1,39 @@
+---
+name: council
+description: "Council provides a structured framework for analyzing security questions from multiple adversarial and defensive perspectives simultaneously."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: analysis
+  tool_count: 5
+  guide_count: 5
+---
+
+
+
+
 # Council (council)
+
+## Summary
+
+Multi-perspective security analysis providing Attack, Defense, and Audit viewpoints for complex security decisions.
+
+**Tools**: Impact 5 (Critical), Impact 4 (Major), Impact 3 (Moderate), Impact 2 (Minor), Impact 1 (Negligible)
+
+**Domain**: analysis
 
 ## Skill Identity
 

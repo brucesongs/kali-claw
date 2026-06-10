@@ -1,6 +1,6 @@
 {
   "skill": "search-first",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4147,
@@ -11,7 +11,7 @@
     "guide_file_count": 5,
     "guide_avg_words": 1299,
     "guide_key_sections": 3,
-    "skill_section_score": 0.85
+    "skill_section_score": 0.87
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 85.0,
     "field": 100.0,
     "guide": 79.8,
-    "skill_section": 85.0
+    "skill_section": 87.0
   },
   "component_scores": {
-    "skill_md": 85.00,
+    "skill_md": 87.00,
     "payloads_md": 84.90,
     "test_cases_md": 92.50,
     "guides": 79.8
   },
-  "overall_score": 85.9,
+  "overall_score": 86.2,
   "tier": "Excellent"
 }

@@ -1,3 +1,29 @@
+---
+name: ai-security
+description: "Semantic-layer attack testing against AI systems and LLM-integrated applications."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: ai
+  tool_count: 8
+  guide_count: 7
+---
+
+
+
+
 # Skill: AI/LLM Security
 
 > **Supplementary Files**:
@@ -7,6 +33,14 @@
 >
 > **Extended Guides** (`guides/`):
 > - `guides/llm-attack-methodology.md` — Attack surface identification, threat modeling, attack chain construction, jailbreak taxonomy, evidence collection, defensive bypass detection, and AI vulnerability reporting
+
+## Summary
+
+Ai Security skill domain covering ai operations.
+
+**Tools**: garak, promptfoo, llm-guard, picklescan, ffuf, burpsuite, Custom Python, Burp Suite
+
+**Domain**: ai
 
 ## Skill Identity
 

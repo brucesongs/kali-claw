@@ -1,4 +1,37 @@
+---
+name: knowledge-ops
+description: "Build and maintain structured, persistent knowledge graphs across sessions. Knowledge-ops transforms ephemeral session findings into reusable intelligence — connecting entities, tracking confidence over time, and enabling recall across engagements."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: knowledge
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Knowledge Operations (knowledge-ops)
+
+## Summary
+
+Knowledge-ops transforms ephemeral session findings into reusable intelligence — connecting entities, tracking confidence over time, and enabling recall across engagements.
+
+**Domain**: knowledge
 
 ## Skill Identity
 
@@ -121,10 +154,6 @@ linked: [KU-ID-1, KU-ID-2]
 source: [skill that produced this]
 expires: [YYYY-MM-DD or null]
 ---
-
-## Summary
-
-[One-sentence summary of this knowledge unit]
 
 ## Detail
 

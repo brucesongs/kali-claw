@@ -1,0 +1,33 @@
+{
+  "skill": "database-attack",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3136,
+    "payload_section_count": 14,
+    "payload_code_blocks": 50,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 983,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.80
+  },
+  "normalized_scores": {
+    "payload_word": 91.4,
+    "payload_section": 91.1,
+    "payload_code": 80.0,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 72.5,
+    "skill_section": 80.0
+  },
+  "component_scores": {
+    "skill_md": 80.00,
+    "payloads_md": 87.50,
+    "test_cases_md": 90.00,
+    "guides": 72.5
+  },
+  "overall_score": 83.4,
+  "tier": "Excellent"
+}

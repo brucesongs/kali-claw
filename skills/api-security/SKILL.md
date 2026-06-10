@@ -1,8 +1,45 @@
+---
+name: api-security
+description: "API Security Testing covers security assessment across three major API architectures: REST, GraphQL, and gRPC, focusing on the OWASP API Security Top 10 core risks: Broken Authentication, Broken Object Level Authorization (BOLA), Excessive Data Exposure, Rate Limiting Bypass."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 5
+  guide_count: 5
+  owasp: "API Security Top 10"
+---
+
+
+
+
 # Skill: API Security Testing
 
 > **Supplementary Files**:
 > - `payloads.md` — Complete payload collection organized by attack type (endpoint discovery, BOLA, Mass Assignment, JWT, GraphQL, etc. — 8 major categories)
 > - `test-cases.md` — Structured test case templates (20 cases covering authentication & authorization, input validation, rate limiting, data exposure, GraphQL, and configuration leakage — 6 categories)
+
+## Summary
+
+Api Security skill domain covering web attack operations.
+
+**Tools**: Burp Suite, Postman, ffuf, GraphQLMap, kiterunner
+
+**Domain**: web-attack
+
+**OWASP**: API Security Top 10
 
 ## Description
 

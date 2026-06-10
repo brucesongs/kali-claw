@@ -1,8 +1,45 @@
+---
+name: container-security
+description: "Container security covers the complete lifecycle from image building, registry management, runtime protection, to orchestration platform (Kubernetes) security."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: cloud
+  tool_count: 6
+  guide_count: 5
+  mitre: "TA0008-Lateral Movement"
+---
+
+
+
+
 # Skill: Container Security
 
 > **Supplementary Files**:
 > - `payloads.md` — Container security testing attack payloads, categorized by image analysis, escape techniques, Kubernetes security, runtime security, registry security, network policies, secret detection, and privilege escalation
 > - `test-cases.md` — 11 structured test cases covering image security, container runtime, Kubernetes, networking, and advanced scenarios
+
+## Summary
+
+Container Security skill domain covering cloud operations.
+
+**Tools**: trivy, docker-bench-security, kubeaudit, falco, clair, grype
+
+**Domain**: cloud
+
+**MITRE ATT&CK**: TA0008-Lateral Movement
 
 ## Description
 

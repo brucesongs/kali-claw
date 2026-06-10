@@ -1,6 +1,6 @@
 {
   "skill": "ai-security",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4475,
@@ -11,7 +11,7 @@
     "guide_file_count": 7,
     "guide_avg_words": 1045,
     "guide_key_sections": 3,
-    "skill_section_score": 0.92
+    "skill_section_score": 0.93
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 80.0,
     "field": 100.0,
     "guide": 83.6,
-    "skill_section": 92.0
+    "skill_section": 93.0
   },
   "component_scores": {
-    "skill_md": 92.00,
+    "skill_md": 93.00,
     "payloads_md": 91.57,
     "test_cases_md": 90.00,
     "guides": 83.6
   },
-  "overall_score": 89.2,
+  "overall_score": 89.3,
   "tier": "Excellent"
 }

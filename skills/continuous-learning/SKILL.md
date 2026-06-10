@@ -1,6 +1,47 @@
+---
+name: continuous-learning
+description: "After completing a penetration test engagement - When encountering a novel attack technique or defense - After a tool produces unexpected results - When identifying recurring patterns across targets - User says \"learn\", \"remember this\", \"pattern."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: knowledge
+  tool_count: 9
+  guide_count: 5
+---
+
+
+
+
 # Continuous Learning
 
-Pattern recognition and knowledge extraction from engagement experience. Builds a structured knowledge base of attack patterns, tool behaviors, and engagement lessons.
+## Summary
+
+Continuous Learning skill domain covering knowledge operations.
+
+**Tools**: High, Medium, Low, Negative, Attack Patterns, Defense Patterns, Tool Behaviors, Environment Patterns (+1 more)
+
+**Domain**: knowledge
+
+## Use Cases
+
+1. **Post-Engagement Learning** — After a penetration test, extract reusable patterns from observations and tool outputs
+2. **Cross-Session Knowledge Building** — Accumulate tool behavior knowledge across multiple engagements into structured entries
+3. **Pattern Recognition** — Identify recurring vulnerabilities, tool limitations, and effective technique combinations
+4. **Knowledge Confidence Tracking** — Assign and update confidence scores for learned facts based on corroboration frequency
+5. **Memory Layering** — Distill raw observations into layered knowledge: immediate notes → verified patterns → core principles
 
 ## Activation
 

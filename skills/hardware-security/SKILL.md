@@ -1,9 +1,41 @@
+---
+name: hardware-security
+description: "Hardware and embedded system security testing covering physical interface exploitation, firmware extraction and analysis, side-channel attacks, RFID/NFC cloning, and fault injection."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: hardware
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Hardware Security
 
 > **Supplementary Files**:
 > - `payloads.md` — Hardware attack commands, debug interface payloads, firmware extraction one-liners, and RFID/NFC cloning commands organized by attack phase
 > - `test-cases.md` — Structured test cases for UART root shell access, SPI firmware extraction, JTAG memory dump, firmware secret scanning, and RFID card cloning
 > - `guides/` — Deep-dive methodology guides for embedded firmware analysis and hardware assessment
+
+## Summary
+
+Hardware Security skill domain covering hardware operations.
+
+**Domain**: hardware
 
 ## Description
 

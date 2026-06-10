@@ -1,0 +1,33 @@
+{
+  "skill": "network-tunneling-proxy",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3396,
+    "payload_section_count": 19,
+    "payload_code_blocks": 51,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1575,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.72
+  },
+  "normalized_scores": {
+    "payload_word": 94.0,
+    "payload_section": 100.0,
+    "payload_code": 80.4,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 76.1,
+    "skill_section": 72.0
+  },
+  "component_scores": {
+    "skill_md": 72.00,
+    "payloads_md": 91.47,
+    "test_cases_md": 90.00,
+    "guides": 76.1
+  },
+  "overall_score": 84.3,
+  "tier": "Excellent"
+}

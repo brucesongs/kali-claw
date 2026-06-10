@@ -1,10 +1,49 @@
+---
+name: verification-loop
+description: "After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says \"verify\", \"confirm\", \"validate."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: workflow
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Verification Loop
 
 > **Supplementary Files**:
 > - `payloads.md` — Verification payloads, confirmation commands, and false positive elimination checklists organized by finding type
 > - `test-cases.md` — Structured test cases for SQL injection, XSS, authentication bypass, scanner results, and remediation verification
 
-Multi-phase verification protocol for penetration testing findings, exploits, and remediations. Ensures every claim is independently confirmed before reporting.
+## Summary
+
+Verification Loop skill domain covering workflow operations.
+
+**Domain**: workflow
+
+## Use Cases
+
+1. **Vulnerability Verification** — Independently confirm scanner findings with manual exploitation to eliminate false positives
+2. **Exploit Reproducibility** — Verify that an exploit works consistently across multiple attempts before including in report
+3. **Remediation Validation** — Confirm that reported vulnerabilities are actually fixed after client applies patches
+4. **Evidence Documentation** — Capture proof-of-exploitation screenshots, command outputs, and chain-of-custody for each finding
+5. **Cross-Validation** — Use different tools and techniques to independently verify the same finding from multiple angles
 
 ## Activation
 

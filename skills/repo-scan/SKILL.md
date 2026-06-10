@@ -1,8 +1,41 @@
+---
+name: repo-scan
+description: "Cross-stack source code asset audit that classifies every file, detects embedded third-party libraries, and delivers actionable verdicts per module."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: assessment
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Repository Scan — Cross-Stack Source Code Audit
 
 > **Supplementary Files**:
 > - `payloads.md` — Repository scanning commands, classification scripts, and analysis payloads organized by scan phase
 > - `test-cases.md` — Structured test cases for surface classification, dependency detection, hotspot mapping, and complete audit workflows
+
+## Summary
+
+Repo Scan skill domain covering assessment operations.
+
+**Domain**: assessment
 
 ## Description
 

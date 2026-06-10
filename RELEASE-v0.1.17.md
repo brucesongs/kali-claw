@@ -1,8 +1,8 @@
-# kali-claw v0.1.17 发布公告 — 底层补强 + Distinguished 冲刺
+# kali-claw v0.1.17 发布公告 — 底层补强 + Distinguished 冲刺 + 自动化基础设施
 
 **发布日期**：2026-06-03
-**技能域数量**：49（不变）
-**主题**：15 个关键段落修复、5 个底层技能补强（+10 指南）、10 个 Distinguished 候选技能冲刺（+35 指南）、3 个 TC 修复
+**技能域数量**：49 → 51（+2 新技能域）
+**主题**：15 个关键段落修复、5 个底层技能补强（+10 指南）、10 个 Distinguished 候选技能冲刺（+35 指南）、7 个自动化脚本、2 个新技能域、决策树 + 多 Agent 协作
 
 ---
 
@@ -131,6 +131,48 @@ v0.1.16 建立了评分系统 v2，暴露了指南质量的真实短板。v0.1.1
 2. **分数区间收窄至 6.9**——技能质量更加均匀，底部不再拖后腿
 3. **所有技能关键段落 3/3**——文件结构标准化完成
 4. **指南分 < 70 完全消除**——最低的 social-engineering 76.6，其次是 browser-qa 75.2
+
+---
+
+## 自动化基础设施（v0.1.17 增补）
+
+### 阶段 1：自动化基础设施（4 个脚本）
+
+| 脚本 | 功能 | 用法 |
+|------|------|------|
+| `validation/heartbeat.sh` | 工作空间健康检查 | `--fix` `--json` |
+| `validation/auto-backup.sh` | 定时备份轮转 | `--restore <file>` `--keep N` |
+| `validation/drift-detect.sh` | 配置漂移检测 | `--create-baseline` `--update-baseline` |
+| `validation/scenario-runner.sh` | 跨技能场景执行 | `--resume` `--dry-run` |
+
+### 阶段 2：渗透测试编排层（3 脚本 + 模板）
+
+| 脚本 | 功能 |
+|------|------|
+| `validation/orchestrator.sh` | 端到端 kill chain 工作流引擎（7 阶段：recon→scan→enum→vuln→exploit→postexp→report） |
+| `validation/tool-selector.sh` | 目标→工具映射引擎（5 种目标类型 × 6 阶段 × stealth 模式） |
+| `validation/report-generator.sh` | 自动化渗透报告生成（markdown/HTML） |
+| `validation/engagement-template/` | 目标配置、范围规则、报告模板 |
+
+### 阶段 3：Agent 能力增强
+
+**2 个新技能域**：
+
+| 技能 | 指南数 | 测试用例数 | 核心能力 |
+|------|--------|-----------|----------|
+| engagement-manager | 3 | 8 | 渗透项目全流程管理、范围控制、证据链 |
+| tool-mastery | 2 | 6 | 工具熟练度评估、工具组合策略 |
+
+**SOUL.md 决策树**：
+- 目标类型决策（web/cloud/network/mobile/api → 技能组合）
+- 漏洞优先级决策（critical → 立即利用并通知）
+- 工具选择决策（stealth/速度/深度 → 具体工具和参数）
+- 阶段执行决策（时间预算 → 详细程度）
+
+**AGENTS.md 多 Agent 协作**：
+- 角色定义（Attacker/Defender/Auditor）
+- 协作协议（发现→防御分析→独立验证→汇总报告）
+- 数据交接协议（阶段间结构化数据传递）
 
 ---
 

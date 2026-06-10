@@ -1,8 +1,43 @@
+---
+name: osint
+description: "A specialized skill for intelligence gathering using publicly available sources."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: osint
+  tool_count: 0
+  guide_count: 8
+  mitre: "TA0043-Reconnaissance"
+---
+
+
+
+
 # Skill: Open Source Intelligence (OSINT)
 
 > **Supplementary Files**:
 > - `payloads.md` — OSINT attack payloads and command collection (domain reconnaissance, DNS enumeration, subdomain discovery, Google Dorking, email collection, social media intelligence, metadata extraction, Shodan/Censys queries, leaked data queries, technology fingerprinting)
 > - `test-cases.md` — Structured test cases (passive reconnaissance, active scanning, OSINT collection, technology fingerprinting) with severity levels and summary tables
+
+## Summary
+
+Osint skill domain covering osint operations.
+
+**Domain**: osint
+
+**MITRE ATT&CK**: TA0043-Reconnaissance
 
 ## Description
 

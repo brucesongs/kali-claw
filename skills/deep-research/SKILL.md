@@ -1,8 +1,41 @@
+---
+name: deep-research
+description: "Multi-source intelligence gathering through systematic web research — producing thorough, cited reports from diverse sources."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: research
+  tool_count: 0
+  guide_count: 5
+---
+
+
+
+
 # Skill: Deep Research
 
 > **Supplementary Files**:
 > - `payloads.md` — Search query templates, OSINT operator quick-reference, and data-extraction commands organized by research scenario
 > - `test-cases.md` — Structured test cases covering threat intelligence research, vulnerability analysis, attack technique investigation, and adversary profiling with severity levels and summary tables
+
+## Summary
+
+Deep Research skill domain covering research operations.
+
+**Domain**: research
 
 ## Description
 

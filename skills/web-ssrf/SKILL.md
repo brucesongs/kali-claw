@@ -1,12 +1,52 @@
+---
+name: web-ssrf
+description: "Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced bypass techniques, internal port scanning, cloud metadata extraction (AWS/GCP/Azure), protocol smuggling (gopher://, dict://, file://), and chained RCE exploitation."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 6
+  guide_count: 6
+  owasp: "A10:2021-SSRF"
+  mitre: "T1190-Exploit Public-Facing App"
+---
+
+
+
+
 # Skill: SSRF serviceendrequestforgery / Server-Side Request Forgery
 
 > **Supplementary Files**:
 > - `payloads.md` — SSRF attack payload allset：basic detect、protocolsmuggling、cloud metadatadata extraction、bypasstechnique、DNS rebinding、blind SSRF、RCE groupcombinechain
 > - `test-cases.md` — structureizetestinguseexamplechecklist，cover SSRF Detect、internal networkScan、cloud metadatadata、bypasstechnique、advanced exploit，with severelevelother
 
+## Summary
+
+Web Ssrf skill domain covering web attack operations.
+
+**Tools**: Burp Suite, curl, ffuf, Gopherus, SSRFmap, Burp Collaborator
+
+**Domain**: web-attack
+
+**OWASP**: A10:2021-SSRF
+
+**MITRE ATT&CK**: T1190-Exploit Public-Facing App
+
 ## Description
 
-Server-Side Request Forgery (SSRF) attacktechniquecomprehensive covering - includingbasic SSRF、blind SSRF、advanced bypass、internal networkport scanning、cloud metadatadata extraction（AWS/GCP/Azure）、protocolsmuggling（gopher://、dict://、file://）andgroupcombine RCE exploitchain。This skillsamewhen covercomplete defensepolicy：URL whitelist、IP scopechecksum、protocollimitation、cloud metadatadataprotect。
+Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced bypass techniques, internal port scanning, cloud metadata extraction (AWS/GCP/Azure), protocol smuggling (gopher://, dict://, file://), and chained RCE exploitation. Also covers defense strategies: URL allowlisting, IP range validation, protocol restrictions, and cloud metadata protection.
 
 **Agent canpowerstatement**: already complete OWASP Top 10 2025 SSRF complete learning，masterautomated SSRF ScanTooldevelopmentandcloud metadatadata extractionToolchain。
 

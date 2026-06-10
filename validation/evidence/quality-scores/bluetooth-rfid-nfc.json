@@ -1,0 +1,33 @@
+{
+  "skill": "bluetooth-rfid-nfc",
+  "timestamp": "2026-06-09T19:14:48Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3640,
+    "payload_section_count": 12,
+    "payload_code_blocks": 51,
+    "test_case_count": 8,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 1763,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.91
+  },
+  "normalized_scores": {
+    "payload_word": 96.4,
+    "payload_section": 86.7,
+    "payload_code": 80.4,
+    "test_case": 80.0,
+    "field": 100.0,
+    "guide": 77.3,
+    "skill_section": 91.0
+  },
+  "component_scores": {
+    "skill_md": 91.00,
+    "payloads_md": 87.83,
+    "test_cases_md": 90.00,
+    "guides": 77.3
+  },
+  "overall_score": 86.3,
+  "tier": "Excellent"
+}

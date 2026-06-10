@@ -1,8 +1,45 @@
+---
+name: social-engineering
+description: "Social engineering is the art of exploiting human psychological weaknesses rather than technical vulnerabilities to execute attacks. Attack vectors encompass Phishing, Pretexting, Baiting, Tailgating, Vishing, and other techniques."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: social
+  tool_count: 6
+  guide_count: 5
+  mitre: "TA0043-Reconnaissance"
+---
+
+
+
+
 # Skill: Social Engineering
 
 > **Supplementary Files**:
 > - `payloads.md` — SE attack payloads organized by category: phishing, email spoofing, credential harvesting, smishing, vishing, USB baiting, OSINT profiling, physical social engineering
 > - `test-cases.md` — Structured test cases with severity levels covering phishing campaigns, email security, credential harvesting, physical/voice social engineering, and defense testing
+
+## Summary
+
+Attack vectors encompass Phishing, Pretexting, Baiting, Tailgating, Vishing, and other techniques.
+
+**Tools**: SET (setoolkit), GoPhish, King-Phisher, Maltego, theHarvester, recon-ng
+
+**Domain**: social
+
+**MITRE ATT&CK**: TA0043-Reconnaissance
 
 ## Description
 

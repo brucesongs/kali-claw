@@ -78,13 +78,34 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | hardware-security | 4 | Mastered | skills/hardware-security/SKILL.md |
 | multi-agent-collaboration | 3 | Mastered | skills/multi-agent-collaboration/SKILL.md |
 | mcp-server-patterns | 3 | Mastered | skills/mcp-server-patterns/SKILL.md |
+| engagement-manager | 7 | Mastered | skills/engagement-manager/SKILL.md |
+| tool-mastery | 518 | Mastered | skills/tool-mastery/SKILL.md |
+| network-sniffing-mitm | 9 | Mastered | skills/network-sniffing-mitm/SKILL.md |
+| privilege-escalation | 8 | Mastered | skills/privilege-escalation/SKILL.md |
+| exploit-development | 8 | Mastered | skills/exploit-development/SKILL.md |
+| payload-generation | 7 | Mastered | skills/payload-generation/SKILL.md |
+| av-edr-evasion | 7 | Mastered | skills/av-edr-evasion/SKILL.md |
+| dns-attacks | 8 | Mastered | skills/dns-attacks/SKILL.md |
+| web-xxe | 6 | Mastered | skills/web-xxe/SKILL.md |
+| file-inclusion | 6 | Mastered | skills/file-inclusion/SKILL.md |
+| cms-framework-attack | 7 | Mastered | skills/cms-framework-attack/SKILL.md |
+| steganography | 6 | Mastered | skills/steganography/SKILL.md |
+| bluetooth-rfid-nfc | 13 | Mastered | skills/bluetooth-rfid-nfc/SKILL.md |
+| network-tunneling-proxy | 10 | Mastered | skills/network-tunneling-proxy/SKILL.md |
+| firmware-reverse | 9 | Mastered | skills/firmware-reverse/SKILL.md |
+| scada-ics-security | 8 | Mastered | skills/scada-ics-security/SKILL.md |
+| database-attack | 8 | Mastered | skills/database-attack/SKILL.md |
+| voip-sip-attack | 8 | Mastered | skills/voip-sip-attack/SKILL.md |
+| anti-forensics | 7 | Mastered | skills/anti-forensics/SKILL.md |
+| pentest-reporting | 7 | Mastered | skills/pentest-reporting/SKILL.md |
+| ad-ldap-attack | 15 | Mastered | skills/ad-ldap-attack/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 49 skill domains. Current focus: infrastructure hardening, scoring system evolution, and cross-skill scenario design.
+All 518 tools mastered across 70 skill domains. Current focus: quality consolidation (70/70 Excellent), new skill domain development, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice
@@ -99,4 +120,4 @@ All 518 tools mastered across 49 skill domains. Current focus: infrastructure ha
 
 ---
 
-_Last updated: 2026-06-02_
+_Last updated: 2026-06-10_

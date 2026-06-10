@@ -1,7 +1,42 @@
+---
+name: chronicle
+description: "A system for recording, indexing, and distilling knowledge from agent lifecycle events. Through a three-layer document system (overview -> detailed records -> knowledge distillation), raw conversation events are transformed into reusable experience."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+  - Agent
+metadata:
+  domain: knowledge
+  tool_count: 4
+  guide_count: 5
+---
+
+
+
+
 # Skill: Chronicle System
 
 > **Supplementary Files**:
 > - `chronicle-template.py` — Chronicle detailed record template generator (Python script that automatically generates event record files and creates directory structures)
+
+## Summary
+
+Through a three-layer document system (overview -> detailed records -> knowledge distillation), raw conversation events are transformed into reusable experience.
+
+**Tools**: MEMORY.md, HEARTBEAT.md, TOOLS.md, skills/
+
+**Domain**: knowledge
 
 ## Description
 
@@ -71,16 +106,6 @@ File path: `chronicle/YYYY-MM/YYYY-MM-DD-event-name.md`
 > **Type**: [icon] [type name]
 > **Priority**: P[0/1/2]
 > **Recorded**: YYYY-MM-DD HH:MM
-
----
-
-## Summary
-
-**One-liner**: [core description]
-
-**Key Outcomes**:
-- [Outcome 1]
-- [Outcome 2]
 
 ---
 

@@ -1,0 +1,38 @@
+{
+    "name": "Example Corp",
+    "type": "web",
+    "scope": [
+        "example.com",
+        "www.example.com",
+        "api.example.com",
+        "192.168.1.0/24"
+    ],
+    "exclusions": [
+        "admin.example.com",
+        "192.168.1.1"
+    ],
+    "rules_of_engagement": {
+        "max_severity": "critical",
+        "allowed_tools": ["all"],
+        "denial_of_service": false,
+        "data_exfiltration": false,
+        "social_engineering": false,
+        "physical_access": false
+    },
+    "client_contact": {
+        "name": "Security Team Lead",
+        "email": "security@example.com",
+        "emergency_stop": "+1-555-0100"
+    },
+    "timeline": {
+        "start": "2026-01-15",
+        "end": "2026-01-22",
+        "max_hours": 40
+    },
+    "credentials": {
+        "test_accounts": [
+            {"username": "testuser", "role": "user"},
+            {"username": "testadmin", "role": "admin"}
+        ]
+    }
+}

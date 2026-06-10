@@ -1,6 +1,6 @@
 {
   "skill": "web-auth-bypass",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3430,
@@ -11,7 +11,7 @@
     "guide_file_count": 5,
     "guide_avg_words": 1490,
     "guide_key_sections": 3,
-    "skill_section_score": 0.81
+    "skill_section_score": 0.83
   },
   "normalized_scores": {
     "payload_word": 94.3,
@@ -20,14 +20,14 @@
     "test_case": 100.0,
     "field": 86.0,
     "guide": 80.9,
-    "skill_section": 81.0
+    "skill_section": 83.0
   },
   "component_scores": {
-    "skill_md": 81.00,
+    "skill_md": 83.00,
     "payloads_md": 89.97,
     "test_cases_md": 93.00,
     "guides": 80.9
   },
-  "overall_score": 87.3,
+  "overall_score": 87.6,
   "tier": "Excellent"
 }

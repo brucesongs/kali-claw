@@ -1,6 +1,6 @@
 {
   "skill": "social-intelligence",
-  "timestamp": "2026-06-02T16:58:24Z",
+  "timestamp": "2026-06-09T19:14:48Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4363,
@@ -11,7 +11,7 @@
     "guide_file_count": 8,
     "guide_avg_words": 956,
     "guide_key_sections": 3,
-    "skill_section_score": 0.95
+    "skill_section_score": 0.96
   },
   "normalized_scores": {
     "payload_word": 100.0,
@@ -20,14 +20,14 @@
     "test_case": 80.0,
     "field": 100.0,
     "guide": 85.5,
-    "skill_section": 95.0
+    "skill_section": 96.0
   },
   "component_scores": {
-    "skill_md": 95.00,
+    "skill_md": 96.00,
     "payloads_md": 91.10,
     "test_cases_md": 90.00,
     "guides": 85.5
   },
-  "overall_score": 90.0,
+  "overall_score": 90.1,
   "tier": "Excellent"
 }

@@ -1,3 +1,29 @@
+---
+name: ai-fuzzing
+description: "AI-assisted fuzzing for automated vulnerability discovery. Coverage-guided fuzzing engines, AI-driven seed generation, intelligent mutation strategies, and systematic crash triage."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: ai
+  tool_count: 6
+  guide_count: 7
+---
+
+
+
+
 # AI-Assisted Fuzzing
 
 > **Supplementary Files**:
@@ -8,6 +34,14 @@
 > - `guides/coverage-guided-fuzzing.md` — AFL++ internals, corpus management, mutation operators, parallel fuzzing, crash triage
 > - `guides/web-api-fuzzing.md` — OpenAPI schema fuzzing, GraphQL fuzzing, REST boundary testing, authentication fuzzing
 > - `guides/protocol-fuzzing.md` — Network protocol fuzzing, TLS/SSL fuzzing, custom binary protocols, BooFuzz framework
+
+## Summary
+
+Coverage-guided fuzzing engines, AI-driven seed generation, intelligent mutation strategies, and systematic crash triage.
+
+**Tools**: AFL++, libFuzzer, Honggfuzz, radare2, BooFuzz, wfuzz
+
+**Domain**: ai
 
 ## Skill Identity
 

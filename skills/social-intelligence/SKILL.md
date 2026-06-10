@@ -1,8 +1,45 @@
+---
+name: social-intelligence
+description: "Real-time intelligence gathering from social platforms and community discussions — capturing what people are saying, sharing, and leaking right now."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: osint
+  tool_count: 10
+  guide_count: 8
+  mitre: "TA0043-Reconnaissance"
+---
+
+
+
+
 # Skill: Social Intelligence
 
 > **Supplementary Files**:
 > - `payloads.md` — Platform-specific search queries for Reddit, HackerNews, Twitter/X, YouTube, forums, and paste sites organized by intelligence gathering scenario
 > - `test-cases.md` — Structured test cases covering target profiling, technology leak discovery, vulnerability discussion tracking, sentiment analysis, and dark web monitoring
+
+## Summary
+
+Social Intelligence skill domain covering osint operations.
+
+**Tools**: Brave Search API, Serper API, Reddit API, HackerNews (Algolia), Sherlock, yt-dlp, snscrape, Twint (+2 more)
+
+**Domain**: osint
+
+**MITRE ATT&CK**: TA0043-Reconnaissance
 
 ## Description
 

@@ -1,12 +1,49 @@
+---
+name: security-misconfiguration
+description: "Security misconfiguration detection (OWASP A02:2025) covering default credentials, unnecessary services, verbose errors, missing security headers, and directory listing exposures across deployed systems."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: defense
+  tool_count: 5
+  guide_count: 8
+  owasp: "A02:2025-Misconfiguration"
+---
+
+
+
+
 # Skill: security configurationerrorDetect / Security Misconfiguration Detection
 
 > **Supplementary Files**:
 > - `payloads.md` — byclassotherorganization attackpayloadandtestingcommand（HTTP Header、TLS/SSL、defaultcredentials、directorylist、CORS、Cookie etc.）
 > - `test-cases.md` — structureizetestinguseexample，with severelevelotherandverifyStep（HTTP Security、TLS/SSL、Default Config、Information Disclosure、CORS/Cookie）
 
+## Summary
+
+Security Misconfiguration skill domain covering defense operations.
+
+**Tools**: Nmap, Nikto, testssl.sh, Burp Suite, WhatWeb
+
+**Domain**: defense
+
+**OWASP**: A02:2025-Misconfiguration
+
 ## Description
 
-security configurationerror（OWASP A02:2025）ismostcommon andmosteasyby忽view vulnerabilityclassother。itnotissometoolbody techniquedefect，andissystemindeployment、configuration、maintenanceoverprocessinbecause疏忽cause entirebodysecurity 姿态belowdowngrade。defaultcredentialsnot more改、notnecessaryservicenot disable、errormessageoveratdetailed 、security Header missing、directorylistenable——thissomeseemingly琐碎 problem，oftenisattackerintrusion No.abreakthrough。security configurationerror 危害inatits普遍ityandcan exploitity：almostall systemallexistssomekindprocessdegree configurationnotwhen，andautomated ToolcaninnumbersecondsinnerScannumber千target。
+Security misconfiguration detection (OWASP A02:2025) covering default credentials, unnecessary services, verbose errors, missing security headers, and directory listing exposures across deployed systems. Misconfigurations are the most common and easily overlooked vulnerability class — not a tool flaw but a deployment and maintenance failure that degrades overall security posture.
 
 **coreDetect领domain**:
 - **Default Credentials**: output厂defaultusernamepasswordnot modify（admin/admin、root/root、test/test）

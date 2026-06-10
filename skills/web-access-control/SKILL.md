@@ -1,9 +1,46 @@
+---
+name: web-access-control
+description: "Broken Access Control (OWASP Top 10 2025 - A01) attacks and defense — covering core attack surfaces including IDOR (Insecure Direct Object Reference), vertical/horizontal privilege escalation, path traversal, and permission bypass."
+origin: openclaw
+version: "0.1.18"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - WebSearch
+  - WebFetch
+metadata:
+  domain: web-attack
+  tool_count: 6
+  guide_count: 5
+  owasp: "A01:2021-Broken Access Control"
+---
+
+
+
+
 # Skill: Broken Access Control
 
 > **Supplementary Files**:
 > - `payloads.md` — Payload collection organized by 7 major attack types (IDOR, privilege escalation, path traversal, forced browsing, parameter tampering, HTTP method tampering, header spoofing)
 > - `test-cases.md` — Structured test case templates (13 cases covering IDOR, privilege escalation, path traversal, forced browsing — 4 categories)
 > - `access-control-guide.md` — Complete guide to Broken Access Control (attack types, detection techniques, exploitation methods, defense strategies)
+
+## Summary
+
+Web Access Control skill domain covering web attack operations.
+
+**Tools**: Burp Suite, ffuf, Autorize, curl, sqlmap, fimap
+
+**Domain**: web-attack
+
+**OWASP**: A01:2021-Broken Access Control
 
 ## Description
 
