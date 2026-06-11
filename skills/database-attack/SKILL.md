@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: database
   tool_count: 8
-  guide_count: 3
+  guide_count: 5
   mitre: "TA0006-Credential Access"
 ---
 
@@ -195,10 +195,131 @@ redis-cli -h 192.168.1.100 CONFIG SET dbfilename authorized_keys
 
 Direct database attacks carry severe legal risk — database servers often contain regulated data (PII, financial records, health information). Always confirm database attacks are within authorized scope. Brute-force attacks against production databases risk account lockouts and performance degradation. Data exfiltration must be minimized and documented; extract only enough to prove the vulnerability exists. Destroy all extracted data after the engagement unless retention is explicitly authorized.
 
+## Database Attack Categories
+
+Database attacks can be classified into five major categories based on the attack vector and the layer being targeted:
+
+1. **Protocol-Level Attacks** — Direct interaction with database listeners over their native wire protocols (TNS for Oracle, MySQL protocol, PostgreSQL wire protocol, TDS for MSSQL). These attacks bypass application-layer defenses entirely and target authentication, configuration, and service enumeration.
+
+2. **Authentication Attacks** — Brute-forcing credentials, testing default accounts, exploiting weak password policies, and abusing trust-based authentication (PostgreSQL `pg_hba.conf` trust entries, MySQL empty root passwords, Redis no-auth deployments). Authentication attacks are often the first successful vector against database servers.
+
+3. **Privilege Escalation** — After gaining initial database access with a low-privilege account, attackers escalate through SQL injection in stored procedures, exploiting public package grants (Oracle DBMS_SCHEDULER), abusing GRANT OPTION chains, and leveraging misconfigured role hierarchies. Many databases ship with privilege escalation paths built into their default configurations.
+
+4. **Data Exfiltration** — Extracting data through database-native export tools (mysqldump, pg_dump, mongoexport), file read capabilities (LOAD_FILE, COPY, UTL_FILE), and covert channels like DNS tunneling from within stored procedures. The goal is to prove access to sensitive data while minimizing forensic footprint.
+
+5. **Post-Exploitation** — Using database access as a pivot point: executing OS commands via xp_cmdshell, PL/Python, DBMS_SCHEDULER; writing files for persistence (SSH keys, cron jobs, web shells); and harvesting credentials from database links and replication configurations for lateral movement.
+
+## Credential Harvesting from Databases
+
+Database servers are credential goldmines in enterprise environments. They store credentials for applications, other databases, and external services in multiple locations:
+
+**Direct Credential Storage**:
+- MySQL: `mysql.user` table stores authentication strings (SHA256 or caching_sha2_password)
+- PostgreSQL: `pg_authid` catalog stores role passwords
+- MSSQL: `sys.sql_logins` stores password hashes (SHA-512 with salt since SQL Server 2012)
+- Oracle: `SYS.USER$` table stores password hashes (DES-based and SHA-256)
+
+**Embedded Credentials**:
+- Database links (Oracle DB_LINKS, MSSQL Linked Servers) contain cleartext or hashed credentials for remote database instances
+- Application connection strings stored in configuration tables
+- SSIS packages, stored procedures, and agent jobs often embed credentials
+- Replication configurations contain distributor and subscriber credentials
+
+**Harvesting Commands**:
+
+```bash
+# MySQL credential extraction
+mysql -u root -e "SELECT user, host, authentication_string FROM mysql.user"
+
+# PostgreSQL credential extraction
+psql -U postgres -c "SELECT rolname, rolpassword FROM pg_authid WHERE rolpassword IS NOT NULL"
+
+# MSSQL credential extraction
+sqsh -S target -U sa -C "SELECT name, password_hash FROM sys.sql_logins"
+
+# Oracle credential extraction via odat
+odat passwordstealer -s 192.168.1.100 -d ORCL -U sys -P password
+```
+
+**Cracking Database Hashes**:
+- MySQL 5.x+: hashcat mode 300 (SHA1), mode 3000 (LM)
+- MSSQL 2012+: hashcat mode 1731 (SHA-512)
+- PostgreSQL MD5: hashcat mode 11 (or custom mode with `md5` prefix)
+- Oracle 11g+: hashcat mode 112 (Oracle 11g)
+
+## Data Exfiltration Techniques
+
+Extracting data from compromised databases requires different approaches depending on the database type, available privileges, and network restrictions:
+
+**Bulk Export Tools**: Use native database export tools for maximum efficiency — `mysqldump` for MySQL, `pg_dump` for PostgreSQL, `mongoexport`/`mongodump` for MongoDB, `expdp` for Oracle. These tools handle character encoding, binary data, and schema relationships automatically.
+
+**Targeted Extraction**: When bulk export is too noisy or time-consuming, extract specific high-value data: user tables, credit card columns, PII fields, authentication tokens. Use `SELECT INTO OUTFILE` (MySQL), `COPY TO` (PostgreSQL), or scripted extraction through query interfaces.
+
+**Covert Exfiltration Channels**: When network monitoring blocks direct data transfer, use covert channels: encoding data into DNS queries via stored procedures, writing data to files accessible through web servers, using database replication to copy data to attacker-controlled replicas, or leveraging database backup mechanisms to exfiltrate through scheduled backup jobs.
+
+**Anti-Forensic Considerations**: Minimize audit trail by understanding what the target database logs: MySQL general_log and slow_query_log, PostgreSQL pg_stat_activity and custom audit extensions, Oracle unified auditing, MSSQL SQL Server Audit. Avoid SELECT * in favor of targeted column extraction to reduce log verbosity.
+
+## Database Hardening Checklist
+
+| Category | Control | Priority |
+|----------|---------|----------|
+| **Network** | Database on isolated VLAN with no internet access | CRITICAL |
+| **Network** | Firewall rules restricting source IPs to application servers | CRITICAL |
+| **Network** | TLS encryption for all connections | HIGH |
+| **Authentication** | Strong password policies enforced | CRITICAL |
+| **Authentication** | All default accounts disabled or removed | CRITICAL |
+| **Authentication** | Multi-factor authentication for DBA access | HIGH |
+| **Authentication** | Account lockout after N failed attempts | HIGH |
+| **Authorization** | Least-privilege role assignments | HIGH |
+| **Authorization** | No application accounts with DBA/superuser privileges | HIGH |
+| **Authorization** | Regular access reviews and certification | MEDIUM |
+| **Configuration** | Dangerous features disabled (xp_cmdshell, UTL_FILE, DBMS_SCHEDULER) | HIGH |
+| **Configuration** | File system access restricted to database data directories only | HIGH |
+| **Configuration** | Module loading disabled | HIGH |
+| **Audit** | Comprehensive audit logging enabled | HIGH |
+| **Audit** | Real-time alerting on privilege escalation events | MEDIUM |
+| **Audit** | Regular log review and anomaly detection | MEDIUM |
+| **Patching** | Database server patched within 30 days of critical CVE | CRITICAL |
+| **Patching** | Quarterly patch assessment for non-critical updates | MEDIUM |
+| **Backup** | Encrypted backups with tested restore procedures | HIGH |
+| **Monitoring** | Database activity monitoring (DAM) solution deployed | MEDIUM |
+
+## Privilege Escalation in Databases
+
+Database privilege escalation follows distinct paths depending on the DBMS:
+
+**MySQL Privilege Escalation**:
+1. Check `SHOW GRANTS FOR CURRENT_USER()` for available privileges
+2. If `FILE` privilege: read/write OS files via `LOAD_FILE()` and `INTO OUTFILE`
+3. If `GRANT OPTION`: escalate other users or create new admin accounts
+4. If `SUPER` privilege: load custom UDF libraries for OS command execution
+5. If `CREATE ROUTINE` with `EXECUTE`: create SUID routines that execute with definer privileges
+
+**PostgreSQL Privilege Escalation**:
+1. Check `pg_roles` for role attributes (`SUPERUSER`, `CREATEROLE`, `CREATEDB`)
+2. If `CREATEROLE`: create a superuser account directly
+3. If `CREATE EXTENSION`: load `plpython3u` or `plperlu` for code execution
+4. If superuser: `COPY TO PROGRAM` for OS command execution
+5. Large object functions (`lo_import`, `lo_export`) for file system access
+
+**MSSQL Privilege Escalation**:
+1. Check `IS_SRVROLEMEMBER('sysadmin')` and `IS_MEMBER('db_owner')`
+2. If `db_owner` on a database: create stored procedures with `EXECUTE AS OWNER`
+3. If `IMPERSONATE` permission: use `EXECUTE AS LOGIN` to elevate
+4. If `sysadmin`: enable `xp_cmdshell` for direct OS command execution
+5. Abuse `OPENROWSET` and `OPENDATASOURCE` for cross-server queries with delegated credentials
+
+**Oracle Privilege Escalation**:
+1. Query `DBA_SYS_PRIVS` and `SESSION_PRIVS` for current privilege set
+2. Exploit `PUBLIC` grants on packages like `DBMS_SCHEDULER`, `UTL_FILE`
+3. SQL injection in Oracle-supplied PL/SQL packages (version-specific CVEs)
+4. `CREATE ANY PROCEDURE` privilege allows executing code in SYS schema
+5. Database link escalation: traverse DB links to reach higher-privilege instances
+
 ## Learning Resources
 
 - **This skill's supplementary files**: `payloads.md`, `test-cases.md`
-- **Guides**: `guides/oracle-database-attack.md`, `guides/redis-mongodb-unauth.md`, `guides/database-bruteforce.md`
+- **Guides**: `guides/oracle-database-attack.md`, `guides/redis-mongodb-unauth.md`, `guides/database-bruteforce.md`, `guides/nosql-attack-guide.md`, `guides/database-lateral-movement-guide.md`
 - **Related skills**: `skills/web-sqli/SKILL.md`, `skills/password-attack/SKILL.md`
 - **odat GitHub**: [github.com/quentinhardy/odat](https://github.com/quentinhardy/odat)
 - **HackTricks - Databases**: [book.hacktricks.xyz/network-services-pentesting](https://book.hacktricks.xyz/network-services-pentesting)

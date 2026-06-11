@@ -332,18 +332,19 @@ TOOLS.md:
 | v0.1.24 | 2026-06-10 | **8 Distinguished milestone, Distinguished sprint + bottom lift** | +3 Distinguished (osint 92.5, social-intelligence 93.8, verification-loop 92.6); 5 bottom skills lifted; avg 87.3 |
 | v0.1.25 | 2026-06-10 | **11 Distinguished milestone, Distinguished sprint + bottom lift** | +3 Distinguished (security-misconfiguration 92.8, security-bounty-hunter 92.0, web-xss 92.0); 3 bottom skills lifted (+6 avg); avg 87.7 |
 | v0.1.26 | 2026-06-11 | **15 Distinguished milestone, Distinguished sprint + bottom lift** | +4 Distinguished (payload-generation 93.1, vpn-attack 92.5, network-tunneling-proxy 92.3, web-deserialization 92.2); avg 88.0 |
+| v0.1.27 | 2026-06-11 | **17 Distinguished milestone, Distinguished sprint + bottom lift** | +2 Distinguished (scada-ics-security 93.0, council 92.3); 3 bottom skills lifted; avg 88.2 |
 
-### Current Quality Snapshot (v0.1.26, scoring v2)
+### Current Quality Snapshot (v0.1.27, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **15** | social-intelligence (93.8), article-writing (93.6), payload-generation (93.1), vulnerability-assessment (93.0), security-misconfiguration (92.8), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), network-tunneling-proxy (92.3), web-deserialization (92.2), cloud-security (92.1), network-pentest (92.0), security-bounty-hunter (92.0), web-xss (92.0) |
-| Excellent (80-91.9) | **59** | All remaining skill domains |
+| Distinguished (92+) | **17** | social-intelligence (93.8), article-writing (93.6), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), security-misconfiguration (92.8), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), cloud-security (92.1), network-pentest (92.0), security-bounty-hunter (92.0), web-xss (92.0) |
+| Excellent (80-91.9) | **57** | All remaining skill domains |
 | Strong (60-80) | 0 | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 88.0** | **74/74 Excellent or above** | **15 Distinguished**
+**Average score: 88.2** | **74/74 Excellent or above** | **17 Distinguished**
 
 ### Future Exploration
 

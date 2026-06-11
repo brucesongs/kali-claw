@@ -1,12 +1,32 @@
 # Container Escape Techniques Guide
 
-> Practical methods for escaping containerized environments through privileged mode abuse, kernel exploits, mount namespace manipulation, and misconfigured capabilities.
-
 ## Introduction
 
-Container escape techniques involve breaking out of a containerized environment to access the host system or other containers. This guide covers practical methods for testing container isolation boundaries, including Docker socket exploitation, privileged container escapes, and Kubernetes pod security bypasses.
+Container escape techniques involve breaking out of a containerized environment to access the host system or other containers. This is one of the most critical skills in container security assessment, as a successful escape from a container to its host provides the attacker with root-level access to the underlying machine, and potentially lateral movement across the entire cluster.
 
-## 1. Detecting Escape Opportunities
+Container isolation relies on Linux kernel features: namespaces (PID, mount, network, UTS, IPC, user, cgroup), cgroups (resource limits), capabilities (fine-grained privilege control), seccomp (syscall filtering), and mandatory access control (AppArmor, SELinux). An escape occurs when one or more of these isolation boundaries can be circumvented.
+
+This guide covers practical methods for testing container isolation boundaries through progressive exercises, from initial reconnaissance to full host compromise. Each technique includes the prerequisites required, the exploitation steps, and the defensive mitigations.
+
+### Escape Technique Taxonomy
+
+| Category | Technique | Required Condition | Impact |
+|----------|-----------|-------------------|--------|
+| Privileged abuse | cgroup release_agent | CAP_SYS_ADMIN or privileged | Host code execution |
+| Privileged abuse | Docker socket mount | docker.sock mounted | Full host control |
+| Privileged abuse | Host filesystem mount | / mounted or device access | Host file read/write |
+| Kernel exploit | Dirty Pipe (CVE-2022-0847) | Kernel 5.8-5.16.11 | File overwrite on host |
+| Kernel exploit | CVE-2024-1086 (netfilter) | Unprivileged user namespace | Full root on host |
+| Kernel exploit | CVE-2022-0185 (cgroup) | CAP_SYS_ADMIN | Container escape |
+| Namespace | PID namespace sharing | hostPID enabled | Process injection |
+| Namespace | nsenter abuse | hostPID + appropriate caps | Full namespace escape |
+| Runtime | runc exploit (CVE-2019-5736) | Docker < 18.09.2 | Host binary overwrite |
+| Kubernetes | Privileged pod creation | RBAC permission to create pods | Node compromise |
+| Kubernetes | HostPath mount via pod spec | RBAC permission to create pods | Host filesystem access |
+
+## Hands-on Exercises
+
+### Exercise 1: Detecting Escape Opportunities
 
 First, determine what privileges and capabilities the container has.
 
@@ -39,7 +59,7 @@ ls /dev/ | grep -E "(sda|vda|nvme|dm-)"
 fdisk -l 2>/dev/null
 ```
 
-## 2. Privileged Container Escape via cgroups
+### Exercise 2: Privileged Container Escape via cgroups
 
 ```bash
 # Classic escape: abuse cgroup release_agent (CVE-2022-0492 variant)
@@ -70,7 +90,7 @@ sh -c "echo \$\$ > /tmp/cgrp/escape/cgroup.procs"
 # The release_agent executes on the HOST when the cgroup becomes empty
 ```
 
-## 3. Escape via Host Filesystem Mount
+### Exercise 3: Escape via Host Filesystem Mount
 
 ```bash
 # If /dev/sda (or host disk) is accessible

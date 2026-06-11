@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: network-attack
   tool_count: 8
-  guide_count: 3
+  guide_count: 5
   mitre: "TA0011-Command and Control"
 ---
 

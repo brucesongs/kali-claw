@@ -1,6 +1,6 @@
 {
   "skill": "dns-attacks",
-  "timestamp": "2026-06-11T06:12:05Z",
+  "timestamp": "2026-06-11T06:51:33Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4161,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 36,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 3,
-    "guide_avg_words": 1107,
+    "guide_file_count": 5,
+    "guide_avg_words": 996,
     "guide_key_sections": 3,
     "skill_section_score": 0.93
   },
@@ -19,15 +19,15 @@
     "payload_code": 41.3,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 73.3,
+    "guide": 77.9,
     "skill_section": 93.0
   },
   "component_scores": {
     "skill_md": 93.00,
     "payloads_md": 80.43,
     "test_cases_md": 90.00,
-    "guides": 73.3
+    "guides": 77.9
   },
-  "overall_score": 83.4,
+  "overall_score": 84.6,
   "tier": "Excellent"
 }

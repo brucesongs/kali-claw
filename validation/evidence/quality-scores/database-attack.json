@@ -1,33 +1,33 @@
 {
   "skill": "database-attack",
-  "timestamp": "2026-06-11T06:12:05Z",
+  "timestamp": "2026-06-11T06:51:33Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 3136,
-    "payload_section_count": 14,
-    "payload_code_blocks": 50,
+    "payload_word_count": 3729,
+    "payload_section_count": 19,
+    "payload_code_blocks": 59,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 3,
-    "guide_avg_words": 983,
+    "guide_file_count": 5,
+    "guide_avg_words": 887,
     "guide_key_sections": 3,
-    "skill_section_score": 0.80
+    "skill_section_score": 0.87
   },
   "normalized_scores": {
-    "payload_word": 91.4,
-    "payload_section": 91.1,
-    "payload_code": 80.0,
+    "payload_word": 97.3,
+    "payload_section": 100.0,
+    "payload_code": 83.6,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 72.5,
-    "skill_section": 80.0
+    "guide": 76.7,
+    "skill_section": 87.0
   },
   "component_scores": {
-    "skill_md": 80.00,
-    "payloads_md": 87.50,
+    "skill_md": 87.00,
+    "payloads_md": 93.63,
     "test_cases_md": 90.00,
-    "guides": 72.5
+    "guides": 76.7
   },
-  "overall_score": 83.4,
+  "overall_score": 87.3,
   "tier": "Excellent"
 }

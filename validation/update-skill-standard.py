@@ -23,7 +23,7 @@ import re
 import sys
 
 SKILLS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills")
-VERSION = "0.1.26"
+VERSION = "0.1.27"
 ORIGIN = "openclaw"
 
 COMPATIBILITY = ["openclaw", "claude-code", "cursor", "windsurf"]
