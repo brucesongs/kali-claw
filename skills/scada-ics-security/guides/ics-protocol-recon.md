@@ -135,9 +135,213 @@ tshark -r ics_traffic.pcap -Y "tcp.port == 102" -T fields -e s7comm.func -e ip.s
 
 Passive analysis reveals the master-slave communication topology, normal polling intervals, register ranges being accessed, and which IP addresses are authorized to issue commands. This intelligence is invaluable for planning any active testing.
 
+## Phase 7: DNP3 Outstation Discovery
+
+DNP3 (Distributed Network Protocol version 3) is the dominant SCADA protocol in the North American electric utility sector. It operates over TCP port 20000 (or UDP for some serial-to-IP gateways) and follows a master-outstation communication model. DNP3 supports Secure Authentication (SA) but many deployments operate without it, making outstations accessible to any network-connected host.
+
+```bash
+# Scan for DNP3 outstations on the standard TCP port
+nmap -sT -p 20000 --script dnp3-info 192.168.1.0/24
+
+# Passive DNP3 traffic capture for outstation identification
+tcpdump -i eth0 -w dnp3_passive.pcap port 20000
+
+# Extract DNP3 source/destination pairs to identify master-outstation relationships
+tshark -r dnp3_passive.pcap -Y "dnp3" -T fields -e ip.src -e ip.dst -e dnp3.func | sort | uniq -c | sort -rn
+```
+
+Key DNP3 reconnaissance data points:
+
+- **Data Link Address**: Each DNP3 device has a 16-bit source address (0-65535). Master stations typically use address 1, while outstations use addresses 10-65534.
+- **Function Code Analysis**: Identify which function codes the master is issuing (read, write, direct operate, freeze) to understand the operational scope.
+- **Data Class Identification**: DNP3 organizes data into Class 0 (all static data), Class 1 (high priority events), Class 2 (medium priority), and Class 3 (low priority). Enumerating Class 0 data reveals the full point map.
+- **Fragment Size and Timeout**: DNP3 link layer parameters include maximum fragment size and link timeout values. These vary between vendor implementations and can help fingerprint the outstation device.
+
+### DNP3 Data Object Enumeration
+
+```bash
+# Enumerate DNP3 data objects using scapy-crafted requests
+python3 -c "
+from scapy.all import *
+import struct
+
+# DNP3 application layer: Read request for Class 0 data (all static points)
+# Application layer header: AC (application control) + FC (function code 0x01 = Read)
+# Object header: Group 60, Variation 1 (Class 0 data), Qualifier 0x06 (no prefix, start=stop=0)
+dnp3_payload = bytes([
+    0xC0,  # AC: FIR=1, FIN=1, CON=0, UNS=0, SEQ=0
+    0x01,  # FC: Read
+    0x3C, 0x01, 0x06,  # Group 60 Var 1, Qualifier 06
+    0x00, 0x00   # Start=0, Stop=0
+])
+
+# DNP3 data link layer header
+dl_header = bytes([0x05, 0x64])  # Start bytes
+# Build complete DNP3 frame (simplified for TCP transport)
+frame = dl_header + dnp3_payload
+
+# Send via TCP
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(5)
+s.connect(('192.168.1.15', 20000))
+s.send(frame)
+response = s.recv(4096)
+print(f'DNP3 response: {response.hex()}')
+print(f'Response length: {len(response)} bytes')
+s.close()
+"
+
+# Analyze DNP3 data objects in captured traffic
+tshark -r dnp3_passive.pcap -Y "dnp3" -T fields \
+  -e dnp3.func -e dnp3.obj.group -e dnp3.obj.variation -e dnp3.obj.qualifier | sort | uniq -c | sort -rn
+```
+
+## Phase 8: BACnet Building Automation Discovery
+
+BACnet (Building Automation and Control Networks) operates over UDP port 47808 and is ubiquitous in commercial building management systems. BACnet devices announce themselves through periodic Who-Is/I-Am broadcasts, making passive discovery extremely effective.
+
+```bash
+# Capture BACnet broadcast traffic
+tcpdump -i eth0 -w bacnet_broadcast.pcap udp port 47808
+
+# Extract device IDs and IP addresses from I-Am responses
+tshark -r bacnet_broadcast.pcap -Y "bacnet && bacapdu.service==0" -T fields \
+  -e ip.src -e bacnet.device_id -e bacnet.vendor_id
+
+# Enumerate BACnet object types on a discovered device
+tshark -r bacnet_broadcast.pcap -Y "bacnet" -T fields \
+  -e bacnet.object_type -e bacnet.object_instance | sort | uniq -c | sort -rn
+```
+
+BACnet reconnaissance reveals:
+
+- **Device Object Properties**: Vendor ID maps to specific manufacturers (Trane, Honeywell, Johnson Controls, Siemens). Firmware version indicates potential vulnerabilities.
+- **Object Hierarchy**: Each BACnet device contains objects (Analog Input, Analog Output, Analog Value, Binary Input, Binary Output, Binary Value, Multi-state, etc.). The object count indicates the scale of the controlled environment.
+- **Communication Configuration**: BACnet devices may have multiple communication bindings (BACnet/IP, BACnet MS/TP, BACnet Ethernet). Each binding is a potential attack surface.
+- **APDU Service Support**: The protocol-services-supported property reveals which BACnet services the device can process, indicating what operations are available to an attacker.
+
+## Phase 9: Protocol Correlation and Asset Mapping
+
+After completing individual protocol scans, correlate the results to build a comprehensive asset map of the ICS environment. This map connects device identities across protocols, identifies single points of failure, and reveals undocumented communication paths.
+
+### Cross-Protocol Device Correlation
+
+```bash
+# Correlate Modbus and EtherNet/IP results by IP address
+python3 -c "
+import json
+
+# Load scan results from different protocols
+modbus_devices = {
+    '192.168.1.10': {'unit_ids': [1, 2, 3], 'model': 'Schneider M340'},
+    '192.168.1.20': {'unit_ids': [1], 'model': 'Siemens S7-1200'}
+}
+
+enip_devices = {
+    '192.168.1.10': {'vendor': 'Schneider Electric', 'product': 'M340 BMXP342020'},
+    '192.168.1.30': {'vendor': 'Rockwell Automation', 'product': 'ControlLogix 5580'}
+}
+
+# Cross-reference to identify multi-protocol devices
+all_ips = set(list(modbus_devices.keys()) + list(enip_devices.keys()))
+print('Device Correlation Report:')
+print('-' * 60)
+for ip in sorted(all_ips):
+    print(f'IP: {ip}')
+    if ip in modbus_devices:
+        print(f'  Modbus: {modbus_devices[ip][\"model\"]} (Units: {modbus_devices[ip][\"unit_ids\"]})')
+    if ip in enip_devices:
+        print(f'  EtherNet/IP: {enip_devices[ip][\"vendor\"]} {enip_devices[ip][\"product\"]}')
+    print()
+"
+```
+
+### Network Topology Visualization
+
+```bash
+# Generate communication matrix from captured traffic
+tshark -r ics_traffic.pcap -Y "modbus || s7comm || enip || dnp3 || bacnet" \
+  -T fields -e ip.src -e ip.dst -e frame.protocols | \
+  sort | uniq -c | sort -rn > communication_matrix.txt
+
+# Extract unique device roles (masters vs. slaves)
+tshark -r ics_traffic.pcap -Y "tcp.port==502 && modbus" \
+  -T fields -e ip.src -e ip.dst | sort -u | \
+  awk '{print $1, \"-> MASTER\"; print $2, \"-> SLAVE\"}' | sort -u
+```
+
+### Vulnerability Research Integration
+
+Once the asset inventory is complete, cross-reference each device against vulnerability databases:
+
+```bash
+# Search NVD for known vulnerabilities by device model
+# Example: Search for Siemens S7-1200 CVEs
+curl -s "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=Siemens+S7-1200" | \
+  python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for vuln in data.get('vulnerabilities', [])[:10]:
+    cve = vuln['cve']
+    cve_id = cve['id']
+    desc = cve['descriptions'][0]['value'][:120] if cve['descriptions'] else 'N/A'
+    print(f'{cve_id}: {desc}')
+"
+
+# Check ICS-CERT advisories for firmware versions discovered during enumeration
+# Reference: https://www.cisa.gov/news-events/cybersecurity-advisories
+```
+
+## Phase 10: Wireless ICS Device Reconnaissance
+
+Many modern ICS deployments include wireless communication for remote I/O, field device monitoring, and mobile operator interfaces. Wireless adds an additional attack surface that is often overlooked during traditional ICS assessments.
+
+### Industrial WiFi Discovery
+
+```bash
+# Scan for wireless networks in the OT area
+iwlist wlan0 scan | grep -E "ESSID|Encryption|Frequency|Quality"
+
+# Monitor for industrial wireless protocols
+# WirelessHART (IEEE 802.15.4, 2.4GHz)
+# ISA100.11a (IEEE 802.15.4, 2.4GHz)
+# WLAN-based HMI access points
+rtl_power -f 2.4G:2.5G:100k -i 5 -e 60 industrial_wifi.csv
+
+# Identify Rogue access points in OT zones
+# Compare discovered APs against authorized AP list
+airodump-ng wlan0mon -c 1,6,11 --output-format csv -w ot_wifi_scan
+```
+
+### Bluetooth ICS Device Discovery
+
+Some ICS field devices use Bluetooth for local configuration and maintenance access:
+
+```bash
+# Scan for Bluetooth devices in the OT area
+bluetoothctl scan on
+
+# Identify industrial Bluetooth devices by OUI prefix
+# Common industrial OUIs: Siemens (00:1C:06), Rockwell (00:00:BC), Schneider (00:80:F4)
+bluetoothctl devices | grep -E "00:1C:06|00:00:BC|00:80:F4"
+```
+
 ## Operational Considerations
 
 - **Timing is critical:** ICS devices may have watchdog timers that trigger failsafes if communication is disrupted. Space out scan probes and avoid aggressive timing templates.
 - **Document everything:** Record the IP, protocol, port, and response for every discovered device. This inventory becomes the foundation for vulnerability assessment.
 - **Cross-reference with Shodan/Censys:** ICS devices exposed to the internet are cataloged by search engines. Use these as supplementary intelligence sources during scope-approved engagements.
 - **Mind the serial layer:** Not all ICS communication is TCP/IP. Serial connections (RS-232, RS-485) using Modbus RTU or DF1 protocol require physical access and different tooling (serial adapters, specialized clients).
+- **Honeypot awareness:** Be alert for ICS honeypots (conpot, GRFICSv2) during reconnaissance. Honeypots often have unrealistic response timing, static register values, or simplified protocol error handling. Document suspected honeypots separately.
+- **Protocol version mapping:** Document exact protocol versions and firmware revisions during enumeration. The same protocol name (e.g., "Modbus TCP") can have vastly different security postures depending on the firmware version and configuration of the implementing device.
+
+## References
+
+- NIST SP 800-82: Guide to ICS Security — https://csrc.nist.gov/publications/detail/sp/800-82/rev-3/final
+- IEC 62443: Industrial Automation and Control Systems Security — https://www.isa.org/standards-and-publications/isa-standards/isa-iec-62443-series-of-standards
+- MITRE ATT&CK for ICS — https://attack.mitre.org/matrices/ics/
+- CISA ICS-CERT Advisories — https://www.cisa.gov/news-events/cybersecurity-advisories
+- Modbus Protocol Specification — https://modbus.org/specs.php
+- DNP3 Users Group — https://www.dnp.org/
+- BACnet Protocol Standard (ASHRAE 135) — https://www.bacnet.org/
+- IEC 61850 Communication Networks and Systems for Power Utility Automation — https://www.iec.ch/

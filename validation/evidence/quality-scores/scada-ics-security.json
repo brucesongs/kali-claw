@@ -1,33 +1,33 @@
 {
   "skill": "scada-ics-security",
-  "timestamp": "2026-06-10T14:18:36Z",
+  "timestamp": "2026-06-11T06:12:05Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 4072,
-    "payload_section_count": 13,
-    "payload_code_blocks": 51,
+    "payload_word_count": 6549,
+    "payload_section_count": 18,
+    "payload_code_blocks": 66,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 3,
-    "guide_avg_words": 1324,
+    "guide_file_count": 5,
+    "guide_avg_words": 2613,
     "guide_key_sections": 3,
-    "skill_section_score": 0.80
+    "skill_section_score": 1.00
   },
   "normalized_scores": {
     "payload_word": 100.0,
-    "payload_section": 88.9,
-    "payload_code": 80.4,
+    "payload_section": 100.0,
+    "payload_code": 86.4,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 74.6,
-    "skill_section": 80.0
+    "guide": 84.0,
+    "skill_section": 100.0
   },
   "component_scores": {
-    "skill_md": 80.00,
-    "payloads_md": 89.77,
+    "skill_md": 100.00,
+    "payloads_md": 95.47,
     "test_cases_md": 90.00,
-    "guides": 74.6
+    "guides": 84.0
   },
-  "overall_score": 84.6,
+  "overall_score": 91.6,
   "tier": "Excellent"
 }

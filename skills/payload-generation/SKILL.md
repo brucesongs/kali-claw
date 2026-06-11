@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: exploitation
   tool_count: 7
-  guide_count: 5
+  guide_count: 8
   mitre: "TA0007-Command and Control"
 ---
 
@@ -328,6 +328,9 @@ Reverse shells are detected through multiple overlapping indicators: network-lev
 - `guides/reverse-shell-complete-guide.md` — Complete reverse shell reference for Linux and Windows with listener setup and stabilization
 - `guides/msfvenom-payload-generation-guide.md` — msfvenom deep dive covering format selection, encoder chaining, and custom templates
 - `guides/payload-delivery-evasion-guide.md` — Delivery techniques and AV bypass strategies including shellter and hoaxshell
+- `guides/cross-platform-payload-guide.md` — Cross-platform payload generation for Windows/Linux/macOS, architecture considerations (x86/x64/ARM64), cross-compilation
+- `guides/web-shell-generation-guide.md` — Web shell generation (PHP, ASP, JSP, Python), obfuscation, detection avoidance, one-liner shells
+- `guides/payload-encoding-encryption-guide.md` — Encoding layers (shikata_ga_nai, XOR, base64), AES encryption, custom encoders, entropy analysis
 
 **Related skills**:
 - `skills/post-exploitation/SKILL.md` — Post-exploitation techniques after shell establishment

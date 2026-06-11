@@ -1,33 +1,33 @@
 {
   "skill": "vpn-attack",
-  "timestamp": "2026-06-10T14:18:36Z",
+  "timestamp": "2026-06-11T06:12:05Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 3154,
-    "payload_section_count": 28,
-    "payload_code_blocks": 56,
+    "payload_word_count": 3725,
+    "payload_section_count": 30,
+    "payload_code_blocks": 60,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 5,
-    "guide_avg_words": 1772,
+    "guide_file_count": 8,
+    "guide_avg_words": 2193,
     "guide_key_sections": 3,
     "skill_section_score": 0.96
   },
   "normalized_scores": {
-    "payload_word": 91.5,
+    "payload_word": 97.2,
     "payload_section": 100.0,
-    "payload_code": 82.4,
+    "payload_code": 84.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 82.6,
+    "guide": 92.0,
     "skill_section": 96.0
   },
   "component_scores": {
     "skill_md": 96.00,
-    "payloads_md": 91.30,
+    "payloads_md": 93.73,
     "test_cases_md": 90.00,
-    "guides": 82.6
+    "guides": 92.0
   },
-  "overall_score": 89.4,
-  "tier": "Excellent"
+  "overall_score": 92.5,
+  "tier": "Distinguished"
 }

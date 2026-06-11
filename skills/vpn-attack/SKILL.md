@@ -19,7 +19,7 @@ allowed-tools:
 metadata:
   domain: security
   tool_count: 5
-  guide_count: 5
+  guide_count: 8
 ---
 
 
@@ -32,6 +32,9 @@ metadata:
 > - `guides/ipsec-vpn-enumeration-fingerprinting-guide.md` — IPSec VPN reconnaissance and fingerprinting complete guide
 > - `guides/ssl-vpn-exploitation-guide.md` — SSL VPN attack techniques guide
 > - `guides/vpn-credential-tunnel-attack-guide.md` — VPN credential and tunnel attack guide
+> - `guides/wireguard-attack-guide.md` — WireGuard protocol analysis, configuration extraction, peer enumeration, crypto attacks
+> - `guides/openvpn-attack-guide.md` — OpenVPN security assessment, certificate analysis, compression attack, TLS downgrade
+> - `guides/vpn-credential-brute-force-guide.md` — IKE aggressive mode brute force, credential spraying, MFA bypass techniques
 
 ## Summary
 
@@ -369,6 +372,9 @@ Defenders should implement: real-time alerting on IKE aggressive mode attempts, 
 - `guides/ipsec-vpn-enumeration-fingerprinting-guide.md` — IPSec VPN reconnaissance and fingerprinting guide
 - `guides/ssl-vpn-exploitation-guide.md` — SSL VPN attack techniques guide
 - `guides/vpn-credential-tunnel-attack-guide.md` — VPN credential and tunnel attack guide
+- `guides/wireguard-attack-guide.md` — WireGuard protocol analysis, configuration extraction, peer enumeration
+- `guides/openvpn-attack-guide.md` — OpenVPN security assessment, certificate analysis, compression attack
+- `guides/vpn-credential-brute-force-guide.md` — IKE aggressive mode brute force, credential spraying, MFA bypass
 
 **Related Skills**:
 - `skills/network-pentest/SKILL.md` — Network penetration testing fundamentals

@@ -789,3 +789,100 @@ for i in $(seq 1 5); do
 done
 wait
 ```
+
+## 29. WireGuard VPN Enumeration and Configuration Extraction
+
+```bash
+# Discover WireGuard service on default UDP port 51820
+nmap -sU -p 51820 --reason 192.168.1.0/24
+
+# Scan common alternate WireGuard ports
+nmap -sU -p 51820,51821,51822,51900,41194 192.168.1.1
+
+# Extract WireGuard runtime configuration from compromised Linux host
+sudo wg show all
+sudo wg show wg0 private-key public-key listening-port
+sudo wg show wg0 peers latest-handshakes transfer allowed-ips
+
+# Locate and read WireGuard configuration files
+sudo find /etc/wireguard/ -name "*.conf" -exec cat {} \;
+
+# Extract WireGuard configuration from NetworkManager
+nmcli connection show --active | grep wireguard
+sudo cat /etc/NetworkManager/system-connections/*.nmconnection 2>/dev/null | grep -i "wireguard\|private\|public\|endpoint"
+```
+
+```bash
+# WireGuard peer enumeration through tunnel interface
+# Check ARP table on WireGuard interface for active peers
+ip neigh show dev wg0
+
+# Show routing table for WireGuard interface (reveals peer allowed-ips)
+ip route show dev wg0
+
+# Scan WireGuard VPN subnet for active hosts
+nmap -sn 10.0.0.0/24 -e wg0 --max-retries 2
+
+# Monitor WireGuard handshake activity (active peers rekey every 2-3 minutes)
+watch -n 10 'sudo wg show wg0 latest-handshakes'
+
+# Capture WireGuard traffic for timing analysis
+sudo tcpdump -i any -nn udp port 51820 -w wg_traffic.pcap
+# Analyze handshake initiation frequency to identify active vs idle peers
+tshark -r wg_traffic.pcap -Y "udp.length == 148" -T fields -e ip.src -e ip.dst 2>/dev/null | sort | uniq -c | sort -rn
+
+# Windows WireGuard configuration extraction
+powershell -Command "Get-Content 'C:\Program Files\WireGuard\Data\Configurations\*.conf'"
+powershell -Command "Get-ChildItem 'C:\Program Files\WireGuard\' -Recurse -Filter '*.conf' | Select-Object FullName"
+```
+
+## 30. OpenVPN Configuration Analysis and Certificate Extraction
+
+```bash
+# Extract OpenVPN configuration and certificates from .ovpn profile
+# Many .ovpn files embed certificates inline between XML-like tags
+awk '/<ca>/,/<\/ca>/' client.ovpn > extracted_ca.crt
+awk '/<cert>/,/<\/cert>/' client.ovpn > extracted_client.crt
+awk '/<key>/,/<\/key>/' client.ovpn > extracted_client.key
+awk '/<tls-auth>/,/<\/tls-auth>/' client.ovpn > extracted_tls_auth.key
+awk '/<tls-crypt>/,/<\/tls-crypt>/' client.ovpn > extracted_tls_crypt.key
+
+# Analyze extracted OpenVPN server certificate
+openssl x509 -in extracted_ca.crt -text -noout | grep -A 2 "Issuer\|Subject\|Not Before\|Not After\|Signature Algorithm"
+openssl x509 -in extracted_client.crt -text -noout | grep -A 2 "Subject Alternative Name\|Extended Key Usage\|Basic Constraints"
+
+# Test OpenVPN TLS configuration for weak cipher acceptance
+# Connect with minimum TLS version test
+openvpn --config client.ovpn --tls-version-min 1.0 --verb 4 2>&1 | grep -i "TLS\|cipher\|error"
+openvpn --config client.ovpn --tls-version-min 1.2 --verb 4 2>&1 | grep -i "TLS\|cipher\|error"
+openvpn --config client.ovpn --tls-version-min 1.3 --verb 4 2>&1 | grep -i "TLS\|cipher\|error"
+```
+
+```bash
+# OpenVPN compression vulnerability testing (VORACLE)
+# Check if compression is negotiated
+openvpn --config client.ovpn --verb 4 2>&1 | grep -i "compress\|lzo\|lz4"
+
+# Test if server accepts compression enable from client
+openvpn --config client.ovpn --comp-lzo yes --verb 4 2>&1 | grep -i "compress\|lzo\|error"
+openvpn --config client.ovpn --compress lz4 --verb 4 2>&1 | grep -i "compress\|lz4\|error"
+
+# OpenVPN static key mode detection
+grep -i "^secret " /etc/openvpn/server/server.conf 2>/dev/null
+grep -i "^secret " client.ovpn 2>/dev/null
+# Static key mode has no TLS handshake, no certificates, no perfect forward secrecy
+
+# OpenVPN post-connection assessment
+# After connecting, check for split tunneling and DNS leaks
+ip route | grep -v "tun\|ppp" | grep -v "169.254" | grep -v "127.0.0"
+cat /etc/resolv.conf
+dig @8.8.8.8 myip.opendns.com +short
+# Compare external IP through VPN vs direct
+curl --interface eth0 -s https://ifconfig.me
+curl --interface tun0 -s https://ifconfig.me
+
+# Test OpenVPN data channel cipher strength
+openvpn --config client.ovpn --cipher AES-256-GCM --verb 4 2>&1 | grep -i "cipher\|data"
+openvpn --config client.ovpn --cipher BF-CBC --verb 4 2>&1 | grep -i "cipher\|weak\|error"
+openvpn --config client.ovpn --cipher DES-CBC --verb 4 2>&1 | grep -i "cipher\|weak\|error"
+```

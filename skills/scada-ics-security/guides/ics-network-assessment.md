@@ -297,3 +297,231 @@ Implement these ongoing monitoring activities:
 - Log all conpot honeypot interactions and integrate with SIEM
 - Review firewall logs daily for blocked cross-zone connection attempts
 - Monitor for ICS protocol traffic on non-standard ports (tunneling detection)
+
+## Part 6: ICS Network Traffic Forensics
+
+### Full-Session Traffic Capture and Analysis
+
+Comprehensive traffic capture during ICS assessments provides evidence for findings and enables post-engagement analysis. Proper capture techniques ensure all protocol layers are preserved.
+
+```bash
+# Full-packet capture with ring buffer (1GB files, keep 10)
+tcpdump -i eth0 -w ics_forensics.pcap -W 10 -C 1000 \
+  'port 502 or port 102 or port 44818 or port 4840 or port 20000 or udp port 47808 or ether proto 0x88b8'
+
+# Extract TCP streams for individual device sessions
+tshark -r ics_forensics.pcap -Y "tcp.port==502 && ip.addr==192.168.1.10" \
+  -T fields -e frame.time -e ip.src -e ip.dst -e modbus.funccode -e modbus.transid
+
+# Generate protocol distribution report
+tshark -r ics_forensics.pcap -T fields -e frame.protocols | \
+  tr ',' '\n' | sort | uniq -c | sort -rn | head -30
+```
+
+### Modbus Session Reconstruction
+
+```bash
+# Extract complete Modbus request-response pairs
+python3 -c "
+import subprocess
+from collections import defaultdict
+
+# Extract Modbus traffic with transaction IDs
+result = subprocess.run([
+    'tshark', '-r', 'ics_forensics.pcap', '-Y', 'modbus',
+    '-T', 'fields', '-e', 'frame.time', '-e', 'ip.src',
+    '-e', 'ip.dst', '-e', 'modbus.transid', '-e', 'modbus.funccode',
+    '-e', 'tcp.flags'
+], capture_output=True, text=True)
+
+sessions = defaultdict(list)
+for line in result.stdout.strip().split('\n'):
+    fields = line.split('\t')
+    if len(fields) >= 6:
+        time, src, dst, tid, fc, flags = fields
+        sessions[tid].append({
+            'time': time, 'src': src, 'dst': dst,
+            'fc': fc, 'flags': flags
+        })
+
+# Identify request-response pairs
+for tid, msgs in sorted(sessions.items()):
+    if len(msgs) == 2:
+        req, resp = msgs[0], msgs[1]
+        print(f'TID={tid} | {req[\"src\"]}->{resp[\"src\"]} FC={req[\"fc\"]} ({req[\"time\"]})')
+    elif len(msgs) > 2:
+        print(f'TID={tid} | MULTI-PART ({len(msgs)} messages)')
+"
+```
+
+### Anomaly Detection Through Statistical Analysis
+
+```bash
+# Compute traffic volume statistics per protocol
+python3 -c "
+import subprocess
+from collections import Counter
+
+result = subprocess.run([
+    'tshark', '-r', 'ics_forensics.pcap',
+    '-T', 'fields', '-e', 'frame.time_relative', '-e', 'tcp.dstport'
+], capture_output=True, text=True)
+
+# Count packets per port per minute
+port_minute = Counter()
+for line in result.stdout.strip().split('\n'):
+    fields = line.split('\t')
+    if len(fields) >= 2:
+        rel_time = float(fields[0])
+        port = fields[1]
+        minute = int(rel_time / 60)
+        port_minute[(port, minute)] += 1
+
+# Report traffic patterns
+for (port, minute), count in sorted(port_minute.items()):
+    proto = {'502': 'Modbus', '102': 'S7comm', '44818': 'ENIP', '4840': 'OPC-UA', '20000': 'DNP3'}.get(port, port)
+    print(f'Minute {minute:4d} | {proto:8s} | {count:5d} packets')
+"
+```
+
+## Part 7: ICS Network Hardening Assessment
+
+### Firewall Rule Audit
+
+```bash
+# Test specific firewall rules by source/destination port combinations
+# Verify Modbus write commands are blocked at the IT/OT boundary
+nmap -sT -p 502 --script modbus-discover --script-args modbus-discover.unitid=1 \
+  --source-port 1024 10.0.2.0/24
+
+# Test for protocol tunneling through allowed ports
+# Check if ICS protocols are encapsulated in HTTP/HTTPS
+nmap -sT -p 80,443,8080 -sV --version-intensity 5 10.0.2.0/24
+
+# Verify no SSH tunnels exist from IT to OT
+nmap -sT -p 22 -sV 10.0.2.0/24
+```
+
+### VLAN Segmentation Verification
+
+```bash
+# Enumerate VLANs visible from the OT network
+# Using DTP (Dynamic Trunking Protocol) where applicable
+python3 -c "
+# Check 802.1Q VLAN tags in captured traffic
+from scapy.all import *
+packets = rdpcap('ics_forensics.pcap')
+vlans = set()
+for pkt in packets:
+    if pkt.haslayer(Dot1Q):
+        vlans.add(pkt[Dot1Q].vlan)
+print(f'VLANs observed: {sorted(vlans)}')
+if len(vlans) > 1:
+    print('WARNING: Multiple VLANs visible from current position')
+    print('VLAN separation may not be properly enforced')
+"
+
+# Test for VLAN hopping via double-tagging
+# This requires specific switch configurations to be vulnerable
+python3 -c "
+from scapy.all import *
+# Craft double-tagged 802.1Q frame
+# Outer VLAN (native/allowed) + Inner VLAN (target)
+inner_frame = Ether()/Dot1Q(vlan=100)/IP(dst='10.0.2.10')/TCP(dport=502)
+outer_frame = Ether()/Dot1Q(vlan=1)/Dot1Q(vlan=100)/IP(dst='10.0.2.10')/TCP(dport=502)
+print('Double-tagged frame crafted (for lab testing only)')
+"
+```
+
+### Data Diode Verification
+
+Data diodes (unidirectional security gateways) are used in high-security ICS environments to ensure data flows only from OT to IT. Verification ensures the diode is properly enforcing unidirectionality.
+
+```bash
+# From IT side, attempt to reach OT devices (should fail)
+# From OT side, attempt to send data to IT side (should succeed for reads only)
+nmap -sT -p 502,102,44818 <ot_device_ip>  # Should show filtered/no response
+
+# Verify data replication works in the allowed direction
+# Check historian in DMZ is receiving data from OT historian
+python3 -c "
+import opcua
+# Connect to DMZ historian
+client_dmz = opcua.Client('opc.tcp://dmz-historian:4840')
+client_dmz.connect()
+# Read a value that should be replicated from OT
+node = client_dmz.get_node('ns=2;s=Process.Temperature')
+value = node.get_value()
+print(f'DMZ historian temperature: {value}')
+client_dmz.disconnect()
+print('Data replication verified in OT->IT direction')
+"
+```
+
+## Part 8: Compliance and Framework Mapping
+
+### IEC 62443 Compliance Assessment
+
+Map findings to IEC 62443 security levels and requirements:
+
+```bash
+# IEC 62443-3-3 System Security Requirements mapping
+python3 -c "
+requirements = {
+    'SR 1.1': 'Human User Identification - verify unique user accounts on all HMI/SCADA',
+    'SR 1.2': 'SW Process Identification - verify application whitelisting on OT systems',
+    'SR 2.1': 'Authorization Enforcement - verify RBAC on OPC UA, HMI access',
+    'SR 2.4': 'Mobile Code - verify no unauthorized code execution on OT devices',
+    'SR 3.1': 'Communication Integrity - verify protocol encryption (OPC UA TLS, no Modbus-in-clear)',
+    'SR 4.1': 'Information Confidentiality - verify encrypted storage of PLC programs',
+    'SR 5.1': 'Network Segmentation - verify Purdue Model compliance',
+    'SR 5.2': 'Zone Boundary Protection - verify firewall rules at each zone boundary',
+    'SR 5.3': 'General Purpose Person-to-Person Communication Restrictions - verify no direct IT-to-OT comms',
+    'SR 6.1': 'Audit Log Accessibility - verify centralized logging for all OT devices',
+    'SR 7.1': 'DoS Protection - verify rate limiting on protocol-facing interfaces',
+    'SR 7.2': 'Resource Management - verify PLC resource limits (connections, memory)',
+}
+
+for req_id, description in sorted(requirements.items()):
+    print(f'{req_id}: {description}')
+"
+```
+
+### NERC CIP Assessment (Electric Utilities)
+
+For electric utility environments subject to NERC CIP (Critical Infrastructure Protection) standards, specific compliance requirements apply:
+
+```bash
+# NERC CIP-005: Electronic Security Perimeter
+# Verify all external connections to the ESP are documented
+# Test that all access points through the ESP require authentication
+nmap -sT -p 22,80,443,502,102,4840,44818,20000 <esp_boundary_ip>
+
+# NERC CIP-007: System Security Management
+# Verify patch levels on all systems within the ESP
+# Check for default credentials
+nmap --script default-credentials -p 22,80,443 <hmi_ip>
+
+# NERC CIP-010: Configuration Change Management
+# Verify baseline configurations exist and are monitored
+# Check for unauthorized changes to PLC programs
+python3 -c "
+import hashlib
+# Compare current PLC program hash against baseline
+current_hash = 'abc123...'  # Would be computed from actual program dump
+baseline_hash = 'abc123...'  # From configuration management system
+match = current_hash == baseline_hash
+print(f'Configuration integrity: {\"PASS\" if match else \"FAIL - unauthorized change detected\"}')
+"
+```
+
+## References
+
+- IEC 62443: Industrial Automation and Control Systems Security — https://www.isa.org/standards-and-publications/isa-standards/isa-iec-62443-series-of-standards
+- NIST SP 800-82 Rev. 3: Guide to Operational Technology (OT) Security — https://csrc.nist.gov/publications/detail/sp/800-82/rev-3/final
+- NERC CIP Standards — https://www.nerc.com/pa/Stand/Pages/CIPStandards.aspx
+- MITRE ATT&CK for ICS — https://attack.mitre.org/matrices/ics/
+- Purdue Enterprise Reference Architecture (ISA-95) — https://www.isa.org/standards-and-publications/isa-standards/isa-95
+- CISA ICS-CERT Advisories — https://www.cisa.gov/news-events/cybersecurity-advisories
+- conpot ICS honeypot — https://github.com/mushorg/conpot
+- Dragos ICS threat intelligence — https://www.dragos.com

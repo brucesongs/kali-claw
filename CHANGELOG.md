@@ -4,6 +4,25 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.26 (2026-06-11) — 15 Distinguished Milestone, Distinguished Sprint + Bottom Lift
+
+### Distinguished Sprint: 3+2 New Distinguished Skills
+- **network-tunneling-proxy** reached 92.3 — created 3 new guides (pivoting-double-pivot, ipv6-tunneling, tunnel-detection-evasion); file_count 5→8
+- **payload-generation** reached 93.1 — created 3 new guides (cross-platform, web-shell, encoding-encryption); file_count 5→8
+- **vpn-attack** reached 92.5 — created 3 new guides (wireguard, openvpn, credential-brute-force); expanded payloads +2 sections; file_count 5→8
+
+### Bottom Lift: 3 Skills Improved
+- **web-deserialization** 85.3 → **92.2** — expanded SKILL.md (+6 sections); created 2 new guides (nodejs, dotnet); added 9 payload sections (10→18)
+- **scada-ics-security** 84.6 → **91.6** — expanded SKILL.md (+5 sections); expanded 3 guides; created 2 new guides; added 5 payload sections
+- **sdr-rf-attack** 86.1 → **88.8** — expanded 3 guides; created 2 new guides (gps-spoofing, zigbee-ble-sdr)
+
+### Stats
+- Distinguished: 11 → 15 (+4)
+- Excellent: 63 → 59
+- Total: 74
+- Average: 87.7 → 88.0
+- Min: 83.4
+
 ## v0.1.25 (2026-06-10) — 11 Distinguished Milestone, Distinguished Sprint + Bottom Lift
 
 ### Distinguished Sprint: 3 New Distinguished Skills

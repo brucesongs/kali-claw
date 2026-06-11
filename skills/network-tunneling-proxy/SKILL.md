@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: network-attack
   tool_count: 0
-  guide_count: 5
+  guide_count: 8
   mitre: "TA0008-Lateral Movement"
 ---
 
@@ -30,6 +30,9 @@ metadata:
 > - `guides/ssh-http-tunneling-pivoting.md` -- Deep dive into SSH and HTTP tunneling with pivoting techniques
 > - `guides/dns-icmp-covert-tunnel.md` -- DNS and ICMP covert channel construction and detection
 > - `guides/socks-proxy-chain-traffic.md` -- SOCKS proxy chaining, TLS wrapping, and traffic masking
+> - `guides/pivoting-double-pivot-guide.md` -- Double pivoting, multi-hop tunneling, chisel + ligolo-ng chaining, SOCKS cascade
+> - `guides/ipv6-tunneling-guide.md` -- IPv6 tunneling attacks, 6in4/6to4/Teredo tunnels, IPv6 reconnaissance, firewall bypass
+> - `guides/tunnel-detection-evasion-guide.md` -- Tunnel detection (DPI, heuristics), evasion techniques (fragmentation, encryption mimicry, timing manipulation)
 
 ## Summary
 

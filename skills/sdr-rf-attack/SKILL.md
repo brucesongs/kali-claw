@@ -19,7 +19,7 @@ allowed-tools:
 metadata:
   domain: security
   tool_count: 7
-  guide_count: 3
+  guide_count: 5
 ---
 
 
@@ -31,6 +31,8 @@ metadata:
 > - `guides/sdr-signal-capture-analysis-guide.md` -- SDR fundamentals: hardware setup, frequency scanning, signal capture, spectrum analysis, and waterfall visualization
 > - `guides/gsm-lte-basestation-attack-guide.md` -- GSM/LTE attacks: gr-gsm configuration, network discovery, SMS/call capture, IMSI catcher concepts, and lawful interception methodology
 > - `guides/rfid-rf-replay-attack-guide.md` -- RF replay attacks: RFID capture/replay, keyfob rolling code analysis, garage door testing, urh protocol analysis, and custom GNURadio replay
+> - `guides/gps-spoofing-guide.md` -- GPS signal structure, spoofing attacks, detection methods, practical HackRF examples
+> - `guides/zigbee-ble-sdr-guide.md` -- ZigBee and BLE SDR analysis, packet capture, replay attacks, key extraction, RF fingerprinting
 
 ## Summary
 

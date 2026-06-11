@@ -1,6 +1,6 @@
 {
   "skill": "payload-generation",
-  "timestamp": "2026-06-10T14:18:36Z",
+  "timestamp": "2026-06-11T06:12:05Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4271,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 65,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 5,
-    "guide_avg_words": 1998,
+    "guide_file_count": 8,
+    "guide_avg_words": 2333,
     "guide_key_sections": 3,
     "skill_section_score": 0.97
   },
@@ -19,15 +19,15 @@
     "payload_code": 86.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 84.0,
+    "guide": 92.0,
     "skill_section": 97.0
   },
   "component_scores": {
     "skill_md": 97.00,
     "payloads_md": 95.33,
     "test_cases_md": 90.00,
-    "guides": 84.0
+    "guides": 92.0
   },
-  "overall_score": 91.1,
-  "tier": "Excellent"
+  "overall_score": 93.1,
+  "tier": "Distinguished"
 }
