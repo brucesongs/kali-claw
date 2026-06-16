@@ -1,19 +1,19 @@
-# kali-claw v0.1.27 发布公告 — 17 Distinguished 里程碑
+# kali-claw v0.1.27 发布公告 — 17 个卓越（Distinguished）里程碑
 
 **发布日期**：2026-06-11
 **技能域数量**：74（不变）
-**主题**：Distinguished 冲刺 + 底层提升双轨推进，达成 17 Distinguished 里程碑
+**主题**：卓越（Distinguished）冲刺 + 底层提升双轨推进，达成 17 个卓越里程碑
 
 ---
 
-## Distinguished 冲刺结果
+## 卓越冲刺结果
 
-v0.1.26 有 15 个 Distinguished，v0.1.27 新增 2 个：
+v0.1.26 有 15 个卓越技能，v0.1.27 新增 2 个：
 
 | 技能域 | v0.1.26 → v0.1.27 | 提升 | 措施 |
 |--------|-------------------|------|------|
-| scada-ics-security | 91.6 → **93.0** | +1.4 | 创建 2 个新 guides (ics-incident-response, purdue-model-attack-paths); file_count 5→7 |
-| council | 89.9 → **92.3** | +2.4 | 扩充 3 个 guides (avg 1289→2000+); 创建 2 个新 guides (multi-agent-escalation, council-consensus-building); file_count 5→7 |
+| scada-ics-security | 91.6 → **93.0** | +1.4 | 新建 2 个指南（ics-incident-response、purdue-model-attack-paths）；指南文件数 5→7 |
+| council | 89.9 → **92.3** | +2.4 | 扩充 3 个指南（平均字数 1289→2000+）；新建 2 个指南（multi-agent-escalation、council-consensus-building）；指南文件数 5→7 |
 
 ---
 
@@ -21,16 +21,16 @@ v0.1.26 有 15 个 Distinguished，v0.1.27 新增 2 个：
 
 | 技能域 | v0.1.26 → v0.1.27 | 提升 | 措施 |
 |--------|-------------------|------|------|
-| database-attack | 83.4 → **87.3** | +3.9 | SKILL.md 扩充至 20 标题; 创建 2 个新 guides (nosql-attack, database-lateral-movement); 新增 5 个 payload sections (14→19); file_count 3→5 |
-| exploit-development | 84.9 → **86.1** | +1.2 | 创建 2 个新 guides (heap-exploitation, kernel-exploit); file_count 3→5 |
-| dns-attacks | 83.4 → **84.6** | +1.2 | 创建 2 个新 guides (dns-rebinding, dns-tunnel-exfiltration); file_count 3→5 |
+| database-attack | 83.4 → **87.3** | +3.9 | SKILL.md 扩充至 20 个小节；新建 2 个指南（nosql-attack、database-lateral-movement）；新增 5 个有效载荷章节（14→19）；指南文件数 3→5 |
+| exploit-development | 84.9 → **86.1** | +1.2 | 新建 2 个指南（heap-exploitation、kernel-exploit）；指南文件数 3→5 |
+| dns-attacks | 83.4 → **84.6** | +1.2 | 新建 2 个指南（dns-rebinding、dns-tunnel-exfiltration）；指南文件数 3→5 |
 
 ---
 
-## 完整 Distinguished 列表（17 个）
+## 完整卓越列表（17 个）
 
-| # | 技能域 | 分数 |
-|---|--------|------|
+| 序号 | 技能域 | 分数 |
+|------|--------|------|
 | 1 | social-intelligence | 93.8 |
 | 2 | article-writing | 93.6 |
 | 3 | payload-generation | 93.1 |
@@ -56,27 +56,27 @@ v0.1.26 有 15 个 Distinguished，v0.1.27 新增 2 个：
 | 指标 | v0.1.26 | v0.1.27 |
 |------|---------|---------|
 | 技能域总数 | 74 | **74** |
-| Distinguished (92+) | 15 | **17** (+2) |
-| Excellent (80-91.9) | 59 | **57** (-2) |
+| 卓越（Distinguished，92 分及以上） | 15 | **17**（+2） |
+| 优秀（Excellent，80–91.9 分） | 59 | **57**（-2） |
 | 平均分 | 88.0 | **88.2** |
 | 最低分 | 83.4 | **84.5** |
 
-**100% 技能域达到 Excellent 或以上**（74/74）。
+**100% 技能域达到优秀或以上**（74/74）。
 
 ---
 
 ## 本版本工作量
 
-- **新增 guides**：8 个（scada-ics-security ×2, council ×2, database-attack ×2, exploit-development ×2, dns-attacks ×2）
-- **SKILL.md 扩充**：2 个（database-attack, scada-ics-security）
-- **Guides 扩充**：3+ 个（council 等三个 guides 大幅扩写）
-- **新增 payload sections**：5 个（database-attack）
+- **新增指南**：8 个（scada-ics-security ×2、council ×2、database-attack ×2、exploit-development ×2、dns-attacks ×2）
+- **SKILL.md 扩充**：2 个（database-attack、scada-ics-security）
+- **指南扩充**：3 个以上（council 等三个指南大幅扩写）
+- **新增有效载荷章节**：5 个（database-attack）
 
 ---
 
 ## 下一步（v0.1.28 候选方向）
 
-- **A**: 继续冲刺 — sdr-rf-attack (88.8), web-access-control (88.1), exploit-development (86.1) 推至 92+
-- **B**: 底层提升 — 最低分技能群（83-85 区间）拉至 87+
-- **C**: 新增技能域 — 用户名 OSINT (Maigret)、暗网情报、威胁狩猎 等
-- **D**: A+B+C 组合
+- **A**：继续冲刺 —— 将 sdr-rf-attack（88.8）、web-access-control（88.1）、exploit-development（86.1）推升至 92 分以上
+- **B**：底层提升 —— 将最低分技能群（83–85 分区间）拉升至 87 分以上
+- **C**：新增技能域 —— 用户名 OSINT（Maigret）、暗网情报、威胁狩猎 等
+- **D**：A + B + C 组合推进
