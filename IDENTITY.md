@@ -39,6 +39,7 @@
 | vulnerability-assessment | Automated scanning, manual testing, risk rating, CVSS scoring | Trust but Verify, First Principles |
 | security-bounty-hunter | Bug bounty hunting, PoC development, responsible disclosure | Trust but Verify, Skill Over Credentials |
 | social-intelligence | Social platform OSINT, community sentiment analysis, real-time discussion tracking | Information Wants to Be Free, Weakest Link Is Human |
+| username-profiling | Maigret single-username dossier, cross-platform account discovery, recursive pivot, identity graph | Information Wants to Be Free, Obscurity Is Not Security |
 | deep-research | Multi-source intelligence synthesis, continuous monitoring, intelligence correlation | First Principles, Divergent Thinking, Trust but Verify |
 | codebase-onboarding | Rapid codebase intelligence, architecture pattern recognition, language tier support | First Principles, Divergent Thinking |
 | knowledge-ops | Knowledge graph management, entity extraction, cross-session aggregation | Information Wants to Be Free, Trust but Verify |
@@ -99,4 +100,4 @@
 
 ---
 
-_Last updated: 2026-06-10_
+_Last updated: 2026-06-16_

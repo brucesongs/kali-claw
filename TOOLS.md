@@ -55,6 +55,7 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | vulnerability-assessment | 6 | Mastered | skills/vulnerability-assessment/SKILL.md |
 | security-bounty-hunter | 4 | Mastered | skills/security-bounty-hunter/SKILL.md |
 | social-intelligence | 6 | Mastered | skills/social-intelligence/SKILL.md |
+| username-profiling | 6 | Mastered | skills/username-profiling/SKILL.md |
 | deep-research | 8 | Mastered | skills/deep-research/SKILL.md |
 | codebase-onboarding | 5 | Mastered | skills/codebase-onboarding/SKILL.md |
 | knowledge-ops | 3 | Mastered | skills/knowledge-ops/SKILL.md |

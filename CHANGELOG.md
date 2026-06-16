@@ -4,18 +4,46 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
-## v0.1.27 (2026-06-11) — 17 Distinguished Milestone, Distinguished Sprint + Bottom Lift
+## v0.1.27 (2026-06-11, post-release update 2026-06-16) — 17 Distinguished Milestone, Distinguished Sprint + Bottom Lift
 
-### Distinguished Sprint: 2 New Distinguished Skills
+### Post-release Update (2026-06-16) — RELEASE Backfill + username-profiling + Core File Sync
+
+Folded into v0.1.27 (no version bump): backfilled the missing release announcement, added a new skill domain, and synchronized stale core files.
+
+- **New skill domain: username-profiling** (+1, 74→75) — Maigret-powered single-username dossier generation
+  - Full skill scaffolding: SKILL.md (505 lines), payloads.md (591 lines), test-cases.md (11 test cases), guides/maigret-username-dossier.md (504 lines)
+  - Coverage: Maigret (3,000+ sites) + companion tools (Sherlock, WhatsMyName, Holehe, Blackbird, Namechk)
+  - 5-phase methodology: Seed → Broad Enumeration → Recursive Pivot → Cross-Tool Verification → Dossier Synthesis
+  - OPSEC focus: Tor/I2P/proxy routing, false-positive verification protocol
+  - Domain: osint | MITRE: TA0043-Reconnaissance
+
+- **Sprint tail** (pre-existing in-progress work, brought into this update):
+  - **sdr-rf-attack** 88.8 → **89.5** — SKILL.md +123 lines; 3 new guides (rf-fingerprinting-device-identification, satellite-signal-analysis, sub-ghz-iot-attack); file_count 6→9
+  - **container-security** — 3 new guides (container-network-segmentation, container-supply-chain-attack, docker-breakout-escape); file_count 5→8
+  - **deep-research** — payloads.md +1,373 lines
+  - **scada-ics-security** — SKILL.md minor update (+4 lines)
+
+- **Core file sync**:
+  - **RELEASE-v0.1.27.md** — backfilled (every release v0.1.1 to v0.1.27 now has a RELEASE file)
+  - **README.md** — 74→75 skill domains (multiple locations); Project Info version 0.1.21→0.1.27 (was stale by 6 versions); Skill Domains 72→75; added username-profiling row; refreshed quality snapshot
+  - **IDENTITY.md** — added username-profiling skill tag; updated last-modified date
+  - **TOOLS.md** — added username-profiling category index row
+  - **validation/update-skill-standard.py** — registered username-profiling in ATTACK_SKILLS, DOMAIN_MAP (osint), MITRE_MAP (TA0043-Reconnaissance)
+
+- **Stats after post-release update**: Skill domains 74→**75**, Distinguished 17 (unchanged — username-profiling not yet scored), Excellent 57, Average 88.2, Min 84.5
+
+### Original v0.1.27 Release (2026-06-11)
+
+#### Distinguished Sprint: 2 New Distinguished Skills
 - **scada-ics-security** reached 93.0 — created 2 new guides (ics-incident-response, purdue-model-attack-paths); file_count 5→7
 - **council** reached 92.3 — expanded 3 guides (avg 1289→2000+); created 2 new guides (multi-agent-escalation, council-consensus-building); file_count 5→7
 
-### Bottom Lift: 3 Skills Improved
+#### Bottom Lift: 3 Skills Improved
 - **database-attack** 83.4 → 87.3 — expanded SKILL.md (20 headings); created 2 new guides (nosql-attack, database-lateral-movement); added 5 payload sections (14→19); file_count 3→5
 - **exploit-development** 84.9 → 86.1 — created 2 new guides (heap-exploitation, kernel-exploit); file_count 3→5
 - **dns-attacks** 83.4 → 84.6 — created 2 new guides (dns-rebinding, dns-tunnel-exfiltration); file_count 3→5
 
-### Stats
+#### Stats
 - Distinguished: 15 → 17 (+2)
 - Excellent: 59 → 57
 - Total: 74

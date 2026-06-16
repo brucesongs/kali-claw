@@ -19,7 +19,7 @@ allowed-tools:
 metadata:
   domain: security
   tool_count: 7
-  guide_count: 5
+  guide_count: 8
 ---
 
 
@@ -33,6 +33,9 @@ metadata:
 > - `guides/rfid-rf-replay-attack-guide.md` -- RF replay attacks: RFID capture/replay, keyfob rolling code analysis, garage door testing, urh protocol analysis, and custom GNURadio replay
 > - `guides/gps-spoofing-guide.md` -- GPS signal structure, spoofing attacks, detection methods, practical HackRF examples
 > - `guides/zigbee-ble-sdr-guide.md` -- ZigBee and BLE SDR analysis, packet capture, replay attacks, key extraction, RF fingerprinting
+> - `guides/rfid-nfc-deep-dive-guide.md` -- RFID/NFC protocol analysis, MIFARE Classic/DESfire attacks, NFC relay attacks, cloning countermeasures
+> - `guides/sub-ghz-iot-attack-guide.md` -- Sub-GHz IoT protocols (433MHz/868MHz), weather station attacks, garage door replay, smart home device manipulation
+> - `guides/satellite-signal-analysis-guide.md` -- Satellite signal capture, AIS ship tracking, ADS-B aircraft monitoring, NOAA weather satellite decoding
 
 ## Summary
 
@@ -238,3 +241,121 @@ grgsm_decode -m MC -t gsm_capture.raw
 | IoT Protocol Sniffing | AES-128 link-layer encryption, frequency hopping | Medium |
 | Signal Jamming | Spread spectrum, adaptive frequency agility | High |
 | IMSI Catcher | Network-based detection, mutual authentication (EAP-AKA) | Very High |
+
+## SDR Hardware Comparison
+
+Understanding the capabilities and limitations of different SDR hardware platforms is essential for selecting the right tool for each assessment scenario. The following comparison covers the most commonly used platforms in security testing.
+
+| Platform | Frequency Range | Bandwidth | TX/RX | Sample Rate | Approx. Cost | Best For |
+|----------|----------------|-----------|-------|-------------|--------------|----------|
+| **RTL-SDR v3** | 24-1766 MHz | 2.4 MHz | RX only | 2.4 MSPS | $30 | Receive-only tasks: spectrum monitoring, ADS-B, AIS, NOAA, GSM downlink |
+| **HackRF One** | 1-6000 MHz | 20 MHz | TX + RX | 20 MSPS | $330 | Wideband TX/RX: replay attacks, signal generation, protocol testing |
+| **BladeRF 2.0 micro** | 47-6000 MHz | 56 MHz | TX + RX | 61 MSPS | $480 | Full-duplex GSM/LTE testing, MIMO applications |
+| **USRP B210** | 70-6000 MHz | 56 MHz | TX + RX | 61 MSPS | $1200 | Professional-grade research, wideband MIMO, high-fidelity capture |
+| **LimeSDR** | 100 kHz-3.8 GHz | 30 MHz | TX + RX | 30 MSPS | $300 | Cost-effective full-duplex, GSM base station emulation |
+| **PlutoSDR** | 325-3800 MHz | 20 MHz | TX + RX | 20 MSPS | $200 | Learning platform, WiFi/Bluetooth band testing |
+| **YardStick One** | 281-960 MHz | Limited | TX + RX | Limited | $100 | Sub-GHz IoT testing, Keyfob cloning, specific protocol testing |
+
+**Selection Guidelines**:
+
+- **Spectrum monitoring / passive analysis**: RTL-SDR is sufficient and cost-effective for all receive-only tasks.
+- **Signal replay / active testing**: HackRF One provides the best balance of cost and capability for most active testing scenarios.
+- **Cellular network testing**: BladeRF or USRP with appropriate front-end filters for GSM/LTE base station emulation.
+- **Sub-GHz IoT testing**: YardStick One or HackRF with appropriate antennas for 315/433/868 MHz bands.
+- **Professional engagements**: USRP B210 for highest fidelity and reliability in production testing.
+
+## Signal Identification Workflow
+
+Efficiently identifying unknown signals is a core skill for SDR security assessment. This workflow provides a systematic approach to signal identification, from initial discovery through protocol classification.
+
+### Step 1: Wideband Spectrum Survey
+
+Use `rtl_power` or `hackrf_sweep` to identify active frequencies across the target band. Look for power peaks above the noise floor and note their frequencies, bandwidths, and duty cycles.
+
+### Step 2: Signal Capture
+
+Tune to identified frequencies and capture raw I/Q samples at sufficient sample rate (at least 2x the signal bandwidth, preferably 4-8x). Use `hackrf_transfer` or `rtl_sdr` for capture.
+
+### Step 3: Visual Analysis
+
+Open captured signals in `inspectrum` to identify modulation type visually. OOK appears as discrete amplitude levels, FSK shows frequency displacement, and PSK shows constant envelope with phase changes.
+
+### Step 4: Automated Modulation Detection
+
+Use URH (Universal Radio Hacker) to auto-detect modulation parameters. URH can identify OOK, ASK, FSK, PSK, and QAM modulations along with symbol rate and center frequency offset.
+
+### Step 5: Protocol Decoding
+
+Once modulation is identified, decode the bitstream and look for protocol structures: preambles, sync words, headers, payloads, and checksums. Cross-reference with known protocol databases (Flipper Zero Sub-GHz database, SigIDWiki).
+
+### Step 6: Protocol Fingerprinting
+
+Match captured signal characteristics against known protocol signatures including frequency, modulation, baud rate, preamble pattern, and frame structure.
+
+## RF Attack Categories
+
+SDR-based attacks can be categorized by their objective and technique. Understanding these categories helps assessment planning and scope definition.
+
+| Category | Objective | Example Techniques | Typical Targets |
+|----------|-----------|--------------------|-----------------|
+| **Reconnaissance** | Gather intelligence from RF emissions | Spectrum scanning, signal intercept, protocol decode | All wireless systems |
+| **Eavesdropping** | Capture and decode private communications | GSM interception, WiFi sniffing, RFID reading | Cellular, WiFi, RFID, IoT |
+| **Replay** | Re-transmit previously captured signals | Keyfob replay, garage door replay, IoT command replay | Fixed-code systems, IoT devices |
+| **Spoofing** | Transmit counterfeit signals to deceive receivers | GPS spoofing, ADS-B injection, AIS ghost vessels | Navigation, tracking systems |
+| **Jamming** | Deny service by overwhelming the receiver | CW jamming, swept jamming, protocol-aware jamming | All wireless systems |
+| **Relay** | Forward signals between two parties in real-time | NFC relay, keyfob relay, Bluetooth relay | Access control, automotive |
+| **Cryptanalysis** | Break encryption protecting RF communications | KEEX attack, KeeLoq cryptanalysis, CRYPTO1 recovery | Encrypted RF protocols |
+| **Protocol Exploitation** | Exploit protocol-level vulnerabilities | Authentication bypass, command injection, firmware update hijack | IoT devices, industrial systems |
+| **Side-Channel** | Extract secrets from RF emanations | TEMPEST, EM emanation analysis, power analysis | Computing equipment, HSMs |
+| **Supply Chain** | Compromise devices through RF components | Malicious SDR firmware, backdoor radio channels | Critical infrastructure |
+
+## Counter-Surveillance
+
+Counter-surveillance with SDR involves detecting, locating, and neutralizing unauthorized radio surveillance devices. This defensive application of SDR technology is relevant to physical security assessments and TSCM (Technical Surveillance Countermeasures) operations.
+
+### Detection Techniques
+
+1. **Spectrum monitoring**: Continuously scan for unauthorized transmissions across all accessible frequency bands. Look for signals that appear during sensitive activities or meetings.
+2. **Non-linear junction detection (NLJD)**: Detect semiconductor junctions in electronic devices by illuminating them with RF energy and detecting harmonic reflections.
+3. **Correlation analysis**: Compare signal timing with known activities to identify surveillance devices that activate in response to movement or conversation.
+4. **Thermal imaging**: Complement RF detection with thermal imaging to locate devices based on heat signatures.
+5. **RF direction finding**: Use multiple SDR receivers or a rotating directional antenna to triangulate the source of suspicious transmissions.
+
+### Common Surveillance Device Signatures
+
+| Device Type | Frequency | Modulation | Detection Method |
+|-------------|-----------|------------|------------------|
+| Audio bug (analog) | 300-900 MHz | FM/NFM | Wideband FM scan with audio demodulation |
+| Audio bug (digital) | 2.4 GHz | GFSK/OFDM | WiFi band monitoring, protocol analysis |
+| GPS tracker | 1575.42 MHz (receive) | N/A | Detect GSM/cellular uplink for data exfil |
+| Camera (wireless) | 2.4/5.8 GHz | OFDM | WiFi scanner, video signal detection |
+| Cellular interceptor | 900/1800/2100 MHz | GSM/LTE | IMSI catcher detection apps, SDR analysis |
+
+## SDR Legal Considerations
+
+Operating SDR equipment for security assessment requires awareness of applicable laws and regulations. The legal framework varies significantly by jurisdiction, but the following principles are broadly applicable.
+
+### Transmission Regulations
+
+- **Licensed bands only with authorization**: Transmitting on licensed frequencies (cellular, aviation, maritime, broadcast) requires explicit authorization. Violations can result in criminal prosecution.
+- **ISM band restrictions**: Unlicensed transmission is generally permitted in ISM bands (433 MHz, 868 MHz, 2.4 GHz) subject to power limits (typically 10-100 mW EIRP depending on jurisdiction).
+- **Intentional interference prohibited**: Jamming or interfering with any licensed radio service is illegal in virtually all jurisdictions regardless of intent.
+
+### Interception Laws
+
+- **Own equipment only**: Testing RFID tags, keyfobs, and IoT devices you own is generally legal. Intercepting others' communications may violate wiretapping laws.
+- **Cellular interception**: Intercepting cellular communications (GSM, LTE, 5G) without authorization is illegal in most countries, even for research purposes.
+- **AIS and ADS-B**: Receiving AIS and ADS-B signals is legal in most jurisdictions as these are unencrypted public safety broadcasts. Transmitting false data is illegal.
+
+### Authorization Requirements
+
+- **Written authorization required**: All security testing of systems you do not own requires written authorization from the system owner.
+- **Scope definition**: Authorization must clearly define which frequencies, devices, and techniques are permitted.
+- **Incident reporting**: Any unintended interference with legitimate services must be reported immediately to relevant authorities.
+
+### Jurisdiction-Specific Notes
+
+- **United States**: FCC regulations govern radio transmissions. FCC Part 15 covers unlicensed devices. CALEA prohibits unauthorized cellular interception.
+- **European Union**: ETSI standards and national telecommunications laws apply. GDPR may apply to intercepted personal data.
+- **United Kingdom**: Wireless Telegraphy Act and Computer Misuse Act govern SDR operations. RIPA covers interception.
+- **Australia**: Radiocommunications Act and Telecommunications (Interception and Access) Act apply.

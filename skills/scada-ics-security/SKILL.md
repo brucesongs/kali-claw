@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: ics
   tool_count: 8
-  guide_count: 5
+  guide_count: 7
   mitre: "TA0100-ICS Attack"
 ---
 
@@ -33,6 +33,8 @@ metadata:
 > - `guides/ics-network-assessment.md` — ICS network security assessment methodology
 > - `guides/ics-honeypot-detection-guide.md` — ICS honeypot deployment, detection, and deception techniques
 > - `guides/scada-network-monitoring-guide.md` — Passive ICS network monitoring, protocol anomaly detection, and traffic analysis
+> - `guides/ics-incident-response-guide.md` — ICS incident detection, containment in OT environments, safe shutdown procedures, forensic evidence collection, recovery playbooks
+> - `guides/purdue-model-attack-paths-guide.md` — Purdue Enterprise Reference Architecture (levels 0-5), attack paths across levels, DMZ bypass, IT/OT convergence risks, cross-zone lateral movement
 
 ## Summary
 
