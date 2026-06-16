@@ -88,6 +88,10 @@
 | email-protocol-attack | SMTP enumeration, email forgery, SPF/DKIM/DMARC bypass, IMAP/Exchange attacks | Trust but Verify, Minimize Attack Surface |
 | sdr-rf-attack | SDR signal capture/replay, GSM/LTE analysis, RFID/NFC attacks, keyfob replay, drone RF, spectrum analysis | Trust but Verify, Minimize Attack Surface |
 | vpn-attack | IKE enumeration, PSK cracking, SSL VPN exploitation, IPSec tunnel testing, certificate analysis, credential brute force | Trust but Verify, Defense in Depth |
+| darkweb-intel | Tor/onion hidden services, dark-net marketplace intelligence, leak-site monitoring, actor attribution | Information Wants to Be Free, Trust but Verify |
+| threat-hunting | Hypothesis-driven hunts, SIEM/EDR telemetry, ATT&CK detection, purple-team validation | Defense in Depth, Assume Breach |
+| blockchain-web3 | Smart-contract auditing, DeFi exploit chains, wallet/key management, bridge attacks | Trust but Verify, First Principles |
+| payment-security | PCI-DSS assessment, card-data flow, 3DS/SAML SSO, fraud and webhook signing | Trust but Verify, Defense in Depth |
 
 ---
 

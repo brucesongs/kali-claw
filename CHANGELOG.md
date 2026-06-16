@@ -4,6 +4,46 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.28 (2026-06-16) — Domain Expansion: 4 New Skill Domains (75→79)
+
+### New Skill Domains (+4)
+
+- **darkweb-intel** — Tor/onion hidden-service enumeration, dark-net marketplace intelligence, leak-site monitoring, actor attribution
+  - Scaffolding: SKILL.md (572), payloads.md (1,227), test-cases.md (253, 12 TC), guides/dark-web-investigation-playbook.md (616)
+  - Domain: osint | MITRE: TA0043-Reconnaissance | Tool count: 10
+- **threat-hunting** — First **defensive** skill: hypothesis-driven hunts, SIEM/EDR telemetry pivoting, ATT&CK detection engineering, purple-team validation
+  - Scaffolding: SKILL.md (590), payloads.md (1,175), test-cases.md (253, 12 TC), guides/hunt-hypothesis-playbook.md (805)
+  - Domain: defense | MITRE: TA0040-Detection | Tool count: 12
+  - Forms purple-team loop with existing attack skills (red↔blue)
+- **blockchain-web3** — Smart-contract auditing, DeFi exploit chains, wallet/key management, bridge/oracle attacks
+  - Scaffolding: SKILL.md (567), payloads.md (1,203), test-cases.md (271, 13 TC), guides/smart-contract-audit-playbook.md (691)
+  - Domain: blockchain | MITRE: N/A (application-layer; loosely TA0001-Initial Access via compromise) | Tool count: 14
+- **payment-security** — PCI-DSS assessment, card-data flow, 3DS/SAML SSO, fraud detection, webhook signing
+  - Scaffolding: SKILL.md (509), payloads.md (966), test-cases.md (270, 13 TC), guides/payment-pentest-playbook.md (752)
+  - Domain: financial | MITRE: T1566-Phishing + domain-specific | Tool count: 12
+
+### Index Updates
+
+- **validation/update-skill-standard.py** — Registered all 4 new skills in ATTACK_SKILLS, DOMAIN_MAP (darkweb-intel→osint, threat-hunting→defense, blockchain-web3→blockchain, payment-security→financial), MITRE_MAP (darkweb-intel + threat-hunting)
+- **IDENTITY.md** — Added 4 new skill tags; last-modified refreshed
+- **TOOLS.md** — Added 5 category rows (4 new skills + sdr-rf-attack + vpn-attack that were missing from previous releases); updated "74 skill domains" → "79"
+- **README.md** — 75→79 skill domains (6 locations); added 4 skill rows; added v0.1.28 changelog row; bumped Project Info version 0.1.27→0.1.28
+
+### Quality Snapshot
+
+- Distinguished: 17 (unchanged — 4 new skills pending first SCORE.sh run)
+- Excellent: 57 (unchanged)
+- Strong/Adequate: 0
+- Total: 75 → **79**
+- Heartbeat: HEARTBEAT_OK — 429 guides checked, 0 issues
+
+### Stats
+
+- New content: ~10,720 lines across 16 new files (4 SKILL.md + 4 payloads.md + 4 test-cases.md + 4 guides)
+- First defensive-domain skill (threat-hunting) — closes purple-team loop
+- First financial-domain skill (payment-security)
+- First blockchain-domain skill (blockchain-web3)
+
 ## v0.1.27 (2026-06-11, post-release update 2026-06-16) — 17 Distinguished Milestone, Distinguished Sprint + Bottom Lift
 
 ### Post-release Update (2026-06-16) — RELEASE Backfill + username-profiling + Core File Sync

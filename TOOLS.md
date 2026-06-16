@@ -102,13 +102,19 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | ad-ldap-attack | 15 | Mastered | skills/ad-ldap-attack/SKILL.md |
 | web-deserialization | 6 | Mastered | skills/web-deserialization/SKILL.md |
 | email-protocol-attack | 8 | Mastered | skills/email-protocol-attack/SKILL.md |
+| sdr-rf-attack | 12 | Mastered | skills/sdr-rf-attack/SKILL.md |
+| vpn-attack | 10 | Mastered | skills/vpn-attack/SKILL.md |
+| darkweb-intel | 10 | Mastered | skills/darkweb-intel/SKILL.md |
+| threat-hunting | 12 | Mastered | skills/threat-hunting/SKILL.md |
+| blockchain-web3 | 14 | Mastered | skills/blockchain-web3/SKILL.md |
+| payment-security | 12 | Mastered | skills/payment-security/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 74 skill domains. Current focus: quality consolidation (74/74 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 79 skill domains. Current focus: quality consolidation (79/79 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice
@@ -123,4 +129,4 @@ All 518 tools mastered across 74 skill domains. Current focus: quality consolida
 
 ---
 
-_Last updated: 2026-06-10_
+_Last updated: 2026-06-16_

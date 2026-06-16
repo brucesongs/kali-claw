@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 75 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 79 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **75 Security Skill Domains** — From OSINT and web exploitation to cloud security, AI/LLM security, exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, and username-based OSINT dossier generation (Maigret), each with structured payloads, test cases, and learning guides
+- **79 Security Skill Domains** — From OSINT and web exploitation to cloud security, AI/LLM security, exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting, blockchain/Web3 security, and payment security (PCI-DSS), each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 75 security skill domains
+├── skills/              # 79 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -112,7 +112,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (75 domains total)
+│   └── ... (79 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -205,6 +205,10 @@ Knowledge flows upward: daily logs are regularly distilled into MEMORY.md, and m
 | `web-deserialization` | Web Attack | Java/PHP/.NET deserialization, ysoserial, phpggc, gadget chains, blind detection, RCE | ysoserial, phpggc, marshalsec, ysoserial.net, gadgetprobe |
 | `email-protocol-attack` | Network | SMTP enumeration, email forgery, SPF/DKIM/DMARC bypass, IMAP/Exchange attacks | smtp-user-enum, swaks, sendemail, nailgun, smtpmap, mutt, openssl |
 | `username-profiling` | OSINT | Maigret single-username dossier, cross-platform account discovery (3,000+ sites), recursive pivot, identity graph | maigret, sherlock, whatsmyname, holehe, blackbird |
+| `darkweb-intel` | OSINT | Tor/onion hidden-service enumeration, dark-net marketplace intelligence, leak-site monitoring, actor attribution | tor, ahmia, onionsearch, darkdump, intelx, shodan (onion), hunchly |
+| `threat-hunting` | Defense | Hypothesis-driven hunts, SIEM/EDR telemetry pivoting, ATT&CK detection engineering, purple-team validation | splunk, elk, sentinel, zeek, veliciraptor, yara, sigma, mitre-attack |
+| `blockchain-web3` | Blockchain | Smart-contract auditing, DeFi exploit chains, wallet/key management, bridge/oracle attacks | slither, mythril, echidna, foundry, ganache, securify, solidity-coverage |
+| `payment-security` | Financial | PCI-DSS assessment, card-data flow, 3DS/SAML SSO, fraud detection, webhook signing | burpsuite, pwntools, openssl, gitleaks, testssl, token-explorer |
 
 Each skill contains:
 - **SKILL.md** — Description, use cases, tools, and workflow
@@ -265,7 +269,7 @@ rm -rf chronicle/
 The following are universal and reusable as-is:
 - **Hacker Laws** in `SOUL.md` — applies to all security agents
 - **Heartbeat framework** in `HEARTBEAT.md`
-- **All 75 skills** in `skills/`
+- **All 79 skills** in `skills/`
 - **All guides** in `skills/*/guides/`
 
 ### Example: Web Security Agent
@@ -334,6 +338,7 @@ TOOLS.md:
 | v0.1.25 | 2026-06-10 | **11 Distinguished milestone, Distinguished sprint + bottom lift** | +3 Distinguished (security-misconfiguration 92.8, security-bounty-hunter 92.0, web-xss 92.0); 3 bottom skills lifted (+6 avg); avg 87.7 |
 | v0.1.26 | 2026-06-11 | **15 Distinguished milestone, Distinguished sprint + bottom lift** | +4 Distinguished (payload-generation 93.1, vpn-attack 92.5, network-tunneling-proxy 92.3, web-deserialization 92.2); avg 88.0 |
 | v0.1.27 | 2026-06-11 | **17 Distinguished milestone, Distinguished sprint + bottom lift** | +2 Distinguished (scada-ics-security 93.0, council 92.3); 3 bottom skills lifted; avg 88.2 |
+| v0.1.28 | 2026-06-16 | **Domain expansion: +4 new skill domains (75→79)** | +4 domains (darkweb-intel, threat-hunting, blockchain-web3, payment-security); first defensive skill (threat-hunting); first financial skill (payment-security); first blockchain skill (blockchain-web3); 75→79 domains |
 
 ### Current Quality Snapshot (v0.1.27, scoring v2)
 
@@ -376,10 +381,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.27 |
+| **Version** | 0.1.28 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 75 |
+| **Skill Domains** | 79 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 

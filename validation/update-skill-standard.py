@@ -61,7 +61,10 @@ ATTACK_SKILLS = {
     "web-deserialization",
     "email-protocol-attack",
     "sdr-rf-attack",
-    "vpn-attack"
+    "vpn-attack",
+    "darkweb-intel",
+    "blockchain-web3",
+    "payment-security"
 }
 
 DOMAIN_MAP = {
@@ -106,6 +109,10 @@ DOMAIN_MAP = {
     "email-protocol-attack": "network-attack",
     "sdr-rf-attack": "wireless",
     "vpn-attack": "network-attack",
+    "darkweb-intel": "osint",
+    "threat-hunting": "defense",
+    "blockchain-web3": "blockchain",
+    "payment-security": "financial",
 }
 
 OWASP_MAP = {
@@ -155,6 +162,8 @@ MITRE_MAP = {
     "email-protocol-attack": "T1114-Email Collection",
     "sdr-rf-attack": "TA0046-Initial Access",
     "vpn-attack": "TA0046-Initial Access",
+    "darkweb-intel": "TA0043-Reconnaissance",
+    "threat-hunting": "TA0040-Detection",
 }
 
 # Non-tool entries to skip in tool tables
