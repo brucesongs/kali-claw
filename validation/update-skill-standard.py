@@ -68,7 +68,11 @@ ATTACK_SKILLS = {
     "llm-red-team",
     "deception-honeypot",
     "kubernetes-attack",
-    "secret-management-attack"
+    "secret-management-attack",
+    "ai-agent-security",
+    "iot-pentest",
+    "detection-engineering",
+    "agentic-pentest"
 }
 
 DOMAIN_MAP = {
@@ -121,6 +125,10 @@ DOMAIN_MAP = {
     "deception-honeypot": "defense",
     "kubernetes-attack": "cloud-native",
     "secret-management-attack": "appsec",
+    "ai-agent-security": "ai-emerging",
+    "iot-pentest": "iot",
+    "detection-engineering": "defense",
+    "agentic-pentest": "ai-meta",
 }
 
 OWASP_MAP = {
@@ -175,6 +183,8 @@ MITRE_MAP = {
     "deception-honeypot": "TA0040-Detection",
     "kubernetes-attack": "TA0008-Lateral Movement",
     "secret-management-attack": "T1552-Unsecured Credentials",
+    "iot-pentest": "T1021-Remote Services",
+    "detection-engineering": "TA0040-Detection",
 }
 
 # Non-tool entries to skip in tool tables

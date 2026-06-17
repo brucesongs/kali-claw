@@ -112,13 +112,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | deception-honeypot | 12 | Mastered | skills/deception-honeypot/SKILL.md |
 | kubernetes-attack | 14 | Mastered | skills/kubernetes-attack/SKILL.md |
 | secret-management-attack | 14 | Mastered | skills/secret-management-attack/SKILL.md |
+| ai-agent-security | 12 | Mastered | skills/ai-agent-security/SKILL.md |
+| iot-pentest | 12 | Mastered | skills/iot-pentest/SKILL.md |
+| detection-engineering | 14 | Mastered | skills/detection-engineering/SKILL.md |
+| agentic-pentest | 12 | Mastered | skills/agentic-pentest/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 83 skill domains. Current focus: quality consolidation (83/83 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 87 skill domains. Current focus: quality consolidation (87/87 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice

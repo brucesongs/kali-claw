@@ -96,6 +96,10 @@
 | deception-honeypot | Defensive deception: SSH/web/ICS/AI honeypots, honeytokens, canary deployment, IOC extraction (T-Pot/Cowrie/OpenCanary/HFish) | Defense in Depth, Assume Breach |
 | kubernetes-attack | K8s red team: RBAC abuse, pod escape, SA token theft, etcd attacks, EKS/GKE/AKS pivot (CDK/peirates/kube-hunter/kubescape) | Trust but Verify, Least Privilege |
 | secret-management-attack | Secrets/SAST: gitleaks, semgrep, trufflehog, infisical, Vault/CI-CD/registry exploitation, canarytoken evasion | Trust but Verify, Minimize Attack Surface |
+| ai-agent-security | Offensive AI agent testing: MCP tool poisoning, indirect prompt injection, RAG poisoning, agent sandbox escape, multi-agent compromise | Trust but Verify, Assume Breach |
+| iot-pentest | IoT application layer: MQTT broker abuse, CoAP attacks, AMQP, cloud IoT (AWS/Azure), device mgmt, mobile companion | Trust but Verify, Minimize Attack Surface |
+| detection-engineering | Detection-as-code: Sigma rule authoring, YARA signatures, SPL/KQL/EQL, MITRE ATT&CK mapping, FP tuning, CI/CD pipelines | Defense in Depth, Trust but Verify |
+| agentic-pentest | LLM-driven autonomous pentest: PentestGPT, HexStrike, Viper, PentestAgent, multi-agent team coordination, HITL checkpoints | Trust but Verify, Skill Over Credentials |
 
 ---
 

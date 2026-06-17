@@ -1,0 +1,33 @@
+{
+  "skill": "ai-agent-security",
+  "timestamp": "2026-06-17T09:11:15Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 9325,
+    "payload_section_count": 24,
+    "payload_code_blocks": 133,
+    "test_case_count": 12,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 1,
+    "guide_avg_words": 5135,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.93
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 100.0,
+    "test_case": 90.0,
+    "field": 71.0,
+    "guide": 68.0,
+    "skill_section": 93.0
+  },
+  "component_scores": {
+    "skill_md": 93.00,
+    "payloads_md": 100.00,
+    "test_cases_md": 80.50,
+    "guides": 68.0
+  },
+  "overall_score": 85.1,
+  "tier": "Excellent"
+}

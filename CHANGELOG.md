@@ -4,6 +4,81 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.30 (2026-06-17) — GitHub-Trending Expansion Wave 2: +4 Skill Domains (83→87)
+
+### Driver: GitHub Open-Source Analysis Wave 2
+
+Following v0.1.29's methodology, v0.1.30 continues the GitHub-trending-driven expansion. Selected from the second-tier candidates identified in v0.1.29's release notes. Four new categories entered: ai-emerging, iot, defense-deepening (detection-engineering), ai-meta.
+
+### New Skill Domains (+4)
+
+- **ai-agent-security** — Offensive AI agent testing (NEW CATEGORY: ai-emerging)
+  - Tools: HexStrike AI, AI-Infra-Guard, mcp-scan, MCP Inspector, garak, picklescan
+  - Coverage: MCP tool poisoning, indirect prompt injection, RAG poisoning, agent sandbox escape, multi-agent compromise
+  - Differentiator: AGENT-focused (stateful, tool-using, autonomous) vs. `llm-red-team` (stateless LLM)
+  - Scaffolding: SKILL.md (575), payloads.md (2,184), test-cases.md (204, 12 TC), guides/ai-agent-security-playbook.md (976)
+  - Domain: ai-emerging | Tool count: 12
+  - Baseline: **85.1 / Excellent**
+- **iot-pentest** — IoT application-layer pentest (NEW CATEGORY: iot)
+  - Tools: mosquitto, MQTT-Pwn, IoT-Goat, EMQX, coap-client, chip-tool, Shodan
+  - Coverage: MQTT broker abuse, CoAP attacks, AMQP, AWS/Azure IoT backends, mobile companion apps, OWASP IoT Top 10
+  - Differentiator: APPLICATION-LAYER IoT vs. `firmware-reverse` (extraction), `hardware-security` (side-channel), `bluetooth-rfid-nfc` (radios)
+  - Scaffolding: SKILL.md (499), payloads.md (1,303), test-cases.md (270, 12 TC), guides/iot-pentest-playbook.md (685)
+  - Domain: iot | MITRE: T1021-Remote Services | Tool count: 12
+  - Baseline: **85.5 / Excellent**
+- **detection-engineering** — Detection-as-code craft (defense deepening)
+  - Tools: SigmaHQ, Yara-Rules, Loki, yarGen, hayabusa, SigmaCLI, zircollo
+  - Coverage: Sigma/YARA rule authoring, SPL/KQL/EQL, ATT&CK mapping, detection CI/CD, FP tuning, lifecycle
+  - Differentiator: AUTHORING & DEPLOYING rules vs. `threat-hunting` (USING detections to hunt), `logging-monitoring` (log infra)
+  - Scaffolding: SKILL.md (755), payloads.md (2,325), test-cases.md (281, 12 TC), guides/detection-engineering-playbook.md (1,351)
+  - Domain: defense | MITRE: TA0040-Detection | Tool count: 14
+  - Baseline: **85.7 / Excellent**
+- **agentic-pentest** — LLM-driven autonomous pentest (NEW CATEGORY: ai-meta)
+  - Tools: PentestGPT, HexStrike AI, Viper, PentestAgent, AI-Infra-Guard, AutoPWN
+  - Coverage: Reasoning-chain orchestration, tool delegation, context management, HITL, multi-agent team coordination
+  - Differentiator: USING pentest agents vs. `ai-agent-security` (ATTACKING agents), `autonomous-loops` (generic patterns)
+  - Scaffolding: SKILL.md (574), payloads.md (1,771), test-cases.md (199, 12 TC), guides/agentic-pentest-playbook.md (791)
+  - Domain: ai-meta | Tool count: 12
+  - Baseline: **88.0 / Excellent** (highest of v0.1.30 cohort)
+
+### Baseline Scoring Run (SCORE.sh v2)
+
+First-time scores for 4 v0.1.30 new skills:
+
+| Skill | Score | Tier |
+|-------|-------|------|
+| agentic-pentest | **88.0** | Excellent |
+| detection-engineering | **85.7** | Excellent |
+| iot-pentest | **85.5** | Excellent |
+| ai-agent-security | **85.1** | Excellent |
+
+### Index Updates
+
+- **validation/update-skill-standard.py** — Registered 4 new skills in ATTACK_SKILLS, DOMAIN_MAP (4 new categories: ai-emerging, iot, defense, ai-meta), MITRE_MAP (iot-pentest + detection-engineering)
+- **IDENTITY.md** — Added 4 new skill tags
+- **TOOLS.md** — Added 4 new category rows; 83 → 87 domains
+- **README.md** — 83→87 domains (6 locations); +4 skill rows; +v0.1.30 changelog row; refreshed quality snapshot; bumped Project Info version 0.1.29→0.1.30
+- **CHANGELOG.md** — v0.1.30 entry
+- **VERSION** — 0.1.29→0.1.30
+- **RELEASE-v0.1.30.md** — Chinese release announcement
+
+### Quality Snapshot
+
+- Distinguished: 19 (unchanged)
+- Excellent: 63 → **67** (+4 new)
+- Strong: 1 (unchanged — username-profiling 77.7)
+- Total: 83 → **87**
+- Average: 87.81 → **87.73** (4 new baselines in 85-88 range)
+- Min: 77.7 (unchanged)
+- Max: 93.8 (unchanged)
+
+### Stats
+
+- New content: **~14,743 lines** across 16 new files (4 SKILL.md + 4 payloads.md + 4 test-cases.md + 4 guides)
+- New test cases: **48** (12 × 4 skills)
+- Heartbeat: HEARTBEAT_OK — 437 guides checked, 0 issues
+- 4 new categories entered: ai-emerging, iot, defense (deepening), ai-meta
+
 ## v0.1.29 (2026-06-17) — GitHub-Trending Expansion: +4 Skill Domains (79→83), 8 New Skills Scored
 
 ### Driver: GitHub Open-Source Analysis
