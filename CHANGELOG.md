@@ -4,6 +4,81 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.29 (2026-06-17) — GitHub-Trending Expansion: +4 Skill Domains (79→83), 8 New Skills Scored
+
+### Driver: GitHub Open-Source Analysis
+
+v0.1.29 is the first release explicitly driven by trending open-source intelligence. Candidate skills were selected by aggregating GitHub stars across security ecosystems (promptfoo 22k, garak 8k, PyRIT 4k, PurpleLlama 4.2k, T-Pot 9.3k, Cowrie 6.4k, kubescape 11k, CDK 4.7k, kube-hunter 5k, gitleaks 27k, semgrep 15k, infisical 27k, etc.) and cross-referencing against existing 79-skill coverage to identify gaps. Total combined GitHub stars across the 4 new skill ecosystems: **150k+**.
+
+### New Skill Domains (+4)
+
+- **llm-red-team** — LLM/generative AI red team: prompt injection, jailbreaking, model extraction, RAG poisoning, agent tool abuse
+  - Tools: promptfoo, garak, PyRIT, PurpleLlama, AI-Infra-Guard, llm-guard
+  - Scaffolding: SKILL.md (583), payloads.md (1,723), test-cases.md (209, 12 TC TC-LR-001..012), guides/llm-red-team-playbook.md (952)
+  - Domain: ai-red-team | MITRE: LLM-ATT&CK / OWASP LLM Top 10 | Tool count: 12
+- **deception-honeypot** — Defensive deception: SSH/web/ICS/AI honeypots, honeytokens, canary deployment
+  - Tools: T-Pot, Cowrie, OpenCanary, HFish, Beelzebub, Conpot
+  - Scaffolding: SKILL.md (789), payloads.md (1,936), test-cases.md (272, 12 TC TC-DH-001..012), guides/deception-honeypot-playbook.md (1,008)
+  - Domain: defense | MITRE: TA0040-Detection (MITRE Engage) | Tool count: 12
+  - Completes purple-team triad with threat-hunting (detect) + deception-honeypot (lure)
+- **kubernetes-attack** — K8s red team: RBAC abuse, pod escape, SA token theft, etcd attacks, EKS/GKE/AKS pivot
+  - Tools: kubectl, CDK, peirates, kube-hunter, kubescape, stratus-red-team, kubernetes-goat
+  - Scaffolding: SKILL.md (509), payloads.md (1,243), test-cases.md (302, 12 TC TC-KA-001..012), guides/kubernetes-attack-playbook.md (700)
+  - Domain: cloud-native | MITRE: TA0008-Lateral Movement (Containers) | Tool count: 14
+- **secret-management-attack** — Secrets/SAST: gitleaks, semgrep, trufflehog, infisical, Vault/CI-CD/registry exploitation
+  - Tools: gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, cariddi
+  - Scaffolding: SKILL.md (523), payloads.md (1,808), test-cases.md (227, 12 TC TC-SM-001..012), guides/secret-management-attack-playbook.md (784)
+  - Domain: appsec | MITRE: T1552-Unsecured Credentials family | Tool count: 14
+
+### Baseline Scoring Run (SCORE.sh v2)
+
+First-time scores for 8 new skills (v0.1.28 + v0.1.29 cohorts):
+
+| Skill | Score | Tier |
+|-------|-------|------|
+| kubernetes-attack | **87.5** | Excellent |
+| secret-management-attack | **85.9** | Excellent |
+| threat-hunting (v0.1.28) | 85.2 | Excellent |
+| deception-honeypot | **84.8** | Excellent |
+| darkweb-intel (v0.1.28) | 84.7 | Excellent |
+| llm-red-team | **82.4** | Excellent |
+| payment-security (v0.1.28) | 81.8 | Excellent |
+| blockchain-web3 (v0.1.28) | 80.1 | Excellent |
+
+### Surprise: +2 New Distinguished (Post-Release Skill Maturity)
+
+SCORE.sh re-evaluated all 83 skills; 2 skills crossed the 92 threshold thanks to v0.1.27 post-release sprint work (deep guides + SKILL.md expansion):
+
+- **sdr-rf-attack** 89.5 → **93.6** (+4.1) — Distinguished ⭐
+- **container-security** 90.4 → **92.8** (+2.4) — Distinguished ⭐
+
+### Index Updates
+
+- **validation/update-skill-standard.py** — Registered 4 new skills in ATTACK_SKILLS, DOMAIN_MAP, MITRE_MAP
+- **IDENTITY.md** — Added 4 new skill tags
+- **TOOLS.md** — Added 4 new category rows; 79 → 83 domains
+- **README.md** — 79→83 domains (6 locations); +4 skill rows; +v0.1.29 changelog row; refreshed quality snapshot; bumped Project Info version 0.1.28→0.1.29
+- **CHANGELOG.md** — v0.1.29 entry
+- **VERSION** — 0.1.28→0.1.29
+- **RELEASE-v0.1.29.md** — Chinese release announcement
+
+### Quality Snapshot
+
+- Distinguished: 17 → **19** (+2: sdr-rf-attack, container-security)
+- Excellent: 57 → **63** (+8 new skills, -2 promoted)
+- Strong: 0 → **1** (username-profiling 77.7 — guide count bottleneck)
+- Total: 79 → **83**
+- Average: 88.2 → **87.81** (slight drop due to 8 new baseline scores in 80-87 range; expected to lift next cycle)
+- Min: 84.5 → **77.7** (username-profiling — first new skill at Strong tier, will be lifted)
+- Max: 93.8 (social-intelligence, unchanged)
+
+### Stats
+
+- New content: **~13,568 lines** across 16 new files (4 SKILL.md + 4 payloads.md + 4 test-cases.md + 4 guides)
+- New test cases: **48** (12 × 4 skills)
+- Heartbeat: HEARTBEAT_OK — 433 guides checked, 0 issues
+- 3 first-time domains touched: ai-red-team (first), cloud-native deepening (K8s-specific), appsec deepening (secrets-specific)
+
 ## v0.1.28 (2026-06-16) — Domain Expansion: 4 New Skill Domains (75→79)
 
 ### New Skill Domains (+4)

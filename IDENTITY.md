@@ -92,6 +92,10 @@
 | threat-hunting | Hypothesis-driven hunts, SIEM/EDR telemetry, ATT&CK detection, purple-team validation | Defense in Depth, Assume Breach |
 | blockchain-web3 | Smart-contract auditing, DeFi exploit chains, wallet/key management, bridge attacks | Trust but Verify, First Principles |
 | payment-security | PCI-DSS assessment, card-data flow, 3DS/SAML SSO, fraud and webhook signing | Trust but Verify, Defense in Depth |
+| llm-red-team | LLM red team: prompt injection, jailbreaking, model extraction, RAG poisoning, agent tool abuse (promptfoo/garak/PyRIT/PurpleLlama) | Trust but Verify, Divergent Thinking |
+| deception-honeypot | Defensive deception: SSH/web/ICS/AI honeypots, honeytokens, canary deployment, IOC extraction (T-Pot/Cowrie/OpenCanary/HFish) | Defense in Depth, Assume Breach |
+| kubernetes-attack | K8s red team: RBAC abuse, pod escape, SA token theft, etcd attacks, EKS/GKE/AKS pivot (CDK/peirates/kube-hunter/kubescape) | Trust but Verify, Least Privilege |
+| secret-management-attack | Secrets/SAST: gitleaks, semgrep, trufflehog, infisical, Vault/CI-CD/registry exploitation, canarytoken evasion | Trust but Verify, Minimize Attack Surface |
 
 ---
 

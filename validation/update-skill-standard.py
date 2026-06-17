@@ -64,7 +64,11 @@ ATTACK_SKILLS = {
     "vpn-attack",
     "darkweb-intel",
     "blockchain-web3",
-    "payment-security"
+    "payment-security",
+    "llm-red-team",
+    "deception-honeypot",
+    "kubernetes-attack",
+    "secret-management-attack"
 }
 
 DOMAIN_MAP = {
@@ -113,6 +117,10 @@ DOMAIN_MAP = {
     "threat-hunting": "defense",
     "blockchain-web3": "blockchain",
     "payment-security": "financial",
+    "llm-red-team": "ai-red-team",
+    "deception-honeypot": "defense",
+    "kubernetes-attack": "cloud-native",
+    "secret-management-attack": "appsec",
 }
 
 OWASP_MAP = {
@@ -164,6 +172,9 @@ MITRE_MAP = {
     "vpn-attack": "TA0046-Initial Access",
     "darkweb-intel": "TA0043-Reconnaissance",
     "threat-hunting": "TA0040-Detection",
+    "deception-honeypot": "TA0040-Detection",
+    "kubernetes-attack": "TA0008-Lateral Movement",
+    "secret-management-attack": "T1552-Unsecured Credentials",
 }
 
 # Non-tool entries to skip in tool tables

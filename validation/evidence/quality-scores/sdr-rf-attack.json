@@ -1,6 +1,6 @@
 {
   "skill": "sdr-rf-attack",
-  "timestamp": "2026-06-11T06:56:14Z",
+  "timestamp": "2026-06-16T16:01:51Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 3595,
@@ -8,10 +8,10 @@
     "payload_code_blocks": 50,
     "test_case_count": 8,
     "field_completeness_score": 1.00,
-    "guide_file_count": 6,
-    "guide_avg_words": 3275,
+    "guide_file_count": 9,
+    "guide_avg_words": 3368,
     "guide_key_sections": 3,
-    "skill_section_score": 0.88
+    "skill_section_score": 1.00
   },
   "normalized_scores": {
     "payload_word": 96.0,
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 80.0,
     "field": 100.0,
-    "guide": 86.7,
-    "skill_section": 88.0
+    "guide": 96.0,
+    "skill_section": 100.0
   },
   "component_scores": {
-    "skill_md": 88.00,
+    "skill_md": 100.00,
     "payloads_md": 92.00,
     "test_cases_md": 90.00,
-    "guides": 86.7
+    "guides": 96.0
   },
-  "overall_score": 89.5,
-  "tier": "Excellent"
+  "overall_score": 93.6,
+  "tier": "Distinguished"
 }

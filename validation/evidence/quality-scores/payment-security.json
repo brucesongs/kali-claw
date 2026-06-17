@@ -1,0 +1,33 @@
+{
+  "skill": "payment-security",
+  "timestamp": "2026-06-16T16:01:51Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 4297,
+    "payload_section_count": 15,
+    "payload_code_blocks": 37,
+    "test_case_count": 13,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 1,
+    "guide_avg_words": 4244,
+    "guide_key_sections": 2,
+    "skill_section_score": 0.99
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 93.3,
+    "payload_code": 42.7,
+    "test_case": 92.5,
+    "field": 100.0,
+    "guide": 58.0,
+    "skill_section": 99.0
+  },
+  "component_scores": {
+    "skill_md": 99.00,
+    "payloads_md": 78.67,
+    "test_cases_md": 96.25,
+    "guides": 58.0
+  },
+  "overall_score": 81.8,
+  "tier": "Excellent"
+}

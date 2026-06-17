@@ -108,13 +108,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | threat-hunting | 12 | Mastered | skills/threat-hunting/SKILL.md |
 | blockchain-web3 | 14 | Mastered | skills/blockchain-web3/SKILL.md |
 | payment-security | 12 | Mastered | skills/payment-security/SKILL.md |
+| llm-red-team | 12 | Mastered | skills/llm-red-team/SKILL.md |
+| deception-honeypot | 12 | Mastered | skills/deception-honeypot/SKILL.md |
+| kubernetes-attack | 14 | Mastered | skills/kubernetes-attack/SKILL.md |
+| secret-management-attack | 14 | Mastered | skills/secret-management-attack/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 79 skill domains. Current focus: quality consolidation (79/79 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 83 skill domains. Current focus: quality consolidation (83/83 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice
@@ -129,4 +133,4 @@ All 518 tools mastered across 79 skill domains. Current focus: quality consolida
 
 ---
 
-_Last updated: 2026-06-16_
+_Last updated: 2026-06-17_

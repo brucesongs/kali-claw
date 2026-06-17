@@ -1,0 +1,33 @@
+{
+  "skill": "deception-honeypot",
+  "timestamp": "2026-06-16T16:01:51Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 6296,
+    "payload_section_count": 14,
+    "payload_code_blocks": 106,
+    "test_case_count": 12,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 1,
+    "guide_avg_words": 5214,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.97
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 91.1,
+    "payload_code": 100.0,
+    "test_case": 90.0,
+    "field": 71.0,
+    "guide": 68.0,
+    "skill_section": 97.0
+  },
+  "component_scores": {
+    "skill_md": 97.00,
+    "payloads_md": 97.03,
+    "test_cases_md": 80.50,
+    "guides": 68.0
+  },
+  "overall_score": 84.8,
+  "tier": "Excellent"
+}
