@@ -4,6 +4,87 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.31 (2026-06-17) — GitHub-Trending Expansion Wave 3: +4 Skill Domains (87→91)
+
+### Driver: Third Wave of GitHub-Trending Methodology
+
+v0.1.31 is the THIRD same-day release using the GitHub-trending-driven expansion methodology. Selected 4 skills from real coverage gaps validated against GitHub ecosystem research. Total candidate ecosystem stars for v0.1.31 cohort: ~50k+.
+
+### New Skill Domains (+4)
+
+- **cloud-identity-attack** — Cloud identity provider attacks (NEW: enterprise-cloud category)
+  - Tools: ROADtools, AADInternals, MicroBurst, MFASweep, TokenTactics, AzureHound, okta-cli, GraphRunner, ScoutSuite
+  - Coverage: Azure AD/Entra ID, Okta, Auth0, Ping, AWS IAM Identity Center, Google Workspace; OAuth/SAML/OIDC abuse, CA bypass, MFA fatigue, federation compromise
+  - Differentiator: CLOUD IdP vs. `ad-ldap-attack` (ON-PREM AD/LDAP)
+  - Scaffolding: SKILL.md (469), payloads.md (1,209), test-cases.md (269, 12 TC), guides/cloud-identity-attack-playbook.md (808)
+  - Domain: enterprise-cloud | MITRE: T1078-Valid Accounts | Tool count: 14
+  - Baseline: **83.8 / Excellent**
+- **physical-security-testing** — Physical access pentest (NEW: physical category)
+  - Tools: Proxmark3, ESP-RFID-Tool, Walrus, LAN Turtle, USB Rubber Ducky, Bash Bunny, Packet Squirrel
+  - Coverage: Lock bypass (pin/tubular/wafer), RFID/NFC badge cloning (HID Prox/iCLASS, Mifare), drop boxes, USB weapons, hidden cameras, on-site ops, tailgating prep, physical-docs legal templates
+  - Differentiator: GAINING PHYSICAL ACCESS vs. adjacent skills which cover wireless protocol analysis, firmware, RF
+  - Scaffolding: SKILL.md (810), payloads.md (1,790), test-cases.md (310, 12 TC), guides/physical-security-testing-playbook.md (542)
+  - Domain: physical | MITRE: TA0001-Initial Access (physical) | Tool count: 12
+  - Baseline: **86.6 / Excellent** (highest of v0.1.31 cohort)
+- **quantum-crypto-attack** — Post-quantum and national cryptography (extends cryptography category)
+  - Tools: liboqs, OQS-OpenSSL, GmSSL, cloudflare/circl, hashsigs-solidity, Qiskit, PQCrypto-Break
+  - Coverage: NIST PQC candidates (ML-KEM/ML-DSA/SLH-DSA), hybrid TLS, QKD/BB84 protocol attacks, SM2/SM3/SM4/SM9 (国密), lattice side-channel, post-quantum migration risk
+  - Differentiator: POST-QUANTUM + 国密 vs. `crypto-attacks` (classical RSA/AES/ECDSA)
+  - Scaffolding: SKILL.md (372), payloads.md (1,124), test-cases.md (268, 12 TC), guides/quantum-crypto-attack-playbook.md (533)
+  - Domain: cryptography | MITRE: T1040 + forward-looking | Tool count: 12
+  - Baseline: **79.7 / Strong** (just 0.3 below Excellent threshold; will be lifted next cycle)
+- **email-security-deep** — Phishing infrastructure + gateway bypass (extends appsec category)
+  - Tools: evilginx2, evilgophish, modlishka, gophish, King-Phisher, espoofer
+  - Coverage: AiTM MFA interception, campaign platforms, Proofpoint/Mimecast/Cisco ESA/Microsoft Defender bypass, sender reputation, email bombing, FIDO2 detection
+  - Differentiator: CAMPAIGN OPS + GATEWAY EVASION + MFA PHISHING vs. `email-protocol-attack` (protocol-level forgery). Explicit cross-reference section prevents overlap.
+  - Scaffolding: SKILL.md (369), payloads.md (930), test-cases.md (281, 12 TC), guides/email-security-deep-playbook.md (692)
+  - Domain: appsec | MITRE: T1566-Phishing | Tool count: 14
+  - Baseline: **81.0 / Excellent**
+
+### Baseline Scoring Run (SCORE.sh v2)
+
+| Skill | Score | Tier |
+|-------|-------|------|
+| physical-security-testing | **86.6** | Excellent |
+| cloud-identity-attack | **83.8** | Excellent |
+| email-security-deep | **81.0** | Excellent |
+| quantum-crypto-attack | **79.7** | Strong (just below threshold) |
+
+### Index Updates
+
+- **validation/update-skill-standard.py** — Registered 4 new skills; 2 new categories (enterprise-cloud, physical); MITRE_MAP updated for 3 new skills
+- **IDENTITY.md** — Added 4 new skill tags
+- **TOOLS.md** — Added 4 new category rows; 87 → 91 domains
+- **README.md** — 87→91 domains (6 locations); +4 skill rows; +v0.1.31 changelog row; refreshed quality snapshot; bumped Project Info version 0.1.30→0.1.31
+- **CHANGELOG.md** — v0.1.31 entry
+- **VERSION** — 0.1.30→0.1.31
+- **RELEASE-v0.1.31.md** — Chinese release announcement
+
+### Quality Snapshot
+
+- Distinguished: 19 (unchanged)
+- Excellent: 67 → **70** (+3 new)
+- Strong: 1 → **2** (+quantum-crypto-attack 79.7, borderline)
+- Total: 87 → **91**
+- Average: 87.73 → **87.51** (4 new baselines in 79-87 range)
+- Min: 77.7 (unchanged — username-profiling)
+- Max: 93.8 (unchanged)
+
+### Stats
+
+- New content: **~10,776 lines** across 16 new files (4 SKILL.md + 4 payloads.md + 4 test-cases.md + 4 guides)
+- New test cases: **48** (12 × 4 skills)
+- Heartbeat: HEARTBEAT_OK — 441 guides checked, 0 issues
+- 2 new categories entered: enterprise-cloud, physical
+- 89/91 (97.8%) at Excellent or above — quantum-crypto-attack will be lifted next cycle
+
+### Coverage Gaps Closed
+
+- **Identity layer**: `ad-ldap-attack` (on-prem) ↔ `cloud-identity-attack` (cloud) — now covers both worlds
+- **Physical access**: first skill in this category; closes long-standing gap
+- **Quantum-readiness**: forward-looking coverage for PQC migration wave
+- **Phishing infrastructure**: depth skill complementing `email-protocol-attack`
+
 ## v0.1.30 (2026-06-17) — GitHub-Trending Expansion Wave 2: +4 Skill Domains (83→87)
 
 ### Driver: GitHub Open-Source Analysis Wave 2

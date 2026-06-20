@@ -72,7 +72,11 @@ ATTACK_SKILLS = {
     "ai-agent-security",
     "iot-pentest",
     "detection-engineering",
-    "agentic-pentest"
+    "agentic-pentest",
+    "cloud-identity-attack",
+    "physical-security-testing",
+    "quantum-crypto-attack",
+    "email-security-deep"
 }
 
 DOMAIN_MAP = {
@@ -129,6 +133,10 @@ DOMAIN_MAP = {
     "iot-pentest": "iot",
     "detection-engineering": "defense",
     "agentic-pentest": "ai-meta",
+    "cloud-identity-attack": "enterprise-cloud",
+    "physical-security-testing": "physical",
+    "quantum-crypto-attack": "cryptography",
+    "email-security-deep": "appsec",
 }
 
 OWASP_MAP = {
@@ -185,6 +193,9 @@ MITRE_MAP = {
     "secret-management-attack": "T1552-Unsecured Credentials",
     "iot-pentest": "T1021-Remote Services",
     "detection-engineering": "TA0040-Detection",
+    "cloud-identity-attack": "T1078-Valid Accounts",
+    "physical-security-testing": "TA0001-Initial Access",
+    "email-security-deep": "T1566-Phishing",
 }
 
 # Non-tool entries to skip in tool tables

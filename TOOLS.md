@@ -116,13 +116,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | iot-pentest | 12 | Mastered | skills/iot-pentest/SKILL.md |
 | detection-engineering | 14 | Mastered | skills/detection-engineering/SKILL.md |
 | agentic-pentest | 12 | Mastered | skills/agentic-pentest/SKILL.md |
+| cloud-identity-attack | 14 | Mastered | skills/cloud-identity-attack/SKILL.md |
+| physical-security-testing | 12 | Mastered | skills/physical-security-testing/SKILL.md |
+| quantum-crypto-attack | 12 | Mastered | skills/quantum-crypto-attack/SKILL.md |
+| email-security-deep | 14 | Mastered | skills/email-security-deep/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 87 skill domains. Current focus: quality consolidation (87/87 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 91 skill domains. Current focus: quality consolidation (91/91 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice

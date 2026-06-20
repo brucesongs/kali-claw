@@ -100,6 +100,10 @@
 | iot-pentest | IoT application layer: MQTT broker abuse, CoAP attacks, AMQP, cloud IoT (AWS/Azure), device mgmt, mobile companion | Trust but Verify, Minimize Attack Surface |
 | detection-engineering | Detection-as-code: Sigma rule authoring, YARA signatures, SPL/KQL/EQL, MITRE ATT&CK mapping, FP tuning, CI/CD pipelines | Defense in Depth, Trust but Verify |
 | agentic-pentest | LLM-driven autonomous pentest: PentestGPT, HexStrike, Viper, PentestAgent, multi-agent team coordination, HITL checkpoints | Trust but Verify, Skill Over Credentials |
+| cloud-identity-attack | Azure AD/Entra ID, Okta, Auth0, Ping federation abuse, OAuth token theft, SAML forgery, conditional access bypass, MFA fatigue | Trust but Verify, Least Privilege |
+| physical-security-testing | Lock bypass (pin/tubular/wafer), RFID/NFC badge cloning (Proxmark3/Walrus), USB weapons (Ducky/Bunny), drop boxes, on-site ops | Assume Breach, Least Privilege |
+| quantum-crypto-attack | Post-quantum migration risks, NIST PQC candidates, hybrid TLS, QKD/BB84, SM2/SM3/SM4 国密, lattice side-channel | First Principles, Trust but Verify |
+| email-security-deep | AiTM phishing infra (evilginx2/modlishka/evilgophish), gateway bypass (Proofpoint/Mimecast/Cisco ESA), MFA bypass, email bombing | Trust but Verify, Weakest Link Is Human |
 
 ---
 
