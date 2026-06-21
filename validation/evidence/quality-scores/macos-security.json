@@ -1,0 +1,33 @@
+{
+  "skill": "macos-security",
+  "timestamp": "2026-06-21T11:07:29Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 9862,
+    "payload_section_count": 20,
+    "payload_code_blocks": 56,
+    "test_case_count": 12,
+    "field_completeness_score": 0.71,
+    "guide_file_count": 1,
+    "guide_avg_words": 4852,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.89
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 82.4,
+    "test_case": 90.0,
+    "field": 71.0,
+    "guide": 68.0,
+    "skill_section": 89.0
+  },
+  "component_scores": {
+    "skill_md": 89.00,
+    "payloads_md": 94.13,
+    "test_cases_md": 80.50,
+    "guides": 68.0
+  },
+  "overall_score": 82.7,
+  "tier": "Excellent"
+}

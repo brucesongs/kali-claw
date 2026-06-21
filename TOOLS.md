@@ -124,13 +124,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | automotive-vehicle-security | 13 | Mastered | skills/automotive-vehicle-security/SKILL.md |
 | mobile-app-instrumentation | 13 | Mastered | skills/mobile-app-instrumentation/SKILL.md |
 | cloud-native-vuln-research | 13 | Mastered | skills/cloud-native-vuln-research/SKILL.md |
+| macos-security | 13 | Mastered | skills/macos-security/SKILL.md |
+| uav-drone-security | 13 | Mastered | skills/uav-drone-security/SKILL.md |
+| game-anticheat-bypass | 13 | Mastered | skills/game-anticheat-bypass/SKILL.md |
+| mainframe-security | 13 | Mastered | skills/mainframe-security/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 95 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 99 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice
@@ -145,4 +149,4 @@ All 518 tools mastered across 95 skill domains. Current focus: quality consolida
 
 ---
 
-_Last updated: 2026-06-22_
+_Last updated: 2026-06-21_

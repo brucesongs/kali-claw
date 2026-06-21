@@ -3,6 +3,29 @@
 > Companion to `SKILL.md`, containing structured test cases organized by category with severity ratings.
 > All commands assume an authorized engagement scope, a bench ECU / dyno / closed-course environment, or a virtual CAN simulator (vcan). Never run active exploitation against a moving production vehicle without explicit written authorization from the owner AND the manufacturer.
 
+## Prerequisites
+
+Before executing any test case in this catalogue, verify the following pre-conditions are met:
+
+1. **Authorization**: Written authorization from the vehicle owner AND the manufacturer covering the specific vehicle VIN, the specific ECU parts, and the specific test scope. For closed-course tests, additional authorization from the facility operator and the insurance underwriter.
+2. **Hardware**: The appropriate CAN adapter (USBTin, PCAN-USB, Kvaser, Vector VN1630), a bench ECU or salvaged ECU for destructive tests, and (for GNSS tests) a Faraday cage or shielded enclosure.
+3. **Software**: `can-utils`, `python-can`, `cantools`, `scapy` (with automotive layers), `OpenOCD`, `flashrom` (see `payloads.md` §1 for install commands).
+4. **Safety**: For any test that transmits on a vehicle CAN bus, a closed course with a safety driver is mandatory. Safety-critical injections (brake, steer, powertrain, airbag) require explicit additional authorization beyond the general scope.
+5. **Legal review**: For tests involving key fob capture/replay, GNSS transmission, or PLC interception on charging stations, the engagement must be reviewed by legal counsel. 18 USC §1029 (US), Fraud Act 2006 (UK), and equivalent national laws apply.
+
+---
+
+## Verification Checklist
+
+After executing each test case, verify the following pass criteria before marking the test complete:
+
+- [ ] **Captured evidence**: ASC/pcap trace saved with timestamp; screenshots of GUI tools (Savvy-CAN, inspectrum, u-center).
+- [ ] **Reproducibility**: The test was run at least twice with consistent results; documented any intermittent failures.
+- [ ] **Scope compliance**: No CAN frames transmitted outside the engagement scope; no safety-critical message IDs targeted without explicit authorization.
+- [ ] **Post-test cleanup**: All UDS extended sessions closed; all test DTCs cleared (`cansend can0 7DF#02040000000000`); any modified ECU calibration restored.
+- [ ] **Documentation**: Finding documented with severity, MITRE ATT&CK mapping, tool list, and remediation guidance.
+- [ ] **Safety check**: For moving-vehicle tests, the safety driver confirms no unintended physical effect occurred outside the planned test vector.
+
 ---
 
 ## Statistics

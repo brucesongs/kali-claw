@@ -2,16 +2,16 @@
 name: automotive-vehicle-security
 description: CAN/CAN-FD bus analysis, UDS diagnostics, IVI pentest, OBD-II exploitation, key fob replay/relay attacks, GNSS spoofing, EV charging station (ISO 15118), and connected vehicle red team operations.
 origin: github-trending-2026
-version: 1.0.0
+version: 1.0.1
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
   domain: automotive
   category: automotive
   tool_count: 13
-  guide_count: 1
+  guide_count: 2
   mitre: TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle
-  keywords: [can, can-fd, uds, obd-ii, automotive, vehicle, key-fop, gnss-spoofing, iso-15118, ecu, ivi]
+  keywords: [can, can-fd, uds, obd-ii, automotive, vehicle, key-fob, gnss-spoofing, iso-15118, ecu, ivi]
 ---
 
 
@@ -22,7 +22,8 @@ metadata:
 > **Supplementary Files**:
 > - `payloads.md` — Command catalogue for SocketCAN setup, can-utils (candump/cansend/cansniffer), cantools DBC reversing, CAN-FD, UDS (ISO 14229) enumeration, KWP2000, OBD-II PIDs, ECU firmware extraction, IVI pentest (Android Automotive/QNX), CANToolz framework, Scapy automotive (XCP/UDS/GMLAN), key fob replay/relay (HackRF/Flipper), GNSS spoofing, EV charging (ISO 15118 V2G/PLC), CAN injection methodology, and CAN-IDS detection — 18 sections with real CLI flags and incident references (Jeep 2015, Tesla 2017, BMW, VW, UK CAN injection thefts).
 > - `test-cases.md` — Structured test cases (SocketCAN lab bring-up, passive CAN sniffing, DBC reversing, UDS enumeration, CAN-FD capture, CANToolz analysis, IVI recon, OBD-II PID readout, rolling-code capture, GNSS spoofing PoC, ISO 15118 fuzzing, CAN-IDS tuning) — 12 cases across 6 categories.
-> - `guides/automotive-vehicle-security-playbook.md` — End-to-end red team playbook: bus recon → DBC reverse → UDS enum → ECU compromise → physical-effect validation. Includes CAN architecture refresher, automotive lab build (virtual + hardware tiers), real-world incident case studies, and legal/ethical considerations.
+> - `guides/automotive-vehicle-security-playbook.md` — End-to-end red team playbook: bus recon → DBC reverse → UDS enum → ECU compromise → physical-effect validation. Includes CAN architecture refresher, automotive lab build (virtual + hardware tiers), CAN bus reverse engineering methodology, key fob attack workflow (rolling code + PKES relay), real-world incident case studies, and legal/ethical considerations.
+> - `guides/automotive-ecu-firmware-and-uds-deep-dive.md` — Deep dive on ECU firmware extraction (boot mode, JTAG, NAND/eMMC desoldering, OTA package parsing, UDS 0x34/0x36 dump) and the full UDS service matrix (0x10-0x3E) with security access (0x27) seed-key analysis, routine control (0x31), ECU programming (0x34/0x36/0x37), firmware update attacks, secure boot bypass attempts, and signature verification analysis.
 
 ## Summary
 
@@ -406,7 +407,9 @@ This is the **only** automotive-focused skill in the workspace. Adjacent skills 
 ## Learning Resources
 
 - **This skill's supplementary files**: `payloads.md`, `test-cases.md`
-- **Deep-dive guide**: `guides/automotive-vehicle-security-playbook.md` — CAN architecture refresher, automotive lab build, ECU attack methodology, real-world incident case studies, and legal/ethical considerations.
+- **Deep-dive guides**:
+  - `guides/automotive-vehicle-security-playbook.md` — CAN architecture refresher, automotive lab build, ECU attack methodology, CAN bus reverse engineering methodology, key fob attack workflow, real-world incident case studies, and legal/ethical considerations.
+  - `guides/automotive-ecu-firmware-and-uds-deep-dive.md` — ECU firmware extraction methods (boot mode, JTAG, NAND/eMMC, UDS dump), full UDS service matrix with security access seed-key analysis, ECU programming workflow, firmware update attacks, and secure boot bypass.
 - **Reference repositories** (the inspirations for this skill):
   - `linux-can/can-utils` (Linux Foundation): reference SocketCAN userland
   - `hardbyte/python-can`: Python CAN library (SocketCAN, Kvaser, PCAN, Vector)

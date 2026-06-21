@@ -1,0 +1,33 @@
+{
+  "skill": "game-anticheat-bypass",
+  "timestamp": "2026-06-21T11:07:29Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 9105,
+    "payload_section_count": 19,
+    "payload_code_blocks": 90,
+    "test_case_count": 12,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "guide_avg_words": 3062,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.81
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 96.0,
+    "test_case": 90.0,
+    "field": 86.0,
+    "guide": 68.0,
+    "skill_section": 81.0
+  },
+  "component_scores": {
+    "skill_md": 81.00,
+    "payloads_md": 98.67,
+    "test_cases_md": 88.00,
+    "guides": 68.0
+  },
+  "overall_score": 85.2,
+  "tier": "Excellent"
+}

@@ -1,0 +1,33 @@
+{
+  "skill": "uav-drone-security",
+  "timestamp": "2026-06-21T11:07:29Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 9455,
+    "payload_section_count": 18,
+    "payload_code_blocks": 61,
+    "test_case_count": 12,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "guide_avg_words": 5180,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.91
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 84.4,
+    "test_case": 90.0,
+    "field": 86.0,
+    "guide": 68.0,
+    "skill_section": 91.0
+  },
+  "component_scores": {
+    "skill_md": 91.00,
+    "payloads_md": 94.80,
+    "test_cases_md": 88.00,
+    "guides": 68.0
+  },
+  "overall_score": 85.5,
+  "tier": "Excellent"
+}

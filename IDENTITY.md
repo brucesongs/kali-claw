@@ -108,6 +108,10 @@
 | automotive-vehicle-security | CAN/CAN-FD bus, UDS (ISO 14229), IVI pentest, OBD-II, key fop replay/relay, GNSS spoofing, ISO 15118 EV charging, ECU exploitation | Trust but Verify, Defense in Depth |
 | mobile-app-instrumentation | Frida/Objection/r2frida dynamic instrumentation, SSL pinning bypass, jailbreak detection bypass, native lib hooking, keychain/keystore dump | Trust but Verify, First Principles |
 | cloud-native-vuln-research | CVE research methodology, PoC reproduction (Log4Shell/Spring4Shell/OMIGOD), nuclei template authoring, SBOM-driven vuln mgmt, KEV tracking, exploit chain composition | First Principles, Trust but Verify |
+| macos-security | macOS SIP/TCC bypass, AMFI, Endpoint Security Framework (ESF), Keychain dump, Mach-O analysis, Apple Silicon (M1/M2/M3) security, Objective-See toolchain, MDM profiling | First Principles, Trust but Verify |
+| uav-drone-security | MAVLink/PX4/ArduPilot fuzzing, GPS spoofing, RF replay (DSM/SBUS), DroneID tracking, DroneSploit, autopilot RCE, no-fly zone bypass | Trust but Verify, Minimize Attack Surface |
+| game-anticheat-bypass | EAC/BattlEye/Vanguard architecture, BYOVD (Bring Your Own Vulnerable Driver), LOLDrivers, kernel anti-cheat analysis, memory manipulation detection, hypervisor introspection | First Principles, Trust but Verify |
+| mainframe-security | z/OS penetration, RACF auditing, CICS transactions, DB2 SQL injection, JES2 spooling, TN3270 emulation, Hercules emulator, syslog relay | Trust but Verify, Defense in Depth |
 
 ---
 
@@ -120,4 +124,4 @@
 
 ---
 
-_Last updated: 2026-06-16_
+_Last updated: 2026-06-21_

@@ -80,7 +80,11 @@ ATTACK_SKILLS = {
     "5g-telecom-attack",
     "automotive-vehicle-security",
     "mobile-app-instrumentation",
-    "cloud-native-vuln-research"
+    "cloud-native-vuln-research",
+    "macos-security",
+    "uav-drone-security",
+    "game-anticheat-bypass",
+    "mainframe-security"
 }
 
 DOMAIN_MAP = {
@@ -145,6 +149,10 @@ DOMAIN_MAP = {
     "automotive-vehicle-security": "automotive",
     "mobile-app-instrumentation": "mobile-deep",
     "cloud-native-vuln-research": "cloud-native",
+    "macos-security": "macos",
+    "uav-drone-security": "aerial",
+    "game-anticheat-bypass": "game-security",
+    "mainframe-security": "mainframe",
 }
 
 OWASP_MAP = {
@@ -208,6 +216,10 @@ MITRE_MAP = {
     "automotive-vehicle-security": "TA0001-Initial Access",
     "mobile-app-instrumentation": "T1623-Mobile Adware",
     "cloud-native-vuln-research": "T1068-Exploitation for Privilege Escalation",
+    "macos-security": "T1548-Abuse Elevation Control Mechanism",
+    "uav-drone-security": "T1548-Abuse Elevation Control Mechanism",
+    "game-anticheat-bypass": "T1548-Abuse Elevation Control Mechanism",
+    "mainframe-security": "T1078-Valid Accounts",
 }
 
 # Non-tool entries to skip in tool tables
