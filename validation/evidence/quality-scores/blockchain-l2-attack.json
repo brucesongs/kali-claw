@@ -1,0 +1,33 @@
+{
+  "skill": "blockchain-l2-attack",
+  "timestamp": "2026-06-21T11:55:45Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 8594,
+    "payload_section_count": 22,
+    "payload_code_blocks": 80,
+    "test_case_count": 12,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 1,
+    "guide_avg_words": 3843,
+    "guide_key_sections": 2,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 92.0,
+    "test_case": 90.0,
+    "field": 100.0,
+    "guide": 58.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 97.33,
+    "test_cases_md": 95.00,
+    "guides": 58.0
+  },
+  "overall_score": 87.2,
+  "tier": "Excellent"
+}

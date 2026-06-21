@@ -112,6 +112,10 @@
 | uav-drone-security | MAVLink/PX4/ArduPilot fuzzing, GPS spoofing, RF replay (DSM/SBUS), DroneID tracking, DroneSploit, autopilot RCE, no-fly zone bypass | Trust but Verify, Minimize Attack Surface |
 | game-anticheat-bypass | EAC/BattlEye/Vanguard architecture, BYOVD (Bring Your Own Vulnerable Driver), LOLDrivers, kernel anti-cheat analysis, memory manipulation detection, hypervisor introspection | First Principles, Trust but Verify |
 | mainframe-security | z/OS penetration, RACF auditing, CICS transactions, DB2 SQL injection, JES2 spooling, TN3270 emulation, Hercules emulator, syslog relay | Trust but Verify, Defense in Depth |
+| ics-fieldbus-attack | Profibus/PROFINET, EtherCAT, EtherNet/IP, DNP3, IEC 61850 (GOOSE/SV/MMS), IEC 60870-5-101/104, Foundation Fieldbus, HART, CC-Link, BACnet deep | Assume Breach, Safety First |
+| hf-vhf-radio-attack | Licensed HF/VHF/UHF — ADS-B 1090 MHz, AIS, ACARS, VDL Mode 2, HFDL, POCSAG/FLEX pagers, APRS, NDB, ATC/maritime VHF, DSC, weather fax | Trust but Verify, Assume Breach |
+| blockchain-l2-attack | Layer-2 attack — Lightning Network, Optimistic/ZK Rollups (Optimism/Arbitrum/zkSync/StarkNet/Polygon), cross-chain bridges (Wormhole/Nomad/Ronin), state channels, ERC-4337 account abstraction | Trust but Verify, First Principles |
+| embedded-rtos-security | RTOS penetration — VxWorks WDB (Urgent/11), QNX Qnet, FreeRTOS+TCP, ThreadX/Azure RTOS, Zephyr, Mbed OS, TI-RTOS, MicroC/OS, NuttX, RIOT, Contiki | First Principles, Trust but Verify |
 
 ---
 

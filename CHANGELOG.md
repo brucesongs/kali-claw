@@ -4,6 +4,116 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.35 (2026-06-24) — GitHub-Trending Expansion Wave 6: +4 Deep-Dive Skill Domains (99→103)
+
+### Driver: Sixth Wave — Deepening Existing Verticals
+
+v0.1.35 is the SIXTH release using the GitHub-trending-driven expansion methodology. Unlike waves 4-5 (v0.1.33-v0.1.34) which entered new verticals (telecom/automotive/macos/aerial/mainframe), wave 6 DEEPENS existing coverage by adding specialized sub-domains adjacent to already-mastered skills:
+
+| New Skill | Adjacent Existing Skill | Differentiator |
+|-----------|-------------------------|----------------|
+| ics-fieldbus-attack | scada-ics-security (Modbus/S7comm) | 15+ fieldbus protocols (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET) |
+| hf-vhf-radio-attack | sdr-rf-attack (Sub-GHz ISM) | Licensed HF/VHF/UHF bands (ADS-B/AIS/ACARS/POCSAG/APRS) |
+| blockchain-l2-attack | blockchain-web3 (L1 EVM) | L2 (Lightning/Optimism/Arbitrum/zkSync/cross-chain bridges) |
+| embedded-rtos-security | firmware-reverse (generic) | RTOS-specific (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr) |
+
+### New Skill Domains (+4)
+
+- **ics-fieldbus-attack** — Industrial fieldbus protocol deep dive (NEW: fieldbus category)
+  - Tools: Wireshark (fieldbus dissectors), Scapy (IEC 61850/104 layers), plcscan, Redpoint Digital, OpenDNP3, lib60870, IEC104Attack, ProfiShark, Boofuzz, Conpot, Nmap NSE (dnp3-info/enip-info/BACnet), Ettercap/Bettercap, Claroty/Nozomi (reference)
+  - Coverage: Profibus DP/PA, PROFINET RT/IRT, EtherCAT, EtherNet/IP (CIP), DNP3, IEC 61850 (GOOSE/SV/MMS), IEC 60870-5-101 (serial) and -104 (TCP), Foundation Fieldbus, HART/WirelessHART, CC-Link IE TSN, BACnet deep
+  - Real-world incidents: Ukraine 2015 BlackEnergy (IEC 104), Industroyer/CrashOverride (2016), Triton/Trisis (2017 SIS), Florida water treatment (2021)
+  - Scaffolding: SKILL.md (508), payloads.md (2,853, 92 code blocks), test-cases.md (253, 12 TC-FB-001..012), guides/ics-fieldbus-attack-playbook.md (1,054)
+  - Domain: fieldbus (NEW) | MITRE: T0817-Program Logic Controller Software | Tool count: 13
+  - Baseline score: 88.1 (Excellent)
+
+- **hf-vhf-radio-attack** — Licensed HF/VHF/UHF radio attack (NEW: lowfreq-radio category)
+  - Tools: HackRF One, BladeRF 2.0 micro, RTL-SDR V3, PlutoSDR, AirSpy R2/HF+ Discovery, GNU Radio, GQRX/SDR#/SDRangel/CubicSDR, dump1090-mutability/readsb, dump978, AIS-catcher/rtl-ais, multimon-ng, ACARSDeco/dumpvdl2/dumphfdl, URH
+  - Coverage: ADS-B (1090 MHz), AIS (161.975/162.025 MHz), ACARS (131.550 MHz), VDL Mode 2, HFDL, POCSAG/FLEX/APOC pagers, APRS, NDB (190-535 kHz, 1750 kHz), Weather Fax, DSC, ATC voice (118-137 MHz AM), maritime VHF (Ch 16), MLAT/TIS-B/UAT (978 MHz)
+  - Differentiator: Licensed services (aviation/maritime/pager/amateur) vs Sub-GHz ISM (sdr-rf-attack) and cellular (5g-telecom-attack)
+  - Real-world research: Povolny ADS-B spoofing (2012), Costin "Ghost in the Air" (2012), Trend Micro maritime AIS, DEF CON 18 Barisani pager, DEF CON 22 Phaedrus ACARS
+  - Scaffolding: SKILL.md (508), payloads.md (2,745, 70+ code blocks), test-cases.md (12 TC-LF-001..012), guides/hf-vhf-radio-attack-playbook.md (628)
+  - Domain: lowfreq-radio (NEW) | MITRE: T1557-Adversary-in-the-Middle | Tool count: 13
+  - Baseline score: 89.3 (Excellent, highest of v0.1.35 cohort)
+
+- **blockchain-l2-attack** — Layer-2 blockchain attack (NEW: blockchain-l2 category)
+  - Tools: Foundry (forge/cast/anvil/chisel), Hardhat, Brownie/Ape, Slither, Mythril, Manticore, Echidna, Etheno, web3.py/ethers.js, Tenderly, Forta, OpenZeppelin Defender, Revoke.cash/Etherscan tools
+  - Coverage: Lightning Network (BOLT, HTLC, Wormhole RTL CVE-2020-4484), Optimistic Rollups (Optimism OP Stack, Arbitrum Nitro, Boba, Base), ZK Rollups (zkSync Era, StarkNet, Polygon zkEVM, Scroll, Linea), Polygon PoS, Gnosis Chain, cross-chain bridges (Wormhole $326M/Nomad $190M/Ronin $625M/Poly Network $611M/Multichain $1.5B/Harmony Horizon $100M), ERC-4337 account abstraction, DA layers (Celestia/EigenDA/Avail)
+  - Differentiator: L2 rollups, bridges, state channels vs L1 smart contracts (blockchain-web3)
+  - Scaffolding: SKILL.md (684), payloads.md (2,380, 80 code blocks), test-cases.md (274, 12 TC-L2-001..012), guides/blockchain-l2-attack-playbook.md (619)
+  - Domain: blockchain-l2 (NEW) | MITRE: TA0006-Credential Access | Tool count: 13
+  - Baseline score: 87.2 (Excellent)
+
+- **embedded-rtos-security** — RTOS penetration testing (NEW: rtos category)
+  - Tools: IDA Pro, Ghidra, Binary Ninja, radare2/r2macho, OpenOCD, J-Link/ST-Link/Black Magic Probe/JTAGulator/Shikra, binwalk/firmwalker/FACT, QEMU system/Renode, angr, ChipWhisperer (NewAE), GreatFET/HydraBus/Bus Pirate, flashrom, strace/ltrace/perf
+  - Coverage: VxWorks WDB RPC debug agent + Urgent/11 (CVE-2019-12256/12258/12260/12264), QNX Neutrino (microkernel, Qnet, Momentics, qconn), FreeRTOS + FreeRTOS+TCP (CVE-2018-16525/16528/16529/16603), ThreadX/Azure RTOS NetX DUO, Zephyr (Kconfig, BT host CVEs), Mbed OS (uVisor, Pelion), TI-RTOS (NDK, ROV), MicroC/OS-II/III, NuttX, RIOT, Contiki-NG
+  - Differentiator: RTOS internals (scheduler/MMU/MPU/IPC) vs generic firmware extraction (firmware-reverse) and IoT app-layer (iot-pentest)
+  - Scaffolding: SKILL.md (344), payloads.md (2,891, 174 code blocks), test-cases.md (256, 12 TC-RT-001..012), guides/embedded-rtos-security-playbook.md (593)
+  - Domain: rtos (NEW) | MITRE: T1548-Abuse Elevation Control Mechanism | Tool count: 13
+  - Baseline score: 88.8 (Excellent, 2nd-highest of cohort)
+
+### Quality Snapshot
+
+| Metric | v0.1.34 | v0.1.35 | Change |
+|------|---------|---------|--------|
+| Total skill domains | 99 | **103** | +4 |
+| Distinguished (92+) | 19 | **19** | unchanged |
+| Excellent (80-91.9) | 80 | **84** | +4 (all new cohort) |
+| Strong (60-80) | 0 | **0** | unchanged |
+| Average score | 87.96 | **87.98** | +0.02 |
+| Excellent or above | 99/99 (100%) | **103/103 (100%)** | unchanged |
+| Cohort average | 85.4 (v0.1.34) | **88.4** (v0.1.35) | **+3.0** (cohort quality lift) |
+
+### Strategic Value: Deep-Vertical Completion
+
+- **ICS stack**: Modbus/S7comm (scada-ics-security) + 15+ fieldbus protocols (NEW) — comprehensive OT coverage
+- **Wireless stack**: Sub-GHz ISM (sdr-rf-attack) + Licensed HF/VHF/UHF (NEW) + Cellular (5g-telecom-attack) — full RF spectrum
+- **Blockchain stack**: L1 EVM (blockchain-web3) + L2 rollups/bridges (NEW) — multi-layer DeFi research
+- **Embedded stack**: Generic firmware (firmware-reverse) + RTOS internals (NEW) + IoT app (iot-pentest) — full embedded surface
+
+### Index Files Sync
+
+| File | Change |
+|------|--------|
+| validation/update-skill-standard.py | +4 ATTACK_SKILLS entries; +4 DOMAIN_MAP entries (fieldbus/lowfreq-radio/blockchain-l2/rtos); +4 MITRE_MAP entries |
+| IDENTITY.md | +4 skill tag rows |
+| TOOLS.md | +4 category index rows; 99→103 skill domains |
+| README.md | 6 locations updated (99→103, version 0.1.34→0.1.35, +v0.1.35 changelog row, refreshed quality snapshot) |
+| CHANGELOG.md | +v0.1.35 entry |
+| VERSION | 0.1.34 → 0.1.35 |
+
+### Workload
+
+| Item | Count |
+|------|-------|
+| New files | 16 (4×SKILL.md + 4×payloads.md + 4×test-cases.md + 4×guides) |
+| New code lines | ~13,000 |
+| New test cases | 48 (12×4) |
+| First-time scored skills | 4 |
+| New categories entered | 4 (fieldbus, lowfreq-radio, blockchain-l2, rtos) |
+| Heartbeat health check | HEARTBEAT_OK |
+
+### Methodology Validation: GitHub-Trending Wave 6
+
+| Wave | Version | New Skills | Strategy |
+|------|---------|------------|----------|
+| 1 | v0.1.29 | 4 | First methodology use (ai-red-team/defense/cloud-native/appsec) |
+| 2 | v0.1.30 | 4 | Same-day double (ai-emerging/iot/defense/ai-meta) |
+| 3 | v0.1.31 | 4 | Same-day triple (enterprise-cloud/physical/cryptography/appsec) |
+| 4 | v0.1.33 | 4 | New verticals (telecom/automotive/mobile-deep/cloud-native) |
+| 5 | v0.1.34 | 4 | New verticals (macos/aerial/game-security/mainframe) + automotive lift |
+| 6 | v0.1.35 | 4 | **Deep-vertical** (fieldbus/lowfreq-radio/blockchain-l2/rtos) — deepens existing stacks |
+
+→ **Wave 6 strategy pivot**: First wave to focus on DEEPENING rather than expanding. Result: cohort avg 88.4 (highest in 6 waves), validating that adjacent-domain expansion produces higher-quality baselines than new-vertical expansion.
+
+### Next Steps (v0.1.36 Candidates)
+
+- **A**: Distinguished sprint — push 89-91 tier skills to 92+ (username-profiling 91.6, quantum-crypto-attack 90.8, deep-research 90.6, secret-management-attack 90.4, agentic-pentest 90.0, hf-vhf-radio-attack 89.3, embedded-rtos-security 88.8)
+- **B**: v0.1.35 cohort deepening — add 2nd guide file to 4 new skills
+- **C**: Bottom lift — lift email-security-deep (81.0), 5g-telecom-attack (82.5), macos-security (82.7) toward 88+
+- **D**: Wave 7 — additional adjacent domains (storage/SAN attack, hypervisor introspection, PQC migration deep, satellite/LEO, AD CS abuse, OAuth2/OIDC deep)
+- **E**: A + C combo (dual-pronged quality lift)
+
 ## v0.1.34 (2026-06-21) — GitHub-Trending Expansion Wave 5 + Automotive Lift: 95→99, 100% Excellent+ Restored
 
 ### Driver: Fifth Wave + Strategic Lift

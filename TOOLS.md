@@ -128,13 +128,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | uav-drone-security | 13 | Mastered | skills/uav-drone-security/SKILL.md |
 | game-anticheat-bypass | 13 | Mastered | skills/game-anticheat-bypass/SKILL.md |
 | mainframe-security | 13 | Mastered | skills/mainframe-security/SKILL.md |
+| ics-fieldbus-attack | 13 | Mastered | skills/ics-fieldbus-attack/SKILL.md |
+| hf-vhf-radio-attack | 13 | Mastered | skills/hf-vhf-radio-attack/SKILL.md |
+| blockchain-l2-attack | 13 | Mastered | skills/blockchain-l2-attack/SKILL.md |
+| embedded-rtos-security | 13 | Mastered | skills/embedded-rtos-security/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 99 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 103 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice

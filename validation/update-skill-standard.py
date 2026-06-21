@@ -84,7 +84,11 @@ ATTACK_SKILLS = {
     "macos-security",
     "uav-drone-security",
     "game-anticheat-bypass",
-    "mainframe-security"
+    "mainframe-security",
+    "ics-fieldbus-attack",
+    "hf-vhf-radio-attack",
+    "blockchain-l2-attack",
+    "embedded-rtos-security"
 }
 
 DOMAIN_MAP = {
@@ -153,6 +157,10 @@ DOMAIN_MAP = {
     "uav-drone-security": "aerial",
     "game-anticheat-bypass": "game-security",
     "mainframe-security": "mainframe",
+    "ics-fieldbus-attack": "fieldbus",
+    "hf-vhf-radio-attack": "lowfreq-radio",
+    "blockchain-l2-attack": "blockchain-l2",
+    "embedded-rtos-security": "rtos",
 }
 
 OWASP_MAP = {
@@ -220,6 +228,10 @@ MITRE_MAP = {
     "uav-drone-security": "T1548-Abuse Elevation Control Mechanism",
     "game-anticheat-bypass": "T1548-Abuse Elevation Control Mechanism",
     "mainframe-security": "T1078-Valid Accounts",
+    "ics-fieldbus-attack": "T0817-Program Logic Controller Software",
+    "hf-vhf-radio-attack": "T1557-Adversary-in-the-Middle",
+    "blockchain-l2-attack": "TA0006-Credential Access",
+    "embedded-rtos-security": "T1548-Abuse Elevation Control Mechanism",
 }
 
 # Non-tool entries to skip in tool tables
