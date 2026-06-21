@@ -104,6 +104,10 @@
 | physical-security-testing | Lock bypass (pin/tubular/wafer), RFID/NFC badge cloning (Proxmark3/Walrus), USB weapons (Ducky/Bunny), drop boxes, on-site ops | Assume Breach, Least Privilege |
 | quantum-crypto-attack | NIST PQC (ML-KEM/ML-DSA/SLH-DSA) assessment, hybrid TLS (X25519+ML-KEM), QKD/BB84 attacks (PNS/detector blinding/Trojan-horse), SM2/SM3/SM4/SM9 国密 compliance, lattice side-channel labs, PQC migration playbook (NIST/CNSA 2.0/ETSI/GB-T) | First Principles, Trust but Verify |
 | email-security-deep | AiTM phishing infra (evilginx2/modlishka/evilgophish), gateway bypass (Proofpoint/Mimecast/Cisco ESA), MFA bypass, email bombing | Trust but Verify, Weakest Link Is Human |
+| 5g-telecom-attack | 5G core (AMF/SMF/UPF/AUSF), PFCP/GTP/Diameter/SS7 signaling, IMSI catcher detection, O-RAN security, roaming abuse, SUCI/SUPI privacy | Assume Breach, Trust but Verify |
+| automotive-vehicle-security | CAN/CAN-FD bus, UDS (ISO 14229), IVI pentest, OBD-II, key fop replay/relay, GNSS spoofing, ISO 15118 EV charging, ECU exploitation | Trust but Verify, Defense in Depth |
+| mobile-app-instrumentation | Frida/Objection/r2frida dynamic instrumentation, SSL pinning bypass, jailbreak detection bypass, native lib hooking, keychain/keystore dump | Trust but Verify, First Principles |
+| cloud-native-vuln-research | CVE research methodology, PoC reproduction (Log4Shell/Spring4Shell/OMIGOD), nuclei template authoring, SBOM-driven vuln mgmt, KEV tracking, exploit chain composition | First Principles, Trust but Verify |
 
 ---
 

@@ -120,13 +120,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | physical-security-testing | 12 | Mastered | skills/physical-security-testing/SKILL.md |
 | quantum-crypto-attack | 12 | Mastered | skills/quantum-crypto-attack/SKILL.md |
 | email-security-deep | 14 | Mastered | skills/email-security-deep/SKILL.md |
+| 5g-telecom-attack | 13 | Mastered | skills/5g-telecom-attack/SKILL.md |
+| automotive-vehicle-security | 13 | Mastered | skills/automotive-vehicle-security/SKILL.md |
+| mobile-app-instrumentation | 13 | Mastered | skills/mobile-app-instrumentation/SKILL.md |
+| cloud-native-vuln-research | 13 | Mastered | skills/cloud-native-vuln-research/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 91 skill domains. Current focus: quality consolidation (91/91 Excellent+), new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 95 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice
@@ -141,4 +145,4 @@ All 518 tools mastered across 91 skill domains. Current focus: quality consolida
 
 ---
 
-_Last updated: 2026-06-21_
+_Last updated: 2026-06-22_

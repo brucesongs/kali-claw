@@ -4,6 +4,83 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.33 (2026-06-22) — GitHub-Trending Expansion Wave 4: +4 Skill Domains (91→95)
+
+### Driver: Fourth Wave of GitHub-Trending Methodology
+
+v0.1.33 is the FOURTH release using the GitHub-trending-driven expansion methodology. After v0.1.32's pure quality lift (100% Excellent+ milestone), this version returns to expansion with 4 new skill domains targeting long-standing coverage gaps.
+
+### New Skill Domains (+4)
+
+- **5g-telecom-attack** — 5G cellular network security (NEW: telecom category)
+  - Tools: srsRAN, Open5GS, UERANSIM, PacketRusher, Wireshark (5G dissectors), srsENB/srsUE, Gr-SDR/USRP, Amarisoft, PFCP toolkit, ss7MAPer, sctpscan
+  - Coverage: 5G core (AMF/SMF/UPF/AUSF/UDM), PFCP attacks, GTP-U/GTP-C fuzzing, Diameter/SS7 legacy, IMSI catcher detection, O-RAN, roaming abuse, SMS interception, SUCI/SUPI privacy
+  - Differentiator: CELLULAR NETWORK (5G SA/NSA) vs adjacent `bluetooth-rfid-nfc` (local radio), `wifi-pentest` (LAN wireless)
+  - Scaffolding: SKILL.md (262), payloads.md (2,148, 68 code blocks), test-cases.md (233, 12 TC-5G-001..012), guides/5g-telecom-attack-playbook.md (535)
+  - Domain: telecom (NEW) | MITRE: T1557-Adversary-in-the-Middle | Tool count: 13
+  - Baseline: **82.5 / Excellent**
+- **automotive-vehicle-security** — Connected vehicle pentest (NEW: automotive category)
+  - Tools: can-utils, python-can, cantools, savvy-can, GVRET, CANToolz, scapy automotive, OpenXC, CANBadger, Macchina, USBTin, HackRF (key fop)
+  - Coverage: CAN/CAN-FD bus, UDS (ISO 14229), IVI pentest, OBD-II, key fop replay/relay (rolling code, PKES), GNSS spoofing, ISO 15118 EV charging, CAN injection methodology
+  - Differentiator: VEHICLE INTERNAL BUS + ECUs vs `iot-pentest` (general embedded), `sdr-rf-attack` (key fop RF)
+  - Scaffolding: SKILL.md (433), payloads.md (1,344), test-cases.md (233, 12 TC-AV-001..012), guides/automotive-vehicle-security-playbook.md (552)
+  - Domain: automotive (NEW) | MITRE: TA0001-Initial Access | Tool count: 13
+  - Baseline: **79.0 / Strong** (1 point below threshold; will be lifted next cycle — bottlenecks: payload_code 24, field 0.86, guide 68)
+- **mobile-app-instrumentation** — Dynamic instrumentation (NEW: mobile-deep category)
+  - Tools: Frida, Objection, r2frida, Introspy, Cycript, iPAA, Clutch, bfinject, jtool2, radare2, ghidra, jadx, apktool
+  - Coverage: Frida JS hooking, Objection runtime exploration, SSL pinning bypass, jailbreak/root detection bypass, anti-debug bypass, iOS Keychain dump, Android Keystore manipulation, native lib instrumentation, crypto tracing, WebView manipulation, anti-Frida evasion
+  - Differentiator: RUNTIME INSTRUMENTATION (Frida/Objection) vs `mobile-security` (static config/manifest). Explicit differentiation table provided.
+  - Scaffolding: SKILL.md (298), payloads.md (1,317, 60+ code blocks), test-cases.md (236, 12 TC-MI-001..012), guides/mobile-app-instrumentation-playbook.md (358)
+  - Domain: mobile-deep (NEW) | MITRE: T1623-Mobile Adware | Tool count: 13
+  - Baseline: **84.5 / Excellent**
+- **cloud-native-vuln-research** — CVE research methodology (extends cloud-native category)
+  - Tools: nuclei, nuclei-templates, trivy, grype, syft, osv-scanner, kube-bench, kube-hunter, peirates, exploitdb, sploitus, vulners
+  - Coverage: CVE triage methodology, patch diff analysis, SBOM generation, nuclei template authoring, container escape CVEs (runc/CVE-2022-0185), k8s CVEs, JVM CVEs (Log4Shell/Spring4Shell/Text4Shell), cloud provider CVEs (OMIGOD/Chaos DB), kernel CVEs in containers, KEV tracking, exploit chain composition
+  - Differentiator: RESEARCH/METHODOLOGY (PoC reproduction + chain composition) vs `cloud-security` (assessment), `container-security` (defense), `kubernetes-attack` (offense). Explicit differentiation table provided.
+  - Scaffolding: SKILL.md (318), payloads.md (1,253, 69 code blocks), test-cases.md (222, 12 TC-CV-001..012), guides/cloud-native-vuln-research-playbook.md (347)
+  - Domain: cloud-native | MITRE: T1068-Exploitation for Privilege Escalation | Tool count: 13
+  - Baseline: **85.2 / Excellent**
+
+### Baseline Scoring Run (SCORE.sh v2)
+
+| Skill | Score | Tier |
+|-------|-------|------|
+| cloud-native-vuln-research | **85.2** | Excellent |
+| mobile-app-instrumentation | **84.5** | Excellent |
+| 5g-telecom-attack | **82.5** | Excellent |
+| automotive-vehicle-security | 79.0 | Strong (1 point below threshold; will be lifted next cycle) |
+
+### Index Updates
+
+- **validation/update-skill-standard.py** — Registered 4 new skills in ATTACK_SKILLS; added 4 DOMAIN_MAP entries (2 new categories: telecom, automotive; mobile-deep extends mobile; cloud-native-vuln-research extends cloud-native); MITRE_MAP updated for all 4
+- **IDENTITY.md** — Added 4 new skill tag rows
+- **TOOLS.md** — Added 4 new category rows; 91 → 95 domains
+- **README.md** — 91→95 domains (6 locations); expanded skill list description; +v0.1.33 changelog row; refreshed quality snapshot; bumped Project Info version 0.1.32→0.1.33
+- **CHANGELOG.md** — v0.1.33 entry
+- **VERSION** — 0.1.32→0.1.33
+- **RELEASE-v0.1.33.md** — Chinese release announcement
+
+### Quality Snapshot
+
+- Distinguished: 19 (unchanged)
+- Excellent: 72 → **75** (+3 new)
+- Strong: 0 → **1** (+automotive-vehicle-security 79.0, borderline)
+- Total: 91 → **95** (+4)
+- Average: 88.19 → **87.96** (-0.23, expected with 4 new baselines in 79-85 range)
+- Min: 81.0 → **79.0** (automotive-vehicle-security is new min)
+- Max: 93.8 (unchanged)
+
+### Stats
+
+- New content: **~9,575 lines** across 16 new files (4 SKILL.md + 4 payloads.md + 4 test-cases.md + 4 guides)
+- New test cases: **48** (12 × 4 skills)
+- 2 new categories entered: telecom, automotive
+- Heartbeat: HEARTBEAT_OK — 459 guides checked, 0 issues
+
+### Strategic Significance
+
+This release brings kali-claw to **95 skill domains** covering 25+ categories (web, network, mobile, cloud, AI/LLM, hardware, wireless, forensics, defense, OSINT, ICS, automotive, telecom, blockchain, financial, cryptography, physical, and more). The automotive-vehicle-security Strong-tier baseline (79.0) is already diagnosed — payload_code is the main bottleneck (24 vs target 50+) — and will be lifted in v0.1.34 alongside continued Distinguished sprints.
+
 ## v0.1.32 (2026-06-21) — Quality Lift: 91/91 Excellent+ Achieved (100%)
 
 ### Driver: Eliminate Strong Tier + Deepen New Skills

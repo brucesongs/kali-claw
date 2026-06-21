@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 91 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 95 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **91 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, and deep phishing infrastructure (AiTM/gateway bypass), each with structured payloads, test cases, and learning guides
+- **95 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), and cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 91 security skill domains
+├── skills/              # 95 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -355,18 +355,19 @@ TOOLS.md:
 | v0.1.30 | 2026-06-17 | **GitHub-trending expansion wave 2: +4 new skill domains (83→87)** | +4 domains (ai-agent-security, iot-pentest, detection-engineering, agentic-pentest); ai-emerging + iot + defense + ai-meta categories all entered; 4 new skills scored; 83→87 domains |
 | v0.1.31 | 2026-06-17 | **GitHub-trending expansion wave 3: +4 new skill domains (87→91)** | +4 domains (cloud-identity-attack, physical-security-testing, quantum-crypto-attack, email-security-deep); fills identity/physical/quantum/phishing-infra gaps; 91 total |
 | v0.1.32 | 2026-06-21 | **100% Excellent+ milestone (zero new skills, pure quality lift)** | Lifted last 2 Strong-tier skills (username-profiling 77.7→91.6, quantum-crypto-attack 79.7→90.8); added 2nd guide file to all 12 v0.1.28-v0.1.30 cohort skills (+10,180 lines); 91/91 Excellent+ achieved; average 87.51→88.19 |
+| v0.1.33 | 2026-06-22 | **GitHub-trending expansion wave 4: +4 new skill domains (91→95)** | +4 domains (5g-telecom-attack, automotive-vehicle-security, mobile-app-instrumentation, cloud-native-vuln-research); 2 new categories (telecom, automotive); mobile-deep extends mobile; cloud-native extends; 3/4 baselined Excellent, 1 borderline Strong (automotive 79.0); 95 total |
 
-### Current Quality Snapshot (v0.1.32, scoring v2)
+### Current Quality Snapshot (v0.1.33, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
 | Distinguished (92+) | **19** | social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), container-security (92.8), security-misconfiguration (92.8), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
-| Excellent (80-91.9) | **72** | All other skills; v0.1.32 lifts: username-profiling (91.6), quantum-crypto-attack (90.8); v0.1.28-v0.1.30 cohort averages now 87.5+; new min is email-security-deep (81.0) |
-| Strong (60-80) | **0** | — (all lifted!) |
+| Excellent (80-91.9) | **75** | v0.1.33 cohort: 5g-telecom-attack (82.5), mobile-app-instrumentation (84.5), cloud-native-vuln-research (85.2); plus all prior Excellent-tier skills |
+| Strong (60-80) | **1** | automotive-vehicle-security (79.0 — 1 point below threshold; will be lifted next cycle) |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 88.19** | **91/91 scored Excellent or above (100%)** | **19 Distinguished** | **91 total skill domains**
+**Average score: 87.96** | **94/95 scored Excellent or above (98.9%)** | **19 Distinguished** | **95 total skill domains**
 
 ### Future Exploration
 
@@ -397,10 +398,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.32 |
+| **Version** | 0.1.33 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 91 |
+| **Skill Domains** | 95 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 

@@ -1,6 +1,6 @@
 {
   "skill": "deception-honeypot",
-  "timestamp": "2026-06-20T23:59:06Z",
+  "timestamp": "2026-06-21T08:23:06Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 6296,
@@ -9,7 +9,7 @@
     "test_case_count": 12,
     "field_completeness_score": 0.71,
     "guide_file_count": 2,
-    "guide_avg_words": 4764,
+    "guide_avg_words": 4770,
     "guide_key_sections": 3,
     "skill_section_score": 0.97
   },

@@ -76,7 +76,11 @@ ATTACK_SKILLS = {
     "cloud-identity-attack",
     "physical-security-testing",
     "quantum-crypto-attack",
-    "email-security-deep"
+    "email-security-deep",
+    "5g-telecom-attack",
+    "automotive-vehicle-security",
+    "mobile-app-instrumentation",
+    "cloud-native-vuln-research"
 }
 
 DOMAIN_MAP = {
@@ -137,6 +141,10 @@ DOMAIN_MAP = {
     "physical-security-testing": "physical",
     "quantum-crypto-attack": "cryptography",
     "email-security-deep": "appsec",
+    "5g-telecom-attack": "telecom",
+    "automotive-vehicle-security": "automotive",
+    "mobile-app-instrumentation": "mobile-deep",
+    "cloud-native-vuln-research": "cloud-native",
 }
 
 OWASP_MAP = {
@@ -196,6 +204,10 @@ MITRE_MAP = {
     "cloud-identity-attack": "T1078-Valid Accounts",
     "physical-security-testing": "TA0001-Initial Access",
     "email-security-deep": "T1566-Phishing",
+    "5g-telecom-attack": "T1557-Adversary-in-the-Middle",
+    "automotive-vehicle-security": "TA0001-Initial Access",
+    "mobile-app-instrumentation": "T1623-Mobile Adware",
+    "cloud-native-vuln-research": "T1068-Exploitation for Privilege Escalation",
 }
 
 # Non-tool entries to skip in tool tables
