@@ -1,8 +1,8 @@
 ---
 name: llm-red-team
-description: LLM and generative AI red team testing covering prompt injection, jailbreaking, model extraction, RAG poisoning, agentic tool abuse, and safety policy bypass using promptfoo, garak, PyRIT, PurpleLlama, AI-Infra-Guard and llm-guard.
+description: LLM and generative AI red team testing covering prompt injection, jailbreaking (DAN, many-shot, Crescendo, PAIR/TAP, GCG suffix, persona modulation, prefix injection, payload smuggling), model extraction, RAG poisoning, agentic tool abuse, and safety policy bypass using promptfoo, garak, PyRIT, PurpleLlama, AI-Infra-Guard and llm-guard — plus Constitutional AI, Llama Guard, NeMo Guardrails, and Azure AI Content Filter evasion.
 origin: github-trending-2026
-version: 0.1.29
+version: 0.1.30
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: ai-red-team
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "LLM-ATT&CK (promptfoo/garak taxonomy), maps to OWASP LLM Top 10 (LLM01-LLM10) and TA0043-Reconnaissance"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — Prompt injection payloads (direct/indirect/encoded), jailbreak corpora (DAN, roleplay, many-shot, encoding), model-extraction probes, RAG-poisoning document templates, membership-inference scripts, agentic tool-abuse payloads, safety-filter bypass techniques (multi-language, tokenizer tricks, homoglyphs), hallucination induction patterns, model DoS vectors, perimeter recon (model fingerprinting), reporting templates, and defense-evasion obfuscation patterns
 > - `test-cases.md` — 12 structured test cases (TC-LR-001 .. TC-LR-012) covering recon, direct injection, indirect injection, jailbreak, extraction, RAG poisoning, agentic abuse, safety bypass, hallucination, DoS, defense bypass, and full red-team report
 > - `guides/llm-red-team-playbook.md` — End-to-end red-team playbook (pre-flight authorization, six-phase methodology, tool deep-dives on promptfoo/garak/PyRIT/PurpleLlama, multi-turn attack-chain design, evidence collection, OWASP LLM Top 10 mapping, and the purple-team feedback loop)
+> - `guides/llm-jailbreak-arsenal-playbook.md` — State-of-the-art jailbreak arsenal (DAN/STAN/AIM persona patterns, Anthropic many-shot jailbreaking, Microsoft Crescendo multi-turn escalation, PAIR/TAP automated adversarial rewriting, GCG suffix optimization, prefix injection, payload smuggling via base64/ROT13, defense layers — Constitutional AI, Llama Guard, NeMo Guardrails, Azure AI Content Filter — plus battery construction and ASR reporting)
 
 ## Summary
 

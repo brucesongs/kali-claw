@@ -2,7 +2,7 @@
 name: detection-engineering
 description: Detection-as-code engineering covering Sigma rule authoring, YARA signature development, Splunk SPL / Kusto KQL / Elastic EQL queries, MITRE ATT&CK mapping, detection CI/CD pipelines, false-positive tuning, and rule testing against EVTX-ATTACK-SAMPLES — using SigmaHQ, Yara-Rules, Loki, yarGen, hayabusa, SigmaCLI, and zircollo.
 origin: github-trending-2026
-version: 0.1.30
+version: 0.1.31
 compatibility: ">=0.1.30"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: defense
   tool_count: 14
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — Sigma rule anatomy & authoring patterns, SigmaCLI usage, YARA rule anatomy & patterns, yarGen auto-generation, Loki scanning, Splunk SPL / Kusto KQL / Elastic EQL detection libraries, hayabusa & zircollo Sigma-to-EVTX pipelines, MITRE ATT&CK mapping, GitHub Actions / GitLab CI detection CI/CD, false-positive tuning methodology, and the detection-as-code lifecycle checklist
 > - `test-cases.md` — 12 structured test cases (Sigma authoring, YARA authoring, SigmaCLI translation, yarGen generation, Loki scan, hayabusa scan, zircollo offline, ATT&CK mapping, CI pipeline, FP tuning, KQL/SPL/EQL backends, lifecycle) with severity ratings and summary tables
 > - `guides/detection-engineering-playbook.md` — End-to-end detection engineering playbook (lifecycle, rule anatomy deep-dives, CI/CD pipeline recipes, FP-tuning matrix, ATT&CK coverage measurement, integration with threat-hunting and logging-monitoring)
+> - `guides/soc-playbook-mapping-to-nist-csf-2-0.md` — SOC playbook mapping detections to NIST CSF 2.0 and MITRE ATT&CK (Function mapping for Govern/Identify/Protect/Detect/Respond/Recover, Sigma → ATT&CK → CSF traceability matrix, detection-as-code pipeline, use-case prioritization matrix, detection maturity model DMM, purple-team validation with Atomic Red Team + RTA, and SOC KPIs)
 
 ## Summary
 

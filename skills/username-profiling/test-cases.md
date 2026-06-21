@@ -14,7 +14,8 @@
 | C. Report Generation & Export | 2 | LOW - MEDIUM |
 | D. Stealth & OPSEC | 2 | MEDIUM - HIGH |
 | E. Cross-Tool Verification & Defense | 2 | MEDIUM - HIGH |
-| **Total** | **11** | **LOW - HIGH** |
+| F. Workshop Integration | 2 | MEDIUM - HIGH |
+| **Total** | **13** | **LOW - HIGH** |
 
 ---
 
@@ -212,6 +213,38 @@
 | **Remediation (defense)** | Close abandoned accounts; report impersonations to platform trust & safety; sanitize bios; rotate usernames if work/personal correlation is unacceptable; institute quarterly Maigret audits. |
 | **Related Tools** | maigret, jq |
 
+### TC-UP-012: Maigret 200+ Site Enumeration with JSON Validation
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-UP-012 |
+| **Name** | Maigret 200+ Site Enumeration with JSON Validation |
+| **Severity** | MEDIUM |
+| **Category** | Workshop Integration |
+| **Objective** | Validate end-to-end Maigret workshop workflow against a sample alias: stand up isolated venv, run full `-a` sweep via Tor, parse NDJSON output programmatically, verify claimed-account count is non-trivial (200+ enumeration attempts across the site DB), and confirm every claimed record contains the required JSON fields for downstream pipeline ingestion. |
+| **Prerequisites** | Kali Linux 2025-2; Python 3.11+; isolated venv (`python3 -m venv ~/venvs/osint`); `pip install maigret==0.4.0 sherlock-project whatsmyname holehe requests jq`; Tor daemon running; 60-minute wall-clock budget; a sample alias (self-handle or authorized test target). |
+| **Test Steps** | 1. Stand up isolated venv: `python3 -m venv ~/venvs/osint && source ~/venvs/osint/bin/activate`<br>2. Install pinned toolchain: `pip install maigret==0.4.0 sherlock-project==0.14.4 whatsmyname holehe requests rich`<br>3. Verify install: `maigret --version && sherlock --version`<br>4. Verify Tor egress: `curl --socks5-hostname 127.0.0.1:9050 https://api.ipify.org`<br>5. Run full sweep: `maigret <sample_alias> -a --tor-proxy socks5://127.0.0.1:9050 --html --graph --json ndjson --csv --tags us --timeout 30 --max-connections 15 --retries 2 --no-color`<br>6. Count enumeration attempts: `jq -r '.site_name' reports/<alias>_ndjson.json \| wc -l` — expect 2000+ lines (site DB enumeration scope)<br>7. Count claimed: `jq -r 'select(.status=="Claimed")' reports/<alias>_ndjson.json \| wc -l`<br>8. Validate JSON schema on claimed records: `jq -r 'select(.status=="Claimed") \| [.site_name, .url, .site_username, .extracted] \| @tsv' reports/<alias>_ndjson.json \| head -5`<br>9. Verify all claimed records have non-empty `url`: `jq -r 'select(.status=="Claimed" and (.url \| length == 0))' reports/<alias>_ndjson.json \| wc -l` — expect 0<br>10. Run cross-tool verification: `sherlock <sample_alias> --json --output sherlock_check.json && whatsmyname -u <sample_alias> --format json --output wmn_check.json`<br>11. Confirm at least 60% overlap between Maigret and Sherlock claimed sites (sanity threshold) |
+| **Expected Results** | Full enumeration scope visible in NDJSON (2000+ site records touched); 5-50 claimed accounts for a real-world alias; every claimed record has valid `site_name`, `url`, and `extracted` fields; HTML and graph reports generated; cross-tool overlap >= 60% on common platforms (GitHub, Twitter/X, Reddit). |
+| **False Positive Risk** | MEDIUM — the NDJSON parses cleanly regardless of underlying claim accuracy; FP risk is in the claims themselves, addressed by cross-verification in step 10-11. |
+| **Remediation (defense)** | Run the same workflow against your own executive handles quarterly; the enumeration-scope count tells you how many platforms could expose your team, regardless of claim count. |
+| **Related Tools** | maigret, sherlock, whatsmyname, jq, tor |
+
+### TC-UP-013: Email-to-Username Pivot Chain Produces Correlated Dossier
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-UP-013 |
+| **Name** | Email-to-Username Pivot Chain Produces Correlated Dossier |
+| **Severity** | HIGH |
+| **Category** | Workshop Integration |
+| **Objective** | Validate the complete email-to-username pivot pipeline: from a single seed email, run HaveIBeenPwned breach search, Hunter.io domain search, GitHub commit-email search, and Gravatar lookup; collect every discovered username variant; feed those back into Maigret; produce a single correlated dossier that maps the email to N confirmed accounts with confidence ratings. |
+| **Prerequisites** | Maigret + Sherlock + WhatsMyName installed; HIBP_API_KEY, HUNTER_KEY env vars set (or skip those steps if testing free path only); a seed email for an authorized target (own email is safest); Tor daemon running; 30-minute budget. |
+| **Test Steps** | 1. Seed: `SEED_EMAIL=j.doe@example.com`<br>2. HIBP breaches: `python3 hibp_client.py "$SEED_EMAIL" > hibp.json && jq '.breaches[] \| .Name' hibp.json`<br>3. Hunter verify: `python3 hunter_client.py verify "$SEED_EMAIL" > hunter.json && jq '.data.status' hunter.json` (expect "valid")<br>4. Hunter domain search: `python3 hunter_client.py search example.com > hunter_domain.json && jq '.data.emails[] \| .value' hunter_domain.json`<br>5. GitHub commits: `curl -s "https://api.github.com/search/commits?q=author-email:$SEED_EMAIL" -H "Accept: application/vnd.github.cloak-preview" \| jq '.items[]? \| .repository.full_name'`<br>6. Gravatar: `HASH=$(printf "%s" "$SEED_EMAIL" \| tr '[:upper:]' '[:lower:]' \| md5sum \| awk '{print $1}'); curl -s -o grav.jpg "https://www.gravatar.com/avatar/${HASH}?s=400&d=404"; file grav.jpg`<br>7. Generate username candidates from email local-part: `python3 username_candidates.py "$SEED_EMAIL" > candidates.txt`<br>8. Run Maigret on each candidate (cap 5): `head -5 candidates.txt \| while read u; do maigret "$u" --html --json ndjson --tags us --timeout 15; done`<br>9. Aggregate all claimed accounts across runs: `cat reports/*_ndjson.json \| jq -r 'select(.status=="Claimed") \| [.site_username, .site_name, .url] \| @tsv' \| sort -u > pivot_chain.tsv`<br>10. Cross-verify with Sherlock: `sherlock "$(head -1 candidates.txt)" --json --output pivot_check.json`<br>11. Produce correlated dossier: for each (username, site) tuple, rate confidence HIGH if confirmed by >= 2 tools, MEDIUM if 1 tool, LOW otherwise<br>12. Verify the dossier contains at least one cross-platform confirmation (same username on 2+ sites) |
+| **Expected Results** | Seed email resolves to: at least one breach record (HIBP), a delivery status from Hunter, 0-N GitHub commits, optional Gravatar image, and 1-5 username candidates that Maigret can scan. The final dossier correlates at least one username across multiple platforms (cross-platform identity confirmation). Confidence ratings distribute as: ~30% HIGH (multi-tool confirmed), ~50% MEDIUM (single-tool), ~20% LOW (Maigret-only). |
+| **False Positive Risk** | HIGH — pivoting across data sources compounds uncertainty. A breach record may be stale (email closed years ago); GitHub commit search may surface repos that share the email by coincidence; Gravatar may return a default image (file command says "ASCII text" instead of JPEG). Mitigate by requiring cross-tool confirmation for any HIGH-confidence claim. |
+| **Remediation (defense)** | Email reuse across personal and corporate contexts is the root cause — once an email leaks in a breach, every account that used it for signup becomes pivot-discoverable. Use email aliases (SimpleLogin, Apple Hide My Email) for each service; rotate credentials after any breach notification. |
+| **Related Tools** | maigret, sherlock, hibp, hunter, github-api, gravatar, jq |
+
 ---
 
 ## Summary Table
@@ -229,6 +262,8 @@
 | TC-UP-009 | Cloudflare Bypass via FlareSolverr | HIGH | Stealth |
 | TC-UP-010 | Multi-Tool Cross-Verification | MEDIUM | Verification |
 | TC-UP-011 | Self-Audit Username Hygiene (Defense) | HIGH | Defense |
+| TC-UP-012 | Maigret 200+ Site Enumeration with JSON Validation | MEDIUM | Workshop |
+| TC-UP-013 | Email-to-Username Pivot Chain Produces Correlated Dossier | HIGH | Workshop |
 
 ---
 

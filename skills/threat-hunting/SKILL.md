@@ -2,7 +2,7 @@
 name: threat-hunting
 description: "Proactive threat hunting — MITRE ATT&CK-mapped hunt hypotheses, Sigma detection engineering, SIEM query authoring (Splunk SPL, KQL, Lucene), and SOC workflow integration."
 origin: openclaw
-version: "0.1.28"
+version: "0.1.29"
 compatibility:
   - openclaw
   - claude-code
@@ -18,8 +18,17 @@ allowed-tools:
 metadata:
   domain: defense
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0040-Detection"
+  keywords:
+    - sigma
+    - sigma-cli
+    - detection-as-code
+    - splunk-spl
+    - sentinel-kql
+    - elastic-lucene
+    - mitre-attack
+    - false-positive-tuning
 ---
 
 

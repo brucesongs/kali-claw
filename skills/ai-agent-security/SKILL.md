@@ -2,7 +2,7 @@
 name: ai-agent-security
 description: Offensive security testing of AI agent systems covering MCP server attacks, tool poisoning, indirect prompt injection against agents, RAG knowledge base poisoning, agent sandbox escape, multi-agent compromise chains, and autonomous agent hijacking — using MCP security testers, HexStrike AI, AI-Infra-Guard, custom agent harness probes, and prompt injection toolkits.
 origin: github-trending-2026
-version: 0.1.30
+version: 0.1.31
 compatibility: ">=0.1.30"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: ai-emerging
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — MCP JSON-RPC probe templates, malicious MCP server source, tool-description injection corpora, RAG vector-DB poisoning payloads (Pinecone/Weaviate/Chroma/Qdrant), agent sandbox-escape primitives (filesystem/network/exec), tool-chain escalation sequences, long-term memory manipulation payloads, multi-agent lateral movement scripts, OAuth-token-capture MCP tools, autonomous-goal-hijack templates, detection-evasion techniques, payload-delivery vectors (email/web/file/API), and writeups of real-world incidents (CVE-2025-3128 Cursor, MCP rug-pull, ChatGPT plugin prompt injection)
 > - `test-cases.md` — 12 structured test cases (TC-AA-001 .. TC-AA-012) covering MCP recon, tool poisoning, indirect injection, RAG poisoning, sandbox escape, tool-chain abuse, memory manipulation, multi-agent compromise, credential theft, autonomous hijack, detection evasion, and full end-to-end agent red-team report
 > - `guides/ai-agent-security-playbook.md` — End-to-end agent red-team playbook (pre-flight authorization, six-phase methodology, MCP protocol internals, agent-harness instrumentation, chain construction, evidence collection, agent-guardrail mitigation mapping, and the purple-team feedback loop)
+> - `guides/mcp-server-red-team-playbook.md` — MCP-server-focused red team playbook (architecture review, tool poisoning, rug-pull schema mutation, indirect injection via tool output, scope bypass via chained tool calls, MCP vs OpenAI function calling vs LangChain, tool-confused pattern, audit-log detection rules, and real-world incidents CVE-2025-3128 / CVE-2025-3148 / GitHub MCP)
 
 ## Summary
 

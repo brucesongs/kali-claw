@@ -1,6 +1,6 @@
 {
   "skill": "blockchain-web3",
-  "timestamp": "2026-06-17T15:50:27Z",
+  "timestamp": "2026-06-20T23:59:06Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 4198,
@@ -8,9 +8,9 @@
     "payload_code_blocks": 40,
     "test_case_count": 13,
     "field_completeness_score": 1.00,
-    "guide_file_count": 1,
-    "guide_avg_words": 3424,
-    "guide_key_sections": 1,
+    "guide_file_count": 2,
+    "guide_avg_words": 3685,
+    "guide_key_sections": 2,
     "skill_section_score": 0.97
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 46.7,
     "test_case": 92.5,
     "field": 100.0,
-    "guide": 48.0,
+    "guide": 66.0,
     "skill_section": 97.0
   },
   "component_scores": {
     "skill_md": 97.00,
     "payloads_md": 82.23,
     "test_cases_md": 96.25,
-    "guides": 48.0
+    "guides": 66.0
   },
-  "overall_score": 80.1,
+  "overall_score": 84.6,
   "tier": "Excellent"
 }

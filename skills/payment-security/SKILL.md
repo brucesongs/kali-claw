@@ -2,7 +2,7 @@
 name: payment-security
 description: "Payment systems security — PCI-DSS compliance testing, payment API security (Stripe/Adyen/PayPal), EMV chip/PIN, 3-D Secure, mobile wallets (Apple Pay/Google Pay), and fraud system assessment."
 origin: openclaw
-version: "0.1.28"
+version: "0.1.29"
 compatibility:
   - openclaw
   - claude-code
@@ -18,8 +18,18 @@ allowed-tools:
 metadata:
   domain: financial
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "T1566-Phishing (credential harvesting) + domain-specific"
+  keywords:
+    - p2pe
+    - hsm
+    - ped
+    - pci-p2pe
+    - key-injection
+    - tamper-response
+    - verifone
+    - ingenico
+    - fips-140
 ---
 
 

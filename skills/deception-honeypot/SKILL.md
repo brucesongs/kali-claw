@@ -1,8 +1,8 @@
 ---
 name: deception-honeypot
-description: Defensive deception and honeypot deployment covering SSH/Telnet (Cowrie), web (OpenCanary), enterprise (HFish), ICS/SCADA (Conpot), all-in-one (T-Pot), and AI-driven deception (Beelzebub), including lure design, deployment OPSEC, IOC extraction, and attacker attribution.
+description: Defensive deception and honeypot deployment covering SSH/Telnet (Cowrie), web (OpenCanary), enterprise (HFish), ICS/SCADA (Conpot), all-in-one (T-Pot), AI-driven deception (Beelzebub), Thinkst Canarytokens (DNS, HTTP, file, AWS API key, SQL), Dionaea multi-protocol honeypot, notification pipelines (Slack/Teams webhooks), false positive tuning, and attacker engagement — including lure design, deployment OPSEC, IOC extraction, and attacker attribution.
 origin: github-trending-2026
-version: 0.1.29
+version: 0.1.30
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: defense
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0040-Detection (deception), maps to MITRE Engage framework"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — Cowrie SSH/Telnet config, OpenCanary multi-service templates, HFish enterprise deployment, Conpot ICS/SCADA (Modbus/S7) templates, T-Pot all-in-one Docker Compose, Beelzebub AI-deception manifests, honeytoken/canarytoken design patterns, syn-ack dark-space & tarpit network deception, Glastopf web honeypot, HoneyDB database decoys, log-analysis & IOC-extraction pipelines, and a deception-architecture cheat sheet
 > - `test-cases.md` — 12 structured test cases (Cowrie deploy, OpenCanary multi-service, HFish enterprise, Conpot ICS, T-Pot all-in-one, honeytoken design, Canarytokens, tarpit/dark-space, Glastopf web, HoneyDB, IOC extraction, attribution pipeline) with severity ratings and summary tables
 > - `guides/deception-honeypot-playbook.md` — End-to-end deception playbook (deception architecture, lure-design principles, deployment OPSEC, monitoring & alerting, IOC extraction, attribution workflow, integration with adjacent skills)
+> - `guides/canary-deployment-playbook.md` — Distributed honeypot and canary token deployment playbook (Thinkst Canarytokens for DNS/HTTP/file/AWS API keys/SQL, Cowrie SSH/Telnet honeypot setup, Dionaea multi-protocol capture, HFish internal deception sensors, T-Pot all-in-one platform, Slack/Teams webhook pipelines, false positive tuning, attacker engagement phases, deception program metrics)
 
 ## Summary
 

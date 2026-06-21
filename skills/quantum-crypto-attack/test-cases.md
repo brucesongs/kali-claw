@@ -259,6 +259,51 @@
 
 ---
 
+## Appendix: Verification / Pass Criteria Checklist
+
+Each test case has explicit pass criteria that define a successful execution. Verification is the act of confirming the observed output matches the **Expected Results**; the **Pass Criteria** below are the standard checklist items an assessor marks complete before signing off on the case.
+
+### Universal Pass Criteria (apply to every TC-QC-* case)
+
+- [ ] **Scope confirmed**: target assets are within written engagement scope.
+- [ ] **Authorization confirmed**: any active testing (downgrade probes, lab side-channel, QKD hardware) is covered by explicit written authorization.
+- [ ] **Objective met**: the case's stated objective (e.g., "produce a Shor-vulnerability inventory") has produced a concrete artifact.
+- [ ] **Test Steps executed**: every numbered step in the Test Steps has been executed and its output recorded.
+- [ ] **Expected Results verified**: observed output matches the Expected Results field; deviations are documented as findings.
+- [ ] **False Positive Risk assessed**: the documented false-positive risk has been considered; ambiguous results rerun under quieter conditions.
+- [ ] **Cleanup performed**: any temporary changes (configs, certs, captured pcaps) have been reverted or deleted per the Cleanup field.
+- [ ] **References cross-checked**: cited standards (NIST SP 800-227, FIPS 203/204/205, GB/T 38636, RFC 8998) have been consulted for alignment.
+
+### Per-case Verification Checklist (TC-QC-001 through TC-QC-012)
+
+| Case ID | Key Verification Step | Pass Criterion |
+|---------|----------------------|----------------|
+| TC-QC-001 | Inventory CSV coverage > 95% of CT-log-issued certs | Any CA-issued cert missing from inventory is a finding |
+| TC-QC-002 | SNDL matrix has a row for every (asset, scenario) pair | Any high-sensitivity flow with `window < 0` is CRITICAL |
+| TC-QC-003 | Downgrade-lab handshake fails when hybrid stripped | Handshake succeeding under downgrade = CRITICAL |
+| TC-QC-004 | All key/sig sizes match FIPS 203/204/205 | Size mismatch = parameter-set misuse finding |
+| TC-QC-005 | XMSS state counter monotonic under test | State-reuse succeeds = CRITICAL |
+| TC-QC-006 | SM3 test vector matches; SM4 in GCM/CTR; SM2 CT | ECB usage or CT scalar-mult = HIGH/CRITICAL |
+| TC-QC-007 | TLS_SM4_GCM_SM3 negotiated; no RSA fallback | Silent downgrade to TLS 1.2 RSA = CRITICAL |
+| TC-QC-008 | No SM4-ECB; keys from KMS; random IVs per encryption | ECB or fixed IV = HIGH |
+| TC-QC-009 | Decoy-state enabled; watchdog active; isolator present | Missing countermeasure = HIGH/CRITICAL |
+| TC-QC-010 | Drill time-to-disable < 24h with rollback | Grade F = CRITICAL |
+| TC-QC-011 | Roadmap has P0/P1/P2 with target algorithms | Missing prioritization = methodology finding |
+| TC-QC-012 | No ROCA-positive keys; one-time keys enforced on-chain | ROCA-positive RSA in prod = HIGH; reuse = CRITICAL |
+
+### Verification Evidence Artifacts
+
+Each executed case must produce these artifacts as evidence:
+
+1. **Command output log** — the raw stdout/stderr of every command run, timestamped.
+2. **Findings spreadsheet** — one row per finding with case ID, severity, asset, description, recommendation.
+3. **Pass-criteria checklist** — the universal checklist above, marked complete with the assessor's initials per row.
+4. **Cleanup log** — confirmation that the Cleanup field was performed (e.g., diff of pre/post configs).
+
+A case is considered **verified** only when all four artifacts are present and the universal pass criteria are all checked.
+
+---
+
 ## Appendix: Cross-References
 
 - **crypto-attacks** (TC-CR-*): classical crypto siblings (RSA, AES, ECDSA, padding oracle, JWT)

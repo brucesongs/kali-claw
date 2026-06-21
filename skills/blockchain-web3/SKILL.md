@@ -2,7 +2,7 @@
 name: blockchain-web3
 description: "Blockchain & Web3 security — Solidity/Vyper smart contract auditing, DeFi attack vectors (flash loans, MEV, oracle manipulation), bridge attacks, wallet security, with tooling from Slither/Mythril/Foundry."
 origin: openclaw
-version: "0.1.28"
+version: "0.1.29"
 compatibility:
   - openclaw
   - claude-code
@@ -18,8 +18,20 @@ allowed-tools:
 metadata:
   domain: blockchain
   tool_count: 14
-  guide_count: 1
+  guide_count: 2
   mitre: "N/A (application-layer; maps loosely to TA0001-Initial Access via compromise)"
+  keywords:
+    - defi
+    - flash-loan
+    - oracle-manipulation
+    - mev
+    - sandwich-attack
+    - foundry
+    - forge
+    - anvil
+    - echidna
+    - certora
+    - bridge-attack
 ---
 
 

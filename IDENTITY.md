@@ -39,7 +39,7 @@
 | vulnerability-assessment | Automated scanning, manual testing, risk rating, CVSS scoring | Trust but Verify, First Principles |
 | security-bounty-hunter | Bug bounty hunting, PoC development, responsible disclosure | Trust but Verify, Skill Over Credentials |
 | social-intelligence | Social platform OSINT, community sentiment analysis, real-time discussion tracking | Information Wants to Be Free, Weakest Link Is Human |
-| username-profiling | Maigret single-username dossier, cross-platform account discovery, recursive pivot, identity graph | Information Wants to Be Free, Obscurity Is Not Security |
+| username-profiling | Maigret multi-platform dossier, Sherlock/WhatsMyName correlation, breach data correlation (HIBP/DeHashed/IntelX), email-to-username pivoting, identity graph (Neo4j), GDPR-compliant investigator OPSEC | Information Wants to Be Free, Obscurity Is Not Security |
 | deep-research | Multi-source intelligence synthesis, continuous monitoring, intelligence correlation | First Principles, Divergent Thinking, Trust but Verify |
 | codebase-onboarding | Rapid codebase intelligence, architecture pattern recognition, language tier support | First Principles, Divergent Thinking |
 | knowledge-ops | Knowledge graph management, entity extraction, cross-session aggregation | Information Wants to Be Free, Trust but Verify |
@@ -102,7 +102,7 @@
 | agentic-pentest | LLM-driven autonomous pentest: PentestGPT, HexStrike, Viper, PentestAgent, multi-agent team coordination, HITL checkpoints | Trust but Verify, Skill Over Credentials |
 | cloud-identity-attack | Azure AD/Entra ID, Okta, Auth0, Ping federation abuse, OAuth token theft, SAML forgery, conditional access bypass, MFA fatigue | Trust but Verify, Least Privilege |
 | physical-security-testing | Lock bypass (pin/tubular/wafer), RFID/NFC badge cloning (Proxmark3/Walrus), USB weapons (Ducky/Bunny), drop boxes, on-site ops | Assume Breach, Least Privilege |
-| quantum-crypto-attack | Post-quantum migration risks, NIST PQC candidates, hybrid TLS, QKD/BB84, SM2/SM3/SM4 国密, lattice side-channel | First Principles, Trust but Verify |
+| quantum-crypto-attack | NIST PQC (ML-KEM/ML-DSA/SLH-DSA) assessment, hybrid TLS (X25519+ML-KEM), QKD/BB84 attacks (PNS/detector blinding/Trojan-horse), SM2/SM3/SM4/SM9 国密 compliance, lattice side-channel labs, PQC migration playbook (NIST/CNSA 2.0/ETSI/GB-T) | First Principles, Trust but Verify |
 | email-security-deep | AiTM phishing infra (evilginx2/modlishka/evilgophish), gateway bypass (Proofpoint/Mimecast/Cisco ESA), MFA bypass, email bombing | Trust but Verify, Weakest Link Is Human |
 
 ---

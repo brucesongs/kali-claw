@@ -437,7 +437,328 @@ A server offering both hybrid-PQC and classical can be downgraded by an active M
 
 ---
 
-## 10. Tooling Decision Matrix
+## 10. Side-Channel Attack Labs
+
+Post-quantum primitives (ML-KEM, ML-DSA) have a side-channel surface that classical RSA/ECC does not: the **number-theoretic transform (NTT)**, **rejection sampling**, and large **matrix-vector multiplications**. These operations are the new Bleichenbacher — the math is sound, the implementation leaks. A side-channel lab assessment is authorized-only and conducted on hardware (HSM, secure element, embedded MCU) under explicit written scope.
+
+### 10.1 Timing side-channel labs (constant-timeness via dudect)
+
+The reference tool for constant-timeness is `dudect` (Oscar Reparaz et al.). It measures two distributions of execution time — one with fixed secret inputs, one with random secret inputs — and runs Welch's t-test to detect first-order leakage.
+
+```bash
+# Build dudect and adapt it to call liboqs ML-KEM-768 decapsulation
+git clone https://github.com/oreparaz/dudect.git
+cd dudect
+
+# Edit src/fixture.c to call OQS_KEM_kyber_768_decaps under test
+# The fixture must:
+#   1. Allocate a decapsulation keypair once (OQS_KEM_kyber_768_keypair).
+#   2. For each input, call decaps on a 1088-byte ciphertext.
+#   3. Return without freeing the key.
+
+make
+./dudect
+
+# Output interpretation:
+#   "t-value < 4.5"    → no first-order leakage (constant-time)
+#   "t-value > 4.5"    → first-order leakage (non-constant-time, CRITICAL)
+#   "max t = NaN"      → measurement noise too high; rerun on idle system
+```
+
+### 10.2 Power side-channel labs (ChipWhisperer)
+
+Power analysis reveals information about secret-dependent operations by measuring the target's instantaneous power consumption. ChipWhisperer (Lite or Husky) is the standard low-cost lab tool.
+
+```python
+#!/usr/bin/env python3
+# mlkem_power_capture.py — Capture 10,000 power traces of ML-KEM-768 decaps
+import os, chipwhisperer as cw
+
+scope = cw.scope()
+target = cw.target(scope, cw.targets.SimpleSerial)
+
+# Configure scope for ML-KEM-768 decapsulation (typically 100k-300k samples at 100 MS/s)
+scope.adc.samples = 24000
+scope.adc.offset = 0
+scope.clock.adc_src = "clkgen_x4"
+scope.clock.clkgen_freq = 100_000_000
+
+# Flash target firmware that exposes mlkem768_decaps via SimpleSerial 'd' (decaps) command
+# Firmware: github.com/open-quantum-safe/liboqs ported to SimpleSerial
+
+project = cw.create_project("mlkem_traces.cwp", overwrite=True)
+
+for i in range(10_000):
+    # Fixed-vs-random TVLA: even iterations use a fixed ciphertext,
+    # odd iterations use a random one. TVLA tests whether the two
+    # trace distributions differ.
+    if i % 2 == 0:
+        ct = bytes.fromhex("00" * 1088)
+    else:
+        ct = os.urandom(1088)
+
+    target.simpleserial_write('d', ct)
+    ret = cw.capture_trace(scope, target, ct, 'd')
+    project.traces.append(ret)
+
+project.save()
+print(f"Captured {len(project.traces)} traces. Analyze with CPA or TVLA.")
+```
+
+### 10.3 TVLA (Test Vector Leakage Assessment) — fixed-vs-random
+
+TVLA is the standard first-order leakage detection methodology. The fixed-vs-random variant computes Welch's t-test at every sample point across the two trace populations.
+
+```python
+#!/usr/bin/env python3
+# tvla_fixed_vs_random.py — First-order TVLA on captured traces
+import numpy as np
+from scipy import stats
+
+traces = np.load("mlkem_traces.cwp")  # shape (10000, 24000)
+fixed = traces[0::2]    # 5000 fixed-input traces
+random = traces[1::2]   # 5000 random-input traces
+
+t_stats, p_values = stats.ttest_ind(fixed, random, axis=0, equal_var=False)
+
+# Leakage is flagged where |t| > 4.5 at any sample point
+leakage_points = np.where(np.abs(t_stats) > 4.5)[0]
+print(f"TVLA: {len(leakage_points)} sample points exceed |t|=4.5 threshold")
+if len(leakage_points) > 0:
+    print("FIRST-ORDER LEAKAGE DETECTED — implementation is not constant-time")
+```
+
+### 10.4 Fault injection labs on ML-DSA
+
+Single-fault attacks on ML-DSA (Dilithium) signing, originally described by Espitau et al. (2017), exploit the deterministic signing mode: a single fault during rejection sampling, combined with a correct signature on the same message, leaks the secret polynomial.
+
+```bash
+# Setup: NewAE ChipSHOUTER (EMFI) or clock glitcher on target running ML-DSA-65
+# Reference: https://eprint.iacr.org/2017/1023
+
+# 1. Sign the same message N times under deterministic mode
+# 2. Inject a fault during one of the signing operations
+# 3. Compare the faulty signature to a correct one
+# 4. If the fault landed in rejection sampling, the difference reveals
+#    the secret polynomial coefficient at the faulted index
+
+# Mitigation under test: switch to randomized signing mode (FIPS 204
+# allows randomized mode; deterministic is not mandated).
+```
+
+### 10.5 Cache-timing labs on lattice operations
+
+Cross-VM cache-timing attacks on Kyber have been demonstrated on colocated cloud infrastructure. The attacker colocates with the victim VM, primes L1/L2 cache lines, then observes eviction patterns during the victim's NTT operations.
+
+```bash
+# Measure cache-miss patterns on the victim's liboqs operation
+sudo perf stat -e L1-dcache-load-misses,LLC-load-misses \
+    taskset -c 0 ./victim_pqc_server
+
+# For a full Flush+Reload attack, use the prefetch attack toolkit:
+# github.com/IAIK/flush_flush — adapted to ML-KEM-768 NTT tables
+```
+
+### 10.6 Documented PQC side-channel CVEs (model cases)
+
+| Reference | Target | Vulnerability |
+|-----------|--------|---------------|
+| Kyber timing leak (2022, multiple) | Early liboqs / forks | Non-constant-time NTT allowed key recovery |
+| Dilithium fault attack (Espitau 2017) | Reference impl pre-2023 | Single fault + deterministic signature → secret leak |
+| Frodo parameter confusion | Early forks | Wrong security level silently selected |
+| BIKE decoding non-CT | Early BIKE submissions | Decoding loop leaked information bits |
+| Kyber cache attack (Brendel 2022) | Cross-VM cloud | Colocated cache-timing on NTT tables |
+
+### 10.7 Lab-side-channel deliverables
+
+A side-channel lab assessment should produce:
+
+- **Trace dataset** (10k+ traces per target operation).
+- **TVLA report** (t-value plots, leakage-point counts).
+- **CPA / DPA correlation results** (if CPA is the chosen analysis).
+- **Per-finding severity** (CRITICAL for any first-order leak, HIGH for second-order).
+- **Remediation recommendation** (switch to constant-time implementation, switch to randomized signing mode).
+
+---
+
+## 11. QKD Implementation Audits
+
+Quantum Key Distribution (QKD) promises information-theoretic security based on the laws of physics, but real-world hardware has been broken repeatedly by implementation attacks: photon-number-splitting (PNS), detector blinding, Trojan-horse, and after-pulse attacks. A QKD audit evaluates a commercial deployment (ID Quantique Clavis^3, Chinese QKD backbones, quantum-secured metropolitan networks) for susceptibility to these attacks and recommends countermeasures.
+
+### 11.1 BB84 protocol recap
+
+BB84 (Bennett & Brassard 1984) encodes key bits in the polarization (or phase) of single photons, transmitted from Alice to Bob over a quantum channel. The protocol is information-theoretically secure *if* the implementation produces true single-photon pulses with ideal detectors and no side channels. Real hardware violates all three assumptions.
+
+### 11.2 Attack: Photon-Number-Splitting (PNS)
+
+**Applicable when**: the source is an attenuated laser (multi-photon pulses possible), not a true single-photon source. Most commercial QKD boxes use attenuated lasers for cost.
+
+The attacker (Eve) splits one photon from each multi-photon pulse, stores it in a quantum memory, and lets the rest reach Bob. After sifting, Eve measures her stored photons to recover the key bit. No detectable disturbance is introduced.
+
+```python
+#!/usr/bin/env python3
+# pns_attack_simulator.py — Simulate PNS attack feasibility
+import math
+
+def multi_photon_probability(mu):
+    """P(n >= 2) for Poisson source with mean photon number mu."""
+    return 1 - (1 + mu) * math.exp(-mu)
+
+def pns_attack_yield(mu, total_pulses=10**6):
+    """How many bits can Eve recover via PNS for a given source?"""
+    p_multi = multi_photon_probability(mu)
+    return p_multi * total_pulses
+
+print("Source characterization:")
+for mu in [0.1, 0.5, 1.0]:
+    p = multi_photon_probability(mu)
+    bits = pns_attack_yield(mu)
+    print(f"  μ={mu}: P(multi-photon)={p:.4f}  ({bits:.0f} bits/1M pulses recoverable)")
+
+# Countermeasure: decoy-state protocol (vary mu between signal and decoy pulses)
+# Eve cannot distinguish signal from decoy, so PNS changes the decoy statistics
+# detectably.
+```
+
+**Countermeasure**: decoy-state protocol. Verify the QKD deployment has decoy-state enabled.
+
+### 11.3 Attack: Detector Blinding (Lydersen 2010)
+
+**Applicable when**: InGaAs avalanche photodiode (APD) detectors are used without a detector-watchdog.
+
+Eve injects continuous-wave (CW) light into Bob's detector, driving the APD into linear (non-Geiger) mode. The detector then only fires when Eve sends an above-threshold pulse. Eve controls every detection event, can force any key, and the quantum bit error rate (QBER) stays within bounds.
+
+```python
+#!/usr/bin/env python3
+# detector_blinding_poc.py — Conceptual detector-blinding attack pattern
+#
+# Reference: Lydersen et al., "Hackers exploit commercial quantum key
+# distribution", Nature Photonics 2010.
+# https://doi.org/10.1038/nphoton.2010.123
+#
+# Reproducibility: demonstrated on a commercial ID Quantique Clavis^2 system.
+# The fix is a detector watchdog (optical power monitor) that detects the
+# injected CW light.
+
+import time
+
+def detector_blinding_attack_pattern():
+    """Outline of the attack (conceptual — actual hardware-specific)."""
+    # Step 1: inject CW light at 1550nm into Bob's detector (the quantum channel)
+    # Step 2: increase intensity until the APD transitions from Geiger mode to linear mode
+    # Step 3: now the detector only fires when the attacker sends an above-threshold pulse
+    # Step 4: the attacker controls every detection event, forcing any key they want
+    # Step 5: QBER stays within bounds because the attacker's pulses are precisely timed
+    print("Detector blinding outline (lab-authorized reproduction only):")
+    print("  1. Inject CW light at 1550nm into the quantum channel")
+    print("  2. Drive APD into linear mode")
+    print("  3. Send above-threshold pulses to control detections")
+    print("  4. Forge any key without disturbing QBER")
+
+# Defender detection: monitor APD linearity / optical input power continuously
+# Mitigation: detector watchdog; SNSPD (superconducting nanowire) instead of APD
+```
+
+### 11.4 Attack: Trojan-Horse
+
+**Applicable when**: the source has no optical isolator at Alice's output.
+
+Eve injects light back into Alice's source and observes the phase modulator state in the reflected light. This reveals Alice's basis and bit choice for each pulse.
+
+```python
+#!/usr/bin/env python3
+# trojan_horse_attack.py — Conceptual Trojan-horse attack
+#
+# Reference: Weier et al., "Trojan-horse attacks on quantum-key-distribution
+# systems", Nature Photonics 2011.
+# https://doi.org/10.1038/nphoton.2011.199
+
+def trojan_horse_outline():
+    """Inject light into Alice's source, read out her modulator state."""
+    # 1. Send bright light back through the quantum channel into Alice
+    # 2. The light reflects off Alice's phase modulator (which is set per-pulse)
+    # 3. Measure the reflection to recover Alice's basis + bit choice
+    # 4. Eve now knows the raw key without disturbing Bob's detections
+    print("Trojan-horse outline (lab-authorized reproduction only):")
+    print("  1. Inject bright light into Alice's output")
+    print("  2. Measure reflection from Alice's phase modulator")
+    print("  3. Recover basis + bit per pulse")
+
+# Mitigation: optical isolator at Alice's output (security device, not just for signal quality)
+```
+
+### 11.5 Attack: After-Pulse
+
+**Applicable when**: InGaAs APD detectors with significant after-pulse probability. An after-pulse is a false detection triggered by residual charge from a previous real detection. Eve can exploit after-pulses by deliberately triggering detections to bias subsequent ones.
+
+### 11.6 Decoy-state verification (defender side)
+
+The decoy-state protocol is the standard PNS mitigation. Alice randomly varies the mean photon number μ between signal pulses (high μ) and decoy pulses (low μ). Eve cannot distinguish signal from decoy, so PNS changes the decoy statistics detectably.
+
+```bash
+# Vendor CLI — verify decoy-state is enabled and correctly parameterized
+ssh admin@qkd-box
+qkd> show protocol
+  Protocol:               BB84
+  Decoy-state:            ENABLED        # ← must be ENABLED
+  Decoy probabilities:    signal=0.5, decoy=0.25, vacuum=0.25
+  Mean photon number:     signal μ=0.5, decoy μ=0.1
+
+# If Decoy-state: DISABLED → PNS attack is feasible → CRITICAL finding.
+```
+
+### 11.7 Device-Independent QKD (DI-QKD) verification
+
+DI-QKD closes all detector side-channels by basing security on a Bell inequality violation rather than trusting the detector hardware. A DI-QKD system must demonstrate a CHSH value S > 2 with statistical significance.
+
+```python
+#!/usr/bin/env python3
+# di_qkd_verify.py — Verify Bell inequality violation for DI-QKD security claim
+import math
+
+def chsh_significance(observed_s, sigma):
+    """Require S > 2 + 5*sigma for a defensible security claim."""
+    threshold = 2 + 5 * sigma
+    return observed_s > threshold, threshold
+
+# Example: observed CHSH S = 2.4 with sigma = 0.05
+s, sigma = 2.4, 0.05
+passes, threshold = chsh_significance(s, sigma)
+print(f"Observed S = {s}, threshold = {threshold:.2f}")
+print(f"DI-QKD security claim: {'VALID' if passes else 'INVALID — marginal'}")
+# Reference: Arnon-Friedman et al., "Relativistic independence..."
+```
+
+### 11.8 QKD deployment audit checklist
+
+- [ ] Source type identified (attenuated laser vs true single-photon).
+- [ ] Decoy-state protocol enabled and correctly parameterized.
+- [ ] Detector type identified (InGaAs APD vs SNSPD).
+- [ ] Detector watchdog (optical power monitor) active.
+- [ ] Optical isolator present at Alice's output (Trojan-horse countermeasure).
+- [ ] After-pulse probability measured and below vendor threshold.
+- [ ] If DI-QKD claimed, Bell violation statistically significant.
+- [ ] Key-sifting post-processing authenticated (classical channel).
+- [ ] Vendor firmware current (no known attack advisories outstanding).
+
+### 11.9 QKD audit deliverables
+
+A QKD deployment audit produces:
+
+- **Source characterization report** (mean photon number, multi-photon probability).
+- **Detector characterization report** (dark count, after-pulse, linearity).
+- **Decoy-state protocol verification** (parameters, statistical test).
+- **Trojan-horse countermeasure verification** (optical isolator presence).
+- **Per-finding severity** (CRITICAL for no decoy-state, HIGH for no watchdog).
+- **Remediation recommendation** (enable decoy-state, add watchdog, consider DI-QKD upgrade).
+
+### 11.10 QKD security philosophy
+
+The security of QKD is **implementation-bound**. The mathematical proof of BB84 is sound, but it assumes ideal hardware that real commercial systems do not provide. A "provably secure" QKD deployment without decoy-state, DI-QKD, and detector countermeasures is *less* secure than a well-implemented classical cryptosystem. The audit must convey this honestly — QKD is a defense-in-depth tool, not a substitute for post-quantum cryptography.
+
+---
+
+## 12. Tooling Decision Matrix
 
 | Need | First-choice tool | Alternative |
 |------|-------------------|-------------|
@@ -455,35 +776,35 @@ A server offering both hybrid-PQC and classical can be downgraded by an active M
 
 ---
 
-## 11. Integration with Adjacent Skills
+## 13. Integration with Adjacent Skills
 
-### 11.1 crypto-attacks (classical sibling)
+### 13.1 crypto-attacks (classical sibling)
 
 The quantum exposure inventory in §3 starts from the classical key inventory. ROCA detection (TC-QC-012) extends RsaCtfTool usage that originates in crypto-attacks. Any classical padding-oracle or hash-length-extension finding implies the affected key is Shor-vulnerable in addition to its classical flaw.
 
-### 11.2 vpn-attack (TLS at network layer)
+### 13.2 vpn-attack (TLS at network layer)
 
 Hybrid-PQC TLS analysis extends vpn-attack's TLS handshake probing into the post-quantum era. A vpn-attack finding (weak DH group) becomes a quantum-crypto finding (the same group is Shor-vulnerable) when the assessment scope expands to PQ.
 
-### 11.3 blockchain-web3
+### 13.3 blockchain-web3
 
 Blockchains adopting PQ signatures (QRL, hashsigs-solidity) land here. Classical blockchain crypto (secp256k1, Ed25519) stays in crypto-attacks. The crossover case is a bridge using PQ signatures for validator consensus — audit the contract in blockchain-web3 skills, audit the PQ sig implementation here.
 
-### 11.4 web-xss / web-auth-bypass
+### 13.4 web-xss / web-auth-bypass
 
 When an XSS exfiltrates a long-lived RSA private key (CA root, code-signing, JWT signing) from the browser, the *quantum-crypto* finding is the SNDL exposure of data signed by that key, even though the *vector* was XSS. Both findings belong in the report.
 
-### 11.5 security-misconfiguration
+### 13.5 security-misconfiguration
 
 Crypto-agility misconfiguration (inability to switch algorithms, hardcoded algorithm references, missing central registry) is a specialized cryptographic misconfiguration with longer-term consequences. It overlaps with security-misconfiguration but the PQ context amplifies severity.
 
-### 11.6 digital-forensics / anti-forensics
+### 13.6 digital-forensics / anti-forensics
 
 SNDL data captured today becomes forensically relevant when a CRQC arrives. The window between collection time and break time is the SNDL exposure window. Forensic teams should preserve high-value ciphertext artifacts with this future-decryptability in mind.
 
 ---
 
-## 12. Pre-Assessment Checklist
+## 14. Pre-Assessment Checklist
 
 Before kicking off a post-quantum assessment engagement:
 
@@ -505,7 +826,7 @@ Before kicking off a post-quantum assessment engagement:
 
 ---
 
-## 13. References & Further Reading
+## 15. References & Further Reading
 
 - **NIST PQC Standardization**: https://csrc.nist.gov/projects/post-quantum-cryptography
 - **NIST FIPS 203 (ML-KEM)**: https://csrc.nist.gov/pubs/fips/203/final

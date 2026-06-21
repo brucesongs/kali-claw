@@ -354,18 +354,19 @@ TOOLS.md:
 | v0.1.29 | 2026-06-17 | **GitHub-trending expansion: +4 new skill domains (79→83)** | +4 domains (llm-red-team, deception-honeypot, kubernetes-attack, secret-management-attack); driven by GitHub open-source analysis (150k+ cumulative stars); 8 new skills scored (v0.1.28 + v0.1.29); 79→83 domains |
 | v0.1.30 | 2026-06-17 | **GitHub-trending expansion wave 2: +4 new skill domains (83→87)** | +4 domains (ai-agent-security, iot-pentest, detection-engineering, agentic-pentest); ai-emerging + iot + defense + ai-meta categories all entered; 4 new skills scored; 83→87 domains |
 | v0.1.31 | 2026-06-17 | **GitHub-trending expansion wave 3: +4 new skill domains (87→91)** | +4 domains (cloud-identity-attack, physical-security-testing, quantum-crypto-attack, email-security-deep); fills identity/physical/quantum/phishing-infra gaps; 91 total |
+| v0.1.32 | 2026-06-21 | **100% Excellent+ milestone (zero new skills, pure quality lift)** | Lifted last 2 Strong-tier skills (username-profiling 77.7→91.6, quantum-crypto-attack 79.7→90.8); added 2nd guide file to all 12 v0.1.28-v0.1.30 cohort skills (+10,180 lines); 91/91 Excellent+ achieved; average 87.51→88.19 |
 
-### Current Quality Snapshot (v0.1.31, scoring v2)
+### Current Quality Snapshot (v0.1.32, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
 | Distinguished (92+) | **19** | social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), container-security (92.8), security-misconfiguration (92.8), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
-| Excellent (80-91.9) | **70** | All other skills including 15 new domains from v0.1.28+v0.1.29+v0.1.30+v0.1.31; v0.1.31 cohort: physical-security-testing (86.6), cloud-identity-attack (83.8), email-security-deep (81.0) |
-| Strong (60-80) | **2** | username-profiling (77.7), quantum-crypto-attack (79.7 — just 0.3 below threshold; will be lifted next cycle) |
+| Excellent (80-91.9) | **72** | All other skills; v0.1.32 lifts: username-profiling (91.6), quantum-crypto-attack (90.8); v0.1.28-v0.1.30 cohort averages now 87.5+; new min is email-security-deep (81.0) |
+| Strong (60-80) | **0** | — (all lifted!) |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 87.51** | **89/91 scored Excellent or above** | **19 Distinguished** | **91 total skill domains**
+**Average score: 88.19** | **91/91 scored Excellent or above (100%)** | **19 Distinguished** | **91 total skill domains**
 
 ### Future Exploration
 
@@ -396,7 +397,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.31 |
+| **Version** | 0.1.32 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | 91 |

@@ -2,7 +2,7 @@
 name: username-profiling
 description: "Build a complete dossier on a person using only a username."
 origin: openclaw
-version: "0.1.27"
+version: "0.1.28"
 compatibility:
   - openclaw
   - claude-code
@@ -18,8 +18,19 @@ allowed-tools:
 metadata:
   domain: osint
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0043-Reconnaissance"
+  keywords:
+    - maigret
+    - sherlock
+    - whatsmyname
+    - holehe
+    - username-enumeration
+    - osint
+    - identity-resolution
+    - cross-platform
+    - breach-correlation
+    - pivot
 ---
 
 
@@ -488,6 +499,7 @@ Maigret supports seven report formats — choose based on the audience.
 
 - **This skill's supplementary files**: `payloads.md`, `test-cases.md`
 - **Deep-dive guide**: `guides/maigret-username-dossier.md` — end-to-end dossier workflow with recursive pivot, OPSEC, and cross-tool verification
+- **Workshop guide**: `guides/maigret-username-workshop.md` — multi-platform OSINT investigation workshop with JSON parsing, Maltego export, GDPR handling, and cron automation
 - **Related skills**:
   - `skills/osint/SKILL.md` — broader OSINT collection (email, domain, breach data)
   - `skills/social-intelligence/SKILL.md` — discourse mining on discovered accounts

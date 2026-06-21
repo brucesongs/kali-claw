@@ -2,7 +2,7 @@
 name: quantum-crypto-attack
 description: Post-quantum and modern national cryptography attack surface testing covering NIST PQC candidates (ML-KEM/ML-DSA/SLH-DSA), hybrid TLS analysis, QKD/BB84 protocol attacks, Chinese national crypto (SM2/SM3/SM4/SM9) implementation flaws, lattice/hashing signature probing, and quantum-vulnerable RSA/ECC asset discovery using liboqs, GmSSL, cloudflare/circl, OQS-OpenSSL, and PQCrypto-Break.
 origin: github-trending-2026
-version: 0.1.31
+version: 0.1.32
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -15,8 +15,45 @@ allowed-tools:
 metadata:
   domain: cryptography
   tool_count: 12
-  guide_count: 1
+  guide_count: 2
   mitre: "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)"
+  keywords:
+    - post-quantum-cryptography
+    - PQC
+    - ML-KEM
+    - ML-DSA
+    - SLH-DSA
+    - Kyber
+    - Dilithium
+    - SPHINCS
+    - hybrid-TLS
+    - QKD
+    - BB84
+    - photon-number-splitting
+    - detector-blinding
+    - SM2
+    - SM3
+    - SM4
+    - SM9
+    - GmSSL
+    - Tongsuo
+    - GM-SSL
+    - GB/T-38636
+    - RFC-8998
+    - SNDL
+    - store-now-decrypt-later
+    - CNSA-2.0
+    - NIST-800-227
+    - FIPS-203
+    - FIPS-204
+    - FIPS-205
+    - lattice-cryptography
+    - NTT
+    - side-channel
+    - crypto-agility
+    - ROCA
+    - XMSS
+    - LMS
 ---
 
 
@@ -25,9 +62,10 @@ metadata:
 # Skill: Post-Quantum & Modern National Cryptography Attack
 
 > **Supplementary Files**:
-> - `payloads.md` — Command catalogue for liboqs, OQS-OpenSSL, GmSSL, cloudflare/circl, PQCrypto-Break, plus PoC code for quantum-vulnerability inventory, Shor/Grover impact modelling, ML-KEM/ML-DSA probing, hybrid TLS analysis, BB84 photon-number-splitting, SM2 side-channel, SM4 cache timing, and crypto-agility stress tests — 14 sections with real OpenSSL/GmSSL commands.
-> - `test-cases.md` — Structured test cases (RSA/ECC quantum exposure inventory, ML-KEM Kyber parameter audit, hybrid TLS handshake analysis, GmSSL SM2/SM3 review, QKD BB84 PNS PoC, lattice side-channel timing, crypto-agility failover drill, post-quantum migration roadmap) — 12 cases across 6 categories.
-> - `guides/quantum-crypto-attack-playbook.md` — End-to-end playbook: scoping → quantum exposure inventory → PQC config audit → national crypto testing → QKD/protocol attacks → migration roadmap. Includes pre-assessment checklist, NIST SP 800-208 / 800-227 mapping, hybrid TLS deployment matrix, and a prioritized migration report template.
+> - `payloads.md` — Command catalogue for liboqs, OQS-OpenSSL, GmSSL, cloudflare/circl, PQCrypto-Break, plus PoC code for quantum-vulnerability inventory, Shor/Grover impact modelling, ML-KEM/ML-DSA probing, hybrid TLS analysis, BB84 photon-number-splitting, SM2 side-channel, SM4 cache timing, and crypto-agility stress tests — 19 sections with real OpenSSL/GmSSL commands.
+> - `test-cases.md` — Structured test cases (RSA/ECC quantum exposure inventory, ML-KEM Kyber parameter audit, hybrid TLS handshake analysis, GmSSL SM2/SM3 review, QKD BB84 PNS PoC, lattice side-channel timing, crypto-agility failover drill, post-quantum migration roadmap) — 12 cases across 6 categories with verification / pass-criteria checklist.
+> - `guides/quantum-crypto-attack-playbook.md` — End-to-end playbook: scoping → quantum exposure inventory → PQC config audit → national crypto testing → QKD/protocol attacks → migration roadmap. Includes pre-assessment checklist, NIST SP 800-208 / 800-227 mapping, hybrid TLS deployment matrix, and a prioritized migration report template. Adds Side-Channel Attack Labs and QKD Implementation Audits sections.
+> - `guides/pqc-migration-assessment-playbook.md` — Post-quantum cryptography migration assessment playbook: regulatory landscape (NIST / CNSA 2.0 / ETSI / GB/T 38636), NIST PQC timeline and algorithm selection, SNDL threat modeling, hybrid TLS rollout, KEM/signature parameter selection, SM-series migration for China compliance, crypto-agility framework, and assessment deliverables template. Includes real-world case studies (Cloudflare KEMTLS, Google CECPQ2, Signal PQXDH, Apple PQ3).
 
 ## Summary
 
@@ -353,10 +391,11 @@ PQC operations are CPU-heavier than classical equivalents: ML-KEM-768 keygen is 
 - **`skills/supply-chain-security/SKILL.md`** — Third-party TLS stacks and their PQC providers are part of the supply-chain attack surface for PQC migration.
 - **`skills/digital-forensics/SKILL.md`** / **`skills/anti-forensics/SKILL.md`** — SNDL data captured today becomes forensically relevant when a CRQC arrives; the gap between collection time and break time is the SNDL window.
 - **Workspace playbook**: `guides/quantum-crypto-attack-playbook.md` — End-to-end workflow from inventory to migration roadmap.
+- **Workspace playbook**: `guides/pqc-migration-assessment-playbook.md` — PQC migration assessment playbook: regulatory alignment, hybrid TLS rollout, SM-series migration, assessment deliverables.
 
 ## Learning Resources
 
-  **Supplementary files for this skill**: payloads.md, test-cases.md, guides/quantum-crypto-attack-playbook.md
+  **Supplementary files for this skill**: payloads.md, test-cases.md, guides/quantum-crypto-attack-playbook.md, guides/pqc-migration-assessment-playbook.md
   **Related skills**: skills/crypto-attacks/SKILL.md, skills/vpn-attack/SKILL.md, skills/blockchain-web3/SKILL.md, skills/web-xss/SKILL.md, skills/security-misconfiguration/SKILL.md
   **External resources**:
   - **NIST PQC Standardization**: https://csrc.nist.gov/projects/post-quantum-cryptography — FIPS 203/204/205 (ML-KEM, ML-DSA, SLH-DSA), final standards

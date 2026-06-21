@@ -1,8 +1,8 @@
 ---
 name: kubernetes-attack
-description: Kubernetes cluster attack and red team covering RBAC abuse, pod escape, service account theft, API server exploitation, etcd attacks, supply chain (image/admission controller), and cloud-managed K8s (EKS/GKE/AKS) pivoting using kubectl, CDK, peirates, kube-hunter, kubescape, stratus-red-team, and kubernetes-goat.
+description: Kubernetes cluster attack and red team covering RBAC abuse, pod escape (privileged pods, hostPath, capabilities, hostPID/hostIPC, container runtime sockets, kernel CVEs), kubelet API abuse (10250/10255), etcd direct access, service account token theft (legacy and projected), RBAC privilege escalation chains, cloud-managed K8s (EKS/GKE/AKS) pivoting, and kubectl plugin ecosystem (peirates, CDK, kube-hunter, BOtB, kubeletctl, kubescape, stratus-red-team, kubernetes-goat).
 origin: github-trending-2026
-version: 0.1.29
+version: 0.1.30
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: cloud-native
   tool_count: 14
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — Command catalogue for kubectl, CDK, peirates, kube-hunter, kubescape, stratus-red-team, kube-bench, plus exploit recipes for RBAC abuse, pod escape, SA token theft, etcd dump, admission controller bypass, image poisoning, network policy evasion, EKS/GKE/AKS IAM pivot, persistence, and audit-log evasion — 13 sections with real kubectl flags and CVE references.
 > - `test-cases.md` — Structured test cases (cluster recon, RBAC self-subject review, SA token dump, hostPath escape, kubelet RCE, etcd secret dump, anonymous API, admission webhook bypass, poisoned image, network policy bypass, IRSA pivot, malicious DaemonSet persistence) — 12 cases across 6 categories.
 > - `guides/kubernetes-attack-playbook.md` — End-to-end red team playbook: scoping → recon → API discovery → RBAC abuse → pod escape → lateral movement → cloud IAM pivot → persistence → detection evasion. Includes pre-engagement checklist, MITRE ATT&CK for Containers matrix, and report template.
+> - `guides/k8s-escape-and-lateral-movement-playbook.md` — Pod escape and lateral movement deep dive (privileged pods, hostPath mounts, capabilities, hostPID/hostIPC, kernel CVEs CVE-2022-0185 / CVE-2024-1086 / CVE-2024-21626, docker.sock/containerd.sock abuse, kubelet API on ports 10250/10255, etcd direct read/write, SA token theft and forging, RBAC escalation chains, kubectl plugin ecosystem — peirates, CDK, kube-hunter, BOtB, kubeletctl, with real-world incidents: Tesla cryptojacking, Capital One, TeamTNT)
 
 ## Summary
 

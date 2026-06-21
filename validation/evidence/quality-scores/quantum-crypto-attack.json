@@ -1,33 +1,33 @@
 {
   "skill": "quantum-crypto-attack",
-  "timestamp": "2026-06-17T15:50:27Z",
+  "timestamp": "2026-06-20T23:59:06Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 6116,
-    "payload_section_count": 25,
-    "payload_code_blocks": 33,
+    "payload_word_count": 9600,
+    "payload_section_count": 30,
+    "payload_code_blocks": 57,
     "test_case_count": 12,
-    "field_completeness_score": 0.86,
-    "guide_file_count": 1,
-    "guide_avg_words": 3298,
-    "guide_key_sections": 2,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 2,
+    "guide_avg_words": 5224,
+    "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
   "normalized_scores": {
     "payload_word": 100.0,
     "payload_section": 100.0,
-    "payload_code": 37.7,
+    "payload_code": 82.8,
     "test_case": 90.0,
-    "field": 86.0,
-    "guide": 58.0,
+    "field": 100.0,
+    "guide": 76.0,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
-    "payloads_md": 79.23,
-    "test_cases_md": 88.00,
-    "guides": 58.0
+    "payloads_md": 94.27,
+    "test_cases_md": 95.00,
+    "guides": 76.0
   },
-  "overall_score": 79.7,
-  "tier": "Strong"
+  "overall_score": 90.8,
+  "tier": "Excellent"
 }

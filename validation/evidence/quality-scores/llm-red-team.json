@@ -1,6 +1,6 @@
 {
   "skill": "llm-red-team",
-  "timestamp": "2026-06-17T15:50:27Z",
+  "timestamp": "2026-06-20T23:59:06Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 6831,
@@ -8,9 +8,9 @@
     "payload_code_blocks": 141,
     "test_case_count": 12,
     "field_completeness_score": 0.71,
-    "guide_file_count": 1,
-    "guide_avg_words": 5339,
-    "guide_key_sections": 2,
+    "guide_file_count": 2,
+    "guide_avg_words": 5245,
+    "guide_key_sections": 3,
     "skill_section_score": 0.92
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 100.0,
     "test_case": 90.0,
     "field": 71.0,
-    "guide": 58.0,
+    "guide": 76.0,
     "skill_section": 92.0
   },
   "component_scores": {
     "skill_md": 92.00,
     "payloads_md": 100.00,
     "test_cases_md": 80.50,
-    "guides": 58.0
+    "guides": 76.0
   },
-  "overall_score": 82.4,
+  "overall_score": 86.9,
   "tier": "Excellent"
 }

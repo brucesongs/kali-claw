@@ -1,8 +1,8 @@
 ---
 name: secret-management-attack
-description: Secret discovery, SAST code audit, and secrets-management platform attack covering gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, and cariddi — including vault/secret manager exploitation, hardcoded credential discovery, secret rotation abuse, and CI/CD pipeline secret theft.
+description: Secret discovery, SAST code audit, and secrets-management platform attack covering gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, and cariddi — including HashiCorp Vault exploitation (auth methods, secrets engines, policies, response-wrap hijacking, SSRF), AWS KMS key policy abuse, GCP KMS IAM escalation, Azure Key Vault access policy review, BYOK/HYOK attacks, Kyverno/external-secrets/secrets-store-csi-driver misconfig hunting, hardcoded credential discovery, secret rotation abuse, and CI/CD pipeline secret theft.
 origin: github-trending-2026
-version: 0.1.29
+version: 0.1.30
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: appsec
   tool_count: 14
-  guide_count: 1
+  guide_count: 2
   mitre: "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud"
 ---
 
@@ -28,6 +28,7 @@ metadata:
 > - `payloads.md` — gitleaks / trufflehog / semgrep / bearer command catalogs, AWS-GCP-Azure metadata secret extraction, HashiCorp Vault token-theft payloads, Infisical/Doppler/AWS Secrets Manager abuse, GitHub Actions/GitLab CI/Jenkins secret exfiltration, Kubernetes secret + etcd dump, container image layer analysis (dive/trivy), DeepAudit multi-agent audit invocation, apkleaks DEX scanning, cariddi web crawl, custom regex patterns for proprietary tokens, OPSEC-aware scanning techniques, canary-token evasion
 > - `test-cases.md` — Structured test cases TC-SM-001 through TC-SM-012 covering repo history sweep, filesystem secret scan, SAST custom rules, APK secret extraction, vault token abuse, cloud metadata theft, CI/CD secret dump, K8s secret dump, container layer analysis, secret verification workflow, canary-token detection, and full lifecycle audit
 > - `guides/secret-management-attack-playbook.md` — End-to-end playbook walking from scope definition through repo scan, SAST triage, vault/cloud/CI exploitation, lateral pivoting, and OPSEC-safe report assembly
+> - `guides/vault-and-cloud-kms-attack-playbook.md` — HashiCorp Vault and cloud KMS attack deep dive (Vault auth methods, secrets engines, policies, response-wrap hijacking and SSRF; AWS KMS key policy abuse, grant abuse, deletion ransomware; GCP KMS IAM escalation and Cloud EKM; Azure Key Vault access policy review and managed identity abuse; BYOK/HYOK attacks; Kyverno, external-secrets, secrets-store-csi-driver misconfig hunting; cross-platform discovery patterns)
 
 ## Summary
 

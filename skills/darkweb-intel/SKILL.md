@@ -2,7 +2,7 @@
 name: darkweb-intel
 description: "Dark web intelligence gathering — Tor/onion service reconnaissance, marketplace monitoring, breach data markets, threat actor profiling, with strict OPSEC for investigators."
 origin: openclaw
-version: "0.1.28"
+version: "0.1.29"
 compatibility:
   - openclaw
   - claude-code
@@ -18,8 +18,18 @@ allowed-tools:
 metadata:
   domain: osint
   tool_count: 10
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0043-Reconnaissance"
+  keywords:
+    - tor
+    - onion-crawl
+    - onionscan
+    - ahmia
+    - hunchly
+    - whonix
+    - tails
+    - breach-forum
+    - opsec
 ---
 
 
