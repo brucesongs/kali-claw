@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: appsec
   tool_count: 14
-  guide_count: 1
+  guide_count: 2
   mitre: "T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload"
 ---
 
@@ -27,6 +27,7 @@ metadata:
 > - `payloads.md` — 14 sections: evilginx2 phishlet authoring + AiTM proxy, evilgophish integration, modlishka flexible reverse-proxy, gophish campaign platform + API, King-Phisher alternative platform, gateway evasion (Proofpoint URL Defense / Mimecast / Cisco ESA / Microsoft Defender Safe Links & Safe Attachments), sender reputation engineering (BIMI/ARC/MX), email bombing/DoS, landing-page + payload staging (HTML smuggling, decrypted-on-click), post-click telemetry & beacon design, FIDO2/hardware-key detection and pivot logic, real-world AiTM campaigns (CozyCar / EvilProxy / NakedTenant)
 > - `test-cases.md` — 12 structured test cases (TC-ED-001 through TC-ED-012) covering infrastructure stand-up, AiTM capture, gateway evasion, reputation warm-up, payload delivery, telemetry, and FIDO2 pivot
 > - `guides/email-security-deep-playbook.md` — end-to-end playbook from pretext design through infrastructure build, gateway-evasion tuning, payload staging, AiTM session theft, and clean exit
+> - `guides/email-security-deep-deep-dive.md` — AiTM phishing campaign emulation lab walkthrough (hands-on, step by step, with exercises)
 
 ## Summary
 
@@ -327,6 +328,107 @@ python3 email_bomber.py \
 - **`skills/av-edr-evasion/SKILL.md`** — Evasion of endpoint defenses once the payload runs.
 - **`skills/osint/SKILL.md`** & **`skills/recon-osint/SKILL.md`** — OSINT for recipient enumeration, the input to Phase 1 (pretext).
 - **`skills/engagement-manager/SKILL.md`** — Scoping, authorization, rules of engagement for phishing campaigns (CRITICAL — phishing infra is high-risk, must be scoped in writing).
+
+## Threat Landscape
+
+The email-security-deep threat landscape is shaped by commodity and APT actors who use AiTM phishing-as-a-service (PaaS) platforms to bypass MFA at scale. Understanding the active actors, their preferred techniques, and their typical infrastructure fingerprints helps red teams emulate realistic campaigns and helps blue teams tune detection rules.
+
+### Active Threat Actors and Campaigns (2023-2026)
+
+| Actor / Campaign | Origin | Key Techniques | Targets | Defensive Lesson |
+|------------------|--------|----------------|---------|------------------|
+| **EvilProxy** | Russia (suspected) | evilginx2-based PaaS; O365, Google, GMX; bypasses TOTP/push/SMS | SMBs, enterprises with mixed MFA | FIDO2 defeats them; "require compliant device" CA blocks replay |
+| **NakedTenant** | Unknown | Azure AD tenant enumeration + targeted AiTM against non-FIDO2 users | O365 tenants with partial FIDO2 rollout | Uniform FIDO2 deployment is the only counter |
+| **CozyCar / APT29** | Russia (SVR) | Macro-doc delivery + credential-harvest landing pages | Government, think tanks, defense | Combo of payload delivery + landing-page credential theft |
+| **Storm-1295** | Microsoft-tracked | Consent phishing via malicious Azure AD apps | Any O365 tenant | App consent policies; admin-only consent for high-priv scopes |
+| **LAPSUS$ / Scattered Spider** | Distributed | Push-bombing MFA fatigue + help-desk social engineering | Cisco, Nvidia, Okta, Microsoft | Number-matching push MFA; help-desk verification protocols |
+| **BombErAtom clones** | Commodity | Targeted email flooding as a smokescreen for credential theft | Any individual mailbox | Per-recipient rate limiting; alert on sender diversity spikes |
+
+### Common Infrastructure Fingerprints
+
+Indicators that reveal AiTM infrastructure in the wild:
+
+- **TLS certificate age** — newly issued (hours/days old) for a look-alike domain
+- **Certificate Transparency log entries** — `crt.sh` catches new look-alikes at issuance
+- **DNS records** — A record + SPF + DMARC `p=none` on a brand-new domain
+- **Hosting provider** — bulletproof hosting (e.g., certain Russian, Bulgarian, Moldovan providers) frequently used by PaaS operators
+- **Phishlet signatures** — specific JS injection patterns used by evilginx2/modlishka
+
+### Defensive Counter-Landscape
+
+- **Threat-intel feeds**: subscribe to brand-protection services (e.g., ZeroFox, Proofpoint ETP) that flag new typosquat registrations
+- **CT log monitoring**: monitor `crt.sh` for certificates matching patterns like `micro[s5]oft.*`, `payp[a4]l.*`
+- **Gateway reputation feeds**: keep Proofpoint/Mimecast/Defender threat intel up to date
+- **User reporting pipeline**: make it one-click for users to report suspicious mail; route to SOAR for triage
+- **AiTM detection rules**: see the KQL rule in `guides/email-security-deep-deep-dive.md` Step 14
+
+---
+
+## Tool Comparison Matrix
+
+Choosing the right tool for each phase depends on the target environment, scope, and depth required.
+
+### AiTM Proxy Comparison
+
+| Tool | Phishlet Model | MFA Bypass | FIDO2 Resistance | Configuration | Use Case |
+|------|----------------|------------|------------------|----------------|----------|
+| **evilginx2** | Per-service YAML phishlets | TOTP, push, SMS | FIDO2 defeats it | Declarative YAML | Standard O365/Google AiTM; most polished |
+| **modlishka** | Generic with JS template injection | TOTP, push, SMS | FIDO2 defeats it | Imperative flags | Niche services without phishlets; highly customizable |
+| **evilgophish** | Wraps evilginx2 + gophish | Same as evilginx2 | FIDO2 defeats it | Single orchestration script | Combined AiTM + campaign management |
+
+### Campaign Platform Comparison
+
+| Platform | Strength | Weakness | Best For |
+|----------|----------|----------|----------|
+| **gophish** | Open-source, REST API, large community | Basic landing-page builder | Engineering-led red teams who want API control |
+| **King-Phisher** | GTK desktop UI, awareness-training features | Smaller community | Awareness training programs, HR-led campaigns |
+| **ThePhish** | AI-assisted classification | Defensive tool, not offensive | SOC teams triaging reported phish |
+| **Commercial (Cofense, KnowBe4)** | Polished, integrated, support | Closed-source, costly | Enterprises wanting turnkey solution |
+
+### Gateway Bypass Tool Selection
+
+| Scenario | Recommended Tool | Alternative |
+|----------|------------------|-------------|
+| Test URL Defense rewriting | swaks + custom HTML | MailSpoof |
+| Verify DMARC enforcement | checkdmarc | Manual `dig TXT _dmarc.<domain>` |
+| Spoofing success verification | espoofer | Manual swaks with crafted headers |
+| Sender reputation audit | mailspoof-check | Manual checks across reputation DBs |
+| Attachment sandbox bypass | encrypted-zip + swaks | HTML smuggling via landing page |
+
+---
+
+## Lab and Training Environment
+
+For skill development without risking production systems, use isolated lab environments. The deep-dive guide (`guides/email-security-deep-deep-dive.md`) provides a complete end-to-end lab walkthrough.
+
+### Minimum Lab Setup
+
+- **Microsoft 365 Developer Program tenant** — free E5 dev tenant with 25 licenses
+- **Linux VPS** — Ubuntu 22.04+, 2 vCPU / 4 GB RAM
+- **Registered domain** — for DNS and TLS (use a clearly fictional one like `securitytest.local` plus real DNS)
+- **Three test users** with different MFA factors (TOTP, push, FIDO2) to measure AiTM effectiveness
+
+### Recommended Training Path
+
+1. **Read**: `SKILL.md` (this file), `payloads.md` Sections 1-5
+2. **Build lab**: `guides/email-security-deep-deep-dive.md` Steps 1-8
+3. **Run campaign**: same guide Steps 9-11
+4. **Verify FIDO2 resistance**: Step 12
+5. **Author detection rule**: Step 14
+6. **Tear down cleanly**: Step 15
+7. **Exercises**: 4 hands-on exercises at the end of the deep-dive
+
+### What the Lab Does NOT Cover
+
+For real engagements, additional skills are required:
+
+- **Pretext design and OSINT** — see `skills/social-engineering/` and `skills/osint/`
+- **Payload craft beyond HTML smuggling** — see `skills/payload-generation/`
+- **Endpoint evasion** — see `skills/av-edr-evasion/`
+- **Post-exploitation of captured sessions** — see `skills/cloud-identity-attack/`
+- **Protocol-level mail-auth bypass** — see `skills/email-protocol-attack/`
+
+---
 
 ## Safety Notes
 

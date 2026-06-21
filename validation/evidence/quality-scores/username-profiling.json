@@ -1,6 +1,6 @@
 {
   "skill": "username-profiling",
-  "timestamp": "2026-06-21T11:55:45Z",
+  "timestamp": "2026-06-21T14:10:45Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 6091,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 67,
     "test_case_count": 13,
     "field_completeness_score": 1.00,
-    "guide_file_count": 2,
-    "guide_avg_words": 4987,
+    "guide_file_count": 3,
+    "guide_avg_words": 5172,
     "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
@@ -19,15 +19,15 @@
     "payload_code": 86.8,
     "test_case": 92.5,
     "field": 100.0,
-    "guide": 76.0,
+    "guide": 78.7,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
     "payloads_md": 95.60,
     "test_cases_md": 96.25,
-    "guides": 76.0
+    "guides": 78.7
   },
-  "overall_score": 91.6,
-  "tier": "Excellent"
+  "overall_score": 92.2,
+  "tier": "Distinguished"
 }

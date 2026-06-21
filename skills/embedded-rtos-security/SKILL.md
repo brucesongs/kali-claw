@@ -13,7 +13,7 @@ metadata:
   domain: embedded-rtos-security
   category: rtos
   tool_count: 13
-  guide_count: 1
+  guide_count: 3
   mitre: T1548-Abuse Elevation Control Mechanism
   keywords:
     - RTOS
@@ -30,7 +30,9 @@ metadata:
 > **Supplementary Files**:
 > - `payloads.md` — Command catalogue for VxWorks WDB RPC/Wind debug agent exploitation (Urgent/11 CVEs CVE-2019-12256/12258/12260, IPstack flaws), QNX Neutrino Qnet/qconn/procfs exploitation, FreeRTOS+TCP CVE-2018-16528 stack attacks, ThreadX/Azure RTOS bug matrix, Zephyr Kconfig/Bluetooth host CVEs, Mbed OS uVisor/Pelion, TI-RTOS/BIOS, MicroC/OS-II/III, NuttX, RIOT, Contiki-NG, plus hardware attack surfaces (JTAG/UART/SWD enumeration via JTAGulator/Shikra/J-Link/Black Magic Probe, OpenOCD target control, voltage/clock glitching via ChipWhisperer/NewAE, side-channel analysis with GreatFET/HydraBus/Bus Pirate) — 11 sections, 60+ code blocks.
 > - `test-cases.md` — Structured test cases (lab bring-up, JTAG/UART enumeration, OpenOCD target attach, VxWorks WDB RPC fingerprint/exploit, FreeRTOS+TCP CVE PoC, QNX qconn/procfs enumeration, Zephyr Bluetooth host stack fuzz, ChipWhisperer voltage glitch on secure boot, RTOS binary static analysis with Ghidra/IDA, scheduler priority inversion, Renode system emulation, MPU bypass via heap corruption) — 12 cases across 6 categories.
-> - `guides/embedded-rtos-security-playbook.md` — End-to-end RTOS red team playbook covering architecture comparison (monolithic kernel vs microkernel vs real-time executive), the full RTOS attack surface map (debug agent, network stack, IPC, scheduler, MMU/MPU), real CVE deep dives (VxWorks Urgent/11 by JSOF 2019, FreeRTOS+TCP by Zimperium 2018, Zephyr Bluetooth 2019-2023), hardware lab setup (JTAGulator, Shikra, J-Link, ST-Link, Black Magic Probe, OpenOCD, Bus Pirate, GreatFET), glitching rig (ChipWhisperer, NewAE, GlitchIP), emulation (Renode, QEMU system, angr symbolic execution), and defensive guidance (MPU/MMU enablement, stack canaries, ASLR-on-MCUs, secure boot).
+> - `guides/embedded-rtos-security-playbook.md` — End-to-end RTOS red team playbook covering architecture comparison (monolithic kernel vs microkernel vs real-time executive), the full RTOS attack surface map (debug agent, network stack, IPC, scheduler, MMU/MPU), real CVE deep dives (VxWorks Urgent/11 by JSOF 2019, FreeRTOS+TCP by Zimperium 2018, Zephyr Bluetooth 2019-2023), hardware lab setup (JTAGulator, Shikra, J-Link, ST-Link, Black Magic Probe, OpenOCD, Bus Pirate, GreatFET), glitching rig (ChipWhisperer, NewAE, GlitchIP), emulation (Renode, QEMU system, angr symbolic execution), defensive guidance (MPU/MMU enablement, stack canaries, ASLR-on-MCUs, secure boot), RTOS MITRE ATT&CK for Cloud + ICS mapping, and RTOS secure boot + Trusted Execution Environment (TEE) analysis.
+> - `guides/embedded-rtos-security-deep-dive.md` — Hands-on VxWorks WDB RPC exploitation lab: WDB RPC protocol reverse engineering, MODE_ANY unauthenticated escalation, memory read/write primitives via `wdbCtxRead`/`wdbCtxWrite`, task spawn RCE via `wdbTaskSpawn`, four Urgent/11 CVE PoCs (CVE-2019-12256/12258/12260/12264), QEMU lab setup, Wireshark Lua dissector for WDB RPC, network-level detection and defense bypass, three capture-the-flag scenarios with progressive difficulty.
+> - `guides/freertos-tcp-vulnerability-research.md` — FreeRTOS+TCP CVE reproduction and fuzzing lab: POSIX simulator build with TAP networking, IP-task architecture and heap_4.c internals, four Zimperium 2018 CVE PoCs (CVE-2018-16525/16528/16529/16603), AFL harness for IP-task packet fuzzing, angr symbolic execution for variant discovery, Diaphora and Ghidra BSim patch diffing methodology, field hardening for devices that cannot upgrade.
 
 ## Summary
 
@@ -238,6 +240,208 @@ cpu SetRegister PC 0x08000000
 
 ---
 
+## Protocol Deep Dive
+
+### WDB RPC Protocol Internals
+
+The Wind River Debug Agent (WDB) is a Sun RPC (ONC RPC, RFC 5531) service registered under RPC program number `0x55555555`. The protocol uses XDR (External Data Representation, RFC 1832) for payload encoding. The default UDP transport is port 17185. WDB historically accepts `AUTH_NONE` (flavor 0) credentials on VxWorks 5.x through 6.9.3, leaving the agent open to unauthenticated memory read/write and task spawn. The 40-byte RPC call header is followed by procedure-specific XDR-encoded parameters; the reply is a 24-byte RPC header plus procedure-specific return data. See `guides/embedded-rtos-security-deep-dive.md` for the full byte-level protocol specification.
+
+### FreeRTOS+TCP IP-Task Packet Path
+
+FreeRTOS+TCP processes all network traffic in a single IP-task created by `FreeRTOS_IPInit()`. Packets enter via the network driver's receive ISR, traverse `ethernetif_input()`, are placed in the network event queue `xNetworkEventQueue`, and are processed sequentially by the IP-task's main loop. The packet dispatch is: `prvHandleEthernetPacket()` -> `eConsiderFrameForProcessing()` (Ethertype filter) -> `prvProcessIPPacket()` -> per-protocol handler (`prvProcessICMPPacket`, `prvProcessTCPPacket`, `prvProcessUDPPacket`, or IP fragment reassembly). Because the IP-task runs in supervisor mode with no MPU isolation, every protocol handler bug is a kernel-mode bug. See `guides/freertos-tcp-vulnerability-research.md` for the full receive-path walkthrough.
+
+### QNX Neutrino Qnet Protocol
+
+QNX Neutrino's Qnet protocol extends native message passing (MsgSend/MsgReceive) across network nodes. Qnet runs on TCP/UDP port 4000 and uses the same synchronous message-passing semantics as local IPC. The protocol's security model assumes all nodes on the Qnet network are trusted — there is no per-node authentication. An attacker on the same Qnet network can send arbitrary MsgSend calls to any process on any peer node, including the kernel's procnto process manager.
+
+### Zephyr Bluetooth Host Stack Architecture
+
+Zephyr's Bluetooth host stack is a from-scratch implementation (not BlueZ). The host stack runs in the `bt_host` thread and processes HCI events from the controller (which may be a separate chip connected via UART/SPI/USB). The L2CAP layer (`subsys/bluetooth/host/l2cap.c`) handles connection-oriented and connectionless channels. The GATT layer (`subsys/bluetooth/host/gatt.c`) handles attribute protocol exchanges. Both have been the source of multiple CVEs since 2019 (CVE-2019-17500 L2CAP heap overflow, CVE-2020-10019 GATT UAF, CVE-2022-3821 HCI ACL buffer overflow). The pattern is consistent: payload size not validated before copying into a fixed-size buffer.
+
+### ThreadX NetX DUO Stack Architecture
+
+ThreadX NetX DUO is a dual-stack (IPv4/IPv6) TCP/IP implementation that runs as a set of ThreadX threads. The IP receive thread (`nx_ip_thread_entry`) processes packets from the driver's receive queue. Each protocol has its own handler: `_nx_icmp_packet_receive`, `_nx_tcp_packet_receive`, `_nx_udp_packet_receive`, `_nx_arp_packet_deferred_receive`. The IP thread runs at a high priority (`NX_IP_THREAD_PRIORITY`). Heap-allocated packet buffers come from the NetX DUO packet pool (`nx_packet_pool`) which uses ThreadX's `tx_block_pool` allocator — a singly-linked free list with predictable layout. See `payloads.md` §6 for ThreadX block pool exploitation patterns.
+
+---
+
+## RTOS Attack Matrix
+
+The RTOS Attack Matrix maps common attack techniques to the RTOS families and components they target. This matrix guides engagement planning by identifying which techniques apply to the specific RTOS family under test.
+
+| Attack Technique | VxWorks | QNX Neutrino | FreeRTOS | ThreadX | Zephyr | MicroC/OS | Impact |
+|------------------|---------|--------------|----------|---------|--------|-----------|--------|
+| Debug Agent Exploit (Unauth) | WDB UDP 17185 | qconn TCP 8000 | GDB stub TCP 3333 | NetX Debug TCP 44900 | OpenOCD/JTAG | N/A | Kernel RCE |
+| IP Stack Overflow | Urgent/11 (CVE-2019-12256) | io-pkt (BSD-inherited) | FreeRTOS+TCP CVE-2018-16528 | NetX DUO CVE-2021-2924 | Zephyr net (CoAP) | N/A (no IP stack) | Kernel RCE |
+| Bluetooth Host Exploit | N/A | N/A | NimBLE CVEs | ThreadX BLE | Zephyr BT CVE-2019-17500 | N/A | Kernel RCE |
+| Heap Feng Shui | memPartAlloc first-fit | malloc (glibc) | heap_4.c coalesce | tx_block_pool | k_heap | OSMemPut | Heap overflow → RCE |
+| Scheduler Priority Inversion | semMCompute | SyncMsg sem | xSemaphoreCreateMutex | tx_mutex_preemption_change | k_mutex (inheritance) | OSMutexPend | DoS, deadlock |
+| MPU Region Bypass | VxVMI regions | Microkernel (MMU) | MPU wrappers | tx_thread_stack_check | CONFIG_USERSPACE | N/A | Privilege escalation |
+| Secure Boot Glitch | Boot ROM | N/A (Linux-based) | MCUboot | MCUboot | MCUboot | N/A | Persistent compromise |
+| OTA Image Injection | bootLoad TFTP | QNX IFS update | AWS OTA | Azure IoT OTA | MCUboot serial | N/A | Fleet compromise |
+| Side-Channel Key Recovery | mbedTLS on VxWorks | wolfSSL on QNX | mbedTLS on FreeRTOS | NetX Crypto | Zephyr Tinycrypt | N/A | Key extraction |
+| IPC Channel Abuse | msgQSend | MsgSend / Qnet | xQueueSendToBack | tx_queue_send | k_msgq | OSMboxPost | Cross-task corruption |
+
+### Attack Chain Scenarios
+
+**Scenario 1: VxWorks PLC Full Compromise Chain** — nmap discovers UDP 17185 WDB agent -> WDB `tgtPing` confirms VxWorks 6.9.3 -> `wdbCtxRead` dumps kernel memory -> `wdbTaskSpawn` delivers reverse shell -> pivot to Modbus application (scada-ics-security domain).
+
+**Scenario 2: FreeRTOS Smart-Device Fleet Compromise Chain** — DHCP option 60 strings reveal FreeRTOS -> oversized ICMP triggers CVE-2018-16528 heap overflow -> heap feng shui positions TCB adjacent to overflow target -> TCB function pointer overwrite -> kernel-mode RCE -> MQTT client is the persistence vector into the IoT cloud (iot-pentest domain).
+
+**Scenario 3: Zephyr BLE Sensor Compromise Chain** — BLE advertisement sniffing -> connect with malformed L2CAP packet -> CVE-2019-17500 heap overflow in `l2cap_chan_recv` -> ROP gadget chain (no ASLR on bare-metal Cortex-M) -> sensor data exfiltration via CoAP -> lateral movement to peer 6LoWPAN mesh nodes.
+
+---
+
+## Safety Considerations
+
+### RTOS Safety Philosophy
+
+RTOS targets frequently govern physical processes: avionics flight surfaces, automotive brake controllers, medical infusion pumps, industrial robotics, power-grid protection relays. A compromised RTOS device can cause catastrophic physical harm, environmental damage, or loss of life. Safety considerations must govern every phase of an RTOS security assessment.
+
+### Pre-Assessment Safety Requirements
+
+1. **Written authorization** explicitly identifying in-scope systems and excluding safety-instrumented systems (SIS).
+2. **Identify safety-critical functions** the device performs (braking, dosing, switching, protection) before any active testing.
+3. **Establish a stop-testing signal** the operator can use if process anomalies appear.
+4. **Document emergency shutdown procedures** for the specific device class.
+5. **Verify isolated lab environment** for any active exploitation (WDB probe, IP-stack PoC, glitch attempt). Never test against production safety-critical devices.
+6. **Review the device's safety case** (DO-178C for avionics, IEC 62304 for medical, IEC 61508 for industrial, ISO 26262 for automotive).
+
+### Safety Impact Classification
+
+| Classification | Description | Example | Allowed Environment |
+|----------------|-------------|---------|---------------------|
+| **Informational** | Read-only, no process impact | Banner fingerprint, memory read of version strings | Production (with authorization) or Lab |
+| **Low Impact** | Minor, reversible state changes | Reading diagnostic data, browsing configuration | Production (with operator awareness) or Lab |
+| **Medium Impact** | Temporary process disruption | Network stack DoS (CVE-2018-16603), scheduler priority inversion | Lab Only |
+| **High Impact** | Direct process control | WDB task spawn, OTA image injection, secure boot glitch | Lab Only with safety monitoring |
+| **Critical Impact** | Could trigger safety systems or cause harm | Glitching a brake controller, injecting malicious dosing commands | Lab Only with dedicated safety officer |
+
+### Operational Constraints
+
+- **Real-time deadlines**: RTOS devices often have sub-millisecond deadline requirements. Injected traffic must not introduce latency beyond the device's tolerance.
+- **Watchdog timers**: Aggressive scanning can trigger watchdog resets. Use conservative scan timing.
+- **Persistence across reboots**: Some safety-critical devices cannot be safely rebooted in the field. Verify lab equivalence before testing.
+- **Physical process coupling**: A change to one RTOS task may trigger automated responses in physical processes. Understand interdependencies before testing.
+
+---
+
+## RTOS Network Architecture
+
+### Reference Architecture: Embedded Device Network Zones
+
+```
+Cloud Tier (AWS IoT, Azure IoT Hub, Pelion)
+    |
+    [ Cloud Gateway / Protocol Translator (MQTT, HTTPS) ]
+    |
+[ Edge Router / IoT Gateway (often Linux or high-end RTOS) ]
+    |
+    [ Field Network - typically one of: ]
+    |
+    +-- Ethernet-based fieldbus (Modbus TCP, EtherNet/IP, PROFINET)
+    |       |
+    |       [ RTOS Devices (PLCs, RTUs, IEDs) ]
+    |
+    +-- Serial fieldbus (Modbus RTU, DNP3, PROFIBUS)
+    |       |
+    |       [ RTOS Devices (RTUs, IEDs) ]
+    |
+    +-- Wireless mesh (6LoWPAN, Thread, BLE Mesh)
+    |       |
+    |       [ RTOS Sensors (Zephyr, ThreadX, Contiki) ]
+    |
+    +-- Field Devices (sensors, actuators, I/O modules)
+```
+
+### Network Zone Testing Methodology
+
+For each zone boundary, test these security controls:
+
+**Cloud-to-Edge Boundary**: Device enrollment certificate hygiene, OTA image signing key scope, cloud-side IAM for the device's role.
+
+**Edge-to-Field Boundary**: Protocol-aware firewall rules, Modbus function code allowlist, EtherNet/IP CIP command filtering.
+
+**Field Network**: VLAN segmentation, multicast traffic containment (GOOSE for IEC 61850), rogue device detection.
+
+**Wireless Mesh**: Encryption (802.15.4 MAC layer, Thread/6LoWPAN network layer), key rotation, replay protection.
+
+### Common Architecture Weaknesses
+
+1. **Flat field networks**: All RTOS devices on a single subnet with no segmentation.
+2. **Shared engineering VLANs**: Engineering workstations with both IT and OT access create implicit trust bridges.
+3. **Vendor remote access**: Vendor maintenance VPNs that bypass the OT/IT DMZ directly to field devices.
+4. **Unencrypted OTA**: TFTP, HTTP, or MQTT-based OTA without TLS or signature verification.
+5. **Default credentials on debug interfaces**: Telnet on TCP 23, SSH on TCP 22, qconn on TCP 8000 with factory-default passwords.
+
+---
+
+## Detection Strategies
+
+Effective RTOS device detection requires both network-side and host-side instrumentation. The unique fingerprints of RTOS protocols enable targeted detection rules.
+
+### Network-Side Detection
+
+| Detection Target | Method | Tool |
+|------------------|--------|------|
+| VxWorks WDB probe (UDP 17185) | Suricata rule matching program number `0x55555555` | Suricata, Snort |
+| QNX qconn traffic (TCP 8000) | Connection from non-engineering IP to TCP 8000 | Zeek, NetFlow |
+| FreeRTOS DHCP fingerprint | DHCP option 60 vendor class containing "FreeRTOS" | Zeek dhcp.log |
+| Zephyr Bluetooth advertisement | HCI vendor ID match | Bluetooth scanner, Ubertooth |
+| OTA image download | HTTPS/TFTP traffic to non-vendor OTA server | Zeek, firewall logs |
+
+Example Suricata rule for WDB:
+
+```
+alert udp $EXTERNAL_NET any -> $HOME_NET 17185 (
+    msg:"VxWorks WDB RPC probe - potential Urgent/11 exploitation";
+    content:"|55 55 55 55|"; depth:16; offset:12;
+    detection_filter:track by_src, count 5, seconds 60;
+    classtype:attempted-admin;
+    sid:2019001; rev:1;
+)
+```
+
+### Host-Side Detection
+
+- **MPU fault counter**: Incremented on any MemManage fault. A rising count indicates exploitation attempts.
+- **Stack overflow canary**: `configCHECK_FOR_STACK_OVERFLOW=2` triggers a handler on canary corruption.
+- **Heap integrity check**: A periodic `vPortGetHeapStats()` call detecting unexplained heap fragmentation.
+- **Watchdog reset counter**: Incremented on each watchdog-triggered reboot. Frequent resets indicate instability possibly caused by exploitation.
+- **Debug agent disable verification**: A boot-time assertion that `wdbConfig(WDB_MODE_PASSWORD)` or `INCLUDE_WDB=FALSE` was honored.
+
+---
+
+## Hardening Measures
+
+### Compile-Time Hardening
+
+| Measure | FreeRTOS | Zephyr | VxWorks | QNX |
+|---------|----------|--------|---------|-----|
+| Stack canaries | `configCHECK_FOR_STACK_OVERFLOW=2` | `CONFIG_HW_STACK_PROTECTION=y` | `-fstack-protector-strong` | `-fstack-protector-strong` |
+| Heap hardening | `heap_5.c` (multi-region) | `CONFIG_MULTIPLE_MEMORY_REGIONS=y` | `memPartLib` paranoid mode | glibc hardened malloc |
+| MPU wrappers | `configUSE_MPU_WRAPPERS=1` + `xTaskCreateRestricted` | `CONFIG_USERSPACE=y` | VxVMI regions | Microkernel MMU |
+| Address randomization | `configSTACK_RAND_BYTES=16` | `CONFIG_RNG=y` + build-time rand | VxWorks 7 ASLR | QNX ASLR |
+| Constant-time crypto | mbedTLS `MBEDTLS_PADLOCK` | Tinycrypt constant-time | mbedTLS | wolfSSL constant-time |
+
+### Configuration Hardening
+
+- **Disable debug agents in production** (see `Defense Perspective` above).
+- **Disable unused protocols** (Bluetooth, CoAP, LwM2M, Telnet, FTP).
+- **Enforce TLS** on all remote services (mbedTLS, wolfSSL).
+- **Pin OTA signing certificates** to specific CA fingerprints, not the system trust store.
+- **Enable secure boot** with fused hardware root of trust.
+- **Disable hardware debug** post-manufacturing (DHCSR DAM fuse on ARM Cortex-M).
+
+### Operational Hardening
+
+- **Network segmentation**: Place RTOS devices on isolated VLANs behind protocol-aware firewalls.
+- **Inventory management**: Track every deployed device's version, patch level, and EOL date.
+- **Patch management**: Establish a 90-day patch SLA for high-severity RTOS CVEs; accept that some devices will exceed it.
+- **Anomaly monitoring**: Deploy network IDS (Suricata, Zeek) and host-side telemetry (MPU faults, watchdog resets).
+- **Incident response**: Pre-stage forensic acquisition tools (OpenOCD, flashrom) and train operators on the IR runbook.
+
+---
+
 ## Defense Perspective
 
 | Vulnerability Category | RTOS Manifestation | Detection Method |
@@ -311,7 +515,9 @@ cpu SetRegister PC 0x08000000
 - `test-cases.md` — Structured test cases (12 case templates, TC-RT-001 through TC-RT-012, with prerequisites, expected results, and severity ratings)
 
 **Extended learning materials (guides/)**:
-- `guides/embedded-rtos-security-playbook.md` — End-to-end red team playbook: RTOS architecture comparison, attack surface map, real CVE deep dives (Urgent/11, FreeRTOS+TCP, Zephyr Bluetooth), hardware lab setup, glitching rig, emulation, and defensive guidance.
+- `guides/embedded-rtos-security-playbook.md` — End-to-end red team playbook: RTOS architecture comparison, attack surface map, real CVE deep dives (Urgent/11, FreeRTOS+TCP, Zephyr Bluetooth), hardware lab setup, glitching rig, emulation, defensive guidance, RTOS MITRE ATT&CK mapping, secure boot and TEE analysis.
+- `guides/embedded-rtos-security-deep-dive.md` — VxWorks WDB RPC exploitation lab: protocol reverse engineering, MODE_ANY escalation, memory read/write primitives, task spawn RCE, Urgent/11 PoCs, QEMU lab setup, Wireshark dissector, CTF scenarios.
+- `guides/freertos-tcp-vulnerability-research.md` — FreeRTOS+TCP CVE reproduction lab: POSIX simulator setup, IP-task architecture, heap_4.c internals, Zimperium 2018 CVE PoCs, AFL fuzzing harness, angr symbolic execution, patch diffing methodology.
 
 **Reference repositories**:
 - [FreeRTOS/FreeRTOS](https://github.com/FreeRTOS/FreeRTOS) — FreeRTOS kernel and FreeRTOS+TCP source

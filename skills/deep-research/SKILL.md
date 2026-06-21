@@ -19,7 +19,7 @@ allowed-tools:
 metadata:
   domain: research
   tool_count: 0
-  guide_count: 5
+  guide_count: 6
 ---
 
 
@@ -30,6 +30,12 @@ metadata:
 > **Supplementary Files**:
 > - `payloads.md` — Search query templates, OSINT operator quick-reference, and data-extraction commands organized by research scenario
 > - `test-cases.md` — Structured test cases covering threat intelligence research, vulnerability analysis, attack technique investigation, and adversary profiling with severity levels and summary tables
+> - `guides/iterative-search-patterns.md` — Query expansion and contraction patterns, parallel search fan-out, search log discipline
+> - `guides/continuous-monitoring.md` — Ongoing intelligence collection, polling cadence, change detection triggers
+> - `guides/intelligence-correlation.md` — Entity linking, IOC cross-referencing, MITRE ATT&CK mapping, confidence scoring
+> - `guides/mcp-integration.md` — Model Context Protocol server wiring for automated research pipelines
+> - `guides/source-validation-guide.md` — Source credibility scoring, cross-validation, misinformation detection, provenance tracking
+> - `guides/multi-source-synthesis-guide.md` — Multi-source intelligence synthesis, triangulation, confidence rubric, bias filtering, citation chain verification
 
 ## Summary
 
@@ -245,6 +251,105 @@ This phase transforms deep research from a single-pass process into an iterative
 - **Source reliability**: Tier sources by reliability (vendor advisory > security firm blog > personal blog > forum post)
 - **Bias awareness**: Security vendors may overstate threats to sell products; cross-reference with independent sources
 
+## Triangulation Principle
+
+The triangulation principle requires evidence from at least three *independent* vectors before elevating a claim to confirmed status. Three blog posts that all cite the same vendor advisory count as one source, not three.
+
+The three vectors that should be represented in any robust synthesis:
+
+1. **Authoritative vector** — NVD, MITRE ATT&CK, vendor PSIRT, CISA KEV, academic papers, court filings
+2. **Practitioner vector** — independent security firm blogs, conference talks, researcher social threads, GitHub PoC repositories
+3. **Community vector** — Reddit, HackerNews, vendor support forums, sector-specific ISAC feeds
+
+If a claim appears in only one vector, it stays at LOW confidence regardless of how authoritative that single vector is. See `guides/multi-source-synthesis-guide.md` for the full independence test and rubric.
+
+## Confidence Scoring Framework
+
+Every claim in a synthesis product carries one of four confidence levels. The rubric is mechanical so that two analysts reviewing the same evidence arrive at the same score.
+
+| Level | Definition | Required Evidence |
+|-------|------------|-------------------|
+| **CONFIRMED** | Verified, ready to drive action | 3+ independent sources across all 3 vectors, primary source located, no unresolved contradictions |
+| **LIKELY** | Strong evidence, minor gap | 2+ independent sources across 2+ vectors, primary source located, contradictions resolved |
+| **POSSIBLE** | Plausible, needs more work | 1-2 sources, single-vector coverage, or primary source not located |
+| **UNVERIFIED** | Claim exists, cannot yet evaluate | Single source, no primary reference, or contradictory authoritative sources |
+
+Numeric scoring (0-100) and code are provided in `guides/multi-source-synthesis-guide.md`.
+
+## Bias Filtering
+
+Security content is produced by people and organizations with incentives. A vendor selling an EDR product has every reason to amplify the severity of a technique their product detects. Bias filtering is the discipline of asking "what does this source want me to believe, and would they benefit if I believed it?"
+
+Common biases that affect security research synthesis:
+
+- **Vendor commercial bias** — the source sells a product that mitigates the described threat
+- **Disclosed-but-not-exploited bias** — PoC existence is conflated with in-the-wild exploitation
+- **Single-researcher echo** — many secondary sources all trace back to one researcher's thread
+- **Stale conventional wisdom** — claim was accurate years ago, repeated ever since, facts changed underneath
+- **Ideological framing** — nation-state attribution claims that outrun the technical evidence
+- **Hype cycle bias** — fashionable topics attract coverage disproportionate to actual impact
+
+Each bias has a tell — a pattern you can grep for. See `guides/multi-source-synthesis-guide.md` for the detection script and credibility adjustment formula.
+
+## Citation Chain Verification
+
+A typical threat intelligence report says "Threat actor X uses technique Y." The report does not name a primary source. Another blog picks it up. Within a week, the claim has "broad support" — but every link cites another link, and the chain bottoms out at either one original claim with no supporting evidence or a misreading of an unrelated primary source.
+
+Citation chain verification is the discipline of always asking "where did this originally come from?" The chain-walk procedure follows outbound references recursively until it reaches a primary authoritative source (vendor advisory, NVD entry, MITRE page) or terminates without finding one.
+
+The three possible chain-walk outcomes:
+
+- **Clean chain** — terminates at authoritative primary; carry claim forward with high confidence
+- **Self-referential cluster** — bounces between aggregators; downgrade to UNVERIFIED
+- **Mutated chain** — primary says something subtly different from the aggregator claim; document the mutation and re-score
+
+## Threat Actor Attribution Methodology
+
+Attribution is the most error-prone area of threat intelligence research. Technical indicators support *capability* claims; they rarely support *identity* claims. A responsible synthesis separates the two.
+
+**What technical evidence can support:**
+
+- Tools and infrastructure used (malware families, C2 domains, certificate patterns)
+- TTPs observed (mapped to MITRE ATT&CK technique IDs)
+- Targeting patterns (sectors, regions, organization sizes)
+- Operational tempo (timing, frequency, campaign duration)
+
+**What technical evidence cannot support alone:**
+
+- Identity of the sponsoring government
+- Motivation beyond what the targeting implies
+- Coordination with other actors or campaigns
+- Whether the actor is a contractor, military unit, or proxy
+
+When sources make identity claims, apply extra scrutiny:
+
+```
+Attribution claim checklist:
+  [ ] Government attribution (indictment, advisory, sanctioned entity list)?
+  [ ] Multiple independent firms agree on identity?
+  [ ] Firms disagree but agree on capability?
+  [ ] Does the source benefit politically or commercially from the attribution?
+```
+
+If only one box can be checked, the identity claim is POSSIBLE at best — never CONFIRMED. If firms disagree, present all positions rather than picking one. See `guides/multi-source-synthesis-guide.md` for the contradiction resolution procedure.
+
+## Synthesis Product Structure
+
+The output of a synthesis loop is an auditable document, not just a narrative. Every claim must trace back to a numbered entry in an evidence register so a reviewer can verify the chain.
+
+Required sections of a synthesis product:
+
+1. **Scope** — primary question, sub-questions, time horizon, exclusions
+2. **Evidence Inventory** — total sources, breakdown by vector, independence analysis, discarded derivative sources
+3. **Claims Register** — numbered list of every claim with confidence level and citation chain summary
+4. **Contradictions Log** — every contradiction encountered and how it was resolved
+5. **Bias Audit** — bias flags raised and credibility adjustments applied
+6. **Findings** — the narrative product (what stakeholders actually read)
+7. **Open Questions** — unresolved claims, follow-up research needed
+8. **Provenance** — full citation list with role (primary, secondary, aggregator) and weight
+
+A synthesis product that omits sections 1-5 and 7-8 cannot withstand review. A reviewer who disagrees with a confidence verdict must be able to point at the specific line where the evidence was characterized differently.
+
 ## Practical Steps
 
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
@@ -269,6 +374,15 @@ This phase transforms deep research from a single-pass process into an iterative
 2. Research: how it works, detection methods, defensive measures, recent variants
 3. Search: MITRE ATT&CK, security research blogs, detection rule repositories
 4. Produce: technique analysis with detection rules and mitigation checklist
+
+### Exercise 4: Multi-Source Synthesis Drill
+
+1. Pick a contested claim in the threat landscape (e.g., "is CVE-2025-XXXX exploited in the wild?")
+2. Decompose into 3-5 sub-questions
+3. Collect from all three vectors (authoritative, practitioner, community)
+4. Run the independence check and citation chain walk
+5. Produce a synthesis product with claims register, contradictions log, and bias audit
+6. See `guides/multi-source-synthesis-guide.md` for the full walkthrough
 
 ## Report Template
 
@@ -315,7 +429,7 @@ Sub-questions investigated: [list]
 
   **This skill's supplementary files**: payloads.md, test-cases.md
 
-  **Guides**: guides/iterative-search-patterns.md, guides/continuous-monitoring.md, guides/intelligence-correlation.md, guides/mcp-integration.md
+  **Guides**: guides/iterative-search-patterns.md, guides/continuous-monitoring.md, guides/intelligence-correlation.md, guides/mcp-integration.md, guides/source-validation-guide.md, guides/multi-source-synthesis-guide.md
 
   **Related skills**: skills/osint/SKILL.md, skills/social-intelligence/SKILL.md, skills/social-engineering/SKILL.md, skills/autonomous-loops/SKILL.md, skills/continuous-learning/SKILL.md
 

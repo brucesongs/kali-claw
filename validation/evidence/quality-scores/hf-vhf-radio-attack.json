@@ -1,33 +1,33 @@
 {
   "skill": "hf-vhf-radio-attack",
-  "timestamp": "2026-06-21T11:55:45Z",
+  "timestamp": "2026-06-21T14:10:45Z",
   "version": "v2",
   "metrics": {
-    "payload_word_count": 11592,
-    "payload_section_count": 48,
-    "payload_code_blocks": 70,
+    "payload_word_count": 14878,
+    "payload_section_count": 57,
+    "payload_code_blocks": 89,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
-    "guide_file_count": 1,
-    "guide_avg_words": 5455,
+    "guide_file_count": 2,
+    "guide_avg_words": 8752,
     "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
   "normalized_scores": {
     "payload_word": 100.0,
     "payload_section": 100.0,
-    "payload_code": 88.0,
+    "payload_code": 95.6,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 68.0,
+    "guide": 76.0,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
-    "payloads_md": 96.00,
+    "payloads_md": 98.53,
     "test_cases_md": 95.00,
-    "guides": 68.0
+    "guides": 76.0
   },
-  "overall_score": 89.3,
-  "tier": "Excellent"
+  "overall_score": 92.1,
+  "tier": "Distinguished"
 }

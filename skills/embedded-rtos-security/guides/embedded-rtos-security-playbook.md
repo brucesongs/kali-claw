@@ -554,6 +554,235 @@ No single layer stops a determined attacker. The layers buy time and increase th
 
 ---
 
+## RTOS MITRE ATT&CK for Cloud + ICS Mapping
+
+The MITRE ATT&CK framework has two extensions relevant to RTOS targets: ATT&CK for Cloud (techniques used against cloud-managed IoT fleets) and ATT&CK for ICS (techniques used against industrial control devices). RTOS devices sit at the intersection — they are often cloud-managed (AWS IoT, Azure IoT Hub, Pelion) AND operate in industrial contexts (PLC controllers, smart-grid RTUs). The mapping below cross-references each RTOS-specific technique against both matrices.
+
+### Cloud-Matrix Techniques Observed on RTOS Devices
+
+| ATT&CK for Cloud Technique | RTOS Manifestation | Example |
+|---------------------------|---------------------|---------|
+| **T1613 Container and Resource Discovery** | RTOS device enumerates peer cloud-managed devices via MQTT retained messages | A compromised FreeRTOS MQTT client subscribes to the wildcard topic `#` and observes all peer device traffic |
+| **T1619 Cloud Storage Object Discovery** | RTOS firmware pulls OTA images from cloud storage (S3, Azure Blob, GCS) without verifying the source bucket's authenticity | A compromised OTA path fetches attacker-controlled firmware from a look-alike bucket |
+| **T1530 Data from Cloud Storage Object** | RTOS device stores telemetry in cloud storage with overly-broad IAM permissions | An attacker enumerates the storage bucket and exfiltrates telemetry from all deployed devices |
+| **T1602 Data from Configuration Repository** | RTOS device pulls its configuration from a cloud-hosted Git repository at boot | Compromising the repo allows injection of malicious configuration into all devices |
+| **T1525 Implant Internal Image** | RTOS OTA image is replaced with attacker-controlled image that includes a backdoor | A ThreadX device's OTA image is replaced in the cloud storage bucket, then auto-installed by all deployed devices |
+| **T1578 Modify Cloud Compute Infrastructure** | Compromised cloud orchestrator (AWS IoT Core, Azure IoT Hub) is used to push malicious firmware to the entire fleet | The fleet enrollment certificate is used to push a malicious firmware update to all devices |
+| **T1136 Create Account** | Attacker creates a new device enrollment certificate in the cloud IoT Hub | The new certificate allows a rogue device to enroll in the fleet and receive configuration |
+
+### ICS-Matrix Techniques Observed on RTOS Devices
+
+| ATT&CK for ICS Technique | RTOS Manifestation | Example |
+|--------------------------|---------------------|---------|
+| **T0817 Drive-by Compromise** | RTOS device browses to a malicious URL (rare; only relevant for HMI-class devices) | A QNX-based HMI runs a Chromium-based browser that visits a malicious URL |
+| **T0859 Valid Accounts** | RTOS device uses default credentials to authenticate to an upstream SCADA gateway | A VxWorks RTU connects to a Schneider ClearSCADA gateway with default credentials |
+| **T0866 Exploitation of Remote Services** | RTOS WDB agent, qconn, or GDB stub is exploited remotely | Urgent/11 exploitation of VxWorks WDB on UDP 17185 (see deep-dive guide) |
+| **T0883 Connection Proxy** | Compromised RTOS device acts as a SOCKS proxy for further lateral movement | A FreeRTOS device with two NICs bridges the IT and OT networks after compromise |
+| **T0887 Secure Socket Layer (CA) Compromise** | RTOS device trusts a compromised CA for OTA image verification | A rogue CA is used to sign attacker-controlled firmware |
+| **T0890 Exploitation for Privilege Escalation** | RTOS task-privilege escalation via MPU region misconfiguration | A non-privileged task exploits an MPU region overlap to gain access to the kernel TCB |
+| **T0806 Brute Force** | RTOS Telnet/SSH credentials are brute-forced | QNX qconn authentication is brute-forced over TCP 8000 |
+| **T0848 Network Denial of Service** | RTOS IP-stack DoS via TCP SYN flood (CVE-2018-16603) or IGMP flood | FreeRTOS+TCP SYN queue exhaustion |
+| **T0830 Integrity Control** | Modbus register writes from a compromised RTOS device | A compromised VxWorks PLC writes malicious setpoints to downstream Modbus slaves |
+| **T0859 Control Device Identification** | RTOS device is fingerprinted via banner, DHCP option 60, or Bluetooth HCI response | VxWorks WDB banner enumeration on UDP 17185 |
+
+### RTOS-Specific ATT&CK Mapping (Proposed Extension)
+
+The standard ATT&CK matrices do not capture several techniques unique to RTOS exploitation. The proposed extension below is kali-claw's working set for engagement reporting.
+
+| Technique ID | Technique Name | Description |
+|--------------|----------------|-------------|
+| **R0001** | RTOS Debug Agent Exploitation | Use of a debug agent (WDB, qconn, GDB stub, ROV) for unauthenticated memory access or task spawn |
+| **R0002** | RTOS IP Stack Overflow | Buffer overflow in the IP-task (kernel-mode) network stack |
+| **R0003** | RTOS Heap Feng Shui | Grooming the RTOS-specific heap (heap_4.c, tx_byte_pool, tx_block_pool) for controlled overflow |
+| **R0004** | RTOS Scheduler Manipulation | Priority inversion, ready-queue corruption, or watchdog bypass |
+| **R0005** | RTOS MPU Region Misconfiguration | Exploiting a misconfigured MPU region set to access out-of-scope memory |
+| **R0006** | RTOS Secure Boot Glitch | Voltage/clock/EM glitching to bypass secure boot signature verification |
+| **R0007** | RTOS Firmware OTA Hook | Modifying the OTA update mechanism to deliver attacker-controlled firmware |
+| **R0008** | RTOS Bluetooth Host Stack Exploit | Exploitation of BLE host stack (Zephyr, ThreadX BLE) for kernel-mode RCE |
+| **R0009** | RTOS IPC Channel Abuse | QNX MsgSend/MsgReceive abuse, VxWorks message queue corruption, FreeRTOS queue item spray |
+| **R0010** | RTOS Side-Channel Key Extraction | CPA/DPA on RTOS-resident crypto (mbedTLS, wolfSSL, micro-ecc) |
+
+### Reporting Implications
+
+When writing the engagement report, map each finding to BOTH the standard ATT&CK matrix (for enterprise SOC consumption) AND the RTOS-specific extension (for embedded engineering team consumption). Example finding:
+
+```
+Finding: VxWorks WDB Agent Exposed on UDP 17185 (Unauthenticated RCE)
+  CVSS: 9.8 (CRITICAL)
+  ATT&CK for Cloud: T1613 (Container and Resource Discovery) — if the device
+    is cloud-managed, the attacker can enumerate peer devices after compromise.
+  ATT&CK for ICS: T0866 (Exploitation of Remote Services) — the WDB agent is
+    a remote service exploitable for unauthenticated RCE.
+  RTOS Extension: R0001 (RTOS Debug Agent Exploitation), R0002 (RTOS IP Stack
+    Overflow via CVE-2019-12256).
+  Remediation: Set INCLUDE_WDB=FALSE in kernel config; firewall UDP 17185 at
+    the network edge; upgrade to VxWorks 6.9.4.1 or later.
+```
+
+This dual-mapping makes the report useful to multiple stakeholders and positions the RTOS findings in the broader enterprise/industrial security context.
+
+---
+
+## RTOS Secure Boot and Trusted Execution Environment Analysis
+
+Secure boot and Trusted Execution Environment (TEE) are the two hardware-backed defenses that, when correctly implemented, raise the cost of RTOS exploitation significantly. This section covers the analysis methodology: how to assess whether secure boot is correctly implemented, how to identify TEE-backed key storage, and how to bypass both when engaged to do so.
+
+### Secure Boot Chain Analysis
+
+A correctly implemented secure boot chain on a Cortex-M device has these stages:
+
+1. **Boot ROM (mask ROM, fused at manufacturing)**:
+   - Reads the first-stage bootloader from internal flash at a fixed address (e.g., `0x08000000` on STM32).
+   - Validates the first-stage bootloader's signature using a public key fused into the chip.
+   - If validation fails, enters a recovery mode (typically USB DFU or UART boot).
+
+2. **First-stage bootloader**:
+   - Initializes the main clock tree, external memory controllers, and the crypto accelerator.
+   - Reads the second-stage image (typically the RTOS kernel) from external SPI flash or eMMC.
+   - Validates the second-stage signature using either the same fused key or a key stored in the first-stage bootloader's protected flash region.
+   - Jumps to the second-stage entry point.
+
+3. **Second-stage (RTOS kernel)**:
+   - Optionally validates application images before launching them.
+   - On VxWorks 7 and Zephyr with MCUboot, this stage runs the MCUboot serial bootloader.
+
+4. **Application / OTA stage**:
+   - Receives OTA updates via MQTT, HTTPS, or LwM2M.
+   - Validates the update signature against an OTA signing key.
+   - Writes the update to a secondary flash partition.
+   - Triggers MCUboot to swap partitions and reboot.
+
+### Verification Checklist
+
+For each stage, verify:
+
+| Check | Pass Criteria | Common Failure |
+|-------|---------------|----------------|
+| Hardware root of trust | Public key is in fused mask ROM, not in external SPI flash | Key stored in flash, readable via JTAG |
+| All stages verify signatures, not checksums | Use of RSA-3072, ECDSA-P256, or Ed25519 | Use of CRC32 or SHA-256 hash without signature |
+| Anti-rollback protection | A fused monotonic counter rejects older versions | Counter stored in flash, resettable |
+| Hardware debug disable (DHCSR DAM fuse) | DAM fuse set after manufacturing | DAM fuse never set; JTAG always enabled |
+| Key revocation mechanism | Compromised keys can be revoked via a revocation list in fused ROM | No revocation mechanism; compromised keys require chip recall |
+| Image encryption | OTA images are encrypted in transit and at rest | OTA images are signed but not encrypted |
+| Side-channel hardening | Crypto operations run constant-time, with random delays | Naive RSA/ECDSA implementations, leak key material via CPA |
+| Glitch detection | Voltage and clock anomaly detectors reset the chip on glitch | No glitch detection; vulnerable to ChipWhisperer attacks |
+
+### Secure Boot Bypass Techniques
+
+When engaged to bypass secure boot, the techniques in order of preference:
+
+#### 1. Voltage Glitching (ChipWhisperer)
+
+Target the signature verification branch in the boot ROM. The branch is typically:
+
+```
+loop:
+    ldrb r1, [r0], #1   ; load next signature byte
+    cmp r1, r2           ; compare with computed value
+    bne fail             ; branch to fail if mismatch
+    ...
+fail:
+    b reset              ; reboot on signature mismatch
+```
+
+A voltage glitch at the precise cycle of the `bne fail` branch can corrupt the comparison result, causing the branch to NOT be taken even on mismatch. The result: the boot ROM accepts an attacker-controlled image.
+
+Workflow:
+1. Capture power traces of the boot ROM signature verification.
+2. Identify the cycle window where the `bne` branch occurs (look for the `MOV; BNE` pattern in the power trace).
+3. Configure the ChipWhisperer glitch parameters: width 5-15 ns, offset -7 ns, repeat 3 cycles.
+4. Sweep the glitch offset across the verification cycle window.
+5. Successful glitch: the boot ROM jumps to the attacker-controlled image.
+
+#### 2. Clock Glitching
+
+Similar to voltage glitching but injects a clock glitch (a shortened or extra clock cycle) at the verification cycle. More precise than voltage glitching on some chips; less precise on others.
+
+#### 3. EM Fault Injection (ChipSHOUTER)
+
+A high-voltage EM pulse induces a transient fault in the target's CPU. More expensive than voltage/clock glitching but works against chips with built-in voltage and clock glitch detectors.
+
+#### 4. Laser Fault Injection
+
+A pulsed laser through the chip package induces a fault in a specific transistor. Used by professional labs against secure-element chips (NXP SmartMX, Infineon SLC52). Out of reach for most red teams.
+
+#### 5. Boot ROM Vulnerabilities
+
+Many boot ROMs have their own vulnerabilities. Notable examples:
+- **Samsung eMMC firmware injection** (2014): a boot ROM bug allowed booting unsigned code from a malicious eMMC firmware.
+- **AMLogic bootloader downgrade** (2020): a boot ROM bug allowed rolling back the bootloader to a vulnerable version.
+- **Raspberry Pi boot ROM**: historical bugs in the SD card boot path.
+
+Identify boot ROM bugs by reverse engineering the mask ROM (requires decapping the chip and imaging with an electron microscope — professional lab territory).
+
+### Trusted Execution Environment Analysis
+
+A TEE provides an isolated execution environment alongside the main RTOS. The TEE runs at a higher privilege level than the RTOS kernel; even a full kernel compromise does not directly compromise the TEE.
+
+#### Common TEE Implementations on RTOS Targets
+
+| TEE | Architecture | Vendor Usage |
+|-----|--------------|--------------|
+| **ARM TrustZone for Cortex-A** | Separates "Secure World" from "Normal World" via the monitor mode | Used on higher-end RTOS targets (QNX on Snapdragon, VxWorks on Cortex-A) |
+| **ARMv8-M Security Extension (TZ-M)** | TrustZone for Cortex-M (M23, M33, M55) | Used on modern IoT (LPC55S69, STM32L5, SAM L11) |
+| **uVisor** | Software-isolated enclaves within the RTOS | Mbed OS (deprecated 2024 but still in field devices) |
+| **OpenAMP TTY/IPC** | Async IPC between RTOS and a separate Linux partition on the same SoC | Xilinx Zynq UltraScale+, NXP i.MX 8 |
+
+#### TEE Attack Surface
+
+The TEE attack surface includes:
+
+1. **Normal-to-Secure World transitions**: The `SMC` (Secure Monitor Call) instruction transitions from Normal World to Secure World. Bugs in the SMC dispatcher allow Normal World code to execute arbitrary Secure World operations.
+
+2. **Shared memory**: The Normal and Secure Worlds communicate via shared memory regions. A bug in the Secure World's shared memory parser allows the Normal World to corrupt Secure World state.
+
+3. **Trusted Applications (TAs)**: Code running inside the TEE (TAs) may have their own vulnerabilities. A compromised TA gives the attacker code execution inside the Secure World.
+
+4. **Hardware attacks**: Voltage/clock/EM glitching applies equally to the TEE. The TEE is only as secure as the silicon it runs on.
+
+5. **Side channels**: The TEE's crypto operations may leak via power analysis (CPA/DPA) or timing analysis, just like any other code.
+
+#### TEE Bypass Methodology
+
+1. **Identify the TEE implementation**: ARM TrustZone for Cortex-A is exposed via the `smc` instruction. TrustZone-M is exposed via the `sg` (Secure Gateway) instruction. uVisor has its own syscall ABI.
+2. **Enumerate TAs**: Each TA has a UUID. On GlobalPlatform-compliant TEEs, query the TA manager via `TA_OpenSessionEntryPoint`.
+3. **Reverse engineer the TAs**: TAs are typically ARM binaries; load into Ghidra. The TA may use the same crypto as the RTOS but with separate key material.
+4. **Identify the shared-memory protocol**: Look for shared-memory descriptors in the device tree or in the monitor-mode vector table.
+5. **Fuzz the shared-memory protocol**: Write an AFL harness that exercises the shared-memory parser with malformed inputs.
+6. **Side-channel the TA's crypto**: Capture power traces of the TA's signature verification; apply CPA to recover the key.
+
+#### Lab Setup for TEE Analysis
+
+```bash
+# QEMU supports TrustZone for Cortex-A targets
+qemu-system-arm -M vexpress-a9 -cpu cortex-a9 \
+    -secure -bios trusted-firmware.bin \
+    -serial mon:stdio -nographic
+
+# The vexpress-a9 with -secure runs the BL31 (Secure Monitor) at EL3
+# A non-secure RTOS (VxWorks, FreeRTOS) runs at EL1
+# Communication between them is via SMC
+
+# For Cortex-M TrustZone (M33):
+qemu-system-arm -M lm3s6965evb -cpu cortex-m33 \
+    -kernel freertos_m33.bin -nographic
+
+# TrustZone-M requires hardware with the Security Extension
+# QEMU support for TZ-M is incomplete as of 2024 — physical hardware (LPC55S69,
+# STM32L5) is required for full analysis
+```
+
+### Defense-in-Depth for Secure Boot + TEE
+
+When the secure boot and TEE are correctly implemented AND verified, the attacker must combine:
+- Hardware glitching to bypass secure boot (Section above).
+- TEE exploitation to compromise the Secure World.
+- Persistence to maintain access across reboots.
+
+This raises the cost of attack significantly. For a Tier-1 OEM shipping correctly-implemented secure boot and TEE on a modern Cortex-M33, the attack cost is on the order of $50,000 (lab equipment + skilled analyst time) — high enough to deter most attackers, low enough to remain within reach of nation-state adversaries.
+
+---
+
 ## Engagement Workflow Summary
 
 A typical RTOS engagement follows this workflow:

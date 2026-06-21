@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: cryptography
   tool_count: 12
-  guide_count: 2
+  guide_count: 3
   mitre: "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)"
   keywords:
     - post-quantum-cryptography
@@ -66,6 +66,7 @@ metadata:
 > - `test-cases.md` — Structured test cases (RSA/ECC quantum exposure inventory, ML-KEM Kyber parameter audit, hybrid TLS handshake analysis, GmSSL SM2/SM3 review, QKD BB84 PNS PoC, lattice side-channel timing, crypto-agility failover drill, post-quantum migration roadmap) — 12 cases across 6 categories with verification / pass-criteria checklist.
 > - `guides/quantum-crypto-attack-playbook.md` — End-to-end playbook: scoping → quantum exposure inventory → PQC config audit → national crypto testing → QKD/protocol attacks → migration roadmap. Includes pre-assessment checklist, NIST SP 800-208 / 800-227 mapping, hybrid TLS deployment matrix, and a prioritized migration report template. Adds Side-Channel Attack Labs and QKD Implementation Audits sections.
 > - `guides/pqc-migration-assessment-playbook.md` — Post-quantum cryptography migration assessment playbook: regulatory landscape (NIST / CNSA 2.0 / ETSI / GB/T 38636), NIST PQC timeline and algorithm selection, SNDL threat modeling, hybrid TLS rollout, KEM/signature parameter selection, SM-series migration for China compliance, crypto-agility framework, and assessment deliverables template. Includes real-world case studies (Cloudflare KEMTLS, Google CECPQ2, Signal PQXDH, Apple PQ3).
+> - `guides/quantum-crypto-attack-deep-dive.md` — Operator's manual for hardening and operating a hybrid-PQC + lattice-signature stack in production: OpenSSL 3.x `oqs-provider` configuration, hybrid PKI generation, hybrid TLS server/client negotiation with wire-level capture verification, constant-timeness lab (`dudect` + `ctgrind` + ChipWhisperer TVLA), fault-injection labs (loop-abort, skipping, RNG subversion with re-encryption countermeasure), four CTF-style scenarios with worked solutions (silent downgrade, non-constant-time NTT, deterministic-signing nonce reuse, hybrid-signature chain downgrade), operational telemetry + SLO dashboard spec, crypto-agility disable drill, performance/bandwidth budgeting, and a 16-item pre-deployment checklist.
 
 ## Summary
 

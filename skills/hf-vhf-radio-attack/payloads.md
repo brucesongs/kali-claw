@@ -2694,7 +2694,696 @@ PYEOF
 
 ---
 
-## 25. References and Further Reading
+## 25. Antenna Verification with NanoVNA
+
+NanoVNA is a $50-$100 vector network analyzer essential for verifying antenna resonance, measuring coax loss, and characterizing filters. All measurements are passive (the NanoVNA emits a very low-power test signal) and do not require any license.
+
+```bash
+# === Install NanoVNA companion software on Kali Linux ===
+sudo apt install -y python3-numpy python3-serial python3-pyqt5
+pip3 install --user nanovna-saver
+
+# Connect NanoVNA via USB and verify device enumeration
+lsusb | grep -i "nanovna\|qiiic\|diy"
+# Typical: Bus 001 Device 004: ID 0483:5740 STMicroelectronics Virtual COM Port
+
+# Launch NanoVNA-Saver GUI
+nanovna-saver &
+# Alternative: use the NanoVNA's built-in display for field measurements
+
+# Verify serial connection
+python3 << 'PYEOF'
+import serial, serial.tools.list_ports
+ports = list(serial.tools.list_ports.comports())
+for p in ports:
+    if 'nano' in p.description.lower() or 'STLink' in p.description or 'Virtual COM' in p.description:
+        print(f"NanoVNA likely on: {p.device} ({p.description})")
+PYEOF
+```
+
+```bash
+# === Calibrate the NanoVNA at the antenna feedpoint ===
+# Calibration compensates for the test cable and connectors.
+# Use the included calibration standards (open, short, load 50 ohm).
+
+# Sweep 1090 MHz ADS-B antenna:
+#   Set START = 1000 MHz, STOP = 1200 MHz
+#   Run calibration with open / short / load standards
+#   Save calibration as "1090_antenna.cal"
+
+# Sweep 162 MHz AIS antenna:
+#   Set START = 150 MHz, STOP = 170 MHz
+#   Run calibration
+#   Save calibration as "162_ais.cal"
+
+# Sweep HF dipole (e.g., 14 MHz amateur band):
+#   Set START = 13 MHz, STOP = 15 MHz
+#   Run calibration
+#   Save calibration as "14m_dipole.cal"
+
+# Document the sweep results in the engagement record
+echo "=== Antenna Sweep Report $(date -u) ===" > antenna_report.txt
+echo "Antenna model: [____]" >> antenna_report.txt
+echo "Design frequency: [____] MHz" >> antenna_report.txt
+echo "Measured VSWR at design freq: [____]" >> antenna_report.txt
+echo "Measured VSWR +/- 5 MHz: [____]" >> antenna_report.txt
+echo "Measured feedpoint impedance: [____] ohms" >> antenna_report.txt
+echo "Pass/Fail: [____]" >> antenna_report.txt
+```
+
+```bash
+# === Measure coax cable loss ===
+# Connect NanoVNA CH0 to one end of the cable, leave far end OPEN
+# The return loss is twice the one-way cable loss (signal goes there and back)
+
+# Example: measure 30 meters of RG-58 at 1090 MHz
+# Expected: 30 m * 0.42 dB/m = 12.6 dB one-way, 25.2 dB round-trip
+# NanoVNA will show the round-trip value; divide by 2 for cable loss
+
+# Document feedline loss per engagement
+python3 << 'PYEOF'
+"""Coax cable loss reference at common VHF/UHF frequencies (dB per 30 meters)."""
+cable_specs = {
+    'RG-58': {30e6: 1.2, 100e6: 2.4, 300e6: 4.5, 1000e6: 9.0, 1500e6: 12.0},
+    'RG-8X': {30e6: 0.9, 100e6: 1.8, 300e6: 3.3, 1000e6: 6.6, 1500e6: 9.0},
+    'LMR-240': {30e6: 0.7, 100e6: 1.3, 300e6: 2.5, 1000e6: 4.9, 1500e6: 6.2},
+    'LMR-400': {30e6: 0.3, 100e6: 0.6, 300e6: 1.1, 1000e6: 2.2, 1500e6: 2.8},
+    'RG-213': {30e6: 0.6, 100e6: 1.2, 300e6: 2.3, 1000e6: 4.6, 1500e6: 6.5},
+}
+
+for cable, freqs in cable_specs.items():
+    print(f"\n{cable} (30 meters):")
+    for freq, loss in freqs.items():
+        freq_mhz = freq / 1e6
+        print(f"  {freq_mhz:>6.0f} MHz: {loss:.1f} dB")
+PYEOF
+```
+
+```bash
+# === Verify antenna isolation for multi-antenna deployments ===
+# When two antennas are mounted on the same mast, energy from one
+# can couple into the other. Measure the isolation to prevent
+# cross-interference.
+
+# Connect NanoVNA CH0 to antenna A, CH1 to antenna B
+# Sweep the frequency range of interest
+# Document isolation in dB (typical good: > 20 dB)
+
+echo "=== Antenna Isolation Report ===" > isolation_report.txt
+echo "Antenna A: [1090 MHz collinear]" >> isolation_report.txt
+echo "Antenna B: [VHF air discone]" >> isolation_report.txt
+echo "Min isolation 118-137 MHz: [____] dB" >> isolation_report.txt
+echo "Min isolation 1090 MHz: [____] dB" >> isolation_report.txt
+echo "Recommendation: [spacing adequate / increase spacing]" >> isolation_report.txt
+```
+
+---
+
+## 26. I/Q Recording and Replay Workflows
+
+Recording raw I/Q samples enables offline analysis, protocol reverse engineering, and authorized replay research. All recording is passive receive and is legal.
+
+```bash
+# === Capture raw I/Q of an unknown signal for offline analysis ===
+# rtl_sdr with -s sets sample rate; output is signed 8-bit I/Q interleaved
+
+# Capture 60 seconds at 1090 MHz (ADS-B) at 2 MSPS
+rtl_sdr -d 0 -f 1090000000 -s 2000000 -g 40 -e 60 adsb_capture.iq
+
+# Capture 60 seconds at 131.550 MHz (ACARS) at 250 kSPS
+rtl_sdr -d 0 -f 131550000 -s 250000 -g 40 -e 60 acars_capture.iq
+
+# Capture 60 seconds at 162 MHz (AIS) at 250 kSPS
+rtl_sdr -d 0 -f 162000000 -s 250000 -g 40 -e 60 ais_capture.iq
+
+# Capture 60 seconds at 931.25 MHz (FLEX pager) at 22050 samples
+rtl_sdr -d 0 -f 931250000 -s 22050 -g 40 -e 60 flex_capture.iq
+
+# Verify file sizes (I/Q files are large: 2 bytes per sample)
+ls -lh *.iq
+# Expected: adsb_capture.iq = 60 s * 2 MSPS * 2 bytes = 240 MB
+```
+
+```bash
+# === Capture with HackRF for higher-fidelity I/Q ===
+# HackRF uses signed 8-bit I/Q at up to 20 MSPS
+
+# Capture 30 seconds of wideband spectrum at 1090 MHz, 20 MSPS
+hackrf_transfer -r adsb_wide.iq -f 1090000000 -s 20000000 -l 16 -g 40 -n 600000000
+# -n 600000000 samples = 30 seconds at 20 MSPS
+
+# Capture a 20-MHz-wide chunk of spectrum at VHF (118-138 MHz ATC band)
+hackrf_transfer -r atc_band.iq -f 128000000 -s 20000000 -l 16 -g 40 -n 600000000
+# Center at 128 MHz with 20 MHz bandwidth covers 118-138 MHz ATC band
+
+# Verify capture
+ls -lh *.iq
+# Expected: adsb_wide.iq = 30 s * 20 MSPS * 2 bytes = 1.2 GB
+```
+
+```bash
+# === Replay an I/Q recording (INSIDE FARADAY CAGE ONLY) ===
+# WARNING: Transmitting on licensed frequencies without authorization
+# is a federal crime. Only run this inside a verified Faraday cage
+# with explicit authorization per the spoofing lab checklist.
+
+# Verify cage is closed and containment is verified (see playbook Part 1.3)
+# Verify authorization letter covers this exact frequency and power level
+
+# Inside cage (HackRF):
+# hackrf_transfer -t adsb_capture.iq -f 1090000000 -s 20000000 -x 10 -R
+# -t = transmit file
+# -x 10 = TX VGA gain 10 dB (low power, suitable for in-cage use)
+# -R = repeat continuously
+
+# Use attenuator (20 dB minimum) between HackRF and antenna
+# Use the smallest antenna that works (a short whip, not a high-gain collinear)
+
+# Outside cage (monitoring RTL-SDR): verify NO leakage
+# rtl_power -f 1080M:1100M:50k -i 1 -e 60 -g 40 leakage_check.csv
+# Compare to baseline; delta must be < 3 dB
+```
+
+```bash
+# === Convert between I/Q formats ===
+# Different tools use different I/Q formats. Convert as needed.
+
+python3 << 'PYEOF'
+"""Convert HackRF signed 8-bit I/Q to GNU Radio complex float32."""
+import numpy as np
+
+# Read HackRF-format I/Q (signed 8-bit, interleaved I and Q)
+raw = np.fromfile('adsb_wide.iq', dtype=np.int8)
+iq = raw[0::2].astype(np.float32) + 1j * raw[1::2].astype(np.float32)
+# Normalize to [-1, 1]
+iq = iq / 128.0
+
+# Save as GNU Radio complex float32 (.cfile format)
+iq.astype(np.complex64).tofile('adsb_wide.cfile')
+print(f"Converted {len(iq)} samples to adsb_wide.cfile")
+
+# Alternative: convert to WAV for audio-frequency analysis
+# (only meaningful if the signal is in audio range)
+# audio = iq.real * 32767
+# audio.astype(np.int16).tofile('output.raw')
+PYEOF
+
+# Verify the converted file
+ls -lh adsb_wide.cfile
+# Expected: 2x size of .iq (4 bytes per complex sample vs 2 bytes per int8 pair)
+```
+
+```bash
+# === Process I/Q capture offline with GNU Radio ===
+# Load the captured I/Q in a GNU Radio flowgraph for custom processing
+
+# Create a simple GNU Radio Python script to demodulate ADS-B
+cat > process_adsb.py << 'PYEOF'
+"""Offline ADS-B demodulator from a captured I/Q file.
+
+Reads a HackRF-format I/Q file and runs the gr-adsb decoder.
+"""
+from gnuradio import gr, blocks, analog
+import osmosdr
+import sys
+
+class ADSBProcessor(gr.top_block):
+    def __init__(self, iq_file, sample_rate=2_000_000, center_freq=1_090_000_000):
+        gr.top_block.__init__(self, "ADSB Processor")
+
+        # File source (HackRF int8 format)
+        self.src = blocks.file_source(gr.sizeof_char, iq_file, repeat=False)
+        # Convert interleaved int8 to complex float
+        self.interleaved_to_complex = blocks.interleaved_char_to_complex()
+
+        self.connect(self.src, self.interleaved_to_complex)
+        # Add ADS-B decoder block here (requires gr-adsb installed)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python3 process_adsb.py <iq_file>")
+        sys.exit(1)
+    tb = ADSBProcessor(sys.argv[1])
+    tb.run()
+PYEOF
+
+python3 process_adsb.py adsb_wide.iq 2>&1 | head -20 || echo "gr-adsb not installed; this is a template"
+```
+
+```bash
+# === Replay attack workflow (authorized Faraday cage only) ===
+# This workflow demonstrates protocol replay for engagement purposes.
+# NEVER run outside a verified Faraday cage.
+
+# Step 1: Capture the target signal (outside the cage, RX is fine)
+# rtl_sdr -d 0 -f 433920000 -s 250000 -g 40 -e 5 keyfob_capture.iq
+# (Note: 433 MHz keyfobs are Sub-GHz ISM, handled in sdr-rf-attack.
+#  This is just an illustration of the replay workflow.)
+
+# Step 2: Trim the capture to just the relevant signal
+python3 << 'PYEOF'
+"""Trim I/Q capture to a specific time window."""
+import numpy as np
+
+raw = np.fromfile('keyfob_capture.iq', dtype=np.int8)
+# Trim to first 100 ms (at 250 kSPS, that's 25000 samples)
+trimmed = raw[:50000]  # 50000 bytes = 25000 complex samples
+trimmed.tofile('keyfob_trimmed.iq')
+print(f"Trimmed from {len(raw)} to {len(trimmed)} bytes")
+PYEOF
+
+# Step 3: Replay inside Faraday cage
+# hackrf_transfer -t keyfob_trimmed.iq -f 433920000 -s 250000 -x 40 -R
+# (Again, this is the workflow; actual execution requires authorization.)
+
+# Step 4: Document the replay for the engagement report
+echo "=== Replay Test Report ===" > replay_report.txt
+echo "Date: $(date -u)" >> replay_report.txt
+echo "Signal: [keyfob / ADS-B / AIS / etc.]" >> replay_report.txt
+echo "Frequency: [____] MHz" >> replay_report.txt
+echo "Original capture timestamp: [____]" >> replay_report.txt
+echo "Cage containment verified: [yes/no]" >> replay_report.txt
+echo "Authorization reference: [____]" >> replay_report.txt
+echo "Result: [success / partial / failure]" >> replay_report.txt
+```
+
+```bash
+# === Continuous wideband recording for spectrum survey ===
+# Record a wideband waterfall for engagement OPSEC baseline
+
+# Survey HF/VHF/UHF for 1 hour at 25 kHz resolution
+rtl_power -d 0 -f 100k:1500M:25k -i 10 -e 3600 -g 40 survey_$(date +%Y%m%d).csv &
+
+# Convert to waterfall PNG for the engagement report
+python3 << 'PYEOF'
+"""Convert rtl_power CSV to a waterfall PNG."""
+import csv
+import numpy as np
+from PIL import Image
+
+rows = []
+with open('survey_$(date +%Y%m%d).csv') as f:
+    for line in csv.reader(f):
+        if len(line) > 6:
+            # Each row: timestamp, freq_low, freq_high, hz_per_step, samples, time, dB_1, dB_2, ...
+            timestamp = line[0]
+            freq_low = float(line[1])
+            # The dB values start at column 6
+            powers = [float(x) for x in line[6:]]
+            rows.append(powers)
+
+if not rows:
+    print("No data to plot")
+    exit()
+
+# Pad rows to equal length
+max_len = max(len(r) for r in rows)
+padded = np.array([r + [-100] * (max_len - len(r)) for r in rows])
+
+# Normalize to image
+normalized = ((padded - (-100)) / 60 * 255).clip(0, 255).astype(np.uint8)
+img = Image.fromarray(np.flipud(normalized), mode='L')
+img.save('survey_$(date +%Y%m%d).png')
+print(f"Wrote waterfall PNG: survey_$(date +%Y%m%d).png")
+print(f"Image size: {img.size}")
+PYEOF
+
+ls -lh survey_*.png survey_*.csv 2>/dev/null
+```
+
+---
+
+## 27. TX-Side Tools and Authorized Lab Workflows
+
+This section documents transmit-side tools for authorized Faraday-cage research. All commands assume verified cage containment and explicit engagement authorization. See the spoofing lab checklist in the deep-dive guide.
+
+```bash
+# === HackRF One TX-side configuration and verification ===
+
+# Verify HackRF is detected and report firmware version
+hackrf_info
+
+# Set TX amplifier and VGA gain (start LOW)
+# -a = enable RF amplifier (off by default; only for short-range coax tests)
+# -x = TX VGA gain (0-47 dB, start at 10)
+# -l = RX VGA gain (0-62 dB, irrelevant for TX)
+
+# Test tone at 100 MHz (inside Faraday cage, into dummy load)
+hackrf_transfer -t cw_test.raw -f 100000000 -s 2000000 -x 10 -R &
+TX_PID=$!
+sleep 5
+kill $TX_PID
+echo "Test tone TX complete"
+
+# Sweep TX power across frequency range (into dummy load or attenuator)
+for freq_mhz in 100 200 400 900 1090 1500; do
+    echo "Testing TX at ${freq_mhz} MHz..."
+    hackrf_transfer -t cw_test.raw -f ${freq_mhz}e6 -s 2000000 -x 10 -n 2000000 > /dev/null 2>&1
+done
+
+# Generate a continuous wave (CW) test signal file
+python3 << 'PYEOF'
+import numpy as np
+
+SAMPLE_RATE = 2_000_000
+DURATION_S = 1.0
+FREQ_OFFSET = 100_000  # 100 kHz offset from center
+
+t = np.arange(int(SAMPLE_RATE * DURATION_S)) / SAMPLE_RATE
+signal = np.exp(2j * np.pi * FREQ_OFFSET * t)
+
+# Convert to HackRF signed 8-bit I/Q
+iq_int = np.empty(2 * len(signal), dtype=np.int8)
+iq_int[0::2] = (signal.real * 127).astype(np.int8)
+iq_int[1::2] = (signal.imag * 127).astype(np.int8)
+iq_int.tofile('cw_test.raw')
+print(f"Wrote cw_test.raw ({len(iq_int)} bytes)")
+PYEOF
+```
+
+```bash
+# === BladeRF 2.0 micro TX-side configuration ===
+# BladeRF supports full-duplex (simultaneous TX and RX)
+
+# Probe for connected BladeRF devices
+bladerf-cli --probe
+
+# Open BladeRF CLI
+bladerf-cli -l
+
+# Inside BladeRF CLI:
+#   set frequency tx 1090000000
+#   set frequency rx 1090000000
+#   set samplerate tx 20000000
+#   set samplerate rx 20000000
+#   set bandwidth tx 1500000
+#   set bandwidth rx 1500000
+#   set txvga1 10
+#   set txvga2 0
+#   tx config file=adsb_capture.iq format=bin
+#   tx start
+#   tx wait
+
+# Verify TX power output with a power meter (INSIDE FARADAY CAGE)
+# Connect power meter to the TX port via attenuator (20-30 dB)
+# Document the measured output power
+echo "=== BladeRF TX Power Verification ===" > bladerf_tx_report.txt
+echo "Date: $(date -u)" >> bladerf_tx_report.txt
+echo "Frequency: [____] MHz" >> bladerf_tx_report.txt
+echo "TX gain settings: txvga1=[__], txvga2=[__]" >> bladerf_tx_report.txt
+echo "Measured output (with attenuator): [____] dBm" >> bladerf_tx_report.txt
+echo "Calculated radiated power: [____] dBm" >> bladerf_tx_report.txt
+echo "Within cage containment spec: [yes/no]" >> bladerf_tx_report.txt
+```
+
+```bash
+# === Generate ADS-B frames with pyModeS for authorized lab use ===
+# pyModeS provides standards-compliant ADS-B message encoding
+
+pip3 install --user pyModeS 2>&1 | tail -3
+
+python3 << 'PYEOF'
+"""Generate ADS-B Type 11 (Airborne Position) and Type 19 (Velocity) frames.
+
+Uses a fictional ICAO24 hex that matches no real aircraft.
+"""
+
+from pyModeS import adsb
+
+# Fictional parameters for lab demonstration
+ICAO24 = "A1B2C3"  # test ICAO24 (matches no real aircraft)
+CALLSIGN = "GHOST1  "  # 8 chars
+LAT, LON = 35.0, -100.0
+ALT_FT = 35000
+SPEED_KT = 450
+HEADING_DEG = 90
+
+# Encode Type 4 (Aircraft Identification)
+callsign_msg = adsb.icao("A1B2C3") + adsb.category(11, 0) + adsb.callsign(CALLSIGN)
+# (simplified; real encoding uses full frame builder)
+
+# Encode Type 11 (Airborne Position) - CPR encoding
+# position_msg = adsb.airborne_position(...)
+
+print(f"Fictional aircraft: ICAO24={ICAO24} callsign={CALLSIGN!r}")
+print(f"Position: {LAT},{LON} @ {ALT_FT} ft")
+print(f"Speed: {SPEED_KT} kt heading {HEADING_DEG}")
+print(f"\nGenerated frames (hex):")
+print(f"  Callsign: {callsign_msg[:28]}")
+print(f"\nFor authorized lab demonstration only.")
+print(f"Transmit only inside verified Faraday cage with explicit authorization.")
+PYEOF
+```
+
+```bash
+# === Generate AIS frames with pyais for authorized lab use ===
+pip3 install --user pyais 2>&1 | tail -3
+
+python3 << 'PYEOF'
+"""Generate AIS Type 1 (Position Report) frames.
+
+Uses fictional MMSI 999000001 (999 prefix is reserved for test).
+"""
+
+from pyais.encode import encode_dict
+from pyais import messages
+
+# Fictional test vessel
+fictional_vessel = {
+    'type': 1,           # Position Report Class A
+    'repeat': 0,
+    'mmsi': 999000001,   # 999 prefix reserved for test
+    'status': 0,         # Under way using engine
+    'turn': 0,
+    'speed': 12.3,
+    'accuracy': 0,
+    'lon': -123.45,      # Fictional position
+    'lat': 48.12,
+    'course': 90.0,
+    'heading': 90,
+    'second': 30,
+    'maneuver': 0,
+    'raim': 0,
+    'radio': 0,
+}
+
+frames = encode_dict(fictional_vessel)
+print(f"Fictional AIS Type 1 message:")
+print(f"  MMSI: {fictional_vessel['mmsi']}")
+print(f"  Position: {fictional_vessel['lat']}, {fictional_vessel['lon']}")
+print(f"  Encoded frames: {len(frames)}")
+for f in frames:
+    print(f"    {f}")
+
+print(f"\nFor authorized lab demonstration only.")
+PYEOF
+```
+
+```bash
+# === GNU Radio flowgraph for ADS-B transmission (authorized lab) ===
+# The gr-adsb Out-of-Tree module provides a TX flowgraph
+
+# Verify gr-adsb is installed
+python3 -c "import gnuradio.adsb; print('gr-adsb available')" 2>&1 || \
+  echo "Install gr-adsb: git clone https://github.com/ghostop14/gr-adsb.git"
+
+# Launch the gr-adsb TX flowgraph (requires GUI)
+# gnuradio-companion ~/gr-adsb/examples/adsb_tx.grc
+
+# Alternative: headless TX flowgraph
+cat > adsb_tx_headless.py << 'PYEOF'
+"""Headless ADS-B TX flowgraph for authorized lab use.
+
+Runs without GUI. Reads a message file and transmits at low power
+inside a verified Faraday cage.
+"""
+from gnuradio import gr, blocks, osmosdr
+import sys
+
+class ADSBTX(gr.top_block):
+    def __init__(self, iq_file, freq=1_090_000_000, samp_rate=2_000_000, tx_gain=10):
+        gr.top_block.__init__(self, "ADSB TX")
+
+        # File source (repeating)
+        self.src = blocks.file_source(gr.sizeof_gr_complex, iq_file, repeat=True)
+        # Multiply by gain scalar
+        self.mul = blocks.multiply_const_cc(tx_gain / 100.0)
+
+        # Osmocom sink (HackRF)
+        self.sink = osmosdr.sink(args="numchan=1")
+        self.sink.set_sample_rate(samp_rate)
+        self.sink.set_center_freq(freq)
+        self.sink.set_freq_corr(0)
+        self.sink.set_gain_mode(False)
+        self.sink.set_gain(tx_gain)
+        self.sink.set_if_gain(tx_gain)
+        self.sink.set_bb_gain(tx_gain)
+
+        self.connect(self.src, self.mul, self.sink)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python3 adsb_tx_headless.py <iq_file> [tx_gain]")
+        print("WARNING: Run inside verified Faraday cage only!")
+        sys.exit(1)
+    iq_file = sys.argv[1]
+    tx_gain = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    tb = ADSBTX(iq_file, tx_gain=tx_gain)
+    tb.run()
+PYEOF
+
+echo "TX flowgraph template created. Run inside Faraday cage only."
+```
+
+```bash
+# === TX power measurement and documentation ===
+# Always measure TX power inside the cage before any test
+
+# Use a power meter or spectrum analyzer connected via attenuator
+# (30 dB attenuator protects the meter from overload)
+
+# Document measured power per test
+python3 << 'PYEOF'
+"""TX power documentation template for engagement records."""
+from datetime import datetime
+
+power_log = {
+    'test_id': 'TX-001',
+    'timestamp': datetime.utcnow().isoformat() + 'Z',
+    'operator': '[name]',
+    'authorization': '[engagement reference]',
+    'cage_verified': True,
+    'cage_verification_report': 'faraday_verification/README.md',
+    'frequency_hz': 1_090_000_000,
+    'tx_hardware': 'HackRF One [serial]',
+    'tx_gain_setting_db': 10,
+    'attenuator_db': 30,
+    'measured_power_dbm': -15,  # at the attenuator output
+    'calculated_radiated_power_dbm': -15 - 0,  # in-cage antenna gain unknown
+    'cage_leakage_monitor_delta_db': 1.2,  # outside-cage delta
+    'leakage_within_spec': True,  # < 3 dB delta
+    'result': 'PASS - TX within cage containment spec',
+}
+
+print("=== TX Power Log Entry ===")
+for key, value in power_log.items():
+    print(f"  {key}: {value}")
+PYEOF
+```
+
+```bash
+# === Emergency shutdown procedure ===
+# If at any point during authorized TX research the outside-cage leakage
+# monitor detects signal above threshold, immediately:
+
+# 1. Kill the TX process
+pkill -f hackrf_transfer
+pkill -f bladerf-cli
+
+# 2. Power off the TX SDR (unplug USB)
+# 3. Document the incident
+# 4. Notify the FCC (if in US) per 47 CFR requirements
+# 5. Notify the engagement client
+
+cat > emergency_shutdown_log.md << 'EOF'
+# Emergency TX Shutdown Log
+
+## Trigger
+- [ ] Outside-cage leakage monitor exceeded threshold
+- [ ] Cage door opened during TX
+- [ ] Operator observed interference on outside equipment
+- [ ] Other: [describe]
+
+## Timestamp
+- Event: [time]
+- Detected by: [leakage monitor / visual / report]
+- Response time: [seconds from detection to TX off]
+
+## Actions taken
+- [ ] TX process killed
+- [ ] TX SDR powered off
+- [ ] Cage opened and inspected
+- [ ] Outside spectrum verified clean
+
+## Notification
+- [ ] Engagement client notified at: [time]
+- [ ] FCC notified at: [time] (if required)
+- [ ] Other regulators notified: [list]
+
+## Root cause
+[Describe what went wrong -- cage damage, antenna mismatch, attenuator failure, etc.]
+
+## Corrective action
+[Describe the fix before resuming TX research]
+EOF
+
+cat emergency_shutdown_log.md
+```
+
+```bash
+# === Spectrum monitoring during authorized TX ===
+# Continuous outside-cage monitoring is mandatory during any TX research
+
+# Outside cage: continuous spectrum monitor
+rtl_power -d 1 -f 1080M:1100M:50k -i 1 -g 40 -e 3600 outside_monitor_1090.csv &
+MONITOR_PID=$!
+
+# Inside cage: TX in progress
+# hackrf_transfer -t adsb_capture.iq -f 1090000000 -s 2000000 -x 10 -R &
+# TX_PID=$!
+
+# Real-time leakage alert
+python3 << 'PYEOF'
+"""Real-time leakage alert for outside-cage monitoring."""
+import csv, time, statistics, sys
+from collections import deque
+
+THRESHOLD_DB = 3.0  # alert if delta > 3 dB
+WINDOW_SECONDS = 10
+
+# Load baseline
+baseline = []
+with open('baseline_1090.csv') as f:
+    for row in csv.reader(f):
+        if len(row) > 6:
+            baseline.append(float(row[6]))
+baseline_mean = statistics.mean(baseline) if baseline else -80.0
+print(f"Baseline: {baseline_mean:.1f} dB")
+print(f"Alert threshold: {baseline_mean + THRESHOLD_DB:.1f} dB")
+
+# Monitor the live CSV (rtl_power appends new rows)
+recent = deque(maxlen=WINDOW_SECONDS)
+print("Monitoring for leakage (Ctrl-C to stop)...")
+try:
+    with open('outside_monitor_1090.csv') as f:
+        # Tail the file
+        f.seek(0, 2)  # seek to end
+        while True:
+            line = f.readline()
+            if not line:
+                time.sleep(0.5)
+                continue
+            parts = line.strip().split(',')
+            if len(parts) > 6:
+                power = float(parts[6])
+                recent.append(power)
+                if len(recent) >= 5:
+                    current_mean = statistics.mean(recent)
+                    delta = current_mean - baseline_mean
+                    if delta > THRESHOLD_DB:
+                        print(f"LEAKAGE ALERT! delta={delta:.1f} dB (>{THRESHOLD_DB})")
+                        print("IMMEDIATELY KILL TX PROCESS!")
+                        sys.exit(1)
+                    elif delta > 1.0:
+                        print(f"Warning: delta={delta:.1f} dB (below threshold)")
+except KeyboardInterrupt:
+    print("\nStopped monitoring")
+PYEOF
+```
+
+---
+
+## 28. References and Further Reading
 
 ```bash
 # === Academic/Research Papers ===

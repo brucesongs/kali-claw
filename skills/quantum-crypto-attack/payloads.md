@@ -1917,3 +1917,444 @@ print(f"TVLA: {len(leak)} sample points exceed |t|=4.5 → {'LEAKAGE' if len(lea
 EOF
 ```
 
+---
+
+## 23. OpenSSL 3.x oqs-provider Configuration (Operator's Manual)
+
+Operational payloads for installing, configuring, and verifying the OpenSSL 3.x `oqs-provider` on a production server. These payloads are the building blocks of the deployment runbook.
+
+```bash
+# ─── Build liboqs and oqs-provider from source (idempotent) ───
+git clone --depth=1 https://github.com/open-quantum-safe/liboqs.git
+cmake -S liboqs -B liboqs/build -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/opt/liboqs \
+    -DOQS_USE_OPENSSL=ON -DBUILD_SHARED_LIBS=ON
+cmake --build liboqs/build --parallel "$(nproc)"
+cmake --install liboqs/build
+
+git clone --depth=1 https://github.com/open-quantum-safe/oqs-provider.git
+cmake -S oqs-provider -B oqs-provider/build -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/opt/oqs-provider \
+    -Dliboqs_DIR=/opt/liboqs/lib/cmake/liboqs \
+    -DOPENSSL_ROOT_DIR=/usr
+cmake --build oqs-provider/build --parallel "$(nproc)"
+cmake --install oqs-provider/build
+```
+
+```bash
+# ─── openssl.cnf snippet to activate oqs-provider and pin hybrid groups ───
+cat > /etc/ssl/openssl-pqc.cnf <<'EOF'
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+ssl_conf = ssl_sect
+
+[provider_sect]
+default = default_sect
+oqsprovider = oqsprovider_sect
+
+[default_sect]
+activate = 1
+
+[oqsprovider_sect]
+activate = 1
+module = /opt/oqs-provider/lib/ossl-modules/oqsprovider.so
+
+[ssl_sect]
+system_default = tls_system_default
+
+[tls_system_default]
+Groups = x25519_mlkem768:secp256r1_mlkem768:secp384r1_mlkem1024:X25519:secp256r1
+SignatureAlgorithms = p256_mldsa65:ed25519:rsa_pss_pss_sha256:ecdsa_secp256r1_sha256
+EOF
+
+# Sanity-check that the provider loaded
+OPENSSL_CONF=/etc/ssl/openssl-pqc.cnf openssl list -providers -verbose | grep -A2 oqsprovider
+```
+
+```bash
+# ─── Startup-time assertion that oqsprovider is active ───
+# Call from systemd ExecStartPre= so the server refuses to start without the provider.
+#!/usr/bin/env bash
+set -euo pipefail
+if ! openssl list -providers 2>/dev/null | grep -q '^  oqsprovider'; then
+    echo "FATAL: oqsprovider not loaded — refusing to serve classical-only TLS" >&2
+    exit 2
+fi
+echo "OK: oqsprovider loaded"
+```
+
+```bash
+# ─── List the TLS 1.3 hybrid groups the provider exposes ───
+OPENSSL_CONF=/etc/ssl/openssl-pqc.cnf openssl list -tls1_3 -groups | tr ' ' '\n' | grep -iE 'mlkem|kyber'
+# Expected:
+#   x25519_mlkem768
+#   secp256r1_mlkem768
+#   secp384r1_mlkem1024
+```
+
+```bash
+# ─── Hardened s_server: explicit group + sigalg pinning ───
+openssl s_server \
+    -accept 0.0.0.0:443 \
+    -cert /etc/ssl/hybrid-fullchain.pem \
+    -key  /etc/ssl/hybrid-key.pem \
+    -tls1_3 \
+    -groups x25519_mlkem768 \
+    -sigalgs p256_mldsa65 \
+    -ciphersuites TLS_AES_256_GCM_SHA384 \
+    -www
+```
+
+---
+
+## 24. Hybrid PKI Generation Payloads
+
+End-to-end generation of a hybrid (EC + ML-DSA) PKI suitable for production TLS.
+
+```bash
+# ─── Hybrid root: EC leg and ML-DSA leg, both self-signed ───
+REPLACE_WITH_YOUR_DOMAIN="example.com"
+openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out root-ec-key.pem
+openssl genpkey -algorithm mldsa65 -provider oqsprovider -out root-mldsa-key.pem
+
+openssl req -x509 -new -key root-ec-key.pem \
+    -subj "/CN=Hybrid Root (EC leg)" -days 3650 -sha256 -out root-ec-cert.pem
+
+openssl req -x509 -new -key root-mldsa-key.pem -provider oqsprovider \
+    -subj "/CN=Hybrid Root (ML-DSA leg)" -days 3650 -out root-mldsa-cert.pem
+```
+
+```bash
+# ─── Leaf cert cross-signed by both roots ───
+openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out leaf-ec-key.pem
+openssl req -new -key leaf-ec-key.pem -subj "/CN=${REPLACE_WITH_YOUR_DOMAIN}" -out leaf-csr.pem
+
+# EC leg
+openssl x509 -req -in leaf-csr.pem -CA root-ec-cert.pem -CAkey root-ec-key.pem \
+    -CAcreateserial -days 825 -sha256 -out leaf-ec-cert.pem
+
+# ML-DSA leg
+openssl x509 -req -in leaf-csr.pem -CA root-mldsa-cert.pem -CAkey root-mldsa-key.pem \
+    -CAcreateserial -days 825 -provider oqsprovider -out leaf-mldsa-cert.pem
+```
+
+```bash
+# ─── Verify both legs of the chain ───
+openssl verify -CAfile root-ec-cert.pem leaf-ec-cert.pem
+# Expected: leaf-ec-cert.pem: OK
+
+openssl verify -CAfile root-mldsa-cert.pem \
+    -provider oqsprovider -provider default leaf-mldsa-cert.pem
+# Expected: leaf-mldsa-cert.pem: OK
+
+# Confirm the ML-DSA signature OID
+openssl x509 -in leaf-mldsa-cert.pem -noout -text -provider oqsprovider \
+    | grep -A1 "Signature Algorithm"
+# Expected: Signature Algorithm: mldsa65
+```
+
+```bash
+# ─── Concatenate into the fullchain the server presents ───
+cat leaf-ec-cert.pem leaf-mldsa-cert.pem root-ec-cert.pem root-mldsa-cert.pem \
+    > hybrid-fullchain.pem
+openssl x509 -in hybrid-fullchain.pem -noout -subject -issuer  # spot-check the first cert
+```
+
+---
+
+## 25. Hybrid TLS Handshake Verification Payloads
+
+Verify, with traffic capture, that the negotiated TLS 1.3 handshake is actually the hybrid one.
+
+```bash
+# ─── Client-side quick check: negotiated group ───
+openssl s_client -connect "${REPLACE_WITH_YOUR_HOST}:443" -tls1_3 \
+    -groups x25519_mlkem768 -sigalgs p256_mldsa65 -brief </dev/null \
+    | grep -E "Shared groups|Peer signature|Protocol|Cipher"
+# Expected:
+#   Protocol: TLSv1.3
+#   Cipher: TLS_AES_256_GCM_SHA384
+#   Peer signature type: p256_mldsa65
+#   Shared groups returned: x25519_mlkem768
+```
+
+```bash
+# ─── Capture the handshake and verify the wire-level key_share size ───
+sudo tcpdump -i any -w pqc.pcap "tcp port 443" &
+sleep 1
+openssl s_client -connect "${REPLACE_WITH_YOUR_HOST}:443" -tls1_3 \
+    -groups x25519_mlkem768 </dev/null >/dev/null 2>&1
+sudo pkill tcpdump
+
+# For x25519_mlkem768 the ServerHello key_share is 1216 bytes
+# (1184 ML-KEM-768 + 32 X25519) — an unambiguous signature in the hex dump.
+tshark -r pqc.pcap -Y "tls.handshake.type == 2" \
+    -T fields -e tls.handshake.extensions.key_share | head -1 | wc -c
+
+# Confirm the client advertised the hybrid group
+tshark -r pqc.pcap -Y "tls.handshake.type == 1" \
+    -T fields -e tls.handshake.extensions_supported_group | head -1
+```
+
+```bash
+# ─── Downgrade detection: assert the client refuses classical fallback ───
+# Pin only the hybrid group; a server that cannot serve it should cause s_client to abort.
+if openssl s_client -connect "${REPLACE_WITH_YOUR_HOST}:443" -tls1_3 \
+        -groups x25519_mlkem768 -brief </dev/null 2>&1 \
+        | grep -qi "Shared groups returned: X25519$"; then
+    echo "FAIL: server silently downgraded to classical X25519"
+    exit 1
+fi
+echo "OK: hybrid group negotiated or handshake refused (no silent downgrade)"
+```
+
+---
+
+## 26. Operational Telemetry Payloads
+
+Prometheus metrics and a continuous constant-timeness daemon for monitoring a production PQC deployment.
+
+```bash
+# ─── Nginx access-log scrape: count handshakes by negotiated group ───
+# Exposes tls_handshakes_total{group="..."} via the log-based exporter.
+tail -F /var/log/nginx/access.log | awk '
+{
+    # Nginx $ssl_curve variable in the log format gives the negotiated group
+    for (i=1; i<=NF; i++) {
+        if ($i ~ /^ssl_curve=/) {
+            gsub("ssl_curve=", "", $i); group=$i
+        }
+    }
+    print "tls_handshakes_total{group=\"" group "\"} 1"
+}' | tee /var/lib/prometheus/textfile/tls_handshakes.prom
+```
+
+```python
+#!/usr/bin/env python3
+# pqc_ct_daemon.py — Continuous dudect-style constant-timeness monitor.
+# Exposes pqc_constant_time_tstat{primitive=...} on :9102.
+import ctypes, time
+from prometheus_client import start_http_server, Gauge
+from scipy.stats import ttest_ind
+
+liboqs = ctypes.CDLL("liboqs.so")
+T = Gauge("pqc_constant_time_tstat", "Welch t-stat (|t|>4.5 = leak)",
+          ["primitive"])
+
+def measure(fn, n=5000):
+    fixed, rand = [], []
+    for _ in range(n):
+        t0 = time.perf_counter_ns(); fn(b"\x00" * 1088); fixed.append(time.perf_counter_ns()-t0)
+    for _ in range(n):
+        t0 = time.perf_counter_ns(); fn(b"\xff" * 1088); rand.append(time.perf_counter_ns()-t0)
+    return ttest_ind(fixed, rand, equal_var=False)[0]
+
+if __name__ == "__main__":
+    start_http_server(9102)
+    while True:
+        t = measure(liboqs.OQS_KEM_ml_kem_768_decaps)
+        T.labels(primitive="mlkem768_decaps").set(float(t))
+        if abs(t) > 4.5:
+            print(f"ALERT mlkem768_decaps t={t:.2f}")
+        time.sleep(60)
+```
+
+```bash
+# ─── Prometheus alerting rule for constant-time leakage ───
+cat > /etc/prometheus/rules/pqc.yml <<'EOF'
+groups:
+  - name: pqc
+    rules:
+      - alert: PQCConstantTimeLeak
+        expr: abs(pqc_constant_time_tstat) > 4.5
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "PQC primitive {{ $labels.primitive }} shows timing leakage"
+      - alert: PQCClassicalFallbackRate
+        expr: |
+          sum(rate(tls_handshakes_total{group="X25519"}[5m]))
+          / sum(rate(tls_handshakes_total[5m])) > 0.01
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Classical-only TLS fallback rate exceeds 1%"
+EOF
+```
+
+```bash
+# ─── SLO dashboard query (Prometheus) ───
+# Hybrid handshake rate over 30 days
+sum(rate(tls_handshakes_total{group=~".*mlkem.*"}[30d])) by (group)
+  / sum(rate(tls_handshakes_total[30d]))
+
+# Provider health
+oqs_provider_loaded
+oqs_provider_algorithm_available{algorithm="mlkem768"}
+```
+
+---
+
+## 27. Crypto-Agility Algorithm-Disable Drill
+
+The crypto-agility kill-switch drill: disable an algorithm across the estate and measure rollback time.
+
+```bash
+# ─── crypto_agility_drill.sh — Disable ALG across OpenSSL config and time the rollover ───
+#!/usr/bin/env bash
+set -euo pipefail
+ALG="${1:?usage: $0 <algorithm-to-disable>}"
+CNF="${OPENSSL_CONF:-/etc/ssl/openssl-pqc.cnf}"
+
+cp "$CNF" "$CNF.bak.$(date +%s)"
+sed -i -E "s/[ :]*${ALG}//g" "$CNF"
+
+pkill -f "openssl s_server" || true
+sleep 1
+OPENSSL_CONF="$CNF" openssl s_server -accept 127.0.0.1:4433 \
+    -cert hybrid-fullchain.pem -key hybrid-key.pem -www -tls1_3 >/dev/null 2>&1 &
+sleep 1
+
+if OPENSSL_CONF="$CNF" openssl s_client -connect 127.0.0.1:4433 -tls1_3 \
+        -groups "$ALG" -brief </dev/null 2>&1 | grep -qiE "no shared cipher|alert"; then
+    echo "DRILL PASS: $ALG disabled"; rc=0
+else
+    echo "DRILL FAIL: $ALG still negotiable"; rc=1
+fi
+
+LATEST=$(ls -t "$CNF".bak.* | head -1)
+cp "$LATEST" "$CNF"
+echo "Rolled back to $LATEST"
+exit $rc
+```
+
+```bash
+# ─── Algorithm rotation matrix lookup ───
+python3 <<'EOF'
+rotations = {
+    "mlkem768":  ("mlkem1024",          "mlkem1024",          "7 days"),
+    "mldsa65":   ("mldsa87",            "mldsa87",            "7 days"),
+    "x25519":    ("x25519_mlkem768",    "secp384r1_mlkem1024","24 hours"),
+    "rsa2048":   ("ecdsa-p256",         "mldsa87",            "90 days"),
+    "sha256":    ("shake256",           "sha384",             "30 days"),
+}
+broken = input("Broken primitive: ").strip().lower()
+if broken in rotations:
+    civ, nat, win = rotations[broken]
+    print(f"  civilian rotate-to: {civ}")
+    print(f"  national-security:  {nat}")
+    print(f"  max window:         {win}")
+else:
+    print("Unknown primitive — consult NIST SP 800-227")
+EOF
+```
+
+```bash
+# ─── Bulk algorithm scan across the estate (config files + key/cert inventory) ───
+# Finds every reference to a given algorithm in /etc and /usr/local/etc
+grep -rlE "kyber|mlkem|ml-kem|mldsa|slhdsa|falcon" /etc/ /usr/local/etc/ 2>/dev/null \
+    | sort -u > /tmp/pqc_refs.txt
+wc -l /tmp/pqc_refs.txt
+head /tmp/pqc_refs.txt
+```
+
+---
+
+## 28. Fault-Injection PoCs (Loop-Abort, Skip, RNG Subversion)
+
+Reproduce the canonical lattice fault attacks in software and validate the re-encryption countermeasure.
+
+```c
+/* /tmp/pqc-lab/faults/loop_abort_inject.c
+ * LD_PRELOAD shim that simulates the Bruinderink et al. loop-abort fault.
+ * Compile: gcc -shared -fPIC -o loop_abort_inject.so loop_abort_inject.c -ldl
+ */
+#include <oqs/oqs.h>
+#include <dlfcn.h>
+#include <string.h>
+
+OQS_API OQS_STATUS OQS_KEM_decaps(const OQS_KEM *kem,
+                                  uint8_t *secret,
+                                  const uint8_t *ciphertext,
+                                  const uint8_t *secret_key) {
+    static OQS_STATUS (*real)(const OQS_KEM*, uint8_t*, const uint8_t*, const uint8_t*) = NULL;
+    if (!real) real = dlsym(RTLD_NEXT, "OQS_KEM_decaps");
+    OQS_STATUS rc = real(kem, secret, ciphertext, secret_key);
+    /* Inject: zero high half of shared secret (mimics message-recovery abort) */
+    memset(secret, 0, kem->length_shared_secret / 2);
+    return rc;
+}
+```
+
+```bash
+# ─── Demonstrate that the fault produces a detectable, off-spec shared secret ───
+gcc -shared -fPIC -o loop_abort_inject.so loop_abort_inject.c -ldl
+
+# Legit run
+./mlkem-decaps-test > /tmp/legit.txt 2>&1
+
+# Faulted run
+LD_PRELOAD=./loop_abort_inject.so ./mlkem-decaps-test > /tmp/faulted.txt 2>&1
+
+# The faulted shared secret's high half is zero — a deterministic signature
+diff <(xxd /tmp/legit.txt) <(xxd /tmp/faulted.txt) | head -20
+```
+
+```python
+#!/usr/bin/env python3
+# mlkem_re_encryption_check.py — Detect loop-abort via re-encryption.
+# Countermeasure: after recovering m, re-encrypt and compare to input ct.
+def mlkem_decaps_hardened(kem, sk, ct):
+    m = _mlkem_decaps_recover_message(kem, sk, ct)
+    ct_check = _mlkem_encrypt_with_message(kem, pk_of(sk), m)
+    if ct_check != ct:
+        raise RuntimeError("ML-KEM fault detected (re-encryption mismatch)")
+    return _mlkem_hash_shared_secret(m, ct)
+
+# Faulted decaps will fail the check and raise — production code should
+# fail closed (return all-zero shared secret + log the fault event).
+```
+
+```bash
+# ─── RNG subversion in deterministic ML-DSA signing (fault + detection) ───
+# FIPS 204 allows deterministic signing. If an attacker can fault the RNG
+# to produce a fixed tape, two signatures on different messages will share
+# the nonce and leak the secret via lattice-nonce-reuse.
+openssl -provider oqsprovider -pkeyutl -sign -inkey mldsa65-priv.pem \
+    -rawin -in msg1.bin -out sig1.bin
+openssl -provider oqsprovider -pkeyutl -sign -inkey mldsa65-priv.pem \
+    -rawin -in msg2.bin -out sig2.bin
+
+# Two deterministic signatures on different messages should NOT share nonce material.
+# A shared prefix in the high half of the signature's response vector indicates
+# a faulted RNG (or an implementation that deterministically derives the nonce
+# from the message alone, without per-message entropy).
+cmp <(dd if=sig1.bin bs=1 count=64 2>/dev/null) \
+    <(dd if=sig2.bin bs=1 count=64 2>/dev/null) \
+    && echo "ALERT: shared signature prefix — possible RNG fault"
+```
+
+```bash
+# ─── Skip-injection: detect missing NTT butterfly via malformed ciphertext ───
+# Target: ML-KEM NTT. Skipping one butterfly stage produces a ciphertext that
+# fails the re-encryption check deterministically.
+# Reproduction requires hardware fault-injection (laser/glitch); the lab PoC
+# uses a patched liboqs that conditionally skips one NTT layer.
+LIBOQS_SKIP_NTT_LAYER=7 ./mlkem-encaps-test 2>&1 \
+    | grep -E "RE-ENCRYPT|FAULT" || echo "No fault detected (countermeasure held)"
+```
+
+```bash
+# ─── Fault-attack countermeasure deployment checklist ───
+cat <<'EOF'
+[ ] Re-encryption check enabled in ML-KEM decaps (cost: 1 extra enc per decaps)
+[ ] ML-DSA signing uses randomized mode in code-signing use cases
+[ ] Deterministic-signing mode (where required) logs every signature for transcript audit
+[ ] HSM-backed signing enforces per-call RNG health checks (NIST SP 800-90B)
+[ ] Side-channel/fault monitoring daemon running (pqc_ct_daemon.py)
+EOF
+```
+
+

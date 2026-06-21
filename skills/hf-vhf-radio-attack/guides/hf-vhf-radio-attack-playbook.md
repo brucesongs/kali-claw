@@ -617,6 +617,381 @@ kal -g 40 -e
 - **Wireless Telegraphy Act 2006 (UK)**: Governs unauthorized reception of certain transmissions
 - **Radiocommunications Act 1992 (Australia)**: Governs radio operations
 
+## Part 11: Antenna Design Basics for HF/VHF/UHF
+
+The antenna is the single largest determinant of receive performance, often mattering more than the SDR itself. This section covers the four most useful antenna families for licensed-band work and provides concrete dimensions for the frequencies in scope.
+
+### Quarter-Wave Ground Plane
+
+The simplest practical antenna. A vertical radiator of 1/4 wavelength, paired with 4 (or more) ground-plane radials angled 45 degrees downward to provide a stable impedance match near 50 ohms.
+
+**Quarter-wave element length formula**:
+
+```
+L_quarter (meters) = c / (4 * f) = 71.236 / f_MHz
+L_quarter (inches) = 2807 / f_MHz
+
+Examples:
+  1090 MHz ADS-B:    71.236 / 1090 = 65.4 mm  (2.57 in)
+  162 MHz AIS:       71.236 / 162   = 440 mm   (17.3 in)
+  131.55 MHz ACARS:  71.236 / 131.55 = 541 mm  (21.3 in)
+  156.8 MHz Ch 16:   71.236 / 156.8 = 454 mm   (17.9 in)
+  144.39 MHz APRS:   71.236 / 144.39 = 493 mm  (19.4 in)
+```
+
+**Construction**:
+
+1. Cut the radiator to the calculated length using brass, copper, or aluminum rod (1-3 mm diameter is fine for receive)
+2. Cut 4 radials of the same length
+3. Mount the radiator vertical on an SO-239 connector or similar feedpoint
+4. Solder the radials to the ground side of the connector at 90-degree intervals, angled 45 degrees down
+5. Attach coax (RG-58 for short runs, RG-8X or LMR-240 for longer runs) and weatherproof
+
+**Use cases**: single-band receive where simplicity is preferred over gain. Common for dedicated 1090 MHz ADS-B or 162 MHz AIS receive installations.
+
+### Dipole (Half-Wave)
+
+A half-wavelength center-fed dipole is the reference antenna against which others are measured (0 dBd gain = 2.15 dBi gain). It is horizontally polarized in its standard configuration, but can be mounted vertically for vertical-polarized signals (most licensed-band services are vertically polarized).
+
+**Half-wave length formula (free space)**:
+
+```
+L_half (meters) = c / (2 * f) = 142.47 / f_MHz
+
+Examples:
+  1090 MHz ADS-B:    142.47 / 1090 = 131 mm  (each half: 65 mm)
+  162 MHz AIS:       142.47 / 162   = 879 mm  (each half: 440 mm)
+  10 MHz WWV (HF):   142.47 / 10    = 14.25 m
+  5 MHz HF:          142.47 / 5     = 28.49 m
+```
+
+**End-effect correction**: real dipoles are typically 2-5% shorter than the free-space calculation due to the velocity factor of the wire and end capacitance. Practical formula: `L_half_practical = 142.47 / f_MHz * 0.95`.
+
+**Construction**:
+
+1. Cut two quarter-wave wires (with the 0.95 end-effect factor)
+2. Connect to a center insulator at the feedpoint (where coax attaches)
+3. Tie off the far ends to insulators (egg insulators, ceramic or plastic)
+4. Mount horizontally (flat-top) or as an inverted-V (apex up, ends down at 45 degrees)
+5. For vertical polarization, mount with the wires vertical (one above feedpoint, one below -- the lower wire becomes the "counterpoise")
+
+**Use cases**: HF receive (long wires are unwieldy; dipoles are more predictable); single-band VHF/UHF receive where you want a clean pattern.
+
+### Yagi-Uda (Directional)
+
+A Yagi adds parasitic elements (a reflector behind and one or more directors in front of the driven element) to a dipole to produce forward gain and a directional pattern. Useful for reception from a single direction where gain matters (fringe reception of a specific ATC tower, AIS from a specific direction, or L-band satellite downlinks).
+
+**Element spacing and dimensions** (3-element Yagi, common design):
+
+```
+Driven element:    L_half (with 0.95 end-effect) = 0.475 * wavelength
+Reflector:         0.495 * wavelength (5% longer than driven)
+Director 1:        0.440 * wavelength (7.5% shorter than driven)
+Element spacing:   0.15 wavelength between reflector and driven
+                   0.15 wavelength between driven and director 1
+
+For 1090 MHz ADS-B (wavelength = 275 mm):
+  Driven:    131 mm
+  Reflector: 137 mm
+  Director:  121 mm
+  Spacing:   41 mm between elements
+
+Approximate gain: 6-8 dBi (3-element)
+                  10-12 dBi (5-element)
+                  12-15 dBi (7-element)
+```
+
+**Construction**: PVC or wood boom (non-conductive), elements of aluminum rod or wire. For 1090 MHz, designs as small as a printed circuit board (the "cantenna" or PCB Yagi) work well. For lower frequencies (VHF), the elements are long enough that aluminum tubing is preferred.
+
+**Use cases**: fringe ADS-B reception (extending range from 200 nm to 300+ nm in one direction); directional AIS (focused on a port or sea lane); NOAA APT weather satellite downlink at 137 MHz; Inmarsat L-band at 1.5 GHz.
+
+### Discone (Wideband)
+
+The discone is the workhorse wideband receive antenna. A flat disc on top, a cone below, fed at the junction. Covers a very wide frequency range (typical commercial discones cover 25 MHz to 1300 MHz or wider) with low but consistent gain.
+
+**Typical specs**: -2 to +2 dBi gain, omnidirectional, VSWR < 2.5:1 across the rated band.
+
+**Why use a discone**:
+
+- One antenna covers ALL licensed-band receive use cases (ATC voice, ACARS, ADS-B, AIS, pagers, public safety)
+- Simple installation (single mast, single feedline)
+- Reasonable performance when you don't know exactly what you're looking for
+
+**Trade-offs**:
+
+- Lower gain than a dedicated antenna for any single band
+- Cannot transmit at full power on all bands (VSWR varies)
+- Physical size for low-frequency coverage (a 25-MHz-capable discone is ~2 meters tall)
+
+**Commercial options**:
+
+| Model | Frequency range | Cost | Notes |
+|-------|----------------|------|-------|
+| Diamond D130J | 25-1300 MHz | $90 | Industry standard for scanner enthusiasts |
+| Comet DS300S | 100-1300 MHz | $100 | Smaller than D130J, sacrifices low VHF |
+| Watson WSD-882 | 25-1300 MHz | $70 | Budget option, similar to D130J |
+| AOR SA7000 | 75-2200 MHz | $200 | Premium wideband receive |
+| Create Design DISC | 50-1500 MHz | $250 | Premium build quality |
+
+**Installation guidance**:
+
+1. Mount at the highest practical point with clear line-of-sight
+2. Use LMR-400 or similar low-loss coax for runs > 10 meters
+3. Weatherproof the connectors (self-amalgamating tape, then UV-resistant tape)
+4. Add a lightning arrestor at the building entry point
+5. Ground the mast to the building's electrical ground per NEC 810
+
+### Antenna Selection Decision Matrix
+
+| Engagement type | Recommended antenna | Why |
+|-----------------|---------------------|-----|
+| ADS-B only | Dedicated 1090 MHz collinear (8-element coco) | Best omnidirectional gain for aircraft at altitude |
+| AIS only | VHF marine vertical (J-pole or ground plane) | Matched to AIS band, marine-rated for outdoor use |
+| Pager audit (single band) | Quarter-wave ground plane for the band | Cheap, simple, sufficient |
+| Multi-service receive (one antenna) | Discone (D130J or equivalent) | Covers all VHF/UHF licensed bands |
+| HF receive (NDB, weather fax, HFDL) | Magnetic loop (Wellbrook ALA1530) | Directional null for noise rejection in urban areas |
+| L-band satellite | Patch or helix with LNA | Matched to circular polarization and weak signals |
+| Fringe ADS-B reception | 1090 MHz Yagi pointed at airway | Directional gain for distant traffic |
+| Mobile / portable | Discone or whip on vehicle | Compact, covers bands, vehicle ground plane |
+
+### Antenna Analyzers (NanoVNA and Beyond)
+
+A NanoVNA ($50-$100) is an essential tool for any antenna work beyond "plug it in and see if it works." It measures VSWR, return loss, impedance, and phase across the frequency range.
+
+```bash
+# Connect NanoVNA to antenna under test (through the actual feedline if possible)
+# Calibrate at the antenna feedpoint using the included calibration standards
+
+# Sweep 1090 MHz ADS-B antenna:
+#   Start: 1000 MHz
+#   Stop: 1200 MHz
+#   Look for VSWR minimum at 1090 MHz
+#   Good: VSWR < 1.5:1 at 1090 MHz
+#   Acceptable: VSWR < 2:1 at 1090 MHz
+#   Tuning required: VSWR > 2:1
+
+# Sweep 162 MHz AIS antenna:
+#   Start: 150 MHz
+#   Stop: 170 MHz
+#   Look for VSWR minimum at 162 MHz
+#   AIS antennas should cover both 161.975 and 162.025 MHz
+
+# Sweep HF dipole (e.g., 14 MHz amateur band):
+#   Start: 13 MHz
+#   Stop: 15 MHz
+#   Look for resonance at 14.2 MHz
+
+# Document measurements per antenna
+echo "Antenna: $ANTENNA_MODEL" > antenna_sweep_$(date +%Y%m%d).txt
+echo "Date: $(date -u)" >> antenna_sweep_$(date +%Y%m%d).txt
+echo "VSWR at design freq: [measurement]" >> antenna_sweep_$(date +%Y%m%d).txt
+```
+
+For spectrum monitoring during engagements, the NanoVNA can also be used as a simple signal source for cable testing and feedline loss measurement.
+
+### Common Antenna Mistakes
+
+- **Indoor mounting**: HF/VHF signals attenuate heavily through buildings; antennas should be outdoors with sky/water visibility
+- **Wrong polarization**: most licensed services use vertical polarization; a horizontal dipole will suffer 20+ dB cross-polarization loss
+- **Bad feedline**: RG-58 loses 10+ dB per 30 meters at 1 GHz; use LMR-240 or better for VHF/UHF
+- **No lightning protection**: any outdoor antenna needs a lightning arrestor at the building entry
+- **Ignoring the noise floor**: urban HF noise from switching supplies can mask everything; magnetic loops with nulls are essential
+
+## Part 12: SDR Hardware Selection Matrix
+
+Choosing the right SDR for a specific task requires balancing frequency range, bandwidth, sample depth, TX capability, and budget. This section provides decision trees and matrices for the common engagement scenarios.
+
+### RX-Only vs TX/RX vs Full-Duplex
+
+The first decision is whether you need transmit capability at all.
+
+**RX-only (90% of engagements)**:
+
+- Passive reception is universally legal (with jurisdiction-specific exceptions for some cellular bands)
+- Lower cost ($30-$200)
+- Lower risk profile (no possibility of accidental interference)
+- Sufficient for: ADS-B, AIS, ACARS, VDL Mode 2, HFDL, POCSAG, FLEX, APRS, NDB, weather fax, DSC, ATC voice, maritime VHF voice, MLAT, TIS-B, Inmarsat, Iridium
+
+**TX/RX half-duplex (authorized lab research)**:
+
+- Required for: spoofing lab demonstrations, protocol replay research
+- Higher cost ($300-$500)
+- Requires Faraday cage and explicit authorization
+- Suitable platforms: HackRF One, PlutoSDR, LimeSDR
+
+**Full-duplex (advanced protocol emulation)**:
+
+- Required for: simultaneous TX/RX protocol emulation (VDL Mode 2 relay, custom MAC-layer research)
+- Highest cost ($480-$3000+)
+- Requires Faraday cage and explicit authorization
+- Suitable platforms: BladeRF 2.0 micro a4, USRP B210, USRP X310
+
+### Decision Tree: RX-Only Engagements
+
+```
+Q: What frequency range do you need to receive?
+│
+├─ HF only (3-30 MHz: NDB, weather fax, HFDL, MF/HF DSC)
+│  └─ AirSpy HF+ Discovery ($170)
+│     (best HF performance under $2000; 9 kHz - 31 MHz native;
+│      60-260 MHz VHF coverage bonus)
+│
+├─ VHF/UHF only (30-1700 MHz: ADS-B, AIS, ACARS, VDL2, POCSAG, ATC voice)
+│  └─ RTL-SDR v3 ($30)
+│     (90% of licensed-band receive work; Q-branch direct sampling
+│      extends to HF for occasional use)
+│
+├─ HF + VHF/UHF (both bands)
+│  └─ Two devices: RTL-SDR v3 ($30) + AirSpy HF+ Discovery ($170)
+│     (combined $200 covers 9 kHz - 1766 MHz)
+│
+└─ Wideband + high dynamic range (multi-band, weak signals)
+   └─ SDRplay RSPdx ($200)
+      (1 kHz - 2 GHz, 10 MHz bandwidth, built-in notch filters
+       for strong out-of-band signals)
+```
+
+### Decision Tree: TX/RX Research
+
+```
+Q: What kind of TX research do you need?
+│
+├─ Protocol replay (capture signal, replay it)
+│  └─ HackRF One ($330)
+│     (1 MHz - 6 GHz, half-duplex; standard for replay attacks
+│      in authorized Faraday cage environment)
+│
+├─ Custom protocol emulation (full GNU Radio flowgraphs)
+│  └─ PlutoSDR ($200) or LimeSDR ($300)
+│     (PlutoSDR has best Analog Devices GNURadio integration;
+│      LimeSDR has wider frequency range)
+│
+├─ Full-duplex emulation (TX and RX simultaneously)
+│  └─ BladeRF 2.0 micro a4 ($480)
+│     (47 MHz - 6 GHz, full-duplex; needed for protocol relay
+│      research where TX and RX overlap in time)
+│
+└─ Professional engagement / MIMO
+   └─ USRP B210 ($1200) or X310 ($3000+)
+      (Ettus USRP is the professional standard; X310 for
+       research-grade multi-channel synchronous capture)
+```
+
+### Full Hardware Comparison Matrix
+
+| Platform | Freq Range | Bandwidth | Sample Bits | TX? | Duplex | Cost | Best For |
+|----------|-----------|-----------|-------------|-----|--------|------|----------|
+| RTL-SDR v3 | 24-1766 MHz (HF via Q-branch) | 2.4 MHz | 8 | No | N/A | $30 | 90% of RX-only work |
+| AirSpy HF+ Discovery | 9 kHz - 31 MHz (HF), 60-260 MHz (VHF) | 768 kHz (HF) | 16 | No | N/A | $170 | Serious HF work |
+| AirSpy R2 | 24-1700 MHz | 10 MHz | 12 | No | N/A | $170 | High dynamic range VHF/UHF |
+| SDRplay RSPdx | 1 kHz - 2 GHz | 10 MHz | 14 | No | N/A | $200 | Wideband, multi-antenna |
+| HackRF One | 1 MHz - 6 GHz | 20 MHz | 8 | Yes | Half | $330 | Authorized TX research, replay |
+| PlutoSDR | 70-6000 MHz (modded) | 20 MHz | 12 | Yes | Half | $200 | GNU Radio protocol emulation |
+| LimeSDR USB | 100 kHz - 3.8 GHz | 30 MHz | 12 | Yes | Half | $300 | Cost-effective TX/RX |
+| BladeRF 2.0 micro a4 | 47 MHz - 6 GHz | 56 MHz | 12 | Yes | Full | $480 | Full-duplex protocol emulation |
+| USRP B210 | 70 MHz - 6 GHz | 56 MHz | 12 | Yes | Full | $1200 | Professional engagements |
+| USRP X310 | DC - 6 GHz | 100 MHz | 14 | Yes | Full | $3000+ | Research-grade MIMO |
+
+### Bandwidth Requirements by Service
+
+Different licensed services need different minimum bandwidths. Match the SDR bandwidth to the service.
+
+| Service | Bandwidth needed | Suitable SDRs |
+|---------|------------------|---------------|
+| POCSAG-1200 (25 kHz channel) | 50 kHz | Any |
+| APRS (25 kHz channel) | 50 kHz | Any |
+| AIS (25 kHz per channel, both channels = 100 kHz) | 200 kHz | Any |
+| ACARS (25 kHz channel) | 50 kHz | Any |
+| VDL Mode 2 (25 kHz channel, 31.5 kbaud) | 100 kHz | Any |
+| HFDL (single channel, 1.8 kbaud) | 5 kHz | Any HF-capable |
+| ADS-B (1 Mbps PPM) | 2 MHz | RTL-SDR v3 (2.4 MHz) |
+| UAT (1 Mbps GFSK) | 2 MHz | RTL-SDR v3 |
+| FLEX-6400 (25 kHz channel) | 50 kHz | Any |
+| ATC voice AM (8.33 kHz spacing) | 25 kHz | Any |
+| Inmarsat STD-C (600 bps TDMA) | 100 kHz | AirSpy R2 / HackRF |
+| Iridium (TDMA QPSK) | 4 MHz | HackRF / AirSpy |
+
+### Multi-SDR Deployments
+
+For simultaneous multi-service monitoring, you need multiple SDRs. Typical configurations:
+
+**Three-receiver aviation lab** ($90 total):
+
+- 1x RTL-SDR v3 for ADS-B (1090 MHz)
+- 1x RTL-SDR v3 for ACARS (131.550 MHz)
+- 1x RTL-SDR v3 for ATC voice sweep (118-137 MHz)
+
+**Comprehensive licensed-band lab** ($200-$1000):
+
+- 1x RTL-SDR v3 for VHF/UHF services
+- 1x AirSpy HF+ Discovery for HF services
+- Optional: 1x HackRF One for authorized TX research (Faraday cage required)
+
+**Professional engagement kit** ($1500+):
+
+- 2x RTL-SDR v3 (one primary, one backup)
+- 1x AirSpy HF+ Discovery for HF
+- 1x HackRF One for authorized TX (with Faraday cage)
+- 1x NanoVNA for antenna verification
+- Full antenna kit: 1090 MHz collinear, VHF air discone, VHF marine, HF magnetic loop, L-band patch
+
+### Coexistence and USB Bandwidth
+
+Multiple RTL-SDRs on one host share USB 2.0 bandwidth (480 Mbps theoretical, ~320 Mbps practical). Three RTL-SDRs at 2.4 MSPS each consume ~115 Mbps, well within budget. Adding a fourth requires careful USB controller planning (use a PCIe USB card with multiple controllers, not a hub).
+
+```bash
+# Verify USB bandwidth allocation
+lsusb -t
+# Output shows USB tree with bandwidth per device
+
+# For high-sample-rate SDRs (HackRF at 20 MSPS = 320 Mbps), use a
+# dedicated USB 3.0 controller (not shared with other devices)
+
+# Verify HackRF can sustain full rate
+hackrf_transfer -t test.raw -f 100000000 -s 20000000 -l 16 -x 16 -n 1000000
+# If samples are dropped, USB bandwidth is insufficient
+```
+
+### Power and Environmental Considerations
+
+- **RTL-SDR v3**: 280 mA at 5V; runs fine on a laptop USB port or a 5V/2A USB power supply
+- **AirSpy HF+ Discovery**: 300 mA at 5V; same as RTL-SDR
+- **HackRF One**: 500 mA typical, up to 1A during TX; use a powered USB hub or dedicated supply
+- **BladeRF 2.0 micro a4**: 1-2 A during full-duplex operation; powered USB hub required
+- **USRP B210**: 2-3 A; requires dedicated power supply or powered USB 3.0 hub
+
+For outdoor deployments, weatherproof enclosures with active cooling may be needed for the SDR and a small single-board computer (Raspberry Pi 4 or similar) running the decoder stack.
+
+### Recommended Starter Kits
+
+**Budget licensed-band kit ($60)**:
+
+- 1x RTL-SDR v3 ($30)
+- 1x 1090 MHz antenna ($25 homemade collinear or $10 whip)
+- 1x coax adapter kit ($5)
+
+Covers: ADS-B, AIS, ACARS (one at a time), POCSAG, APRS, ATC voice.
+
+**Comprehensive receive kit ($300)**:
+
+- 1x RTL-SDR v3 ($30)
+- 1x AirSpy HF+ Discovery ($170)
+- 1x discone antenna ($90)
+- 1x HF long-wire kit ($10)
+- Coax and adapters ($30)
+
+Covers: all licensed-band receive services from 9 kHz to 1300 MHz.
+
+**Full TX/RX research kit ($1300)**:
+
+- All of the above ($300)
+- 1x HackRF One ($330)
+- 1x NanoVNA ($100)
+- 1x desktop Faraday cage ($500)
+- Assorted attenuators, dummy loads, adapters ($70)
+
+Covers: all licensed-band receive services plus authorized TX research in a controlled environment.
+
 ## Conclusion
 
 Licensed HF/VHF/UHF radio assessment is a high-value, low-risk engagement activity when conducted as receive-side intelligence. The inherent insecurity of ADS-B, AIS, ACARS, and pager protocols -- designed in an era before software-defined radio democratized RF reception -- creates a rich surface for OPSEC findings and remediation recommendations.

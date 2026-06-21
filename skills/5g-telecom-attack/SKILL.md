@@ -15,7 +15,7 @@ metadata:
   domain: telecom
   category: telecom
   tool_count: 13
-  guide_count: 1
+  guide_count: 2
   mitre: "TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration"
   keywords: [5g, telecom, srsran, open5gs, pfcp, gtp, diameter, ss7, imsi-catcher, oran, roaming, sms-interception]
 ---
@@ -25,8 +25,9 @@ metadata:
 
 > **Supplementary Files**:
 > - `payloads.md` — Command catalogue for 5G core, RAN, and legacy signaling attack surfaces — 18 sections with real commands: Open5GS+UERANSIM Docker lab bring-up, srsRAN gNodeB with USRP/BladeRF, AMF NGAP/SCTP reconnaissance, SMF/UPF PFCP enumeration, PacketRusher fuzzing, GTP-U tunnel injection, GTP-C scapy fuzzing, Diameter (S6a/Sh/Rx) roaming testing, SS7 MAP legacy context, IMSI catcher detection workflow, SUCI/SUPI privacy analysis, NAS SMS interception, O-RAN O1/O2/E2 interface testing, SEPP/border gateway roaming abuse, network slice isolation tests, Wireshark 5G dissectors (NGAP/PFCP/GTP), blue-side detection engineering (Suricata/Splunk), quick reference cheat sheet.
-> - `test-cases.md` — Structured test cases (TC-5G-001..012): Open5GS+UERANSIM lab bring-up, AMF NGAP fingerprinting, PFCP enumeration of SMF, GTP-U tunnel injection, GTP-C fuzzing with scapy, Diameter S6a testing, SS7 MAP legacy+caveats, IMSI catcher detection workflow, SUCI/SUPI privacy analysis, O-RAN O1 interface scan, network slice isolation test, 5G dissection with tshark.
+> - `test-cases.md` — Structured test cases (TC-5G-001..018): Open5GS+UERANSIM lab bring-up, AMF NGAP fingerprinting, PFCP enumeration of SMF, GTP-U tunnel injection, GTP-C fuzzing with scapy, Diameter S6a testing, SS7 MAP legacy+caveats, IMSI catcher detection workflow, SUCI/SUPI privacy analysis, O-RAN O1 interface scan, network slice isolation test, 5G dissection with tshark, PFCP Session Deletion DoS (Praetorian), PFCP Session Modification redirection, Diameter ULR unauthorized location retrieval, SUCI replay and null-scheme detection, O-RAN Near-RT RIC E2 test, SEPP N32 roaming filter bypass — plus a Verification Checklist and Defense/Mitigation Patterns section.
 > - `guides/5g-telecom-attack-playbook.md` — End-to-end telecom red team playbook: scope/legal (frequency licensing, jammer laws, GSMA disclosure) → 5G architecture refresher (AMF/SMF/UPF/AUSF/UDM/PCF/NRF/NSSF, N1-N11) → lab build (Open5GS+UERANSIM Docker, srsRAN gNB, SDR hardware) → signaling methodology (NGAP/SCTP recon → PFCP probing → GTP injection → fuzzing) → real-world incidents (Karsten Nohl SS7, Praetorian 5G DoS, Positive Technologies 2023, Alonso 5G privacy) → references (3GPP TS 33.501/33.401/29.244, NIST 5G cybersecurity guide, ENISA 5G threat landscape).
+> - `guides/5g-telecom-attack-deep-dive.md` — Step-by-step lab reproduction deep dive: Open5GS+UERANSIM full-stack bring-up, PFCP Praetorian (2019) DoS class reproduction with working scapy PoC, Diameter S6a ULR abuse lab (OsmoHLR + seagull), IMSI catcher detection with srsRAN + AIMSICD, SUCI/SUPI ECIES decryption PoC (Alonso et al. 2021 class), MITRE ATT&CK and 3GPP TS 33.501 control crosswalk, per-finding and engagement-summary reporting templates, full 3GPP/GSMA/NIST/ENISA reference bibliography.
 
 ## Summary
 
@@ -258,5 +259,182 @@ This skill is the **only** telecom-focused skill in the workspace. The closest a
 - `cloud-identity-attack/SKILL.md` — cloud identity infrastructure
 - `network-tunneling-proxy/SKILL.md` — GTP-U and other tunnel protocols overlap
 - `payloads.md` — 18 sections of working telecom attack commands
-- `test-cases.md` — 12 structured test cases (TC-5G-001..012)
+- `test-cases.md` — 18 structured test cases (TC-5G-001..018)
 - `guides/5g-telecom-attack-playbook.md` — end-to-end red team playbook with lab setup, signaling methodology, real-world incidents, and 3GPP/NIST/ENISA references
+- `guides/5g-telecom-attack-deep-dive.md` — step-by-step lab reproduction: PFCP DoS, Diameter abuse, IMSI catcher detection, SUCI decryption
+
+## 5G Core (5GC) Component Reference
+
+The 5G Core is a service-based architecture (SBA) of Network Functions (NFs) exposing HTTP/2 + JSON APIs on the Service-Based Interface (SBI). Each NF has a specific role and an attack surface that engagement scoping must address individually.
+
+| NF | Role | Reference Point | Attack Surface |
+|----|------|-----------------|----------------|
+| AMF | Access & Mobility Management; terminates NGAP and NAS | N1 (NAS), N2 (NGAP) | SCTP 38412 — NGAP DoS, NAS replay, 5G-GUTI tracking |
+| SMF | Session Management; controls UPF via PFCP | N4 (PFCP) | UDP 8805 — PFCP injection, session teardown, F-TEID redirect |
+| UPF | User Plane; GTP-U tunnels to gNB | N3 (GTP-U downlink), N9 (inter-UPF) | UDP 2152 — GTP-U injection, TEID enumeration, source spoofing |
+| AUSF | Authentication (5G-AKA / EAP-AKA') | N12 (SBI) | HTTP/2 — auth vector replay, algorithm downgrade |
+| UDM | Unified Data Management; subscriber profile + auth vectors | N8, N10 | HTTP/2 — subscription enumeration, auth vector leak |
+| UDR | Unified Data Repository; actual subscriber DB | N35, N36 | HTTP/2 — DB enumeration, unauthorized reads |
+| PCF | Policy Control; QoS, charging | N7, N15 | HTTP/2 — policy tampering, QoS manipulation |
+| NRF | Network Repository; service discovery | SBI (all NFs) | HTTP/2 7777 — full NF inventory leak (analogous to `Get-ADUser -Filter *`) |
+| NSSF | Network Slice Selection | N22 | HTTP/2 — slice mis-routing, cross-slice access |
+| SEPP | Security Edge Protection Proxy; N32 roaming boundary | N32 (inter-operator) | HTTP/2 8443 — pass-through misconfiguration, JOSE tampering |
+
+## Radio Access Network (RAN) Architecture
+
+The 5G RAN consists of gNodeBs (gNBs) that may be monolithic (UERANSIM, srsRAN_Project single-binary) or disaggregated per the O-RAN Alliance architecture:
+
+- **O-RU** (Radio Unit) — RF processing, low-PHY
+- **O-DU** (Distributed Unit) — high-PHY, MAC, RLC
+- **O-CU-CP** (Centralized Unit — Control Plane) — RRC
+- **O-CU-UP** (Centralized Unit — User Plane) — PDCP, SDAP
+- **Near-RT RIC** (Near Real-Time RAN Intelligent Controller) — E2 interface, xApps
+- **Non-RT RIC** (Non Real-Time RIC) — A1 interface, rApps
+
+Reference points within the RAN:
+
+| Reference Point | Between | Protocol | Port |
+|-----------------|---------|----------|------|
+| N2 | gNB ↔ AMF | NGAP over SCTP | 38412 |
+| N3 | gNB ↔ UPF | GTP-U | 2152 |
+| E2 | Near-RT RIC ↔ O-CU/O-DU | E2AP over SCTP | 38472/38473 |
+| A1 | Non-RT RIC ↔ Near-RT RIC | HTTP/2 + JSON | 443 |
+| O1 | SMO ↔ O-RU/O-DU/O-CU | NETCONF/RESTCONF | 830/443 |
+| O2 | SMO ↔ O-Cloud | Kubernetes API | 6443 |
+
+## Inter-Operator Interconnect (Roaming)
+
+The third tier of the 5G system is the inter-operator interconnect. Three protocol generations coexist:
+
+- **SEPP / N32** (5G) — Security Edge Protection Proxy. HTTP/2 with JOSE (JWS/JWE) message-level integrity and confidentiality. Deployed at the boundary between visited and home 5G cores.
+- **Diameter** (4G/LTE) — S6a (MME↔HSS), Sh (HSS↔AS), Rx (PCRF↔AS). SCTP 3868. The Positive Technologies (2017-2023) research demonstrated the same abuse class as SS7.
+- **SS7/MAP** (2G/3G) — Mobile Application Part over TCAP over SCCP. The Karsten Nohl (2014-2016) research demonstrated location tracking and call/SMS interception via unauthorized PSI/SAI.
+
+Each generation attempted to fix the prior's authentication weaknesses. SEPP is the strongest (mandatory JOSE), but field deployments often run it in pass-through, negating the protection.
+
+## Subscriber Identity Model
+
+5G subscriber identity has four layers, each with a distinct attack surface:
+
+- **SUPI** (Subscriber Permanent Identifier) — the 5G IMSI. MCC-MNC-MSIN. Permanent, never sent in cleartext on the air in a properly-deployed 5G network.
+- **SUCI** (Subscriber Concealed Identifier) — SUPI encrypted with the operator's home network public key using ECIES (Profile A: Curve25519; Profile B: secp256r1). Sent on the air during initial registration. Vulnerable if operator uses null scheme (protection_scheme=0) or weak/compromised public key.
+- **5G-GUTI** (5G Globally Unique Temporary Identifier) — temporary ID assigned by AMF after first registration. Replaces SUCI for subsequent messages. Tracking via 5G-GUTI reallocation patterns is a known privacy risk.
+- **PEI** (Permanent Equipment Identifier) — device IMEI. Sent only after NAS security activation in properly-deployed networks.
+
+The **Alonso et al. (2021)** research demonstrated SUCI decryption in lab conditions against operators with weak home network public keys, and the null-scheme variant is observed in early-deployment operators.
+
+## Legal and Regulatory Considerations
+
+Telecom red team engagements carry the strictest legal regime of any skill in the workspace. Every engagement must address:
+
+- **Frequency licensing** — Active transmission on licensed cellular bands requires the operator's authorization AND (in most jurisdictions) a regulator-issued test license. Passive reception is legal in most jurisdictions; active transmission is not. Section 5 of `guides/5g-telecom-attack-deep-dive.md` (IMSI catcher detection) is strictly passive.
+- **Jammer laws** — In the US, 47 USC §333 prohibits jamming. In the EU, national implementations of the Radio Equipment Directive prohibit jamming. Most other jurisdictions have equivalents. The skill explicitly excludes jammer testing from scope.
+- **Production subscriber data** — NEVER use production IMSIs/SUPIs in testing. Always provision engagement-scoped test subscribers (MCC 001 / MNC 01 test PLMN or the operator's designated test range).
+- **Roaming partner authorization** — Any Diameter S6a, SS7 MAP, or SEPP N32 testing that touches the roaming interconnect requires explicit written authorization from BOTH the home AND visited networks.
+- **GSMA coordinated disclosure** — Operator-side findings are coordinated via GSMA FS-IS (Fraud and Security Intelligence Group) and 3GPP SA3 Liaison. Reference GSMA FS.32 (SS7), FS.33 (Diameter/SEPP), and the operator's roaming agreement security clauses.
+- **Regulator notification** — In many jurisdictions (EU NIS2, US FCC), a confirmed operator-side vulnerability with subscriber impact triggers regulatory notification. Confirm with the operator's legal team before filing.
+
+## PFCP Attack Surface Deep Dive
+
+The Packet Forwarding Control Protocol (PFCP, 3GPP TS 29.244) is the N4 interface between SMF and UPF. PFCP installs forwarding rules per subscriber session, addressed by a 64-bit SEID (Session Endpoint Identifier). Key attack surface:
+
+- **Unauthenticated source** — Most UPFs trust any PFCP message from UDP 8805 that arrives from the SMF's IP. An attacker who can spoof the SMF source (or send from a peer SMF in multi-SMF deployments) can inject forged PFCP Session Deletion or Modification Requests.
+- **SEID predictability** — Lab UPFs (Open5GS, free5GC) often start SEIDs at 1 and increment monotonically. Production UPFs use random 64-bit SEIDs. Predictable SEIDs lower the bar for blind injection.
+- **Praetorian (2019) class** — Inject a PFCP Session Deletion Request with a captured SEID from a non-SMF vantage → subscriber session torn down → DoS for every subscriber whose session the UPF drops.
+- **Redirection variant** — Inject a PFCP Session Modification Request changing the far-end F-TEID to an attacker-controlled endpoint → subscriber uplink traffic redirected to attacker → exfiltration.
+- **Mitigation** — DTLS on N4 (TS 33.501 §6.6.2), UPF source IP allowlist, per-session SEID validation against SMF peer, monitoring for PFCP Session Deletion Requests without SMF-initiated cause.
+
+## Diameter and SS7 Attack Surfaces
+
+The 4G/LTE Diameter S6a interface and the 2G/3G SS7 MAP interface carry the same abuse class. An attacker with access to a roaming peer (or stolen peer credentials) can:
+
+- **Update-Location-Request (ULR)** — cmd-code 316 in Diameter, "updateLocation" operation in SS7 MAP. Retrieve authentication vectors for any IMSI in any home network. The vulnerable HSS/HLR returns vectors without verifying the visited-network context.
+- **Provide-Subscriber-Info (PSI)** — cmd-code 838903 in Diameter, "provideSubscriberInfo" operation in SS7 MAP. Retrieve subscriber location (cell ID, VLR address) for any IMSI.
+- **Insert-Subscriber-Data (IDR/ISD)** — Modify subscriber profile fields (e.g., charging profile, service flags) from a visited peer.
+
+The **Positive Technologies (2017-2023)** research series documented these for multiple operators. Mitigation requires deployment of a signaling firewall (GSMA FS.32 for SS7, FS.33 for Diameter/SEPP) that enforces IMSI↔visited-network pair validation.
+
+## O-RAN Security Architecture
+
+The O-RAN Alliance architecture exposes new interfaces with new attack surfaces:
+
+- **O1** (Operations) — NETCONF/RESTCONF (SSH 830, HTTPS 443). Vulnerabilities: default credentials on O-RU/O-DU/O-CU, weak TLS (TLSv1.0/1.1), command injection in YANG model string inputs.
+- **O2** (Cloud-Native) — Kubernetes API (6443). Vulnerabilities: over-permissive RBAC, unauthenticated Helm chart deployment, container escape to host.
+- **E2** (Near-RT RIC) — E2AP over SCTP (38472/38473). Vulnerabilities: unauthenticated E2AP, weak mTLS, malicious xApp deployment.
+- **A1** (Non-RT RIC) — HTTP/2 (443). Vulnerabilities: shared bearer tokens, unscoped OAuth2.
+
+The O-RAN Alliance WG11 (Security) specifications define the required controls. Adoption is uneven in early deployments; engagements frequently find default credentials and unauthenticated management interfaces.
+
+## Real-World Incident Timeline
+
+The 5G/telecom attack class is one of the oldest in information security. Major public milestones:
+
+- **2008 (Tobias Engel, 25C3)** — Demonstrated SS7 MAP location tracking and call/SMS interception at the Chaos Communication Congress.
+- **2014-2016 (Karsten Nohl, BlackHat / 31C3)** — Demonstrated SS7-based interception of calls and SMS of members of multiple national governments.
+- **2017-2023 (Positive Technologies)** — Series demonstrating the same abuse class on Diameter (4G/LTE S6a) and early 5G interconnect.
+- **2019 (Praetorian)** — 5G core PFCP DoS vulnerability disclosure. Demonstrated mass session teardown via forged PFCP Session Deletion Request on N4.
+- **2021 (Alonso et al.)** — SUCI/SUPI privacy analysis demonstrating that 5G's ECIES protection scheme is vulnerable when the operator uses a weak or known-compromised home network public key.
+- **2023 (Positive Technologies)** — Updated 5G core research identifying ongoing SEPP pass-through misconfigurations and inter-operator abuse.
+
+Each incident drove a control response: GSMA FS.32 (SS7 firewall), FS.33 (Diameter/SEPP), 3GPP TS 33.501 §6.6 (N4 DTLS), §6.12 (SUCI), §6.2.6 (SEPP). Engagements verify that operators have actually deployed the control in enforcement mode, not pass-through.
+
+## 3GPP Specification Reference
+
+The 3GPP specifications referenced throughout this skill:
+
+- **TS 23.501** — 5G System Architecture
+- **TS 23.502** — 5G System Procedures
+- **TS 23.503** — 5G Policy and Charging Control
+- **TS 24.501** — 5G NAS Protocol
+- **TS 29.244** — PFCP (N4)
+- **TS 29.281** — GTP-U
+- **TS 29.274** — GTP-C v2
+- **TS 29.272** — Diameter S6a
+- **TS 29.500** — Service-Based Architecture (SBI)
+- **TS 33.501** — 5G Security Architecture and Procedures
+- **TS 33.401** — 4G/LTE Security Architecture
+- **TS 38.331** — 5G RRC (SIB1 contents)
+- **TS 38.413** — NGAP
+
+GSMA references: FS.32 (SS7), FS.33 (Diameter/SEPP), IR.21 (roaming data exchange).
+
+## Standardization Bodies
+
+- **3GPP** (3rd Generation Partnership Project) — Defines the 5G, 4G, 3G, and 2G specifications. The SA3 working group is responsible for security.
+- **GSMA** (Global System for Mobile Communications Association) — Operator industry body. The FS-IS (Fraud and Security Intelligence Group) coordinates vulnerability disclosure.
+- **O-RAN Alliance** — Defines the open RAN architecture. WG5 (E2), WG10 (O1/O2), WG11 (Security).
+- **IETF** — Defines SCTP, DTLS, HTTP/2, JOSE (JWS/JWE), OAuth2.
+- **ENISA** (European Union Agency for Cybersecurity) — Publishes the 5G Threat Landscape.
+- **NIST** — Publishes the 5G Cybersecurity Practice Guide (draft series).
+
+## Skill Maturity and Coverage
+
+This skill covers the cellular network stack from the radio PHY (SDR) up to the inter-operator roaming boundary. Coverage by 3GPP reference point:
+
+| Reference Point | Coverage | Test Case | Payload Section |
+|-----------------|----------|-----------|-----------------|
+| N1 (NAS) | Full | TC-5G-009, 012, 016 | §11, §16 |
+| N2 (NGAP) | Full | TC-5G-002, 012 | §3, §16 |
+| N3 (GTP-U) | Full | TC-5G-004, 012 | §6, §16 |
+| N4 (PFCP) | Full | TC-5G-003, 013, 014 | §4 |
+| N6 (UPF to DN) | Partial | TC-5G-011 | §15 |
+| N32 (SEPP) | Full | TC-5G-018 | §14 |
+| S6a (Diameter) | Full | TC-5G-006, 015 | §8 |
+| SS7/MAP | Full | TC-5G-007 | §9 |
+| O1 (O-RAN) | Full | TC-5G-010 | §13 |
+| E2/A1 (O-RAN RIC) | Full | TC-5G-017 | §13 |
+| Slicing | Full | TC-5G-011 | §15 |
+| SBI / NRF | Partial | TC-5G-011 | §15 |
+
+## Coverage Gaps and Future Work
+
+The following areas are identified for future skill expansion:
+
+- **5G LAN-type service** — TS 23.501 §5.30. Layer 2 PDU session for industrial deployments.
+- **5G ProSe** (Proximity Services) — TS 23.303. Device-to-device communication.
+- **Network exposure function (NEF) abuse** — SBI to third-party APIs. Potential for unauthorized API access.
+- **Multi-access Edge Computing (MEC)** — UPF collocation with edge apps. New attack surface at the UPF-application boundary.
+- **5G slicing for enterprise** — Private 5G deployments with custom slices. Slice-as-a-trust-boundary implications.
+- **SATCOM / non-terrestrial networks (NTN)** — 5G over satellite. New propagation and authentication challenges.
+
+These gaps are tracked in `MEMORY.md` and will be addressed in future skill expansions.

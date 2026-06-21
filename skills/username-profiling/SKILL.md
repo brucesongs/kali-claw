@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: osint
   tool_count: 12
-  guide_count: 2
+  guide_count: 3
   mitre: "TA0043-Reconnaissance"
   keywords:
     - maigret

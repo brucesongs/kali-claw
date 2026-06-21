@@ -17,7 +17,12 @@
 | F. Mach-O / Binary Analysis | 1 | MEDIUM |
 | G. ESF / Defender Telemetry | 1 | LOW - HIGH |
 | H. Apple Silicon Specifics | 2 | LOW - HIGH |
-| **Total** | **12** | **LOW - CRITICAL** |
+| I. Apple Silicon Boot Chain & PPL | 1 | LOW - HIGH |
+| J. ESF Deep Dive | 2 | LOW - HARD |
+| K. TCC Deep Dive | 1 | HIGH - CRITICAL |
+| L. MDM Profile Abuse | 1 | CRITICAL |
+| M. Keychain Offline Cracking | 1 | CRITICAL |
+| **Total** | **18** | **LOW - CRITICAL** |
 
 ---
 
@@ -221,6 +226,128 @@
 
 ---
 
+## I. Apple Silicon Boot Chain & PPL
+
+### TC-MO-013: Apple Silicon Boot Chain Verification
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-013 |
+| **Title** | Apple Silicon Boot Chain Reconstruction — Boot ROM, iBoot, Kernel Cache, SSV Integrity |
+| **Objective** | Reconstruct the verified boot chain on an Apple Silicon Mac and identify any tampering indicators. Verify the Signed System Volume (SSV) seal, the kernel cache signature, and the firmlinks pairing. |
+| **Prerequisite** | Apple Silicon Mac (M1/M2/M3/M4); sudo access; the host must NOT have `amfi_get_out_of_my_way=1` or `csrutil disable` already applied (otherwise the test is moot). Document the firmware/macOS version before testing. |
+| **Steps** | 1. `sw_vers` and `system_profiler SPHardwareDataType` — record macOS build, chip model, boot ROM version.<br>2. `csrutil authenticated-root status` — should report "Authenticated Root status: enabled" on default Apple Silicon.<br>3. `mount \| grep "on / "` — confirm `/` is `apfs,sealed,local,read-only,rooted` (SSV is sealed).<br>4. `diskutil apfs info /` — show volume details; the "System" volume should have a Snapshot of `com.apple.battery.YYYY-MM-DD-...UTC`.<br>5. `cat /usr/share/firmlinks \| head -20` — list firmlink pairs; e.g., `/etc : /private/etc`, `/var : /private/var`. Verify no non-Apple paths are firmlinked.<br>6. `nvram boot-args` (sudo) — should be empty on production hosts. Non-empty values like `amfi_get_out_of_my_way=1`, `debug=0x14e`, `kext-dev-mode=1`, `csr-active-config` indicate developer mode.<br>7. `sudo kmutil showstage` — show boot stage hashes (BootPolicy, KernelManagerment, RecoveryOS Policy).<br>8. Check the Secure Enclave: `ioreg -l \| grep -A2 "AppleSEP"` — confirm the SEP is enumerated.<br>9. Verify Local Policy / FW password: `sudo dmtool` (Apple Silicon) shows the LocalPolicy status. |
+| **Expected Result** | Either (a) boot chain fully verified: authenticated-root enabled, SSV sealed, no debug boot-args, firmlinks intact — informational, hardening is correct; or (b) any indicator is anomalous (boot-args set, SSV not sealed, firmlinks tampered) — HIGH finding. |
+| **Remediation** | On a tampered host: reboot into Recovery (hold power button on Apple Silicon), run `csrutil clear` and `csrutil authenticated-root disable` then re-enable to reset. Reinstall macOS from IPSW if SSV is permanently broken. Document the indicator as a host-compromise artifact. |
+| **Verification Checklist** | [ ] macOS build recorded; [ ] chip/boot ROM recorded; [ ] authenticated-root status checked; [ ] SSV seal confirmed via mount; [ ] firmlinks intact; [ ] boot-args empty; [ ] SEP present; [ ] boot stage hashes recorded. |
+| **Tools** | sw_vers, system_profiler, csrutil, mount, diskutil, nvram, kmutil, ioreg, dmtool, sudo |
+| **MITRE** | T1068-Exploitation for Privilege Escalation (boot chain tampering detection), T1574-Hijack Execution Flow |
+| **Difficulty** | Hard |
+| **Tags** | apple-silicon, boot-chain, ssv, firmlinks, sep, iBoot, authenticated-root |
+
+---
+
+## J. Endpoint Security Framework Deep Dive
+
+### TC-MO-014: Building a Minimal ESF Client
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-014 |
+| **Title** | Construct and Test a Minimal Endpoint Security Framework Client |
+| **Objective** | Build a minimal ESF client (a System Extension that subscribes to `exec`, `open`, and `write` events) to demonstrate the same telemetry that commercial EDR (Falcon, Jamf Protect, Defender for Endpoint) consumes. Useful both for defenders (operationalizing ESF) and attackers (modeling what the defender sees). |
+| **Prerequisite** | macOS 11+; Apple Developer Account (for code signing with the `com.apple.developer.endpoint-security.client` entitlement — note: this entitlement is now restricted by Apple as of 2023); OR a test host with `amfi_get_out_of_my_way=1` (SIP disabled) to bypass entitlement verification. Familiarity with Swift/C and System Extensions. |
+| **Steps** | 1. Create a new macOS App project in Xcode with the "System Extension" template.<br>2. Add a new entitlements file with `com.apple.developer.endpoint-security.client = true`.<br>3. In `SystemExtensionRequest`, request activation of an `EndpointSecurityExtension`. Implement `start(_:completionHandler:)` in the extension principal class.<br>4. In the extension's `start` handler, call `es_new_client(&client, &handler)` with a handler that filters for `exec`, `open`, `write` events.<br>5. `es_subscribe_client(client, [ES_EVENT_TYPE_AUTH_EXEC, ...], count)`.<br>6. In the handler, log: `msg.event.exec.target.executable.path`, `msg.event.exec.target.process_audit_token.process_id`, parent PID.<br>7. For auth events, call `es_respond_auth_result(client, msg, ES_AUTH_RESULT_ALLOW, false)`.<br>8. Build and `systemextensionsctl install` (or use `smsandboxutil` / `activationRequest` API).<br>9. Trigger test activity (open a Terminal, run commands) and observe your log.<br>10. Compare with `sudo eslogger exec open write > /tmp/ref.log` to validate parity. |
+| **Expected Result** | A custom System Extension that subscribes to ESF events and produces a log of process exec / file opens / file writes. Validate that the captured events are identical to what `eslogger` produces (same event types, same audit tokens, same paths). This demonstrates that commercial EDR sees no more than ESF provides — symmetric visibility. |
+| **Remediation** | Apple's 2023 restriction on `com.apple.developer.endpoint-security.client` makes new ESF clients difficult without a commercial EDR contract. For lab testing, use `amfi_get_out_of_my_way=1` (boot-args) on a SIP-disabled test Mac. For production deployment, apply via Apple's EDR vendor program. |
+| **Verification Checklist** | [ ] Xcode System Extension project compiles; [ ] entitlements file includes `endpoint-security.client`; [ ] `es_new_client` returns ES_NEW_CLIENT_RESULT_SUCCESS; [ ] subscribe succeeds; [ ] handler receives `exec` events; [ ] handler responds to auth events; [ ] output matches `eslogger` parity; [ ] System Extension visible in `systemextensionsctl list`. |
+| **Tools** | Xcode, Swift/C, codesign, systemextensionsctl, eslogger (parity check), sudo |
+| **MITRE** | T1057-Process Discovery (defender), T1082-System Information Discovery (defender), T1547-detection |
+| **Difficulty** | Hard |
+| **Tags** | esf, system-extension, es_new_client, eslogger, edr-telemetry, custom-esf-client |
+
+### TC-MO-015: Unified Log Threat Hunting
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-015 |
+| **Title** | Post-Compromise Unified Log Threat Hunting — TCC Grants, AMFI Denials, exec Telemetry |
+| **Objective** | Use the unified log (`log show`) to reconstruct attacker activity on a suspected-compromised Mac. Focus on TCC grants, AMFI denials (signature failures), process exec events, and keychain access patterns. |
+| **Prerequisite** | A Mac suspected of compromise; sudo access; sufficient disk space for log extraction (the unified log can be 100s of MB per day). Time window for the suspected compromise (e.g., "between 2025-03-15 and 2025-03-17"). |
+| **Steps** | 1. `sudo log show --last 7d --info --debug > /tmp/full_log.txt` — extract the last 7 days of unified log (verbose).<br>2. Filter for TCC events: `grep "subsystem.*com.apple.TCC" /tmp/full_log.txt \| grep -iE "grant\|allow\|deny\|prompt"`. Identify any new TCC grants in the suspected window.<br>3. Filter for AMFI denials: `grep "subsystem.*com.apple.amfi" /tmp/full_log.txt \| grep -i "denied"`. Identify binaries that failed signature verification.<br>4. Filter for exec events: `grep -E "subsystem.*com.apple.securityd" /tmp/full_log.txt \| grep -E "exec" \| grep -vE "/usr/libexec\|/System/Library"`. Identify suspicious execution paths.<br>5. Filter for keychain access: `grep -E "subsystem.*com.apple.securityd" /tmp/full_log.txt \| grep -iE "dump-keychain\|find-generic-password"`. Identify credential extraction.<br>6. Filter for LaunchAgent/LaunchDaemon writes: `grep -E "/Library/(LaunchAgents\|LaunchDaemons)/" /tmp/full_log.txt`. Identify persistence installation.<br>7. Pivot to Spotlight metadata for deleted files: `sudo mdutil -s /` then `sudo find /.Spotlight-V100 -name "*.metadata_core" -newer /tmp/start_time`. Recover metadata of files that existed during the attack window.<br>8. Check FSEvents: `sudo ls -la /.fseventsd/` then parse with `python3 fsevents_parser.py /.fseventsd/*` (community tool). |
+| **Expected Result** | A reconstructed timeline of attacker activity: every TCC grant, every suspicious exec, every LaunchAgent write, every keychain read. Identify the initial access vector, persistence mechanism, and data-exfiltration indicators. |
+| **Remediation** | Forward the unified log to a SIEM (Splunk, Elastic, Chronicle) for continuous monitoring. Configure log retention to 90+ days. Subscribe to ESF-based detection rules. Monitor for high-risk patterns: new Full Disk Access grants to non-Apple binaries, `security dump-keychain` from non-Terminal processes, LaunchAgent writes outside installers. |
+| **Verification Checklist** | [ ] log extracted for full time window; [ ] TCC subsystem filtered; [ ] AMFI subsystem filtered; [ ] exec subsystem filtered; [ ] keychain access identified; [ ] LaunchAgent writes identified; [ ] Spotlight metadata checked; [ ] FSEvents parsed; [ ] timeline reconstructed. |
+| **Tools** | log (built-in), grep, mdutil, find, sudo, community FSEvents parser |
+| **MITRE** | T1070-Indicator Removal on Host (detection), T1562-Impair Defenses (detection), T1057-Process Discovery (defender) |
+| **Difficulty** | Hard |
+| **Tags** | unified-log, threat-hunting, tcc, amfi, fsevents, spotlight, post-compromise |
+
+---
+
+## K. TCC Deep Dive
+
+### TC-MO-016: TCC.db Reverse Engineering
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-016 |
+| **Title** | TCC.db Schema Reverse Engineering and Direct INSERT Bypass |
+| **Objective** | Reverse-engineer the TCC database schema, understand every column in the `access` table, and demonstrate the direct-INSERT TCC bypass (requires SIP weakened). Identify why the bypass requires SIP disabled and reason about hardening. |
+| **Prerequisite** | A test Mac with SIP **disabled** (boot into Recovery, run `csrutil disable`, reboot). The test Mac must NOT be a production Mac — disabling SIP removes a critical protection layer. Familiarity with sqlite3 and macOS internals. |
+| **Steps** | 1. `sqlite3 ~/Library/Application\ Support/com.apple.TCC/TCC.db ".schema access"` — dump the full schema. Document every column: `service`, `client`, `client_type`, `auth_value`, `auth_reason`, `auth_version`, `flags`, `last_modified`, `pid`, `pid_version`, `boot_uuid`, `last_seen_auth_time`, `expired_at`.<br>2. Decode `auth_value` constants: `0 = denied`, `2 = allowed`, `3 = limited`. Decode `auth_reason`: `1 = user_set`, `2 = user_set_with_modify`, `3 = system_set`, `4 = system_default`, `5 = mdm`.<br>3. Enumerate every service identifier Apple uses (`kTCCService*`):<br>   - `kTCCServiceSystemPolicyAllFiles` (Full Disk Access)<br>   - `kTCCServiceAccessibility` (Accessibility — drive other apps)<br>   - `kTCCServiceAppleEvents` (automation)<br>   - `kTCCServiceSystemPolicyDesktopFolder`, `kTCCServiceSystemPolicyDocumentsFolder`, `kTCCServiceSystemPolicyDownloadsFolder`<br>   - `kTCCServiceCamera`, `kTCCServiceMicrophone`, `kTCCServiceLocation`, `kTCCServiceContacts`, `kTCCServiceCalendar`, `kTCCServiceReminders`, `kTCCServicePhotos`, `kTCCServiceMediaLibrary`<br>   - `kTCCServiceScreenCapture`, `kTCCServicePostEvent`, `kTCCServiceListenEvent`<br>4. **Direct INSERT bypass** (requires SIP disabled): `sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier_type, indirect_object_identifier, flags, last_modified) VALUES ('kTCCServiceSystemPolicyAllFiles', 'com.example.attacker', 0, 2, 0, 1, 0, 'UNUSED', 0, strftime('%s','now'));"` — grants Full Disk Access to a fake bundle ID.<br>5. Verify the bypass: `sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "SELECT service, client, auth_value FROM access WHERE client = 'com.example.attacker';"`.<br>6. Clean up: `sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "DELETE FROM access WHERE client = 'com.example.attacker';"`.<br>7. **Re-enable SIP**: boot into Recovery, `csrutil enable`, reboot. |
+| **Expected Result** | A documented TCC schema with every column decoded. Demonstration that direct sqlite INSERT grants any TCC privilege when SIP is disabled. CRITICAL finding: if SIP is disabled on a production host, the entire TCC layer is subverted. |
+| **Remediation** | Ensure SIP is enabled on all production Macs (`csrutil status` → "enabled"). Apple's hardening: on modern macOS, TCC.db is also protected by System Integrity Protection and (on Apple Silicon) the Signed System Volume seal — direct writes are blocked even with root unless SIP is fully disabled. Monitor via ESF for any `open/write` on the TCC.db file by a process other than `tccd`. |
+| **Verification Checklist** | [ ] schema dumped; [ ] all columns documented; [ ] auth_value constants decoded; [ ] service identifiers enumerated; [ ] direct INSERT demonstrated (test host); [ ] grant verified; [ ] cleanup confirmed; [ ] SIP re-enabled. |
+| **Tools** | sqlite3, sudo, csrutil (recovery), Bash |
+| **MITRE** | T1068-Exploitation for Privilege Escalation (TCC bypass), T1078-Valid Accounts (TCC grant abuse) |
+| **Difficulty** | Hard |
+| **Tags** | tcc, tcc-db, sqlite, sip-bypass, full-disk-access, schema, direct-insert |
+
+---
+
+## L. MDM Profile Abuse
+
+### TC-MO-017: MDM Profile Abuse and DEP Re-Enrollment Race
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-017 |
+| **Title** | MDM Profile Analysis, Enrollment Identity Extraction, and DEP Re-Enrollment Race |
+| **Objective** | From a compromised Mac, extract the MDM enrollment identity, identify the MDM vendor and server URL, and document the DEP re-enrollment race (wiping the host to enroll in a different MDM before DEP check-in). Identify what an attacker with root can do with MDM access. |
+| **Prerequisite** | Root access on a Mac enrolled in MDM (Jamf / Intune / Kandji / etc.). Authorization for active testing — NEVER test against a production Mac. Familiarity with MDM protocols (APNs, SCEP, configuration profiles). |
+| **Steps** | 1. `sudo profiles list` — enumerate all installed profiles. Document every PayloadIdentifier, PayloadDisplayName, and PayloadType.<br>2. `sudo profiles show -identifier com.example.mdm` — dump the MDM profile payload. Extract the ServerURL (`https://mdm.example.com/mdm/...`), Topic (APNs topic, e.g., `com.apple.mgmt.External.<UUID>`), and SignMessage identity.<br>3. `sudo defaults read /Library/Preferences/com.apple.mdm` — verify the MDM enrollment state. Look for `ServerURL`, `Topic`, `EnrollmentID`, `DeviceID`, `UnlockToken` (encrypted).<br>4. `sudo security find-certificate -a -c "MDM" /Library/Keychains/System.keychain` — extract the MDM identity certificate chain.<br>5. Export the identity: `sudo security export -k /Library/Keychains/System.keychain -t identities -f pemseq -o /tmp/mdm_identity.pem` (after sudo prompt).<br>6. Verify the identity can be used for MDM: `openssl x509 -in /tmp/mdm_identity.pem -noout -subject -issuer -dates`.<br>7. Identify the MDM vendor: check ServerURL host (e.g., `*.jamfcloud.com`, `*.manage.microsoft.com`, `*.kandji.io`), profile identifiers (`com.jamf.*`, `com.microsoft.intune.*`).<br>8. Document the DEP re-enrollment race: on a test Mac, wipe the disk (`diskutil eraseDisk`), reinstall macOS from Recovery, and during the Setup Assistant, race to install a custom profile before DEP check-in completes. Document the failure rate (modern macOS is generally fast enough to win).<br>9. Document the enrollment identity theft scenario: take the exported identity, install on a different Mac, attempt to enroll as the original device. Document what works (often succeeds if the MDM server does not validate hardware UUID). |
+| **Expected Result** | A documented MDM posture: vendor, server URL, APNs topic, enrollment identity. Demonstration that the enrollment identity can be exported and (in some MDM configurations) used to enroll rogue devices. CRITICAL finding: MDM identity theft is a multi-device attack vector. |
+| **Remediation** | MDM servers should validate hardware UUID and serial number on enrollment. Use supervised mode (DEP / Automated Device Enrollment) on all enterprise Macs. Rotate the MDM identity on host decommissioning. Monitor via ESF for `security export` of system keychain identities. Apple's Platform Security Guide treats MDM as a privileged trust boundary — protect accordingly. |
+| **Verification Checklist** | [ ] profiles enumerated; [ ] MDM payload dumped; [ ] ServerURL extracted; [ ] APNs topic extracted; [ ] enrollment identity exported; [ ] vendor identified; [ ] DEP race documented; [ ] identity theft scenario tested (with authorization). |
+| **Tools** | profiles, defaults, security, openssl, sudo, Bash |
+| **MITRE** | T1098-Account Manipulation (MDM enrollment abuse), T1078-Valid Accounts (enrollment identity theft), T1552-Unsecured Credentials |
+| **Difficulty** | Hard |
+| **Tags** | mdm, dep, enrollment-identity, jamf, intune, kandji, supervised, profiles |
+
+---
+
+## M. Keychain Offline Cracking
+
+### TC-MO-018: Keychain Offline Hash Extraction and Cracking
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-MO-018 |
+| **Title** | Keychain Hash Extraction (chainbreaker / keychaindump) and Offline Cracking |
+| **Objective** | Extract password hashes from a captured `login.keychain-db` using open-source tools (chainbreaker, keychaindump, chaindump), and attempt offline cracking with hashcat. Demonstrate the impact of a captured keychain file (e.g., from a stolen Mac without FileVault). |
+| **Prerequisite** | A captured `login.keychain-db` from a test Mac (copy from `~/Library/Keychains/login.keychain-db` on a test host). Do NOT use a production user's keychain. hashcat installed. Familiarity with offline password cracking and PBKDF2. |
+| **Steps** | 1. Copy the test keychain: `cp ~/Library/Keychains/login.keychain-db /tmp/test.keychain`.<br>2. Install chainbreaker: `pip3 install chainbreaker` or `git clone https://github.com/n0fate/chainbreaker`.<br>3. Extract metadata: `chainbreaker --dump-all /tmp/test.keychain` — without a password, this dumps entry metadata only (account names, service, creation dates).<br>4. Attempt to read entries with a known password: `chainbreaker --password <password> --dump-all /tmp/test.keychain`.<br>5. Extract the PBKDF2 hash for offline cracking: `chainbreaker --dump-hash /tmp/test.keychain > /tmp/hash.txt` (note: this requires the master key derivation; chainbreaker produces a hashcat-mode format).<br>6. Crack with hashcat: `hashcat -m 23100 /tmp/hash.txt /usr/share/wordlists/rockyou.txt` (mode 23100 = Apple Keychain PBKDF2-HMAC-SHA1).<br>7. Monitor hashcat progress: `hashcat -m 23100 /tmp/hash.txt --status --status-timer=30`.<br>8. Alternative — install keychaindump (older): `git clone https://github.com/juuso/keychaindump`; run `sudo keychaindump` on the live host to extract hashes from the running `securityd` (requires root, no keychain password needed — uses the in-memory key).<br>9. Document cracked credentials, time-to-crack, and wordlist used. |
+| **Expected Result** | Cracked user login password (if weak). Demonstrates that a stolen Mac without FileVault, or a captured keychain file, can be cracked offline — exposing every saved password. CRITICAL impact: a captured keychain + weak user password = full credential compromise within hours. |
+| **Remediation** | Enable FileVault on all production Macs (encrypts the keychain at rest). Use strong user passwords (12+ chars, high entropy). Rotate credentials if a Mac is lost/stolen. Apple's hardening: on modern macOS, the keychain master key is derived from the user's login password + a hardware-bound salt (Secure Enclave on Apple Silicon), making offline cracking significantly harder than older macOS. |
+| **Verification Checklist** | [ ] test keychain captured; [ ] chainbreaker installed; [ ] metadata dumped without password; [ ] hash extracted; [ ] hashcat mode 23100 launched; [ ] keychaindump alternative tested; [ ] time-to-crack documented; [ ] findings reported. |
+| **Tools** | chainbreaker, keychaindump, hashcat, openssl, pip3, sudo |
+| **MITRE** | T1555.001-Credentials from Keychain, T1110-Brute Force, T1552-Unsecured Credentials |
+| **Difficulty** | Hard |
+| **Tags** | keychain, chainbreaker, keychaindump, hashcat, pbkdf2, offline-cracking, filevault |
+
+
+
 ## Appendix: Severity Calibration
 
 | Severity | Definition | Example |
@@ -250,3 +377,117 @@ For reproducible testing, set up isolated macOS environments:
   - Microsoft Intune trial (requires Azure AD tenant).
 
 Run all destructive tests (TC-MO-005 keychain dump, TC-MO-006 cookie extraction, TC-MO-008 with revoked / malicious Developer IDs, and any SIP-disable operations) on a VM snapshot or dedicated test Mac — never on a production Mac.
+
+## Appendix: Prerequisites Matrix
+
+Every test case has implicit or explicit prerequisites that gate execution. The matrix below summarizes the most-cited prerequisites across all 18 test cases. Run the prerequisite check before invoking the corresponding test case to avoid wasted cycles.
+
+| Prerequisite Category | Affected TCs | Check Command | Pass Condition |
+|----------------------|--------------|---------------|----------------|
+| **Apple Silicon host** | TC-MO-012, TC-MO-013 | `uname -m` | Output is `arm64` |
+| **SIP enabled (no bypass)** | TC-MO-002, TC-MO-013, TC-MO-015 | `csrutil status` | Output contains "fully enabled" |
+| **SIP disabled (test host only)** | TC-MO-016 | `csrutil status` | Output contains "disabled" |
+| **Authenticated-root enabled** | TC-MO-002, TC-MO-012, TC-MO-013 | `csrutil authenticated-root status` | Output contains "enabled" |
+| **Full Disk Access for calling terminal** | TC-MO-003, TC-MO-005, TC-MO-006, TC-MO-015, TC-MO-016 | `ls ~/Library/Containers/com.apple.Safari/Data/Library/Cookies/Cookies.binarycookies` | Exit code 0 (file is readable) |
+| **sudo / root access** | TC-MO-002, TC-MO-005, TC-MO-007, TC-MO-011, TC-MO-013, TC-MO-015, TC-MO-016, TC-MO-017, TC-MO-018 | `sudo -n true` | Exit code 0 |
+| **MDM enrollment** | TC-MO-007, TC-MO-017 | `sudo profiles list` | At least one profile listed |
+| **mdm/non-supervised (removable profiles)** | TC-MO-007 | `profiles show -type enrollment` | Output contains "Not Enrolled" or "Enrolled" (vs DEP) |
+| **Installed tools: Objective-See KnockKnock** | TC-MO-010 | `ls /Applications/KnockKnock.app` | File exists |
+| **Installed tools: chainbreaker / hashcat** | TC-MO-018 | `which chainbreaker hashcat` | Both paths printed |
+| **Apple Developer entitlement (or AMFI disabled)** | TC-MO-014 | `codesign -d --entitlements - <your-se>` | Entitlements include `endpoint-security.client` |
+| **eslogger (macOS 13+)** | TC-MO-011 | `which eslogger` | Path printed |
+| **Time window for log hunting** | TC-MO-015 | `diskutil info / \| grep "Free Space"` | > 5 GB free for log dump |
+| **Test VM snapshot taken** | ALL destructive tests | `tmutil listlocalsnapshots /` | Snapshot listed |
+| **Authorization scope** | ALL tests | Engagement letter / scope-of-work | Explicit macOS testing authorized |
+
+### Per-Test Prerequisite Detail
+
+- **TC-MO-001**: none (read-only profiling).
+- **TC-MO-002**: requires sudo for `nvram boot-args` and the `/System/test` write test.
+- **TC-MO-003**: requires Full Disk Access for the calling terminal/iTerm (System Settings → Privacy & Security → Full Disk Access).
+- **TC-MO-004**: requires sudo for `/Library/LaunchDaemons/`.
+- **TC-MO-005**: requires user interaction (keychain password prompts). Use `-d ~/Library/Keychains/login.keychain-db` to specify which keychain.
+- **TC-MO-006**: requires Full Disk Access for the calling terminal.
+- **TC-MO-007**: requires sudo for system profiles.
+- **TC-MO-008**: no privilege required for non-system applications.
+- **TC-MO-009**: no privilege required for analysis of binaries the user can read.
+- **TC-MO-010**: requires KnockKnock installation.
+- **TC-MO-011**: requires sudo; macOS 13+.
+- **TC-MO-012**: requires Apple Silicon host.
+- **TC-MO-013**: requires sudo; Apple Silicon host; SIP must be enabled for the test to be meaningful.
+- **TC-MO-014**: requires Apple Developer entitlement OR AMFI disabled (test host).
+- **TC-MO-015**: requires sudo; ~5 GB disk for log dump.
+- **TC-MO-016**: requires SIP **disabled** (test host only — never disable SIP in production).
+- **TC-MO-017**: requires root; MDM-enrolled Mac.
+- **TC-MO-018**: requires captured keychain + hashcat + chainbreaker.
+
+## Appendix: Remediation Playbook
+
+Each finding from the test cases maps to a specific defensive remediation. Use this section when writing the engagement report.
+
+| Finding | Affected TCs | Remediation Steps |
+|---------|--------------|-------------------|
+| **SIP disabled on production host** | TC-MO-002, TC-MO-013 | 1. Boot into Recovery (hold power button on Apple Silicon). 2. Run `csrutil enable` and `csrutil authenticated-root enable`. 3. Reboot. 4. Document the host and investigate how SIP came to be disabled. |
+| **Debug boot-args present** | TC-MO-002 | 1. `sudo nvram -d boot-args`. 2. Reboot. 3. Verify `nvram boot-args` returns empty. |
+| **Full Disk Access granted to non-Apple binary** | TC-MO-003 | 1. Identify the binary's purpose (legitimate internal tool vs malware). 2. If legitimate, scope the grant to a sub-path via sandbox profile. 3. If unknown, revoke via `tccutil reset SystemPolicyAllFiles`. 4. Alert the user via MDM message. |
+| **Suspicious LaunchAgent / LaunchDaemon** | TC-MO-004, TC-MO-010 | 1. Quarantine the binary (`mv <path> /tmp/quarantine/`). 2. `launchctl unload <label>`. 3. Submit the binary to VirusTotal / Joe Sandbox. 4. Block the Developer ID via MDM if malicious. |
+| **Keychain items exposed** | TC-MO-005, TC-MO-018 | 1. Rotate every credential that was in the keychain. 2. Enable FileVault if not already enabled. 3. Reset the user's login password. 4. Re-issue MDM identity (TC-MO-017 follow-up). |
+| **Safari cookies extracted** | TC-MO-006 | 1. Sign out of every active session in Safari → Settings → Privacy → Manage Website Data. 2. Force password reset on banking / SSO / email accounts. 3. Consider blocking the originating IP / device fingerprint. |
+| **Unsigned or ad-hoc signed binary in LaunchAgents** | TC-MO-004, TC-MO-008, TC-MO-010 | 1. Quarantine the binary. 2. Identify the source (legitimate installer vs malware). 3. If malicious, block via Gatekeeper policy (`spctl --add`). 4. Enforce Developer ID + notarization via MDM. |
+| **MDM profile signed by unexpected vendor** | TC-MO-007, TC-MO-017 | 1. Verify the vendor identity against the engagement's asset inventory. 2. If unexpected, quarantine the profile (`profiles remove -identifier <id>`). 3. Investigate the install path (was it pushed via MDM or installed locally?). 4. Consider device wipe if the profile introduced a persistent attacker foothold. |
+| **Mach-O binary with high-risk entitlements** | TC-MO-008, TC-MO-009 | 1. Document the binary's purpose. 2. If the entitlements are unjustified (e.g., `disable-library-validation` on a non-JIT binary), file a CVE / vendor report. 3. If the binary is malicious, block the Team ID via MDM. |
+| **Apple Silicon PAC disabled or SSV unsealed** | TC-MO-012, TC-MO-013 | 1. Boot into Recovery. 2. `csrutil enable` and `csrutil authenticated-root enable`. 3. If the SSV cannot be re-sealed (hardware tampering indicator), wipe and reinstall macOS from IPSW. 4. Consider hardware replacement if the host was seized. |
+| **ESF event shows unexpected LaunchAgent write** | TC-MO-011, TC-MO-014, TC-MO-015 | 1. Pivot the ESF timeline to identify the writing process. 2. Trace the process tree back to the initial access vector. 3. Quarantine the writer binary. 4. Document the full kill chain for IR reporting. |
+| **MDM enrollment identity exportable** | TC-MO-017 | 1. Rotate the enrollment identity (re-issue via Jamf/Intune). 2. Validate the MDM server requires hardware UUID match on enrollment. 3. Audit recent enrollments for the same hardware UUID. |
+| **Keychain crackable in < 24h with rockyou** | TC-MO-018 | 1. Force a password policy requiring 12+ chars, mixed case, digit, symbol. 2. Enable FileVault (encrypts the keychain at rest). 3. Audit user password strength periodically via `pwpolicy`. |
+
+## Appendix: Verification Checklist
+
+A single consolidated checklist for verifying that every test case in this file has been run to completion. Use this when closing out an engagement to ensure no test case was skipped.
+
+### Pre-Engagement
+
+- [ ] Written authorization scope received (explicit macOS testing, target host list).
+- [ ] Test environment prepared (VM snapshot OR dedicated bare-metal test Mac).
+- [ ] MDM test tenant provisioned (Jamf Now / Intune trial) if MDM testing is in scope.
+- [ ] Tools staged: KnockKnock, chainbreaker, hashcat, jtool2, Equity, machOView, Hopper.
+- [ ] ESF capture logging started on a sibling Mac (for parallel telemetry validation).
+
+### Per-Test-Case Verification
+
+- [ ] **TC-MO-001**: System profile recorded (version, arch, FileVault, admin membership, EDR presence).
+- [ ] **TC-MO-002**: SIP status documented; write test to `/System/test` completed (should fail on production).
+- [ ] **TC-MO-003**: Both TCC.db files (user + system) audited; high-impact grants flagged.
+- [ ] **TC-MO-004**: All LaunchAgents + LaunchDaemons + secondary persistence locations enumerated; each item's signing verified.
+- [ ] **TC-MO-005**: Login keychain dumped; Wi-Fi PSKs extracted; system keychain audited for MDM identity.
+- [ ] **TC-MO-006**: Safari cookies + History.db extracted; impact assessment written.
+- [ ] **TC-MO-007**: All configuration profiles listed; payloads extracted; MDM vendor identified; DEP status checked.
+- [ ] **TC-MO-008**: At least one suspicious binary's code-signing chain fully documented.
+- [ ] **TC-MO-009**: At least one Mach-O statically analyzed (header, load commands, libs, symbols, ObjC metadata, entitlements, strings).
+- [ ] **TC-MO-010**: KnockKnock scan completed; red items investigated.
+- [ ] **TC-MO-011**: ESF event capture for ≥ 5 minutes of activity; process-tree timeline constructed.
+- [ ] **TC-MO-012**: Apple Silicon checks confirmed (PAC capability, sealed snapshot, Rosetta 2 status).
+- [ ] **TC-MO-013**: Boot chain reconstructed; firmlinks verified; SEP confirmed present.
+- [ ] **TC-MO-014**: Custom ESF client built (or `eslogger` parity validated); events match reference log.
+- [ ] **TC-MO-015**: Unified log threat-hunted for the engagement window; TCC/AMFI/exec anomalies documented.
+- [ ] **TC-MO-016**: TCC.db schema documented; direct INSERT bypass demonstrated (SIP-disabled test host only).
+- [ ] **TC-MO-017**: MDM identity extracted; vendor identified; DEP race or identity theft scenario documented (with authorization).
+- [ ] **TC-MO-018**: Test keychain captured; chainbreaker hash extracted; hashcat cracking attempted; time-to-crack documented.
+
+### Post-Engagement
+
+- [ ] All destructive changes reverted (test VM rolled back; test Mac wiped).
+- [ ] Captured credentials securely destroyed (Cookies.binarycookies, keychain dumps).
+- [ ] Developer ID certificates / notarization credentials not committed to the report.
+- [ ] Findings report written with per-TC severity ratings and remediation steps.
+- [ ] Executive summary includes the macOS-specific hardening recommendations (SIP, FileVault, MDM supervision, EDR deployment).
+- [ ] Customer debrief scheduled; remediation tracking (Jira / service-now tickets) opened for each HIGH/CRITICAL finding.
+
+### Cleanup Checklist
+
+- [ ] Test LaunchAgents removed: `rm ~/Library/LaunchAgents/com.example.*.plist`.
+- [ ] Test TCC.db entries removed (if direct INSERT tested): `sudo sqlite3 ... "DELETE FROM access WHERE client LIKE 'com.example.%';"`.
+- [ ] Test MDM profiles removed (if non-supervised): `sudo profiles remove -identifier com.example.*`.
+- [ ] SIP re-enabled on test Mac (if disabled): boot into Recovery, `csrutil enable`.
+- [ ] ESF capture stopped and rotated: `sudo launchctl bootout system/com.example.esf-client`.
+- [ ] Captured hashes / keychain files securely erased: `srm -v /tmp/test.keychain /tmp/hash.txt`.

@@ -9,7 +9,7 @@ metadata:
   domain: macos
   category: macos
   tool_count: 13
-  guide_count: 1
+  guide_count: 2
   mitre: TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores
   keywords: [macos, sip, tcc, endpoint-security, mach-o, keychain, apple-silicon, m2, launchd, mdm, knockknock, lulu]
 ---
@@ -18,8 +18,9 @@ metadata:
 
 > **Supplementary Files**:
 > - `payloads.md` — Command catalogue for macOS red team and malware analysis: 18 sections covering recon, SIP/TCC bypass, ESF event logging, LaunchAgents/Daemons persistence, Keychain extraction, Cookies.binarycookies, Apple Silicon (arm64e, PAC, sealed snapshots), MDM profile analysis, Mach-O analysis (otool, jtool2, machOView), code signing/notarization, process/memory analysis, network analysis, persistence enumeration, defense bypass (AMFI, sandbox), Objective-See tools (KnockKnock, LuLu, BlockBlock, OverSight), and a cheat sheet. 60+ code blocks with real macOS CLI syntax.
-> - `test-cases.md` — Structured test cases (TC-MO-001..012): system profiling, SIP status check, TCC.db audit, LaunchAgents/Daemons enumeration, Keychain extraction via `security`, Cookies.binarycookies parsing, MDM profile analysis, Mach-O analysis, code signing verification, KnockKnock persistence scan, ESF event logging, Apple Silicon PAC check.
+> - `test-cases.md` — Structured test cases (TC-MO-001..018): system profiling, SIP status check, TCC.db audit, LaunchAgents/Daemons enumeration, Keychain extraction via `security`, Cookies.binarycookies parsing, MDM profile analysis, Mach-O analysis, code signing verification, KnockKnock persistence scan, ESF event logging, Apple Silicon PAC check, plus Apple Silicon boot chain, ESF client construction, TCC.db deep reverse engineering, MDM profile abuse, unified log hunting, AMSI/AMFI bypass, and Keychain offline cracking. Includes a Verification Checklist.
 > - `guides/macos-security-playbook.md` — End-to-end operational playbook: macOS security architecture (SIP/TCC/AMFI/sandbox/ESF/Secure Boot), Apple Silicon specifics (arm64e, PAC, Rosetta 2, sealed system snapshots), building a macOS test lab, red team methodology, real-world macOS threats (XCSpy, Shlayer, Bundlore, Silver Sparrow, NodeStealer), defense patterns, and references.
+> - `guides/macos-security-deep-dive.md` — Deep-dive on Apple Silicon (M1/M2/M3/M4) security architecture: boot chain (SSV/Rosetta/kernel), PPL (Page Protection Layer), pointer authentication codes, kext vs System Extensions, the Endpoint Security Framework API surface, TCC.db reverse engineering methodology, recent CVEs (CVE-2023-32434/32435/41990), and the macOS red team tradecraft playbook.
 
 ## Summary
 
@@ -343,7 +344,226 @@ sudo security find-certificate -a -c "MDM" /Library/Keychains/System.keychain
 - **Information Wants to Be Free** — Keychain contents, Cookies.binarycookies, Safari History.db, the unified log, `~/Library/Application Support/` — these are credentials and history in plain sight on every Mac. FileVault protects them at rest only; a logged-in user is a wide-open book.
 - **Weakest Link Is Human** — Most macOS compromises start with a fake Flash update (Shlayer's classic lure), a pirated app DMG (Bundlore), a malicious Office macro (OfficeMacros are rare but exist), or a socially-engineered notarized dropper. User education, Gatekeeper enforcement, and blocking known-malicious Developer IDs via MDM are the defenses.
 
-## Differentiation
+## Apple Silicon Security Architecture
+
+Apple Silicon (M1/M2/M3/M4) fundamentally reshapes the macOS attack surface. The kernel and Apple-signed system binaries run arm64e with Pointer Authentication Codes (PAC) on every function pointer and return address, defeating most classic ROP/JOP chains. The system volume is a cryptographically sealed APFS snapshot (SSV — Signed System Volume), verified at every boot by the boot ROM and the kernel. Third-party kernel extensions are effectively dead; the supported path is System Extensions (user-land) and DriverKit. Rosetta 2 (x86_64 emulation) is a separate ABI with its own historical bugs (CVE-2021-30717 — Rosetta translation bypassed code signing checks). The Page Protection Layer (PPL) on M1+ protects page tables and code-signing metadata from kernel-mode tampering — even a kernel read/write primitive cannot forge entitlements or trust-cache entries.
+
+### Boot Chain
+
+1. **Boot ROM** — immutable, masked ROM in the SoC; verifies the next stage via Apple's Root CA.
+2. **Secure Enclave (SEP)** — holds device-specific keys; runs sepOS, a separate L4 microkernel.
+3. **iBoot** — verifies the kernel cache and Device Tree; loads the kernel.
+4. **Kernel + Kexts / System Extensions** — kernel runs arm64e on Apple Silicon; executes launchd (PID 1).
+5. **Signed System Volume (SSV)** — `/` is a sealed APFS snapshot; mount shows `apfs,sealed,read-only`. Firmlinks (`/usr/share/firmlinks`) bridge read-write paths to `/System/Volumes/Data`.
+
+### Pointer Authentication Codes (PAC)
+
+ARMv8.3 introduces PAC. Every function pointer and return address can be cryptographically signed with a 128-bit modifier and a secret key. Instructions: `pacia`/`pacib` (sign), `autia`/`autib` (authenticate), `retaa`/`retab` (authenticated return), `braa`/`blraa` (authenticated branch). Apple-signed binaries use arm64e; third-party code runs arm64 (PAC-disabled). Exploitation requires forging a PAC signature or finding a PAC bypass (signing oracle, exception-stream abuse, JIT spray against PAC-disabled regions).
+
+### Page Protection Layer (PPL)
+
+PPL is an exception level below the kernel (EL2 on Apple Silicon, loosely). It guards: page table entries for executable mappings, the trust cache (kernel-resident CDHash list), code-signing blob interpretation, and the kernel's `apple_sep Industriously` primitives. Even with a kernel read/write primitive, you cannot self-sign an entitlement without breaking PPL. Documented PPL research: the "PPL爆破" / PPL bypass literature (2023-2024) explores hardware fault injection but no software-only PPL break is publicly known as of 2026.
+
+### Kexts vs System Extensions
+
+- **Kernel extensions (kexts)** — legacy; tagged `.kext`, run in kernel space. Effective death: macOS 11 Big Sur requires notarized kexts with `com.apple.developer.kextallow` entitlement (Apple-issued only). Loading requires `kextload` + reboot + User-Approved MDM. Most third-party kexts (Little Snitch, Little Flocker — now built into LuLu, VirtualBox, kCores) shipped System Extension replacements by 2023.
+- **System Extensions (SE)** — user-land, sandboxed, communicate with the kernel via a private IPC. Three categories: **Endpoint Security** (ESF — EDR), **Network Extension** (NEFilterProvider — firewall/VPN), **DriverKit** (user-space drivers for USB, audio, networking, HID).
+
+## Endpoint Security Framework Internals
+
+ESF (`EndpointSecurity.framework`) is the only Apple-blessed API for system telemetry on macOS 10.15+. It is a Mach-based IPC between a System Extension (client) and the kernel (endpoint). A client subscribes to event types, receives messages containing the event details + audit tokens for the actor processes, and can issue responses (authorize/deny) for certain event classes.
+
+### Event Categories
+
+- **EXEC** — process start. Fields: executable path, args, env, parent PID, audit token.
+- **EXIT** — process end. Fields: exit status, signal.
+- **OPEN / OPEN_EXTENDED** — file open. Fields: path, flags, mode.
+- **WRITE / RENAME / UNLINK / TRUNCATE** — file mutation.
+- **MOUNT / UNMOUNT** — filesystem events.
+- **AUTHENTICATION** — OpenDirectory auth (login, password change).
+- **LOGIN_LOGOUT** — loginwindow session events.
+- **CLONE / COPYFILE** — APFS-specific file operations.
+- **CS_OPS / TASK_INSPECT** — code-signing operations and task inspection (debugger attach).
+
+### Client Lifecycle
+
+1. `es_new_client(&client, &handler)` — create client. Requires `com.apple.developer.endpoint-security.client` entitlement (Apple-issued for EDR vendors; ad-hoc signing with this entitlement requires boot-args `amfi_get_out_of_my_way=1` or SIP-disabled).
+2. `es_subscribe_client(client, events, count)` — register interest.
+3. Handler receives `es_message_t *`. The handler must call `es_respond(result, msg, auth_result)` for auth events; clear messages are fire-and-forget.
+4. `es_mute_path` / `es_mute_path_prefix` — exclude paths (e.g., `/System/Library/`).
+5. On macOS 13+: `es_clear_cache()` — required periodically to drain the kernel's message buffer.
+
+### Tooling
+
+- **`eslogger`** — built-in CLI (macOS 13+) for one-shot event capture: `sudo eslogger exec open write > /tmp/esf.log`.
+- **ESF clients on GitHub**: `esf-client`, `nested-objc`, `ZicoMonitor`, `Santa` (Google) — all open-source reference implementations.
+- **Apple's `EndpointSecurity` framework docs**: see developer.apple.com/documentation/endpointsecurity.
+
+## MDM Control Plane
+
+Mobile Device Management is the enterprise control plane for macOS in 2026 — Jamf, Kandji, Microsoft Intune, Workspace ONE, Addigy, Mosyle. MDM pushes configuration profiles (Apple's `.mobileconfig` format) that enforce restrictions, push certificates, configure FileVault, deploy System Extensions, and remotely wipe. Supervision via Apple Business/School Manager (DEP — Device Enrollment Program, now Apple Automated Device Enrollment) makes profiles non-user-removable.
+
+### Profile Anatomy
+
+A `.mobileconfig` is a signed plist with `PayloadContent`, `PayloadIdentifier`, `PayloadType`, `PayloadUUID`, `PayloadDisplayName`, and a signature (CMS/PKCS#7). Payload types include `com.apple.applicationaccess` (restrictions), `com.apple.security.FDE` (FileVault), `com.apple.system-extension-policy` (allow-listed SE Team IDs), `com.apple.security.firewall` (application firewall), `com.apple.networkextension.configuration` (VPN/filtered-network), `com.apple.ldap.account` (directory binding).
+
+### Enrollment Modes
+
+- **User-initiated** — user opens `profiles install -path foo.mobileconfig` or taps enroll in System Settings. Profiles are user-removable.
+- **DEP / Automated Device Enrollment** — supervised out-of-box; profiles are non-removable; recovery partition re-enrolls.
+- **Account-Driven User Enrollment** (macOS 13+) — managed Apple ID at login; only the user's iCloud Drive container is managed. Lower blast radius.
+
+### MDM Abuse Vectors
+
+1. **Enrollment identity theft** — extract the MDM identity cert from `/Library/Keychains/System.keychain`, enroll rogue devices impersonating the supervised Mac.
+2. **DEP re-enrollment race** — wipe a supervised Mac, race to enroll in a different MDM before DEP check-in completes.
+3. **Beta OS profile bypass** — install a beta macOS profile that bypasses some restriction enforcement.
+4. **Supervised-mode downgrade** — older macOS versions had downgrade paths; modern macOS is largely closed.
+5. **MDM server compromise** — compromise the Jamf/Intune server → push malicious profiles fleet-wide (highest-impact scenario).
+
+## Real-World macOS Threats
+
+macOS malware from 2017 to 2026 illustrates how attackers adapt to the platform's defenses. Key families:
+
+### Adware / Dropper Wave (2017-2020)
+
+- **Shlayer** (2019-2022) — the dominant macOS malware family by volume. Disguised as a fake Flash updater or pirated app DMG. Initially signed with a stolen/throttled Developer ID; later notarized (the notarized-dropper model: a notarized parent fetches the unnotarized payload). Persistence via LaunchAgent in `~/Library/LaunchAgents/`.
+- **Bundlore** (2018-2020) — adware dropper, similar delivery model. Multi-arch fat binary (x86_64 + arm64e) after Apple Silicon launched.
+- **CoinMiner** (2018+) — XMRig-based cryptominer. Often delivered via pirated Adobe Creative Cloud DMGs. LaunchDaemon for boot-time mining.
+
+### Apple Silicon Transition (2021-2022)
+
+- **Silver Sparrow** (Feb 2021) — the first malware observed shipping an arm64 payload (alongside x86_64). Distributed via the Apple Developer ID `RA Thompson` and installed via a package (`update.pkg`). The payload (`inspector`) was never observed doing anything beyond beaconing — a "warhead" that was never fired. Documented by Red Canary.
+
+### Modern Stealer Wave (2023-2026)
+
+- **XCSpy** (2023) — XCSBuild-disguised stealer targeting Apple developers. Malicious Xcode project files that ran `osascript` payloads on project open. Stole iCloud tokens and Keychain items.
+- **NodeStealer** (2023) — JavaScript-based stealer distributed via fake browser updates. Originally Windows-targeting; ported to macOS in 2023. Exfiltrated cookies and saved passwords from Chrome, Brave, Safari.
+- **Atomic Stealer / AMOS** (2024-2025) — sold on Russian cybercrime forums for ~$1k/month subscription. Targets Safari cookies, Chrome cookies, Keychain, cryptocurrency wallets (Electrum, Exodus, MetaMask), and exfiltrates via Telegram bots.
+- **Cthulhu Stealer** (2024) — copycat of Atomic; same target surface, slightly different exfil. Distributed via cracked-game DMGs.
+
+### Nation-State / Targeted
+
+- **Pegasus** ( Citizen Lab, multiple variants) — NSO Group iOS spyware; macOS variant reported in 2022 targeting activists via zero-click iMessage delivery.
+- **Predator** (Cytrox / Intellexa) — commercial spyware; macOS variant reported in 2023.
+- **DazzleSpy / OSX.WolfsBane** (2024) — water-hole attacks on pro-democracy activists in Hong Kong via Safari WebKit zero-day.
+
+## macOS Forensic Artifacts
+
+macOS produces unusually rich forensic telemetry. Unlike Windows (Event Log) or Linux (syslog/journald), macOS records to the **unified log** — a binary, time-indexed, structured log stream that requires `log show` to parse. Combined with the TCC.db, Keychain, FSEvents, and Spotlight metadata, an IR analyst can reconstruct nearly every action an attacker took.
+
+### Primary Artifact Sources
+
+| Artifact | Path | Content |
+|----------|------|---------|
+| **Unified log** | `/var/db/diagnostics/` (binary) | All system telemetry since macOS 10.12 Sierra; structured `subsystem/category` |
+| **TCC.db (user)** | `~/Library/Application Support/com.apple.TCC/TCC.db` | Privacy grants (Full Disk Access, Camera, Microphone, etc.) |
+| **TCC.db (system)** | `/Library/Application Support/com.apple.TCC/TCC.db` | System-scope privacy grants |
+| **Keychain (user)** | `~/Library/Keychains/login.keychain-db` | User credentials (Safari, Wi-Fi, app tokens, certs) |
+| **Keychain (system)** | `/Library/Keychains/System.keychain` | System secrets (MDM identity, Wi-Fi PSKs, system certs) |
+| **Cookies.binarycookies** | `~/Library/Containers/com.apple.Safari/Data/Library/Cookies/` | Safari session cookies (binary plist) |
+| **History.db** | `~/Library/Safari/History.db` | Safari browsing history (SQLite) |
+| **FSEvents** | `/.fsevents/*` | Filesystem events (creates, deletes, renames) |
+| **Spotlight metadata** | `/.Spotlight-V100/Store-V2/` | File content index (may contain path + metadata of deleted files) |
+| **quarantine** | `xattr -l <file>` → `com.apple.quarantine` | Downloaded-file provenance (browser, timestamp) |
+| **launchd state** | `/var/db/launchd.db/`, `~/Library/LaunchAgents/` | Persistence items |
+| **mdmcache** | `/var/db/ConfigurationProfiles/` | MDM profile payloads |
+
+### Unified Log Hunting
+
+```bash
+# Recent process exec events (subsystem = com.apple.securityd logs exec)
+sudo log show --predicate 'subsystem == "com.apple.securityd"' --last 1h --style compact
+
+# All TCC-related events (every privacy grant, denial, prompt)
+sudo log show --predicate 'subsystem == "com.apple.TCC"' --last 24h
+
+# Code-signing failures (AMFI denials)
+sudo log show --predicate 'subsystem == "com.apple.amfi"' --last 24h --info --debug
+
+# Search the entire unified log for a binary path (post-compromise)
+sudo log show --last 7d --info --debug | grep -F "/tmp/payload"
+```
+
+## Apple Platform Security Layers
+
+Apple's published [Platform Security Guide](https://support.apple.com/guide/security/welcome/web) (the authoritative reference) defines the layered trust model. From hardware to user:
+
+| Layer | Component | Purpose |
+|-------|-----------|---------|
+| **Hardware** | Boot ROM, SEP, TouchID/Touch Bar | Immutable root of trust; biometric secrets |
+| **Boot** | iBoot, kernel cache, SSV | Verified boot chain; sealed system volume |
+| **Kernel** | AMFI, sandbox (`sandboxd`), AppleMobileFileIntegrity | Binary validation at exec; syscall filtering; entitlement enforcement |
+| **System services** | `launchd`, `tccd`, `securityd`, `logd`, `mdmclientd` | PID-1 supervisor; TCC daemon; keychain daemon; log daemon; MDM agent |
+| **Frameworks** | `EndpointSecurity.framework`, `Security.framework`, `LocalAuthentication.framework` | Apple-blessed APIs for telemetry, keychain, biometric auth |
+| **Userspace** | `tccd`, `mdmclientd`, EDR System Extensions, browsers, apps | The attack surface most red teamers care about |
+
+The trust flows top-down: hardware verifies boot chain verifies kernel verifies system binaries verifies userspace. A break at any layer subverts layers above. SIP and SSV together make layer 2 (boot) and layer 3 (kernel) very hard to subvert on modern Apple Silicon; most practical attacks target layer 5-6 (userspace and apps).
+
+## Detection Engineering
+
+For defenders building macOS detection (or for red teamers modeling what defenders see), the layered telemetry stack enables layered detection:
+
+### Layer 1: Process Telemetry (ESF `exec` events)
+
+- **Suspicious parent-child relationships**: `bash` → `curl` → `bash` (stager pattern), `Word` → `bash` (macro), `Safari` → `osascript` (drive-by AppleScript).
+- **Suspicious binary paths**: anything under `/tmp/`, `/var/tmp/`, `~/Library/Application Support/<random>/`, `~/Library/.foo/`.
+- **Recurring binary names**: `update_agent`, `helper`, `mdworker32`, `searchd` (typosquatting on `mdworker`, `mds`, `searchd`).
+
+### Layer 2: File Telemetry (ESF `write`, `rename`, `unlink`)
+
+- **LaunchAgent / LaunchDaemon writes**: any write to `~/Library/LaunchAgents/` or `/Library/LaunchDaemons/` by a non-installer process.
+- **TCC.db writes**: direct sqlite INSERT to the TCC.db is highly abnormal — only `tccd` should write.
+- **Browser cookie access**: a non-browser process reading `Cookies.binarycookies` is a stealer.
+- **Keychain reads**: `security` CLI reading the login keychain from a non-Terminal/iTerm process.
+
+### Layer 3: Network Telemetry
+
+- **Outbound C2 patterns**: connections to dynamic DNS (*.duckdns.org, *.noip.com), Tor exit nodes, known-bad ASNs.
+- **DNS beaconing**: periodic DNS queries to the same domain at fixed intervals.
+- **TLS JA3/JA4 fingerprints**: map known macOS malware JA3 hashes.
+
+### Layer 4: Behavior Indicators
+
+- **Rapid enumeration commands**: `id`, `whoami`, `hostname`, `ifconfig`, `system_profiler` executed in <2s.
+- **Credential access patterns**: `security dump-keychain` followed by curl to an external host.
+- **Persistence immediately after download**: a downloaded DMG-mount → LaunchAgent-install sequence within minutes.
+
+## Lab Build Guide
+
+A reproducible macOS test lab is essential — never test live exploits on a daily-driver Mac. Recommended stack:
+
+### Tier 1: Virtual Machines (free, snapshots)
+
+- **VMware Fusion Pro 13+** (free for personal use since May 2023): full Apple Silicon support. Snapshots are essential — roll back between tests.
+- **Parallels Desktop** (commercial): faster than VMware on Apple Silicon, but paywalled.
+- **UTM** (free, open-source): QEMU-based; supports both Intel macOS (slow, x86 emulation) and Apple Silicon native hypervisor (fast).
+- **Apple's ipsw (Restore image)**: download via `ipsw download app --latest-version` (or from IPSW Downloads) for VM creation.
+
+### Tier 2: Bare-Metal Test Mac
+
+- A dedicated Mac mini or MacBook for malware detonation.
+- Install fresh from Recovery (`Cmd+R` Intel, hold power Apple Silicon).
+- Enable FileVault to test post-FDE exploitation.
+- Snapshot the APFS volume: `diskutil apfs createSnapshot /`.
+- Wipe between engagements (`diskutil eraseDisk`).
+
+### Tier 3: MDM Test Environment
+
+- **Apple Business Manager + Jamf Now** (free up to 3 devices): for testing MDM profile delivery, supervision, and DEP workflows.
+- **Addigy / Kandji / Mosyle free trials**: 30-day evaluations; useful for cross-vendor MDM testing.
+- **MicroMDM** (open-source): community MDM server for profile push testing without vendor dependencies.
+- **SCEP / ADCS test cert**: for testing certificate enrollment.
+
+### Lab Hygiene
+
+- **Isolated network**: VLAN or dedicated SSID; no access to corporate resources.
+- **DNS sinkhole** (Pi-hole or NextDNS): block known-malicious C2 during detonation.
+- **Network capture**: persist `tcpdump` or zeek to capture C2 traffic for later analysis.
+- **INetSim / FakeNet-NG**: simulate C2 servers for detonation.
+- **Snapshots before each test**: VM snapshot or `tmutil localsnapshot` for APFS.
+
+
 
 - **vs `mobile-security`** — mobile-security is iOS/Android at the *application* layer: app review, certificate pinning bypass, APK/IPA reverse engineering, mobile data protection. THIS skill is macOS desktop/laptop at the *OS and platform* layer: SIP/TCC/AMFI/ESF, LaunchAgents/Daemons persistence, Mach-O analysis, Keychain (desktop variant), MDM as enterprise control plane. The Apple Silicon transition (2020-2022) further differentiates the two: macOS on M-series is a desktop Unix with arm64e + PAC + sealed snapshots; iOS has had arm64e longer and has additional sandbox restrictions (no shell, no Terminal, no `osascript`).
 - **vs `av-edr-evasion`** — av-edr-evasion focuses on Windows Defender and commercial EDR (CrowdStrike, SentinelOne, Defender for Endpoint) with techniques like direct syscalls, process doppelgänging, and DLL hollowing. THIS skill focuses on the macOS-specific defense stack (AMFI, Gatekeeper, XProtect, MRT, TCC, sandbox profiles) and the macOS-native EDR surface (ESF, System Extensions). Where av-edr-evasion covers Windows API abuse, this skill covers Mach API abuse, entitlement inheritance, and signed-and-notarized dropper patterns.

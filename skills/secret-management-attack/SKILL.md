@@ -15,7 +15,7 @@ allowed-tools:
 metadata:
   domain: appsec
   tool_count: 14
-  guide_count: 2
+  guide_count: 3
   mitre: "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud"
 ---
 
@@ -26,9 +26,10 @@ metadata:
 
 > **Supplementary Files**:
 > - `payloads.md` — gitleaks / trufflehog / semgrep / bearer command catalogs, AWS-GCP-Azure metadata secret extraction, HashiCorp Vault token-theft payloads, Infisical/Doppler/AWS Secrets Manager abuse, GitHub Actions/GitLab CI/Jenkins secret exfiltration, Kubernetes secret + etcd dump, container image layer analysis (dive/trivy), DeepAudit multi-agent audit invocation, apkleaks DEX scanning, cariddi web crawl, custom regex patterns for proprietary tokens, OPSEC-aware scanning techniques, canary-token evasion
-> - `test-cases.md` — Structured test cases TC-SM-001 through TC-SM-012 covering repo history sweep, filesystem secret scan, SAST custom rules, APK secret extraction, vault token abuse, cloud metadata theft, CI/CD secret dump, K8s secret dump, container layer analysis, secret verification workflow, canary-token detection, and full lifecycle audit
+> - `test-cases.md` — Structured test cases TC-SM-001 through TC-SM-018 covering repo history sweep, filesystem secret scan, SAST custom rules, APK secret extraction, vault token abuse, cloud metadata theft, CI/CD secret dump, K8s secret dump, container layer analysis, secret verification workflow, canary-token detection, full lifecycle audit, Terraform state extraction, CI/CD multi-provider inventory enumeration, custom gitleaks ruleset precision/recall validation, semgrep taint-mode secret-to-sink rules, Jenkins credentials binding audit, and GitHub Actions `pull_request_target` workflow audit
 > - `guides/secret-management-attack-playbook.md` — End-to-end playbook walking from scope definition through repo scan, SAST triage, vault/cloud/CI exploitation, lateral pivoting, and OPSEC-safe report assembly
 > - `guides/vault-and-cloud-kms-attack-playbook.md` — HashiCorp Vault and cloud KMS attack deep dive (Vault auth methods, secrets engines, policies, response-wrap hijacking and SSRF; AWS KMS key policy abuse, grant abuse, deletion ransomware; GCP KMS IAM escalation and Cloud EKM; Azure Key Vault access policy review and managed identity abuse; BYOK/HYOK attacks; Kyverno, external-secrets, secrets-store-csi-driver misconfig hunting; cross-platform discovery patterns)
+> - `guides/cicd-secret-sprawl-and-sast-rule-deep-dive.md` — CI/CD secret sprawl audit and custom SAST rule authoring deep dive (GitHub Actions, GitLab CI, Jenkins, CircleCI, Argo CD, Tekton, Terraform Cloud inventory; Terraform state file secret extraction; gitleaks / semgrep / bearer custom rule authoring; precision/recall validation methodology; OPSEC for CI/CD audit; CI/CD sprawl heat map report assembly)
 
 ## Summary
 
@@ -497,7 +498,10 @@ Goal: assemble a blast-radius graph and rotation-status table.
 ## Learning Resources
 
 - **This skill's supplementary files**: `payloads.md`, `test-cases.md`
-- **Deep-dive guide**: `guides/secret-management-attack-playbook.md` — end-to-end workflow from scope through scan, triage, platform exploit, lateral pivot, and report
+- **Deep-dive guides**:
+  - `guides/secret-management-attack-playbook.md` — end-to-end workflow from scope through scan, triage, platform exploit, lateral pivot, and report
+  - `guides/vault-and-cloud-kms-attack-playbook.md` — Vault and cloud KMS exploitation depth
+  - `guides/cicd-secret-sprawl-and-sast-rule-deep-dive.md` — CI/CD sprawl audit and custom SAST rule authoring
 - **Tool homes**:
   - gitleaks: [github.com/gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) (27k★)
   - trufflehog: [github.com/trufflesecurity/trufflehog](https://github.com/trufflesecurity/trufflehog)
