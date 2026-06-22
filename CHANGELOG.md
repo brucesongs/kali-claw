@@ -4,6 +4,64 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.37 (2026-06-27) — GitHub-Trending Expansion Wave 7: +4 Skill Domains (103→107)
+
+### Driver: Wave 7 Returns to Horizontal Expansion
+
+After v0.1.36's focused E plan (Distinguished sprint + bottom lift, no new skills), v0.1.37 resumes the GitHub-trending-driven expansion methodology — **wave 7**. Where wave 6 (v0.1.35) pursued "deep-vertical" strategy (specializing within existing stacks), wave 7 returns to "horizontal expansion" by entering 4 fresh categories that broaden coverage rather than deepening existing verticals.
+
+### +4 New Skill Domains
+
+| Skill | Category | Baseline | Tier |
+|-------|----------|----------|------|
+| **ad-cs-abuse** | enterprise-cloud (AD CS) | **91.0** | Excellent (near-Distinguished) |
+| **storage-san-attack** | storage | **89.5** | Excellent |
+| **hypervisor-introspection** | virtualization | **87.4** | Excellent |
+| **satellite-leo-security** | satellite | **86.8** | Excellent |
+
+**Cohort average: 88.7** — highest of all 7 expansion waves (vs wave 6's 88.4, wave 5's 85.4, wave 4's 82.8).
+
+### Per-Skill Coverage
+
+- **ad-cs-abuse** (ESC1-ESC15, PetitPotam CVE-2021-36942, Certifried CVE-2022-26923, Shadow Credentials, Golden Certificate, PKINIT, ADCSPwn, Certipy) — 4 files (SKILL.md 379 lines, payloads.md 2,227 lines/187 code blocks, test-cases.md 376 lines/15 TCs, playbook 665 lines)
+- **storage-san-attack** (iSCSI/FC/NFSv4/SMB3/S3 APIs, NetApp ONTAP, Dell EMC Isilon, Pure Storage, QNAP/Synology, TrueNAS, DeadBolt/eCh0raix ransomware) — 4 files (SKILL.md 362 lines, payloads.md 2,230 lines/117 code blocks, test-cases.md 336 lines/12 TCs, playbook 1,114 lines)
+- **hypervisor-introspection** (VMware ESXi/Hyper-V/KVM/Xen/Proxmox, LibVMI/DRAKVUF, VENOM CVE-2015-3456, ESXiArgs, hardware-assisted VT-x/EPT/AMD-V) — 4 files (SKILL.md 376 lines, payloads.md 2,223 lines/74 code blocks, test-cases.md 267 lines/12 TCs, playbook 898 lines)
+- **satellite-leo-security** (Starlink/Kuiper/OneWeb, Iridium/Inmarsat/Viasat KA-SAT AcidRain wiper Feb 2022, DVB-S/S2, VSAT iDirect/Hughes, GNSS receiver attacks) — 4 files (SKILL.md 292 lines, payloads.md 2,014 lines/238 code fences, test-cases.md 677 lines/12 TCs, playbook 712 lines)
+
+### Quality Snapshot
+
+| Metric | v0.1.36 | v0.1.37 | Change |
+|--------|---------|---------|--------|
+| Total skill domains | 103 | **107** | +4 |
+| Distinguished (92+) | 28 | **28** | unchanged (wave 7 is expansion, not lift) |
+| Excellent (80-91.9) | 75 | **79** | +4 (all from new cohort) |
+| Strong (60-80) | 0 | **0** | unchanged |
+| Average | 88.45 | **88.46** | +0.01 |
+| Min | 83.8 | **83.8** | unchanged |
+| Max | 94.6 | **94.6** | unchanged |
+| Excellent+ coverage | 103/103 (100%) | **107/107 (100%)** | maintained |
+
+→ **100% Excellent+ milestone maintained** through wave 7 expansion.
+
+### Index Sync
+
+| File | Update |
+|------|--------|
+| validation/update-skill-standard.py | Registered 4 new skills in ATTACK_SKILLS, DOMAIN_MAP, MITRE_MAP; 4 new categories (storage, virtualization, satellite, enterprise-cloud AD CS) |
+| IDENTITY.md | +4 skill tag rows |
+| TOOLS.md | +4 category rows; 103→107 skill domains |
+| README.md | 6 locations: 103→107, version 0.1.36→0.1.37, +v0.1.37 changelog row, refreshed quality snapshot, extended feature bullet description |
+| VERSION | 0.1.36→0.1.37 |
+
+### Workload
+
+- New files: 16 (4×SKILL.md + 4×payloads.md + 4×test-cases.md + 4×guides)
+- New lines: ~13,800
+- New test cases: 51 (15+12+12+12)
+- New tool references: ~52
+
+---
+
 ## v0.1.36 (2026-06-25) — E Plan: Distinguished Sprint + Bottom Lift (+9 Distinguished, 19→28)
 
 ### Driver: E Plan Executed (A + C Combo)

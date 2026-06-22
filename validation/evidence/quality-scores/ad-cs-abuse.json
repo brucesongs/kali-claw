@@ -1,0 +1,33 @@
+{
+  "skill": "ad-cs-abuse",
+  "timestamp": "2026-06-21T15:11:16Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 9947,
+    "payload_section_count": 42,
+    "payload_code_blocks": 187,
+    "test_case_count": 15,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 1,
+    "guide_avg_words": 4434,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.96
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 100.0,
+    "test_case": 97.5,
+    "field": 100.0,
+    "guide": 68.0,
+    "skill_section": 96.0
+  },
+  "component_scores": {
+    "skill_md": 96.00,
+    "payloads_md": 100.00,
+    "test_cases_md": 98.75,
+    "guides": 68.0
+  },
+  "overall_score": 91.0,
+  "tier": "Excellent"
+}

@@ -1,0 +1,33 @@
+{
+  "skill": "hypervisor-introspection",
+  "timestamp": "2026-06-21T15:11:16Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 10387,
+    "payload_section_count": 19,
+    "payload_code_blocks": 74,
+    "test_case_count": 12,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "guide_avg_words": 6401,
+    "guide_key_sections": 3,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 89.6,
+    "test_case": 90.0,
+    "field": 86.0,
+    "guide": 68.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 96.53,
+    "test_cases_md": 88.00,
+    "guides": 68.0
+  },
+  "overall_score": 87.4,
+  "tier": "Excellent"
+}

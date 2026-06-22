@@ -132,13 +132,17 @@ Skills define _how_ tools work. This file records _your_ specific configuration 
 | hf-vhf-radio-attack | 13 | Mastered | skills/hf-vhf-radio-attack/SKILL.md |
 | blockchain-l2-attack | 13 | Mastered | skills/blockchain-l2-attack/SKILL.md |
 | embedded-rtos-security | 13 | Mastered | skills/embedded-rtos-security/SKILL.md |
+| storage-san-attack | 13 | Mastered | skills/storage-san-attack/SKILL.md |
+| hypervisor-introspection | 13 | Mastered | skills/hypervisor-introspection/SKILL.md |
+| satellite-leo-security | 13 | Mastered | skills/satellite-leo-security/SKILL.md |
+| ad-cs-abuse | 13 | Mastered | skills/ad-cs-abuse/SKILL.md |
 
 ---
 
 ## Learning Strategy
 
 ### Current Phase
-All 518 tools mastered across 103 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
+All 518 tools mastered across 107 skill domains. Current focus: quality consolidation, new skill domain development, Distinguished sprint, engagement orchestration, and cross-skill scenario execution.
 
 ### Continuous Improvement
 - Cross-skill composite attack chain practice

@@ -88,7 +88,11 @@ ATTACK_SKILLS = {
     "ics-fieldbus-attack",
     "hf-vhf-radio-attack",
     "blockchain-l2-attack",
-    "embedded-rtos-security"
+    "embedded-rtos-security",
+    "storage-san-attack",
+    "hypervisor-introspection",
+    "satellite-leo-security",
+    "ad-cs-abuse"
 }
 
 DOMAIN_MAP = {
@@ -161,6 +165,10 @@ DOMAIN_MAP = {
     "hf-vhf-radio-attack": "lowfreq-radio",
     "blockchain-l2-attack": "blockchain-l2",
     "embedded-rtos-security": "rtos",
+    "storage-san-attack": "storage",
+    "hypervisor-introspection": "virtualization",
+    "satellite-leo-security": "satellite",
+    "ad-cs-abuse": "enterprise-cloud",
 }
 
 OWASP_MAP = {
@@ -232,6 +240,10 @@ MITRE_MAP = {
     "hf-vhf-radio-attack": "T1557-Adversary-in-the-Middle",
     "blockchain-l2-attack": "TA0006-Credential Access",
     "embedded-rtos-security": "T1548-Abuse Elevation Control Mechanism",
+    "storage-san-attack": "T1552-Unsecured Credentials",
+    "hypervisor-introspection": "T1068-Exploitation for Privilege Escalation",
+    "satellite-leo-security": "T1557-Adversary-in-the-Middle",
+    "ad-cs-abuse": "T1552-Unsecured Credentials",
 }
 
 # Non-tool entries to skip in tool tables

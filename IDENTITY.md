@@ -116,6 +116,10 @@
 | hf-vhf-radio-attack | Licensed HF/VHF/UHF — ADS-B 1090 MHz, AIS, ACARS, VDL Mode 2, HFDL, POCSAG/FLEX pagers, APRS, NDB, ATC/maritime VHF, DSC, weather fax | Trust but Verify, Assume Breach |
 | blockchain-l2-attack | Layer-2 attack — Lightning Network, Optimistic/ZK Rollups (Optimism/Arbitrum/zkSync/StarkNet/Polygon), cross-chain bridges (Wormhole/Nomad/Ronin), state channels, ERC-4337 account abstraction | Trust but Verify, First Principles |
 | embedded-rtos-security | RTOS penetration — VxWorks WDB (Urgent/11), QNX Qnet, FreeRTOS+TCP, ThreadX/Azure RTOS, Zephyr, Mbed OS, TI-RTOS, MicroC/OS, NuttX, RIOT, Contiki | First Principles, Trust but Verify |
+| storage-san-attack | iSCSI/Fibre Channel/NFSv4/SMB3, S3 API abuse, NetApp ONTAP, Dell EMC Isilon, Pure Storage, QNAP/Synology NAS, TrueNAS, DeadBolt/eCh0raix ransomware, storage snapshot theft | Assume Breach, Trust but Verify |
+| hypervisor-introspection | VMware ESXi/Hyper-V/KVM/Xen/Proxmox, LibVMI/DRAKVUF virtual machine introspection, VENOM (CVE-2015-3456), ESXiArgs, VM escape, hardware-assisted virtualization (VT-x/EPT/AMD-V) | First Principles, Defense in Depth |
+| satellite-leo-security | Starlink/Kuiper/OneWeb, Iridium/Inmarsat/Viasat KA-SAT (AcidRain wiper), DVB-S/S2, VSAT iDirect/Hughes, GNSS receiver attacks, ADS-B/AIS spoofing, terminal firmware | Trust but Verify, Assume Breach |
+| ad-cs-abuse | Active Directory CS — ESC1-ESC15, PetitPotam (CVE-2021-36942), Certifried (CVE-2022-26923), Shadow Credentials, Golden Certificate, PKINIT, ADCSPwn, Certipy | Assume Breach, First Principles |
 
 ---
 
