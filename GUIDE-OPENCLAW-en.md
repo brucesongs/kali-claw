@@ -1,6 +1,8 @@
 # OpenClaw + kali-claw: Complete Usage Guide
 
 > A beginner-friendly guide to setting up and using the OpenClaw framework with the kali-claw penetration testing agent workspace.
+>
+> **Target version: v0.1.39** — 111 skill domains, 33 Distinguished, 100% Excellent+.
 
 ---
 
@@ -12,8 +14,9 @@
 4. [Core Concepts](#4-core-concepts)
 5. [Usage Scenarios](#5-usage-scenarios)
 6. [Advanced Configuration](#6-advanced-configuration)
-7. [FAQ](#7-faq)
-8. [Core File Reference](#8-core-file-reference)
+7. [Version History and Milestones](#7-version-history-and-milestones)
+8. [FAQ](#8-faq)
+9. [Core File Reference](#9-core-file-reference)
 
 ---
 
@@ -34,42 +37,70 @@ OpenClaw is an AI agent runtime framework installed via npm. It provides the inf
 
 ### 1.2 What is kali-claw?
 
-kali-claw is a pre-built penetration testing agent workspace for the OpenClaw framework. It is NOT a traditional software code repository -- it is a **Markdown knowledge base + configuration system**.
+kali-claw is a pre-built penetration testing agent workspace for the OpenClaw framework. It is NOT a traditional software code repository -- it is a **Markdown knowledge base + configuration system + automation scripts**.
 
 **What it includes:**
-- **49 security skill domains** -- from OSINT and web exploitation to cloud security and AI fuzzing
+- **111 security skill domains** -- from OSINT and web exploitation to cloud + identity, modern enterprise stack (PAM / CI-CD / CSPM-CASB / SASE-SSE), AI/LLM security, SCADA/ICS, blockchain/Web3, mobile/IoT, quantum/post-quantum, radio/satellite, and more
 - **518 Kali Linux tool knowledge base** -- mastery tracking, learning notes, usage experience
 - **12 Hacker Laws** -- behavioral guidelines derived from real-world security philosophy
 - **Layered memory system** -- daily logs, monthly chronicles, and long-term distilled knowledge
+- **Agent Skills Open Standard compliance** -- all SKILL.md files use the Anthropic 2025 YAML frontmatter standard (`name`, `description`, `compatibility`, `allowed-tools`, `metadata`)
+- **Quality scoring system (SCORE.sh v2)** -- 7 metrics × 4 components × 5 tiers (Distinguished / Excellent / Strong / Adequate / Weak)
+- **Automation and orchestration** -- 10+ scripts in `validation/` covering heartbeat, backup, drift detection, scenario runner, end-to-end orchestration, report generation
 
 **How it differs from using ChatGPT or Claude directly:**
-- ChatGPT/Claude have no persistent memory across sessions
-- kali-claw maintains a structured memory system that grows over time
-- kali-claw has 49 curated skill domains with attack payloads, test cases, and learning guides
-- kali-claw can actually execute Kali Linux security tools in your environment
-- kali-claw follows the 12 Hacker Laws in every interaction, not generic AI behavior
+
+| Feature | ChatGPT / Claude | kali-claw |
+|---------|------------------|-----------|
+| Persistent memory | None (start from zero every chat) | Three-layer file-based memory |
+| Skill system | None | 111 structured skill domains |
+| Tool execution | Cannot run commands | Can call all 518 Kali Linux tools |
+| Personality consistency | None | SOUL.md defines fixed persona + 12 laws |
+| Learning evolution | None | Grows through memory + heartbeat |
+| Payload library | None | Multi-MB payloads.md per skill |
+| Detection rule mapping | None | Defender perspective + Sigma/SPL/KQL rules |
+| Real-world incident case studies | None | SolarWinds / Capital One / 3CX / xz-utils deep dives |
 
 ### 1.3 Architecture Overview
 
 ```
 User --> OpenClaw Gateway --> kali-claw Workspace
                                   |
-                                  +-- SOUL.md       (personality + 12 Hacker Laws)
-                                  +-- USER.md       (user profile and preferences)
-                                  +-- IDENTITY.md   (skill tags + personality traits)
-                                  +-- skills/       (49 skill domains)
+                                  +-- SOUL.md              (personality + 12 Hacker Laws)
+                                  +-- USER.md              (user profile and preferences)
+                                  +-- IDENTITY.md          (111 skill tag rows)
+                                  +-- AGENTS.md            (workspace config + session flow)
+                                  +-- MEMORY.md            (long-term distilled knowledge)
+                                  +-- TOOLS.md             (518 tool knowledge base)
+                                  +-- HEARTBEAT.md         (automated task framework)
+                                  +-- CHANGELOG.md         (v0.1.1 -> v0.1.39 history)
+                                  +-- skills/              (111 skill domains)
                                   |    +-- web-sqli/
-                                  |    |    +-- SKILL.md
+                                  |    |    +-- SKILL.md     (YAML frontmatter)
                                   |    |    +-- payloads.md
                                   |    |    +-- test-cases.md
                                   |    |    +-- guides/
-                                  |    +-- network-pentest/
-                                  |    +-- ... (47 more domains)
-                                  +-- memory/       (daily memory logs)
-                                  +-- chronicle/    (monthly milestones)
-                                  +-- TOOLS.md      (518 tool knowledge base)
-                                  +-- HEARTBEAT.md  (automated task framework)
-                                  +-- MEMORY.md     (long-term distilled knowledge)
+                                  |    +-- ci-cd-supply-chain-attack/
+                                  |    +-- pam-privilege-attack/
+                                  |    +-- cspm-casb-attack/
+                                  |    +-- sase-sse-attack/
+                                  |    +-- ad-cs-abuse/
+                                  |    +-- cloud-identity-attack/
+                                  |    +-- ... (111 total)
+                                  +-- validation/          (automation and orchestration)
+                                  |    +-- SCORE.sh              (quality scoring engine)
+                                  |    +-- heartbeat.sh           (workspace health check)
+                                  |    +-- orchestrator.sh        (end-to-end pentest orchestration)
+                                  |    +-- scenario-runner.sh     (cross-skill scenarios)
+                                  |    +-- tool-selector.sh       (target -> tool mapping)
+                                  |    +-- report-generator.sh    (automated reporting)
+                                  |    +-- update-skill-standard.py (SKILL.md standard alignment)
+                                  |    +-- engagement-template/   (authorized pentest templates)
+                                  |    +-- evidence/              (scoring + scenario evidence)
+                                  +-- memory/              (daily memory logs)
+                                  +-- chronicle/           (monthly milestones)
+                                  +-- docs/                (long-form design docs)
+                                  +-- bak/                 (backups)
 ```
 
 **Session startup flow:**
@@ -80,6 +111,26 @@ Every time you start a new session, the agent automatically:
 3. Reads today's and yesterday's memory logs -- gets recent context
 4. Reads `MEMORY.md` -- loads long-term distilled knowledge
 5. Ready -- the agent now has full context and can assist you
+
+### 1.4 Quality Tier System (introduced v0.1.16, current state v0.1.39)
+
+kali-claw ships with an **objective, quantifiable** skill quality scoring system. Every skill domain receives a 0-100 score, mapped to 5 tiers:
+
+| Tier | Score Range | v0.1.39 Count | Meaning |
+|------|-------------|---------------|---------|
+| **Distinguished** | 92.0 - 100 | **33** | Best-in-class depth, reference implementation |
+| **Excellent** | 80.0 - 91.9 | **78** | Comprehensive coverage, only minor depth gaps |
+| Strong | 60.0 - 79.9 | 0 | Good coverage |
+| Adequate | 40.0 - 59.9 | 0 | Components present but shallow |
+| Weak | 0 - 39.9 | 0 | Missing critical components |
+
+**Current state (v0.1.39):**
+- 111/111 skills at Excellent or above (**100%**)
+- Average score: **88.78**
+- Min / Max: 85.1 / 94.6
+- Distinguished ratio: 33/111 ≈ **30%**
+
+Scoring details live in `validation/SCORING-METHODOLOGY.md`. Per-skill JSON evidence is in `validation/evidence/quality-scores/`.
 
 ---
 
@@ -206,8 +257,19 @@ git clone https://github.com/brucesongs/kali-claw.git .
 
 ```bash
 ls -la
-# You should see: SOUL.md, AGENTS.md, USER.md, IDENTITY.md,
-# HEARTBEAT.md, TOOLS.md, skills/, memory/, chronicle/, etc.
+```
+
+You should see:
+
+```
+SOUL.md           CHANGELOG.md      MEMORY.md
+AGENTS.md         CLAUDE.md         TOOLS.md
+IDENTITY.md       HEARTBEAT.md      README.md
+USER.md           LICENSE           VERSION
+skills/           validation/       memory/
+chronicle/        docs/             bak/
+GUIDE-OPENCLAW-zh.md   GUIDE-OPENCLAW-en.md
+RELEASE-v0.1.X.md (one release note per version)
 ```
 
 ### 3.4 First-Time Configuration (4 Files You MUST Modify)
@@ -291,17 +353,7 @@ Leave the 12 Hacker Laws and Core Truths sections unchanged -- they are universa
 
 #### FILE 3: `IDENTITY.md` -- Adjust Skill Tags
 
-This file contains a table of skill domains. Remove rows for skills you do not need, or add custom ones.
-
-**Before (default -- 28 skill rows):**
-
-```markdown
-| Domain | Core Capabilities | Related Laws |
-|--------|-------------------|--------------|
-| Reconnaissance | OSINT, DNS enumeration, ... | ... |
-| Web Security | SQL injection, XSS, ... | ... |
-| ... (28 rows total) |
-```
+This file contains a table of skill domains (111 rows in v0.1.39). Remove rows for skills you do not need, or add custom ones.
 
 **After (example -- focus only on Web security):**
 
@@ -360,31 +412,137 @@ You: hello, what skills do you have?
 
 The agent should respond with a summary of its capabilities, reflecting your customized configuration.
 
+### 3.6 Run Quality Scoring (Optional but Recommended)
+
+After cloning, run the scoring script once to confirm all skills are intact:
+
+```bash
+bash validation/SCORE.sh
+```
+
+This generates JSON score files for all 111 skill domains in `validation/evidence/quality-scores/`. If you plan to modify skills, these scores help you locate weak spots.
+
 ---
 
 ## 4. Core Concepts
 
 ### 4.1 Skill System
 
-kali-claw includes **49 skill domains** organized into five categories:
+kali-claw includes **111 skill domains** organized into 8 broad categories:
 
-| Category | Example Domains | Purpose |
-|----------|----------------|---------|
-| **Attack Skills** | web-sqli, web-xss, web-ssrf, network-pentest, password-attack, post-exploitation, wifi-pentest | Offensive security techniques |
-| **Defense Skills** | security-review, verification-loop, docker-patterns, safety-guard | Defensive security and safety |
-| **Knowledge Skills** | osint, deep-research, search-first, repo-scan, exa-search | Intelligence gathering and research |
-| **Meta Skills** | autonomous-loops, multi-agent-collaboration, council, chronicle | Orchestration and coordination |
-| **Infrastructure** | safety-guard, continuous-learning, terminal-ops, mcp-server-patterns | Agent operations and tooling |
+**Web and API Attacks**
 
-**Skill structure** -- each domain follows a consistent pattern:
+| Domain | Description |
+|--------|-------------|
+| web-sqli / web-xss / web-ssrf | The classic web trio (incl. CSP bypass, cloud-metadata SSRF) |
+| web-auth-bypass / web-access-control | Auth bypass, IDOR, OAuth/JWT attacks |
+| web-xxe / web-deserialization / file-inclusion | XML External Entity, Java/PHP/.NET deserialization, LFI/RFI |
+| cms-framework-attack | WordPress/Joomla/Drupal pentesting |
+| api-security | REST/GraphQL, rate limiting, parameter tampering |
+| email-security-deep | AiTM phishing, gateway bypass (Proofpoint/Mimecast), CVE-2024-21413 |
+| browser-qa | Playwright/Puppeteer automated browser security testing |
+
+**Network and Infrastructure**
+
+| Domain | Description |
+|--------|-------------|
+| network-pentest / recon-osint | Scanning, exploitation, lateral movement, subdomain enumeration |
+| network-sniffing-mitm / network-tunneling-proxy | Traffic hijacking, SSH/DNS/ICMP tunneling, SOCKS proxy chains |
+| dns-attacks | DNS rebinding, SAD DNS, DoH/DoT/DoQ tunneling, subdomain takeover |
+| vpn-attack / sase-sse-attack | Traditional VPN + modern edge (Zscaler / Netskope / Cloudflare One / Cisco Umbrella) |
+| email-protocol-attack | SMTP enumeration, SPF/DKIM/DMARC bypass |
+| voip-sip-attack | SIP eavesdropping, VLAN hopping |
+
+**Identity and Enterprise Stack**
+
+| Domain | Description |
+|--------|-------------|
+| ad-ldap-attack | AD/LDAP/Kerberos (AS-REP Roasting, Kerberoasting, DCSync, PtH) |
+| ad-cs-abuse | AD CS ESC1-ESC15, PetitPotam, Certifried (CVE-2022-26923) |
+| cloud-identity-attack | Entra ID / Okta / Auth0, PRT theft, Golden SAML |
+| pam-privilege-attack | 8 PAM vendors: CyberArk / BeyondTrust / Delinea / ManageEngine / WALLIX ... |
+| ci-cd-supply-chain-attack | Jenkins, GitLab CI, GitHub Actions, Argo CD, xz-utils / SolarWinds / 3CX case studies |
+| cspm-casb-attack | Wiz / Prisma Cloud / Netskope, OPA/Kyverno policy bypass |
+
+**Cloud and Container**
+
+| Domain | Description |
+|--------|-------------|
+| cloud-security | AWS/Azure/GCP, IAM, S3 exposure, metadata attacks |
+| container-security / kubernetes-attack | Docker escape, K8s RBAC, Pod Escape, runc CVE-2024-21626 |
+| cloud-native-vuln-research | CVE methodology, PoC reproduction, nuclei templates |
+| secret-management-attack | gitleaks/semgrep/trufflehog, Vault/CI-CD/registry exploitation |
+
+**Cryptography and Emerging Tech**
+
+| Domain | Description |
+|--------|-------------|
+| crypto-attacks | Weak algorithms, Padding Oracle, TLS issues, post-quantum migration, KyberSlash |
+| quantum-crypto-attack | NIST PQC, hybrid TLS, QKD/BB84, SM2/3/4 Chinese national crypto |
+| blockchain-web3 | Smart-contract audit, DeFi reentrancy, cross-chain bridges, MEV, ERC-777 |
+| llm-red-team / ai-security / ai-agent-security | LLM jailbreaks (GCG/AutoDAN/Crescendo), MCP poisoning, RAG poisoning |
+| agentic-pentest | PentestGPT, HexStrike, multi-agent team coordination |
+
+**Mobile / IoT / Embedded / Hardware**
+
+| Domain | Description |
+|--------|-------------|
+| mobile-security / mobile-app-instrumentation | iOS/Android, SSL Pinning bypass, Frida/Objection/r2frida |
+| iot-pentest | MQTT, CoAP, AMQP, IoT cloud backends |
+| firmware-reverse / hardware-security | Firmware extraction, JTAG/UART, side-channel |
+| embedded-rtos-security | VxWorks / QNX / FreeRTOS / ThreadX / Zephyr |
+| bluetooth-rfid-nfc | BLE GATT, MIFARE, NFC cloning |
+
+**Critical Infrastructure and Physical**
+
+| Domain | Description |
+|--------|-------------|
+| scada-ics-security / ics-fieldbus-attack | Modbus, S7comm, EtherNet/IP, OPC UA, Profibus, DNP3, IEC 61850 |
+| storage-san-attack | iSCSI/FC/NFSv4/SMB3/S3, NetApp/Dell EMC/QNAP/Synology/TrueNAS |
+| hypervisor-introspection | VMware ESXi / Hyper-V / KVM / Xen, LibVMI / DRAKVUF, VENOM |
+| satellite-leo-security | Starlink / Iridium / Viasat KA-SAT, DVB-S2 / VSAT, AcidRain |
+| sdr-rf-attack / hf-vhf-radio-attack | ADS-B, AIS, ACARS, POCSAG, APRS |
+| 5g-telecom-attack | PFCP, GTP, IMSI catchers, O-RAN |
+| automotive-vehicle-security | CAN/UDS, key fobs, EV charging |
+| uav-drone-security | MAVLink, PX4, GPS spoofing, DroneID |
+| physical-security-testing | Lock bypass, RFID cloning, USB weapons (Ducky/Bunny) |
+| mainframe-security | z/OS / RACF / CICS / DB2 / JES2 |
+| game-anticheat-bypass | EAC / BattlEye / Vanguard / BYOVD |
+
+**Defense / Forensics / Meta-capabilities**
+
+| Domain | Description |
+|--------|-------------|
+| digital-forensics / anti-forensics | Disk/memory/network forensics, anti-forensics |
+| threat-hunting / detection-engineering | Hypothesis-driven hunting, Sigma/YARA, ATT&CK detection engineering |
+| deception-honeypot | SSH/Web/ICS/AI honeypots, honeytokens |
+| pentest-reporting / article-writing | Dradis/Faraday, CVSS scoring, CVE disclosure |
+| engagement-manager | Authorized pentest lifecycle, scope management, evidence chain |
+| security-review / repo-scan | OWASP Top 10, source audit, dependency scanning |
+| security-bounty-hunter | Bug bounty, PoC development, responsible disclosure |
+| codebase-onboarding / knowledge-ops | Rapid codebase intelligence, knowledge graph management |
+| exa-search / deep-research / data-scraper-agent | Multi-source intelligence, CVE scraping, semantic search |
+| autonomous-loops / multi-agent-collaboration / council | Autonomous orchestration, multi-perspective analysis (attack/defense/audit) |
+| safety-guard / terminal-ops / search-first / verification-loop | Safety enforcement, terminal operations, research-before-exploit, multi-phase verification |
+| docker-patterns / continuous-learning / chronicle / tool-mastery / mcp-server-patterns | Labs, continuous learning, chronicles, tool mastery, MCP integration |
+
+**Skill structure** -- each domain follows the Agent Skills Open Standard pattern:
 
 ```
 skills/web-sqli/
-  +-- SKILL.md          # Skill definition, use cases, tools, methodology
+  +-- SKILL.md          # Skill definition with YAML frontmatter
   +-- payloads.md       # Attack payloads and commands organized by type
   +-- test-cases.md     # Structured test case templates
-  +-- guides/           # Deep-dive learning materials
+  +-- guides/           # Deep-dive learning materials (multiple files)
 ```
+
+**Progressive disclosure** -- the core design of the Agent Skills Open Standard:
+
+- **Stage 1 (Advertise)** -- YAML frontmatter + `## Summary` -- loaded during skill scanning
+- **Stage 2 (Quick Reference)** -- `## Core Tools` + `## Methodology` -- loaded on skill activation
+- **Stage 3 (Detailed)** -- `## Practical Steps` + `## Defense Perspective` -- loaded on task execution
+
+This staged loading saves tokens when the skill is not needed, while preserving depth when it is.
 
 **How skills are triggered:**
 
@@ -468,11 +626,19 @@ The heartbeat system runs automated periodic tasks to keep the agent healthy and
 - Results are logged to `memory/heartbeat-check-YYYYMMDDHHMM.md`
 - Anomalies are recorded in `memory/alerts.txt` and the user is notified
 
+**Companion script** -- `validation/heartbeat.sh` provides a CLI health check:
+
+```bash
+bash validation/heartbeat.sh           # One-shot check
+bash validation/heartbeat.sh --fix     # Check and attempt auto-fix
+bash validation/heartbeat.sh --json    # JSON output (for monitoring integration)
+```
+
 **How to customize:** Edit `HEARTBEAT.md` to add, remove, or modify heartbeat tasks.
 
 ### 4.4 Tool Knowledge Base (TOOLS.md)
 
-TOOLS.md tracks the agent's knowledge of **518 Kali Linux tools** across 65 categories.
+TOOLS.md tracks the agent's knowledge of **518 Kali Linux tools** across 65+ categories.
 
 **What each tool entry records:**
 - Mastery status (Mastered / Learning / Not started)
@@ -486,6 +652,94 @@ TOOLS.md tracks the agent's knowledge of **518 Kali Linux tools** across 65 cate
 |---------------|------------|--------|----------------|
 | Custom Tools  | 2          | Learning | Custom scripts in /opt/tools/ |
 ```
+
+### 4.5 Quality Scoring System (SCORE.sh v2)
+
+Introduced in v0.1.11, upgraded to v2 in v0.1.16. This subsystem makes "is this skill good enough" an objective, quantifiable metric.
+
+**4 weighted components:**
+
+| Component | Weight | Source | Meaning |
+|-----------|--------|--------|---------|
+| SKILL.md | 15% | `##` heading count | Structural depth |
+| payloads.md | 30% | Avg of word count, section count, code block count | Payload comprehensiveness |
+| test-cases.md | 30% | Avg of test case count, field completeness | Test executability |
+| guides/ | 25% | File count (40%) + avg word count (30%) + key section presence (30%) | Depth material |
+
+**5 tiers (v2 introduced Distinguished):**
+
+| Tier | Score | v0.1.39 Count |
+|------|-------|---------------|
+| Distinguished | 92 - 100 | 33 |
+| Excellent | 80 - 91.9 | 78 |
+| Strong | 60 - 79.9 | 0 |
+| Adequate | 40 - 59.9 | 0 |
+| Weak | 0 - 39.9 | 0 |
+
+**Running the score:**
+
+```bash
+bash validation/SCORE.sh                    # Score all 111 skills
+bash validation/SCORE.sh --skill web-sqli   # Score a single skill
+```
+
+Results are written to `validation/evidence/quality-scores/<skill>.json`. Each JSON contains the component-level breakdown.
+
+**Typical uses:**
+- After improving a skill, score it to confirm the lift
+- Find the lowest-scoring skills to prioritize improvements
+- Include score deltas in PRs as objective evidence
+
+See `validation/SCORING-METHODOLOGY.md` for the full methodology.
+
+### 4.6 Automation and Orchestration Scripts (validation/)
+
+The `validation/` directory is kali-claw's toolbox -- 10+ Bash scripts covering ops, orchestration, and reporting:
+
+| Script | Purpose | Common Flags |
+|--------|---------|--------------|
+| `heartbeat.sh` | Workspace health check | `--fix` `--json` |
+| `auto-backup.sh` | Backup rotation | `--restore` `--keep N` |
+| `drift-detect.sh` | Config drift detection | `--create-baseline` `--update-baseline` |
+| `scenario-runner.sh` | Cross-skill scenario execution | `--resume` `--dry-run` |
+| `orchestrator.sh` | End-to-end pentest workflow | `--target` `--phase` `--resume` |
+| `tool-selector.sh` | Target -> tool smart mapping | `--target-type` `--phase` `--stealth` |
+| `report-generator.sh` | Automated pentest report generation | `--source` `--format` |
+| `SCORE.sh` | Quality scoring engine (see 4.5) | `--skill <name>` |
+| `update-skill-standard.py` | Align SKILL.md with the Agent Skills Standard | `--dry-run` `--skill <name>` |
+
+**End-to-end example (orchestrator):**
+
+```bash
+# Auto-run recon -> scan -> exploit -> post-exploit -> report
+bash validation/orchestrator.sh --target 10.10.10.10 --phase full
+
+# Resume an interrupted run
+bash validation/orchestrator.sh --target 10.10.10.10 --resume
+```
+
+**Authorized engagement templates** -- `validation/engagement-template/` provides:
+
+- `targets.json.example` -- Target scope template
+- `scope-rules.json.example` -- Scope rules and safety constraints
+- `report-template.md` -- Standard pentest report template
+
+### 4.7 Engagement Workflow
+
+The `engagement-manager` skill plus `validation/engagement-template/` provide full **authorized pentest lifecycle management**:
+
+```
+1. Scope confirmation (scope-rules.json)   --> Define what is in/out of scope
+2. Target registration (targets.json)       --> List IPs/domains/assets
+3. Recon + Scan                             --> recon-osint + network-pentest
+4. Exploitation                             --> Corresponding attack skill (web-sqli / ad-cs-abuse ...)
+5. Post-exploitation                        --> post-exploitation + privilege-escalation
+6. Evidence collection                      --> pentest-reporting + screenshots/logs
+7. Report generation                        --> report-generator.sh
+8. Retrospective                            --> Write to chronicle/ + MEMORY.md
+```
+
+Each step is logged to `memory/YYYY-MM-DD.md`. Important milestones are distilled into `chronicle/`, and long-term decisions land in `MEMORY.md`.
 
 ---
 
@@ -752,6 +1006,49 @@ Agent: [triggers council + security-review skills]
        Priority 4: Add 2FA (medium)
 ```
 
+### 5.5 Modern Enterprise Attack Chain (new in v0.1.39)
+
+v0.1.39 completed the modern enterprise security stack with PAM, CI/CD, CSPM/CASB, and SASE/SSE. The agent can now walk through a full ransomware-family kill chain:
+
+```
+You: Use kali-claw to walk me through the BlackCat ransomware kill chain end-to-end
+
+Agent: Based on Mandiant 2023 + CrowdStrike 2024 reports, BlackCat's typical path:
+
+Stage 1: Initial access (sase-sse-attack / email-security-deep)
+- Bypass Zscaler ZIA egress inspection, deliver phishing email
+- AiTM phishing (evilginx2) harvests MFA credentials
+
+Stage 2: Identity penetration (cloud-identity-attack)
+- Entra ID PRT theft -> Conditional Access bypass
+- Use ROADtools to obtain a legitimate refresh token
+
+Stage 3: Credential hub (pam-privilege-attack)
+- Log in to CyberArk PVWA with stolen creds
+- Exploit CVE-2025-32564 auth bypass, escalate to Vault Admin
+- Recover plaintext passwords from .cue cred files -> all domain admin accounts
+
+Stage 4: Lateral movement (ad-cs-abuse / ad-ldap-attack)
+- ESC1 abuse -> request Domain Controller certificate
+- Pass-the-Hash + Kerberoasting laterally to all DCs
+
+Stage 5: Persistence (ci-cd-supply-chain-attack)
+- Plant backdoor in Jenkins shared library
+- Modify GitHub Actions workflow to exfiltrate all secrets
+- Use dependency confusion to plant malicious npm packages
+
+Stage 6: Defense evasion (cspm-casb-attack)
+- Tamper Terraform state so Wiz graph hides real config
+- Use OPA Rego case-sensitivity trap to bypass Kyverno policy
+
+Stage 7: Data exfiltration + encryption deployment (storage-san-attack)
+- Steal via NetApp NDMP snapshots
+- Use stolen creds to log in to Dell EMC Unity and delete backups
+- Deploy BlackCat encryptor
+
+Each stage maps to a kali-claw skill domain. Specific TTPs and commands live in skills/<domain>/payloads.md.
+```
+
 ---
 
 ## 6. Advanced Configuration
@@ -772,7 +1069,7 @@ This enables better tool integration, logging, and safety guards around tool exe
 
 ### 6.2 Custom Skills
 
-Follow these steps to create a new skill domain:
+Follow these steps to create a new skill domain (**Agent Skills Open Standard compliant**):
 
 **Step 1: Create the directory**
 
@@ -780,19 +1077,40 @@ Follow these steps to create a new skill domain:
 mkdir -p skills/my-custom-skill/guides
 ```
 
-**Step 2: Write `SKILL.md`**
+**Step 2: Write `SKILL.md` (with YAML frontmatter)**
 
 ```markdown
+---
+name: my-custom-skill
+description: Brief one-line description for skill matching
+compatibility: >= 0.1.39
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+metadata:
+  category: custom
+  domain: reconnaissance
+  mitre:
+    - T1595 Active Scanning
+  tools:
+    - nmap
+    - masscan
+---
+
 # My Custom Skill
 
+## Summary
+One-line summary of the problem this skill solves.
+
 ## Description
-Brief description of what this skill does.
+Detailed description of what this skill does.
 
 ## Use Cases
 - Use case 1
 - Use case 2
 
-## Tools
+## Core Tools
 - tool1
 - tool2
 
@@ -800,6 +1118,12 @@ Brief description of what this skill does.
 1. Step one
 2. Step two
 3. Step three
+
+## Practical Steps
+Detailed executable steps.
+
+## Defense Perspective
+How defenders detect and mitigate.
 
 ## Orchestration
 Which ECC pattern(s) this skill uses and how.
@@ -839,17 +1163,36 @@ command --option value
 - **Status**: Pass / Fail
 ```
 
-**Step 5: Add skill tag in `IDENTITY.md`**
+**Step 5 (recommended): Create `guides/` directory**
 
-Add a new row to the Skill Tags table:
+```bash
+mkdir -p skills/my-custom-skill/guides
+# Add 1-3 deep-dive learning guides inside
+```
+
+**Step 6 (optional): Use the standard-alignment script**
+
+```bash
+python3 validation/update-skill-standard.py --skill my-custom-skill --dry-run
+# Inspect, then drop --dry-run to write
+```
+
+**Step 7: Add a skill tag in `IDENTITY.md`**
 
 ```markdown
 | My Custom Skill | description of capabilities | Related Laws |
 ```
 
-**Step 6: Add related tools in `TOOLS.md`**
+**Step 8: Add related tools in `TOOLS.md`**
 
 Add tools used by your new skill to the Category Index table.
+
+**Step 9: Score and verify**
+
+```bash
+bash validation/SCORE.sh --skill my-custom-skill
+# Target: at least Excellent (80+), ideally Distinguished (92+)
+```
 
 ### 6.3 Custom Behaviors
 
@@ -875,7 +1218,7 @@ Add custom monitoring tasks relevant to your use case. For example:
 
 **Modify session startup flow in AGENTS.md:**
 
-Add or remove steps from the "Every Session" section. For example, if you want the agent to always check a specific dashboard on startup:
+Add or remove steps from the "Every Session" section. For example:
 
 ```markdown
 ## Every Session
@@ -889,7 +1232,52 @@ Add or remove steps from the "Every Session" section. For example, if you want t
 
 ---
 
-## 7. FAQ
+## 7. Version History and Milestones
+
+### 7.1 Major Version Timeline
+
+kali-claw follows an alternating "**expansion <-> quality**" rhythm, each version has a clear theme:
+
+| Phase | Versions | Key Milestone |
+|-------|----------|---------------|
+| Foundation | v0.1.1 - v0.1.7 | 45 -> 49 skill domains, layered architecture established |
+| Full Enrichment | v0.1.8 - v0.1.10 | 49/49 FULL enrichment, 7/7 integration tests PASS |
+| **Quality scoring introduced** | v0.1.11 - v0.1.14 | SCORE.sh v1, 49/49 Excellent 100% |
+| **Scoring v2** | v0.1.15 - v0.1.17 | Distinguished tier introduced, TEMPLATE.md |
+| **Expansion wave 1** | v0.1.18 - v0.1.21 | 49 -> 70 skill domains (exploit-dev / privesc / payload-gen / AV-EDR / DNS / XXE / LFI / CMS / stego / bluetooth / firmware / SCADA / DB / VoIP / anti-forensics / AD-LDAP / web-deserialization / email) |
+| **Distinguished sprint** | v0.1.22 - v0.1.27 | 5 -> 17 Distinguished |
+| **Expansion wave 2** | v0.1.28 - v0.1.31 | 70 -> 91 skill domains (darkweb / threat-hunting / blockchain / payment / llm-red-team / honeypot / k8s / secret-mgmt / ai-agent / iot / detection-eng / agentic-pentest / cloud-identity / physical / quantum / email-deep) |
+| **100% Excellent+** | v0.1.32 | 91/91 Excellent+, zero Strong remaining |
+| **GitHub-trending expansion** | v0.1.33 - v0.1.35 | 91 -> 103 (5G / automotive / mobile-deep / cloud-native-vuln / macOS / UAV / game-anticheat / mainframe / ICS-fieldbus / HF/VHF / blockchain-L2 / RTOS) |
+| **E-plan quality lift** | v0.1.36 | 19 -> 28 Distinguished (+9) |
+| **Wave 7 expansion** | v0.1.37 | 103 -> 107 (storage-SAN / hypervisor / satellite-LEO / AD CS) |
+| **E-plan again** | v0.1.38 | 28 -> 32 Distinguished, first time breaking 30, min score 85.1 (quality debt cleared) |
+| **Wave 8 expansion (current)** | **v0.1.39** | **107 -> 111** (CI/CD supply chain / PAM / CSPM-CASB / SASE-SSE). First time a new skill entered Distinguished on baseline (pam-privilege-attack 92.0) |
+
+### 7.2 Current Quality Snapshot (v0.1.39)
+
+| Tier | Count | Representative Skills |
+|------|-------|----------------------|
+| **Distinguished (92+)** | **33** | secret-management-attack (94.6) · social-intelligence (93.8) · sdr-rf-attack (93.6) · article-writing (93.6) · deep-research (93.5) · payload-generation (93.1) · scada-ics-security (93.0) · ad-cs-abuse (93.0) · vulnerability-assessment (93.0) · 5g-telecom-attack (92.7) · embedded-rtos-security (92.7) · agentic-pentest (92.6) · autonomous-loops (92.6) · verification-loop (92.6) · quantum-crypto-attack (92.5) · osint (92.5) · vpn-attack (92.5) · ai-security (92.3) · council (92.3) · network-tunneling-proxy (92.3) · crypto-attacks (92.2) · macos-security (92.2) · username-profiling (92.2) · web-deserialization (92.2) · cloud-security (92.1) · hf-vhf-radio-attack (92.1) · email-security-deep (92.0) · network-pentest (92.0) · security-bounty-hunter (92.0) · pam-privilege-attack (92.0) · security-misconfiguration (92.8) · container-security (92.8) · web-xss (92.0) |
+| **Excellent (80-91.9)** | **78** | storage-san-attack (91.5) · dns-attacks (91.1) · kubernetes-attack (90.2) · blockchain-web3 (90.2) · cloud-identity-attack (89.0) · ci-cd-supply-chain-attack (89.2) · cspm-casb-attack (88.5) · sase-sse-attack (88.2) · ... |
+| Strong (60-80) | **0** | -- |
+| Adequate (40-60) | **0** | -- |
+| Weak (0-40) | **0** | -- |
+
+**Average: 88.78** | **111/111 Excellent+ (100%)** | **33 Distinguished**
+
+### 7.3 What's Coming in v0.1.40
+
+Following the alternating expansion/quality rhythm, v0.1.40 will likely return to the **quality-lift track**. Candidates:
+
+- **A-track Distinguished sprint** -- 7 skills are stuck at 89-91.9 (storage-san-attack 91.5, dns-attacks 91.1, blockchain-web3 90.2, kubernetes-attack 90.2, darkweb-intel 89.2, av-edr-evasion 89.1, cloud-identity-attack 89.0). Adding one more guide to each would push most of them past 92+
+- **Bottom lift** -- 5 skills are stuck at 85-86 (chronicle 85.1, cloud-native-vuln-research 85.2, email-protocol-attack 85.2, game-anticheat-bypass 85.2, multi-agent-collaboration 85.4). Lifting them to 88+ raises the floor again
+- **Wave 8 cohort deepening** -- Add a second guide each for ci-cd-supply-chain-attack, cspm-casb-attack, and sase-sse-attack
+- **Wave 9 expansion** -- Candidates include GitOps security, QKD attacks, Open Banking/PSD2, HSM attacks, CPS cyber-physical systems
+
+---
+
+## 8. FAQ
 
 ### Q1: `npm install -g openclaw` gives a permission error
 
@@ -962,6 +1350,7 @@ docker exec -it kali-claw-env apt install -y nmap
 - Be more explicit: instead of "check this website", say "scan this website for SQL injection vulnerabilities"
 - Reference skill names directly: "Use the web-sqli skill to test the login form"
 - Check that the relevant skill exists in `skills/` and has proper descriptions in `SKILL.md`
+- Verify the `description` field in the YAML frontmatter -- this is the primary signal for skill matching
 
 ### Q5: Memory seems lost after a session
 
@@ -1013,8 +1402,8 @@ git stash
 git pull origin main
 git stash pop
 
-# Note: your customizations to SOUL.md, USER.md, IDENTITY.md,
-# and AGENTS.md will be preserved if committed to a local branch
+# After pulling, run quality scoring once to confirm all skills are intact
+bash validation/SCORE.sh
 ```
 
 ### Q8: Can I use kali-claw on a non-Kali system?
@@ -1027,23 +1416,53 @@ git stash pop
 - **With remote Kali:** Set up SSH access (see Section 2.2) to a Kali machine.
 - **With Docker:** Run a Kali container (see Section 2.3) on any system with Docker installed.
 
+### Q9: How do I contribute a new skill or improvement?
+
+1. Fork the repo and create a feature branch
+2. Follow the "6.2 Custom Skills" workflow to create the skill domain
+3. Run `bash validation/SCORE.sh --skill <your-skill>` and confirm it reaches Excellent (80+)
+4. Open a PR with score evidence and 1-2 real-world scenario test results
+
+See the root README.md for the PR template.
+
+### Q10: How do I know which skills are strongest / most in need of improvement?
+
+```bash
+# View all skill scores (high to low)
+cat validation/QUALITY-SCORE-TRACKER.md
+
+# Or inspect a single skill
+cat validation/evidence/quality-scores/<skill-name>.json
+```
+
+The JSON includes the 4-component breakdown (skill_md / payloads_md / test_cases_md / guides), so you can pinpoint exactly where the weak spot is.
+
 ---
 
-## 8. Core File Reference
+## 9. Core File Reference
 
 | File | Purpose | When to Modify |
 |------|---------|---------------|
 | `SOUL.md` | Agent personality, 12 Hacker Laws, behavioral guidelines, boundaries | Customizing personality, adding new laws |
 | `AGENTS.md` | Workspace config, session startup sequence, memory system rules | Adjusting session flow, changing agent name/role |
-| `IDENTITY.md` | Skill tags table, personality traits, creature type | Adding/removing skill domains, changing agent identity |
+| `IDENTITY.md` | Skill tags table (111 rows), personality traits, creature type | Adding/removing skill domains, changing agent identity |
 | `USER.md` | Captain profile, preferences, interests, current focus | New user first-time setup, updating preferences |
 | `MEMORY.md` | Long-term distilled knowledge and key decisions | Generally do NOT edit manually -- let the agent manage it |
 | `TOOLS.md` | 518 tool inventory, learning progress, learning strategy | Adding new tools, updating mastery status |
 | `HEARTBEAT.md` | Automated heartbeat tasks: health, learning, security, maintenance | Adjusting check frequency, adding custom monitoring |
-| `skills/` | 49 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
-| `memory/` | Daily memory logs (`YYYY-MM-DD.md`) | Generally do NOT edit manually -- let the agent manage it |
-| `chronicle/` | Monthly milestone tracking (`YYYY-MM/*.md`) | Generally do NOT edit manually -- let the agent manage it |
+| `CHANGELOG.md` | Full version change log | Generally do NOT edit manually |
+| `skills/` | 111 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
+| `validation/` | Automation script suite (SCORE.sh, orchestrator.sh, ...) | Adjusting scoring weights, adding new scenarios |
+| `validation/engagement-template/` | Authorized pentest templates (targets/scope/report) | Adding new engagement types |
+| `memory/` | Daily memory logs (`YYYY-MM-DD.md`) | Generally do NOT edit manually |
+| `chronicle/` | Monthly milestone tracking (`YYYY-MM/*.md`) | Generally do NOT edit manually |
+| `docs/` | Long-form design docs and plans | Major architectural changes |
+| `RELEASE-v0.1.X.md` | Per-version release notes | Generally do NOT edit manually |
+
+**For first-time use, you only need to modify 4 files**: USER.md, SOUL.md, IDENTITY.md, AGENTS.md (see Section 3.4).
+
+All other files are maintained automatically by the agent and usually do not need manual editing.
 
 ---
 
-_This guide covers OpenClaw + kali-claw v0.1.7. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._
+_This guide covers OpenClaw + kali-claw **v0.1.39** (111 skill domains, 33 Distinguished, 100% Excellent+). For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._

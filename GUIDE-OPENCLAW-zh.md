@@ -1,6 +1,6 @@
 # OpenClaw + kali-claw 完整使用指南
 
-> 面向 v0.1.7 | 从零开始，手把手教你搭建和使用 AI 渗透测试智能体
+> 面向 v0.1.39 | 从零开始，手把手教你搭建和使用 AI 渗透测试智能体（111 个技能域、33 个 Distinguished）
 
 ---
 
@@ -20,24 +20,30 @@ OpenClaw 是一个 **AI 智能体运行框架**，通过 npm 安装，提供以�
 
 ### 1.2 kali-claw 是什么
 
-kali-claw 是基于 OpenClaw 框架的 **预构建渗透测试智能体工作空间**。它不是一个传统的软件代码仓库，而是一个 **Markdown 格式的知识库 + 配置系统**。
+kali-claw 是基于 OpenClaw 框架的 **预构建渗透测试智能体工作空间**。它不是一个传统的软件代码仓库，而是一个 **Markdown 格式的知识库 + 配置系统 + 自动化脚本** 的组合。
 
 核心组成：
 
-- **49 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云安全等
+- **111 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云与身份、容器与云原生、AI/LLM 安全、企业身份（Entra ID/Okta）、现代企业栈（PAM/CI-CD/CSPM-CASB/SASE-SSE）、关键基础设施（SCADA/ICS）、区块链/Web3、移动与物联网、量子与后量子、无线电/卫星等
 - **518 个 Kali Linux 工具知识库** — 从 nmap 到 sqlmap，从 burpsuite 到 metasploit
 - **12 条黑客法则** — 定义智能体的思维方式（第一性原理、发散思维、最小攻击面等）
 - **三层记忆系统** — 每日日志 / 月度编年史 / 长期精炼知识
+- **Agent Skills 开放标准合规** — 所有 SKILL.md 文件使用 Anthropic 2025 年发布的 YAML frontmatter 标准（`name`、`description`、`compatibility`、`allowed-tools`、`metadata`）
+- **质量评分体系（SCORE.sh v2）** — 7 项指标 × 4 组件 × 5 级分层（Distinguished / Excellent / Strong / Adequate / Weak）
+- **自动化验证与编排** — `validation/` 目录下 10+ 个脚本：心跳检查、备份、漂移检测、场景运行器、端到端编排、报告生成
 
 **与直接使用 ChatGPT/Claude 的区别**：
 
 | 特性 | ChatGPT/Claude | kali-claw |
 |------|----------------|-----------|
-| 持久记忆 | 无（每次对话从零开始） | 有（文件级记忆系统） |
-| 技能体系 | 无 | 49 个领域、结构化技能 |
-| 工具执行 | 不能直接执行命令 | 可调用 Kali Linux 安全工具 |
-| 人格一致性 | 无 | SOUL.md 定义固定人格 |
+| 持久记忆 | 无（每次对话从零开始） | 有（文件级三层记忆系统） |
+| 技能体系 | 无 | 111 个领域、结构化技能 |
+| 工具执行 | 不能直接执行命令 | 可调用 Kali Linux 全部 518 安全工具 |
+| 人格一致性 | 无 | SOUL.md 定义固定人格 + 12 条法则 |
 | 学习进化 | 无 | 通过记忆和心跳持续学习 |
+| 攻击载荷库 | 无 | 每个技能含数 MB 的 payloads.md |
+| 检测规则对应 | 无 | 蓝队视角 + Sigma/SPL/KQL 规则 |
+| 真实事件复盘 | 无 | SolarWinds / Capital One / 3CX / xz-utils 等深度案例 |
 
 ### 1.3 整体架构
 
@@ -49,24 +55,41 @@ OpenClaw Gateway（网关服务）
   |
   v
 kali-claw 工作空间
-  +-- SOUL.md          <-- 智能体人格（是谁、怎么思考）
-  +-- USER.md          <-- 用户信息（帮助谁、什么偏好）
-  +-- IDENTITY.md      <-- 技能标签（会什么、性格特质）
-  +-- AGENTS.md        <-- 工作空间配置 + 会话启动流程
-  +-- MEMORY.md        <-- 长期精炼知识
-  +-- TOOLS.md         <-- 518 工具学习进度
-  +-- HEARTBEAT.md     <-- 心跳自动化任务
-  +-- skills/          <-- 49 个技能域
+  +-- SOUL.md              <-- 智能体人格（是谁、怎么思考）
+  +-- USER.md              <-- 用户信息（帮助谁、什么偏好）
+  +-- IDENTITY.md          <-- 技能标签（111 行 skill tags）
+  +-- AGENTS.md            <-- 工作空间配置 + 会话启动流程
+  +-- MEMORY.md            <-- 长期精炼知识
+  +-- TOOLS.md             <-- 518 工具学习进度
+  +-- HEARTBEAT.md         <-- 心跳自动化任务
+  +-- CHANGELOG.md         <-- 版本变更日志（v0.1.1 → v0.1.39）
+  +-- skills/              <-- 111 个技能域
   |   +-- web-sqli/
-  |   |   +-- SKILL.md     <-- 技能定义
-  |   |   +-- payloads.md  <-- 攻击载荷
-  |   |   +-- test-cases.md<-- 测试用例
-  |   |   +-- guides/      <-- 深度指南
-  |   +-- network-pentest/
-  |   +-- osint/
-  |   +-- ... (共 49 个)
-  +-- memory/          <-- 每日记忆日志
-  +-- chronicle/       <-- 月度里程碑
+  |   |   +-- SKILL.md        <-- 含 YAML frontmatter（Agent Skills 标准）
+  |   |   +-- payloads.md     <-- 攻击载荷
+  |   |   +-- test-cases.md   <-- 测试用例
+  |   |   +-- guides/         <-- 深度指南
+  |   +-- ci-cd-supply-chain-attack/
+  |   +-- pam-privilege-attack/
+  |   +-- cspm-casb-attack/
+  |   +-- sase-sse-attack/
+  |   +-- ad-cs-abuse/
+  |   +-- cloud-identity-attack/
+  |   +-- ... (共 111 个)
+  +-- validation/          <-- 自动化验证与编排
+  |   +-- SCORE.sh               <-- 质量评分引擎
+  |   +-- heartbeat.sh            <-- 工作空间健康检查
+  |   +-- orchestrator.sh         <-- 端到端渗透编排
+  |   +-- scenario-runner.sh      <-- 跨技能场景执行
+  |   +-- tool-selector.sh        <-- 目标→工具映射
+  |   +-- report-generator.sh     <-- 自动报告生成
+  |   +-- update-skill-standard.py <-- SKILL.md 标准对齐
+  |   +-- engagement-template/    <-- 授权渗透模板
+  |   +-- evidence/               <-- 评分与场景证据
+  +-- memory/              <-- 每日记忆日志
+  +-- chronicle/           <-- 月度里程碑
+  +-- docs/                <-- 长篇设计文档与规划
+  +-- bak/                 <-- 备份目录
 ```
 
 **会话启动流程**（每次对话开始时自动执行）：
@@ -80,6 +103,26 @@ kali-claw 工作空间
 ```
 
 整个过程是自动的，你不需要手动操作。
+
+### 1.4 质量分级体系（v0.1.16 引入，v0.1.39 当前状态）
+
+kali-claw 内置了一套 **客观可量化** 的技能质量评分系统，每个技能域都会得到一个 0-100 的分数，对应 5 个等级：
+
+| 等级 | 分数段 | v0.1.39 数量 | 含义 |
+|------|--------|--------------|------|
+| **Distinguished（卓越）** | 92.0 - 100 | **33** | 同类最佳深度，可作为参考实现 |
+| **Excellent（优秀）** | 80.0 - 91.9 | **78** | 全面覆盖，仅个别维度有提升空间 |
+| Strong（良好） | 60.0 - 79.9 | 0 | 较好覆盖 |
+| Adequate（合格） | 40.0 - 59.9 | 0 | 组件齐全但深度不足 |
+| Weak（薄弱） | 0 - 39.9 | 0 | 缺失关键组件 |
+
+**当前状态（v0.1.39）**：
+- 111/111 技能达到 Excellent+（**100%**）
+- 平均分：**88.78**
+- 最低分 / 最高分：85.1 / 94.6
+- Distinguished 比例：33/111 ≈ **30%**
+
+评分细节见 `validation/SCORING-METHODOLOGY.md`，每技能的 JSON 证据在 `validation/evidence/quality-scores/`。
 
 ---
 
@@ -230,16 +273,14 @@ ls -la
 应看到以下文件和目录：
 
 ```
-SOUL.md
-AGENTS.md
-IDENTITY.md
-USER.md
-MEMORY.md
-TOOLS.md
-HEARTBEAT.md
-skills/
-memory/
-chronicle/
+SOUL.md           CHANGELOG.md      MEMORY.md
+AGENTS.md         CLAUDE.md         TOOLS.md
+IDENTITY.md       HEARTBEAT.md      README.md
+USER.md           LICENSE           VERSION
+skills/           validation/       memory/
+chronicle/        docs/             bak/
+GUIDE-OPENCLAW-zh.md   GUIDE-OPENCLAW-en.md
+RELEASE-v0.1.X.md（每个版本一份发布说明）
 ```
 
 ### 3.4 首次配置（4 个文件必须修改）
@@ -300,7 +341,7 @@ chronicle/
 
 #### 文件三：IDENTITY.md — 调整技能标签
 
-IDENTITY.md 中的技能标签表格决定了智能体的"能力图谱"。你可以：
+IDENTITY.md 中的技能标签表格（v0.1.39 有 111 行）决定了智能体的"能力图谱"。你可以：
 
 - **删除不需要的技能行** — 比如不关心 WiFi 渗透测试，就删掉 Wireless Security 行
 - **添加自定义技能** — 在表格中添加新的领域
@@ -357,79 +398,137 @@ openclaw gateway start
 
 智能体应该能从 USER.md 中读取并正确回答。
 
+### 3.6 运行质量评分（可选但推荐）
+
+克隆完成后，可以运行一次评分脚本，确认所有技能都到位：
+
+```bash
+bash validation/SCORE.sh
+```
+
+这会生成所有 111 个技能域的 JSON 评分文件到 `validation/evidence/quality-scores/`。如果你计划自己改造技能，这套分数能帮你定位薄弱环节。
+
 ---
 
 ## 四、核心概念详解
 
 ### 4.1 技能系统
 
-kali-claw 拥有 **49 个技能域**，按类型分为以下几大类：
+kali-claw 拥有 **111 个技能域**，按攻击面/防御面/能力类型大致分为 8 大类：
 
-**攻击技能**：
-
-| 技能域 | 说明 |
-|--------|------|
-| web-sqli | SQL 注入（Union/Blind/Time-based/Double Query） |
-| web-xss | 跨站脚本攻击（Reflected/Stored/DOM-based/CSP bypass） |
-| web-ssrf | 服务端请求伪造（内网扫描/云元数据/协议走私） |
-| web-auth-bypass | 认证绕过（暴力破解/会话攻击/OAuth 缺陷） |
-| web-access-control | 访问控制突破（IDOR/权限提升/强制浏览） |
-| network-pentest | 网络渗透测试（扫描/利用/横向移动） |
-| password-attack | 密码攻击（字典/规则暴力/哈希破解） |
-| post-exploitation | 后渗透（持久化/提权/数据窃取） |
-| wifi-pentest | WiFi 渗透（WPA 破解/WPS 攻击/Evil Twin） |
-| crypto-attacks | 加密攻击（弱算法/证书问题/填充预言） |
-
-**防御与分析技能**：
+**Web 与 API 攻击**
 
 | 技能域 | 说明 |
 |--------|------|
-| security-review | OWASP Top 10 安全审计 |
-| verification-loop | 多阶段漏洞验证 |
-| docker-patterns | Docker 安全测试实验室 |
-| digital-forensics | 数字取证 |
-| container-security | 容器和 K8s 安全 |
-| cloud-security | AWS/Azure/GCP 云安全 |
+| web-sqli / web-xss / web-ssrf | 经典 Web 三件套（含 CSP 绕过、云元数据 SSRF） |
+| web-auth-bypass / web-access-control | 认证绕过、IDOR、OAuth/JWT 攻击 |
+| web-xxe / web-deserialization / file-inclusion | XML 外部实体、Java/PHP/.NET 反序列化、LFI/RFI |
+| cms-framework-attack | WordPress/Joomla/Drupal 渗透 |
+| api-security | REST/GraphQL、速率限制、参数篡改 |
+| email-security-deep | AiTM 钓鱼、邮件网关绕过（Proofpoint/Mimecast）、CVE-2024-21413 |
+| browser-qa | Playwright/Puppeteer 自动化浏览器安全测试 |
 
-**知识与研究技能**：
-
-| 技能域 | 说明 |
-|--------|------|
-| osint | 开源情报收集 |
-| recon-osint | 侦察与 OSINT |
-| deep-research | 多源情报综合研究 |
-| search-first | 先搜索再利用 |
-| repo-scan | 源代码安全审计 |
-| social-intelligence | 社交平台情报 |
-
-**元技能（协调其他技能）**：
+**网络与基础设施**
 
 | 技能域 | 说明 |
 |--------|------|
-| autonomous-loops | 自主执行模式（顺序流水线/监控循环/批量处理） |
-| council | 多视角分析（攻击者/防御者/审计者三重视角） |
-| multi-agent-collaboration | 多智能体协作 |
-| ai-fuzzing | AI 辅助漏洞发现 |
+| network-pentest / recon-osint | 扫描、利用、横向移动、子域名枚举 |
+| network-sniffing-mitm / network-tunneling-proxy | 流量劫持、SSH/DNS/ICMP 隧道、SOCKS 代理链 |
+| dns-attacks | DNS 重绑定、SAD DNS、DoH/DoT/DoQ 隧道、子域名接管 |
+| vpn-attack / sase-sse-attack | 传统 VPN + 现代边缘（Zscaler / Netskope / Cloudflare One / Cisco Umbrella） |
+| email-protocol-attack | SMTP 枚举、SPF/DKIM/DMARC 绕过 |
+| voip-sip-attack | SIP 偷听、VLAN hopping |
 
-**基础设施技能**：
+**身份与企业栈**
 
 | 技能域 | 说明 |
 |--------|------|
-| safety-guard | 安全守卫（范围检查/危险命令拦截） |
-| terminal-ops | 终端操作（结构化命令执行） |
-| chronicle | 编年史记录 |
-| continuous-learning | 持续学习 |
-| mcp-server-patterns | MCP 服务器集成模式 |
+| ad-ldap-attack | AD/LDAP/Kerberos（AS-REP Roasting、Kerberoasting、DCSync、PTH） |
+| ad-cs-abuse | AD 证书服务 ESC1-ESC15、PetitPotam、Certifried (CVE-2022-26923) |
+| cloud-identity-attack | Entra ID / Okta / Auth0、PRT 盗窃、Golden SAML |
+| pam-privilege-attack | CyberArk / BeyondTrust / Delinea / ManageEngine / WALLIX 等 8 大 PAM 厂商 |
+| ci-cd-supply-chain-attack | Jenkins、GitLab CI、GitHub Actions、Argo CD、xz-utils / SolarWinds / 3CX 复盘 |
+| cspm-casb-attack | Wiz / Prisma Cloud / Netskope、OPA/Kyverno 策略绕过 |
 
-**技能结构** — 每个技能域包含以下文件：
+**云与容器**
+
+| 技能域 | 说明 |
+|--------|------|
+| cloud-security | AWS/Azure/GCP、IAM、S3 暴露、元数据攻击 |
+| container-security / kubernetes-attack | Docker 逃逸、K8s RBAC、Pod Escape、runc CVE-2024-21626 |
+| cloud-native-vuln-research | CVE 方法论、PoC 复现、nuclei 模板 |
+| secret-management-attack | gitleaks/semgrep/trufflehog、Vault/CI-CD/registry 利用 |
+
+**密码学与新兴技术**
+
+| 技能域 | 说明 |
+|--------|------|
+| crypto-attacks | 弱算法、Padding Oracle、TLS 问题、后量子迁移、KyberSlash |
+| quantum-crypto-attack | NIST PQC、混合 TLS、QKD/BB84、SM2/3/4 国密 |
+| blockchain-web3 | 智能合约审计、DeFi 重入、跨链桥、MEV、ERC-777 |
+| llm-red-team / ai-security / ai-agent-security | LLM 越狱（GCG/AutoDAN/Crescendo）、MCP 投毒、RAG 投毒 |
+| agentic-pentest | PentestGPT、HexStrike、多智能体团队协调 |
+
+**移动 / 物联网 / 嵌入式 / 硬件**
+
+| 技能域 | 说明 |
+|--------|------|
+| mobile-security / mobile-app-instrumentation | iOS/Android、SSL Pinning 绕过、Frida/Objection/r2frida |
+| iot-pentest | MQTT、CoAP、AMQP、IoT 云后端 |
+| firmware-reverse / hardware-security | 固件提取、JTAG/UART、侧信道 |
+| embedded-rtos-security | VxWorks / QNX / FreeRTOS / ThreadX / Zephyr |
+| bluetooth-rfid-nfc | BLE GATT、MIFARE、NFC 克隆 |
+
+**关键基础设施与物理**
+
+| 技能域 | 说明 |
+|--------|------|
+| scada-ics-security / ics-fieldbus-attack | Modbus、S7comm、EtherNet/IP、OPC UA、Profibus、DNP3、IEC 61850 |
+| storage-san-attack | iSCSI/FC/NFSv4/SMB3/S3、NetApp/Dell EMC/QNAP/Synology/TrueNAS |
+| hypervisor-introspection | VMware ESXi / Hyper-V / KVM / Xen、LibVMI / DRAKVUF、VENOM |
+| satellite-leo-security | Starlink / Iridium / Viasat KA-SAT、DVB-S2 / VSAT、AcidRain |
+| sdr-rf-attack / hf-vhf-radio-attack | ADS-B、AIS、ACARS、POCSAG、APRS |
+| 5g-telecom-attack | PFCP、GTP、IMSI catchers、O-RAN |
+| automotive-vehicle-security | CAN/UDS、key fobs、EV charging |
+| uav-drone-security | MAVLink、PX4、GPS 欺骗、DroneID |
+| physical-security-testing | 锁具绕过、RFID 克隆、USB 武器（Ducky/Bunny） |
+| mainframe-security | z/OS / RACF / CICS / DB2 / JES2 |
+| game-anticheat-bypass | EAC / BattlEye / Vanguard / BYOVD |
+
+**防御 / 取证 / 元能力**
+
+| 技能域 | 说明 |
+|--------|------|
+| digital-forensics / anti-forensics | 磁盘/内存/网络取证、反取证 |
+| threat-hunting / detection-engineering | 假设驱动狩猎、Sigma/YARA、ATT&CK 检测工程 |
+| deception-honeypot | SSH/Web/ICS/AI 蜜罐、honeytoken |
+| pentest-reporting / article-writing | Dradis/Faraday、CVSS 评分、CVE 披露 |
+| engagement-manager | 授权渗透全生命周期、范围管理、证据链 |
+| security-review / repo-scan | OWASP Top 10、源码审计、依赖扫描 |
+| security-bounty-hunter | Bug Bounty、PoC 开发、负责任披露 |
+| codebase-onboarding / knowledge-ops | 快速理解陌生代码库、知识图谱管理 |
+| exa-search / deep-research / data-scraper-agent | 多源情报综合、CVE 抓取、语义搜索 |
+| autonomous-loops / multi-agent-collaboration / council | 自主编排、多视角分析（攻击/防御/审计三方） |
+| safety-guard / terminal-ops / search-first / verification-loop | 安全守卫、终端操作、先搜索再利用、多阶段验证 |
+| docker-patterns / continuous-learning / chronicle / tool-mastery / mcp-server-patterns | 实验室、持续学习、编年史、工具精通、MCP 集成 |
+
+**技能结构** — 每个技能域包含以下文件（符合 Agent Skills Open Standard）：
 
 ```
 skills/web-sqli/
-+-- SKILL.md          <-- 技能定义、用例、方法论、工具
++-- SKILL.md          <-- 技能定义（含 YAML frontmatter）
 +-- payloads.md       <-- 攻击载荷和命令
 +-- test-cases.md     <-- 结构化测试用例
-+-- guides/           <-- 深度学习材料
++-- guides/           <-- 深度学习材料（多个文件）
 ```
+
+**SKILL.md 的渐进式披露（Progressive Disclosure）** — 这是 Agent Skills 开放标准的核心设计：
+
+- **Stage 1（广告）** — YAML frontmatter + `## Summary` —— 在技能扫描时加载
+- **Stage 2（快速参考）** — `## Core Tools` + `## Methodology` —— 在技能激活时加载
+- **Stage 3（详细）** — `## Practical Steps` + `## Defense Perspective` —— 在任务执行时加载
+
+这种设计让智能体在不需要时只看 frontmatter，需要时再逐层加载详细内容，节省 token 又保证深度。
 
 **如何触发技能** — 不需要手动调用！用自然语言描述任务，智能体自动匹配技能：
 
@@ -510,6 +609,14 @@ kali-claw 的记忆系统是 **三层架构**，从底层到顶层越来越精�
 - 结果记录在 `memory/heartbeat-check-YYYYMMDDHHMM.md`
 - 发现异常时立即记录到 `memory/alerts.txt` 并通知用户
 
+**配套脚本** — `validation/heartbeat.sh` 提供命令行版的健康检查：
+
+```bash
+bash validation/heartbeat.sh          # 一次检查
+bash validation/heartbeat.sh --fix    # 检查并尝试自动修复
+bash validation/heartbeat.sh --json   # JSON 输出（适合接入监控）
+```
+
 **如何自定义心跳** — 编辑 `HEARTBEAT.md`：
 
 - 调整检查频率：修改执行规则
@@ -520,7 +627,7 @@ kali-claw 的记忆系统是 **三层架构**，从底层到顶层越来越精�
 
 TOOLS.md 是智能体的 **工具能力清单**：
 
-- **518 个 Kali 工具**按 65 个类别追踪
+- **518 个 Kali 工具**按 65+ 个类别追踪
 - 每个工具记录：掌握状态、学习笔记、使用经验
 - 智能体通过 TOOLS.md 了解自己会什么、还不会什么
 
@@ -537,6 +644,95 @@ TOOLS.md 是智能体的 **工具能力清单**：
 ```markdown
 | My Custom Tools | 2 | Learning | Custom Python scripts for recon |
 ```
+
+### 4.5 质量评分体系（SCORE.sh v2）
+
+这是 v0.1.11 引入、v0.1.16 升级到 v2 的核心子系统，让"技能是否够好"变成客观可量化的指标。
+
+**4 个加权组件**：
+
+| 组件 | 权重 | 评分来源 | 含义 |
+|------|------|----------|------|
+| SKILL.md | 15% | `##` 标题数量 | 结构深度 |
+| payloads.md | 30% | 词数 + 段落数 + 代码块数（取平均） | 攻击载荷全面性 |
+| test-cases.md | 30% | 测试用例数 + 字段完整度（取平均） | 测试可执行性 |
+| guides/ | 25% | 文件数（40%）+ 平均词数（30%）+ 关键段落（30%） | 深度材料 |
+
+**5 级分层**（v2 引入 Distinguished）：
+
+| 等级 | 分数 | v0.1.39 数量 |
+|------|------|--------------|
+| Distinguished | 92 - 100 | 33 |
+| Excellent | 80 - 91.9 | 78 |
+| Strong | 60 - 79.9 | 0 |
+| Adequate | 40 - 59.9 | 0 |
+| Weak | 0 - 39.9 | 0 |
+
+**运行评分**：
+
+```bash
+bash validation/SCORE.sh                # 全量评分 111 个技能
+bash validation/SCORE.sh --skill web-sqli  # 单技能评分
+```
+
+结果写入 `validation/evidence/quality-scores/<skill>.json`，每个 JSON 包含组件明细分。
+
+**典型用途**：
+
+- 改造完一个技能后跑分，确认提升幅度
+- 找出最低分技能，确定补强优先级
+- 在 PR 中附上分数变化作为客观证据
+
+详细方法论见 `validation/SCORING-METHODOLOGY.md`。
+
+### 4.6 自动化与编排脚本（validation/）
+
+`validation/` 目录是 kali-claw 的"工具箱"——10+ 个 Bash 脚本覆盖运维、编排、报告全流程：
+
+| 脚本 | 作用 | 常用参数 |
+|------|------|----------|
+| `heartbeat.sh` | 工作空间健康检查 | `--fix` `--json` |
+| `auto-backup.sh` | 备份轮换 | `--restore` `--keep N` |
+| `drift-detect.sh` | 配置漂移检测 | `--create-baseline` `--update-baseline` |
+| `scenario-runner.sh` | 跨技能场景执行 | `--resume` `--dry-run` |
+| `orchestrator.sh` | 端到端渗透测试工作流 | `--target` `--phase` `--resume` |
+| `tool-selector.sh` | 目标 → 工具智能映射 | `--target-type` `--phase` `--stealth` |
+| `report-generator.sh` | 自动生成渗透测试报告 | `--source` `--format` |
+| `SCORE.sh` | 质量评分引擎（见 4.5） | `--skill <name>` |
+| `update-skill-standard.py` | SKILL.md 对齐 Agent Skills 标准 | `--dry-run` `--skill <name>` |
+
+**典型端到端示例**（编排脚本）：
+
+```bash
+# 自动跑完侦察 → 扫描 → 利用 → 后渗透 → 报告
+bash validation/orchestrator.sh --target 10.10.10.10 --phase full
+
+# 中断后续跑
+bash validation/orchestrator.sh --target 10.10.10.10 --resume
+```
+
+**授权渗透模板** — `validation/engagement-template/` 提供：
+
+- `targets.json.example` — 目标范围配置模板
+- `scope-rules.json.example` — 范围规则与安全约束
+- `report-template.md` — 标准渗透报告模板
+
+### 4.7 Engagement 工作流
+
+`engagement-manager` 技能 + `validation/engagement-template/` 一起，提供完整的 **授权渗透测试生命周期管理**：
+
+```
+1. 范围确认（scope-rules.json）     --> 明确能打什么、不能打什么
+2. 目标登记（targets.json）         --> 列出 IP/域名/资产
+3. 侦察 + 扫描                       --> recon-osint + network-pentest
+4. 漏洞利用                          --> 对应攻击技能（web-sqli / ad-cs-abuse 等）
+5. 后渗透                            --> post-exploitation + privilege-escalation
+6. 证据收集                          --> pentest-reporting + 截图/日志
+7. 报告生成                          --> report-generator.sh
+8. 复盘                              --> 写入 chronicle/ + MEMORY.md
+```
+
+每一步都会写入 `memory/YYYY-MM-DD.md`，重要的里程碑提炼到 `chronicle/`，长期决策进入 `MEMORY.md`。
 
 ---
 
@@ -754,6 +950,49 @@ docker run -d -p 80:80 acgpiano/sqli-labs
 综合建议: 立即修复，同时检查其他页面是否存在同类问题。
 ```
 
+### 5.5 现代企业攻击链（v0.1.39 新增能力示例）
+
+v0.1.39 补齐了 PAM、CI/CD、CSPM/CASB、SASE/SSE 4 个现代企业安全栈领域，现在可以推演完整的勒索家族攻击链：
+
+```
+用户：用 kali-claw 推演一下 BlackCat 勒索从初始访问到加密的完整攻击链
+
+智能体：基于 Mandiant 2023 + CrowdStrike 2024 报告，BlackCat 的典型路径如下：
+
+阶段 1: 初始访问（sase-sse-attack / email-security-deep）
+- 绕过 Zscaler ZIA 出口检查，钓鱼邮件落地
+- AiTM 钓鱼（evilginx2）窃取 MFA 凭据
+
+阶段 2: 身份渗透（cloud-identity-attack）
+- Entra ID PRT 盗窃 → Conditional Access 绕过
+- 通过 ROADtools 拿到合法 refresh token
+
+阶段 3: 凭据中枢（pam-privilege-attack）
+- 用窃取的凭据登录 CyberArk PVWA
+- 利用 CVE-2025-32564 认证绕过，提权到 Vault Admin
+- 从 .cue cred file 还原明文密码 → 拿下所有域管理员账号
+
+阶段 4: 横向移动（ad-cs-abuse / ad-ldap-attack）
+- ESC1 滥用 → 申请 Domain Controller 证书
+- Pass-the-Hash + Kerberoasting 横向到所有域控
+
+阶段 5: 持久化（ci-cd-supply-chain-attack）
+- 在 Jenkins 共享库植入后门
+- 修改 GitHub Actions workflow 窃取所有 secrets
+- 用依赖混淆植入恶意 npm 包
+
+阶段 6: 防御规避（cspm-casb-attack）
+- 篡改 Terraform state 让 Wiz 图谱看不到真实配置
+- 用 OPA Rego 大小写陷阱绕过 Kyverno 策略
+
+阶段 7: 数据外发 + 加密部署（storage-san-attack）
+- 通过 NetApp NDMP 快照窃取
+- 用窃取的凭据登录 Dell EMC Unity 删除备份
+- 部署 BlackCat 加密器
+
+每一步对应 kali-claw 中的一个技能域，可以在 skills/<域>/payloads.md 找到具体 TTP 和命令。
+```
+
 ---
 
 ## 六、进阶配置
@@ -776,34 +1015,61 @@ docker run -d -p 80:80 acgpiano/sqli-labs
 
 ### 6.2 自定义技能
 
-按照以下步骤创建新的技能域：
+按照以下步骤创建新的技能域（**符合 Agent Skills Open Standard**）：
 
 **第一步：创建目录**
 
 ```bash
-mkdir -p ~/.openclaw/workspace-kali-claw/skills/my-custom-skill
+mkdir -p ~/.openclaw/workspace-kali-claw/skills/my-custom-skill/guides
 ```
 
-**第二步：编写 SKILL.md**
+**第二步：编写 SKILL.md（含 YAML frontmatter）**
 
 ```markdown
+---
+name: my-custom-skill
+description: Brief one-line description for skill matching
+compatibility: >= 0.1.39
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+metadata:
+  category: custom
+  domain: reconnaissance
+  mitre:
+    - T1595 Active Scanning
+  tools:
+    - nmap
+    - masscan
+---
+
 # my-custom-skill
 
+## Summary
+[一句话总结这个技能解决什么问题]
+
 ## Description
-[描述这个技能是什么、做什么]
+[详细描述这个技能是什么、做什么]
 
 ## Use Cases
 - 用例 1: ...
 - 用例 2: ...
+
+## Core Tools
+- tool1: 用途说明
+- tool2: 用途说明
 
 ## Methodology
 1. 步骤一
 2. 步骤二
 3. 步骤三
 
-## Tools
-- tool1: 用途说明
-- tool2: 用途说明
+## Practical Steps
+[详细可执行步骤]
+
+## Defense Perspective
+[蓝队如何检测与防御]
 
 ## Orchestration
 [与其他技能如何配合]
@@ -836,23 +1102,37 @@ mkdir -p ~/.openclaw/workspace-kali-claw/skills/my-custom-skill
 - **Status**: [Pass/Fail]
 ```
 
-**第五步（可选）：创建 guides/ 目录**
+**第五步（推荐）：创建 guides/ 目录**
 
 ```bash
 mkdir -p ~/.openclaw/workspace-kali-claw/skills/my-custom-skill/guides
-# 在 guides/ 中放入深度学习材料
+# 在 guides/ 中放入深度学习材料（建议 1-3 个文件）
 ```
 
-**第六步：在 IDENTITY.md 添加技能标签**
+**第六步：用标准对齐脚本生成 frontmatter（可选）**
+
+```bash
+python3 validation/update-skill-standard.py --skill my-custom-skill --dry-run
+# 检查无误后去掉 --dry-run 实际写入
+```
+
+**第七步：在 IDENTITY.md 添加技能标签**
 
 ```markdown
 | My Custom Skill | 自定义能力描述 | First Principles |
 ```
 
-**第七步：在 TOOLS.md 添加相关工具**
+**第八步：在 TOOLS.md 添加相关工具**
 
 ```markdown
 | My Custom Tools | 3 | Learning | Custom scripts and utilities |
+```
+
+**第九步：跑分验证**
+
+```bash
+bash validation/SCORE.sh --skill my-custom-skill
+# 目标：至少达到 Excellent (80+)，理想是 Distinguished (92+)
 ```
 
 ### 6.3 自定义行为
@@ -892,7 +1172,52 @@ Every finding must be recorded with evidence. If it's not documented, it didn't 
 
 ---
 
-## 七、常见问题（FAQ）
+## 七、版本演进与里程碑
+
+### 7.1 主要版本回顾
+
+kali-claw 采用"**扩面 ↔ 质量**"交替迭代的节奏，每个版本都有明确主题：
+
+| 阶段 | 版本 | 关键里程碑 |
+|------|------|------------|
+| 基础建设 | v0.1.1 - v0.1.7 | 45 → 49 技能域，建立分层架构 |
+| 全量丰富 | v0.1.8 - v0.1.10 | 49/49 全部 FULL enrichment，集成测试 7/7 PASS |
+| **质量评分引入** | v0.1.11 - v0.1.14 | SCORE.sh v1，49/49 Excellent 100% |
+| **质量评分 v2** | v0.1.15 - v0.1.17 | Distinguished 等级引入，TEMPLATE.md |
+| **领域扩面 1** | v0.1.18 - v0.1.21 | 49 → 70 技能域（exploit-dev / privesc / payload-gen / AV-EDR / DNS / XXE / LFI / CMS / stego / bluetooth / firmware / SCADA / DB / VoIP / anti-forensics / AD-LDAP / web-deserialization / email） |
+| **Distinguished 冲刺** | v0.1.22 - v0.1.27 | 5 → 17 Distinguished |
+| **领域扩面 2** | v0.1.28 - v0.1.31 | 70 → 91 技能域（darkweb / threat-hunting / blockchain / payment / llm-red-team / honeypot / k8s / secret-mgmt / ai-agent / iot / detection-eng / agentic-pentest / cloud-identity / physical / quantum / email-deep） |
+| **100% Excellent+** | v0.1.32 | 91/91 全部 Excellent+，零 Strong |
+| **GitHub Trending 扩面** | v0.1.33 - v0.1.35 | 91 → 103（5G / automotive / mobile-deep / cloud-native-vuln / macOS / UAV / game-anticheat / mainframe / ICS-fieldbus / HF/VHF / blockchain-L2 / RTOS） |
+| **质量提升 E 计划** | v0.1.36 | 19 → 28 Distinguished（+9） |
+| **Wave 7 扩面** | v0.1.37 | 103 → 107（storage-SAN / hypervisor / satellite-LEO / AD CS） |
+| **E 计划再发力** | v0.1.38 | 28 → 32 Distinguished，首次破 30，最低分 85.1（质量债务清零） |
+| **Wave 8 扩面（当前）** | **v0.1.39** | **107 → 111**（CI/CD 供应链 / PAM / CSPM-CASB / SASE-SSE），首次出现"新技能基线即 Distinguished"（pam-privilege-attack 92.0） |
+
+### 7.2 当前质量快照（v0.1.39）
+
+| 等级 | 数量 | 代表技能 |
+|------|------|----------|
+| **Distinguished (92+)** | **33** | secret-management-attack (94.6) · social-intelligence (93.8) · sdr-rf-attack (93.6) · article-writing (93.6) · deep-research (93.5) · payload-generation (93.1) · scada-ics-security (93.0) · ad-cs-abuse (93.0) · vulnerability-assessment (93.0) · 5g-telecom-attack (92.7) · embedded-rtos-security (92.7) · agentic-pentest (92.6) · autonomous-loops (92.6) · verification-loop (92.6) · quantum-crypto-attack (92.5) · osint (92.5) · vpn-attack (92.5) · ai-security (92.3) · council (92.3) · network-tunneling-proxy (92.3) · crypto-attacks (92.2) · macos-security (92.2) · username-profiling (92.2) · web-deserialization (92.2) · cloud-security (92.1) · hf-vhf-radio-attack (92.1) · email-security-deep (92.0) · network-pentest (92.0) · security-bounty-hunter (92.0) · pam-privilege-attack (92.0) · security-misconfiguration (92.8) · container-security (92.8) · web-xss (92.0) |
+| **Excellent (80-91.9)** | **78** | storage-san-attack (91.5) · dns-attacks (91.1) · kubernetes-attack (90.2) · blockchain-web3 (90.2) · cloud-identity-attack (89.0) · ci-cd-supply-chain-attack (89.2) · cspm-casb-attack (88.5) · sase-sse-attack (88.2) · ... |
+| Strong (60-80) | **0** | — |
+| Adequate (40-60) | **0** | — |
+| Weak (0-40) | **0** | — |
+
+**平均分：88.78** | **111/111 Excellent+（100%）** | **33 Distinguished**
+
+### 7.3 下一版本（v0.1.40）方向
+
+按"扩面 ↔ 质量"交替节奏，v0.1.40 很可能回到 **质量提升路线**，候选方向：
+
+- **A 轨 Distinguished 冲刺** — 还有 7 个技能卡在 89-91.9（storage-san-attack 91.5、dns-attacks 91.1、blockchain-web3 90.2、kubernetes-attack 90.2、darkweb-intel 89.2、av-edr-evasion 89.1、cloud-identity-attack 89.0），每个加 1 个 guide 大多能进 92+
+- **底部提升** — 5 个技能卡在 85-86（chronicle 85.1、cloud-native-vuln-research 85.2、email-protocol-attack 85.2、game-anticheat-bypass 85.2、multi-agent-collaboration 85.4），拉到 88+ 让最低分再上一台阶
+- **Wave 8 cohort 深化** — 给 ci-cd-supply-chain-attack、cspm-casb-attack、sase-sse-attack 各加第 2 个 guide
+- **扩面第 9 波** — 候选方向包括 GitOps 安全、QKD 攻击、Open Banking/PSD2、HSM 攻击、CPS 网络物理系统
+
+---
+
+## 八、常见问题（FAQ）
 
 ### Q1: npm install -g openclaw 报权限错误
 
@@ -967,6 +1292,7 @@ docker exec -it kali-claw-env bash -c "apt install -y nmap"
 - 使用更明确的指令，比如 "用 SQL 注入测试这个登录页面" 而不是 "看看这个页面安全吗"
 - 在指令中直接提到技能名称，比如 "用 web-sqli 技能测试..."
 - 检查 IDENTITY.md 中是否包含对应的技能标签
+- 检查 SKILL.md frontmatter 的 `description` 字段是否清晰（这是技能匹配的关键）
 
 ### Q5: 记忆丢失了
 
@@ -1014,6 +1340,9 @@ git pull origin main
 
 # 注意：这不会覆盖你的 USER.md 修改
 # 如果有冲突，手动解决即可
+
+# 拉取后跑一次质量评分，确认所有技能到位
+bash validation/SCORE.sh
 ```
 
 ### Q8: 可以在非 Kali 系统上用吗
@@ -1026,22 +1355,48 @@ git pull origin main
 
 智能体的知识库（技能、方法论、攻击载荷）在任何系统上都能使用。只是执行具体工具时需要 Kali 环境。
 
+### Q9: 如何贡献新技能或改进
+
+1. Fork 仓库，创建特性分支
+2. 按"6.2 自定义技能"流程创建技能域
+3. 运行 `bash validation/SCORE.sh --skill <你的技能>`，确保达到 Excellent (80+)
+4. 提交 PR，附上分数证据和 1-2 个真实场景测试结果
+
+PR 模板参见仓库根目录的 README.md。
+
+### Q10: 如何知道哪些技能最强 / 最需要改进
+
+```bash
+# 查看所有技能分数（从高到低）
+cat validation/QUALITY-SCORE-TRACKER.md
+
+# 或检查单个技能
+cat validation/evidence/quality-scores/<skill-name>.json
+```
+
+JSON 中包含 4 个组件的明细分（skill_md / payloads_md / test_cases_md / guides），让你能精确看到短板在哪。
+
 ---
 
-## 八、核心文件参考
+## 九、核心文件参考
 
 | 文件 | 作用 | 何时修改 |
 |------|------|---------|
 | `SOUL.md` | 智能体人格、12 条黑客法则、行为准则 | 自定义人格 / 增删法则 |
 | `AGENTS.md` | 工作空间配置、会话启动流程 | 调整智能体名称 / 修改启动流程 |
-| `IDENTITY.md` | 技能标签表、性格特质 | 添加/删除技能域 |
+| `IDENTITY.md` | 技能标签表（111 行）、性格特质 | 添加/删除技能域 |
 | `USER.md` | 用户信息、偏好、当前关注点 | 首次配置 / 信息变更 |
 | `MEMORY.md` | 长期精炼知识、关键决策 | 一般不手动修改 |
 | `TOOLS.md` | 518 工具的学习进度和笔记 | 添加新工具 / 更新进度 |
 | `HEARTBEAT.md` | 心跳自动化任务定义 | 调整检查频率和内容 |
-| `skills/` | 49 个技能域目录 | 添加新技能 / 更新现有技能 |
+| `CHANGELOG.md` | 全部版本变更日志 | 一般不手动修改 |
+| `skills/` | 111 个技能域目录 | 添加新技能 / 更新现有技能 |
+| `validation/` | 自动化脚本套件（SCORE.sh、orchestrator.sh 等） | 调整评分权重 / 添加新场景 |
+| `validation/engagement-template/` | 授权渗透模板（targets/scope/report） | 新增 engagement 类型 |
 | `memory/` | 每日记忆日志（YYYY-MM-DD.md） | 一般不手动修改 |
 | `chronicle/` | 月度里程碑记录 | 一般不手动修改 |
+| `docs/` | 长篇设计文档与规划 | 重大架构变更时 |
+| `RELEASE-v0.1.X.md` | 每个版本的发布公告 | 一般不手动修改 |
 
 **首次使用只需修改 4 个文件**：USER.md、SOUL.md、IDENTITY.md、AGENTS.md（见第三章第 4 节）。
 
@@ -1049,4 +1404,4 @@ git pull origin main
 
 ---
 
-_Built with the OpenClaw Agent Framework. 如有问题，请在 GitHub Issues 中反馈。_
+_Built with the OpenClaw Agent Framework. 当前版本 v0.1.39（111 技能域、33 Distinguished）。如有问题，请在 GitHub Issues 中反馈。_
