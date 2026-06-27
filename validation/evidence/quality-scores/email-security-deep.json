@@ -1,6 +1,6 @@
 {
   "skill": "email-security-deep",
-  "timestamp": "2026-06-21T15:11:16Z",
+  "timestamp": "2026-06-27T07:23:14Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 7898,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 71,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
-    "guide_file_count": 2,
-    "guide_avg_words": 3975,
+    "guide_file_count": 3,
+    "guide_avg_words": 5838,
     "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
@@ -19,15 +19,15 @@
     "payload_code": 88.4,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 76.0,
+    "guide": 78.7,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
     "payloads_md": 96.13,
     "test_cases_md": 95.00,
-    "guides": 76.0
+    "guides": 78.7
   },
-  "overall_score": 91.3,
-  "tier": "Excellent"
+  "overall_score": 92.0,
+  "tier": "Distinguished"
 }

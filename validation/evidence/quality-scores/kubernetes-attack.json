@@ -1,6 +1,6 @@
 {
   "skill": "kubernetes-attack",
-  "timestamp": "2026-06-21T15:11:16Z",
+  "timestamp": "2026-06-27T07:23:14Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 5149,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 55,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
-    "guide_file_count": 2,
-    "guide_avg_words": 4371,
+    "guide_file_count": 3,
+    "guide_avg_words": 5997,
     "guide_key_sections": 3,
     "skill_section_score": 0.95
   },
@@ -19,15 +19,15 @@
     "payload_code": 82.0,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 76.0,
+    "guide": 78.7,
     "skill_section": 95.0
   },
   "component_scores": {
     "skill_md": 95.00,
     "payloads_md": 92.53,
     "test_cases_md": 95.00,
-    "guides": 76.0
+    "guides": 78.7
   },
-  "overall_score": 89.5,
+  "overall_score": 90.2,
   "tier": "Excellent"
 }

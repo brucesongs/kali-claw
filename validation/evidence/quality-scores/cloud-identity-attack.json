@@ -1,6 +1,6 @@
 {
   "skill": "cloud-identity-attack",
-  "timestamp": "2026-06-21T15:11:16Z",
+  "timestamp": "2026-06-27T07:23:14Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 5026,
@@ -8,9 +8,9 @@
     "payload_code_blocks": 59,
     "test_case_count": 12,
     "field_completeness_score": 0.86,
-    "guide_file_count": 1,
-    "guide_avg_words": 4292,
-    "guide_key_sections": 2,
+    "guide_file_count": 3,
+    "guide_avg_words": 6157,
+    "guide_key_sections": 3,
     "skill_section_score": 0.97
   },
   "normalized_scores": {
@@ -19,15 +19,15 @@
     "payload_code": 83.6,
     "test_case": 90.0,
     "field": 86.0,
-    "guide": 58.0,
+    "guide": 78.7,
     "skill_section": 97.0
   },
   "component_scores": {
     "skill_md": 97.00,
     "payloads_md": 94.53,
     "test_cases_md": 88.00,
-    "guides": 58.0
+    "guides": 78.7
   },
-  "overall_score": 83.8,
+  "overall_score": 89.0,
   "tier": "Excellent"
 }

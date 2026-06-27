@@ -360,18 +360,19 @@ TOOLS.md:
 | v0.1.35 | 2026-06-24 | **GitHub-trending expansion wave 6: +4 deep-dive skill domains (99→103)** | +4 domains (ics-fieldbus-attack, hf-vhf-radio-attack, blockchain-l2-attack, embedded-rtos-security); 4 new categories (fieldbus, lowfreq-radio, blockchain-l2, rtos); deepens existing SCADA/SDR/blockchain/firmware coverage rather than entering new verticals; 4/4 new skills baselined Excellent; **103/103 Excellent+ (100%)** maintained; cohort avg 88.4 (vs v0.1.34 cohort 85.4); 103 total |
 | v0.1.36 | 2026-06-25 | **E plan: Distinguished sprint + bottom lift (no new skills, +9 Distinguished)** | 9 skills lifted: 8 reached Distinguished (secret-management-attack 90.4→94.6, deep-research 90.6→93.5, 5g-telecom-attack 82.5→92.7, embedded-rtos-security 88.8→92.7, agentic-pentest 90.0→92.6, quantum-crypto-attack 90.8→92.5, macos-security 82.7→92.2, username-profiling 91.6→92.2, hf-vhf-radio-attack 89.3→92.1); email-security-deep 81.0→91.3 (Excellent+ but 0.7 below Distinguished); **Distinguished 19→28** (+9, exceeds 25+ target); avg 87.98→88.45; min 81.0→83.8; 9 new 2nd/3rd guide files; ~7,000 new lines |
 | v0.1.37 | 2026-06-27 | **GitHub-trending expansion wave 7: +4 skill domains (103→107)** | +4 domains (storage-san-attack, hypervisor-introspection, satellite-leo-security, ad-cs-abuse); 4 new categories (storage, virtualization, satellite, enterprise-cloud AD CS); covers enterprise storage infrastructure + hypervisor internals + satellite/LEO comms + AD CS privilege escalation; 4/4 new skills baselined Excellent (ad-cs-abuse 91.0 near-Distinguished, storage-san-attack 89.5, hypervisor-introspection 87.4, satellite-leo-security 86.8); **107/107 Excellent+ (100%)** maintained; cohort avg 88.7 (highest of all waves); 107 total |
+| v0.1.38 | 2026-06-27 | **E plan again: Distinguished sprint + bottom lift (+4 Distinguished, 28→32)** | 10 skills lifted: 4 reached Distinguished (email-security-deep 91.3→92.0, ad-cs-abuse 91.0→93.0, ai-security 89.3→92.3, crypto-attacks 89.0→92.2); 2 near-miss A-track (storage-san-attack 89.5→91.5, kubernetes-attack 89.5→90.2); 4 C-track bottom-lifted (cloud-identity-attack 83.8→89.0, mobile-app-instrumentation 84.5→87.3, dns-attacks 84.6→91.1, blockchain-web3 84.6→90.2); **Distinguished 28→32**; avg 88.46→88.75; min 83.8→85.1 (no skills below 85 anymore); 11 new guide files, ~13,500 new lines |
 
-### Current Quality Snapshot (v0.1.37, scoring v2)
+### Current Quality Snapshot (v0.1.38, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **28** | secret-management-attack (94.6), social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), deep-research (93.5), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), container-security (92.8), security-misconfiguration (92.8), 5g-telecom-attack (92.7), embedded-rtos-security (92.7), agentic-pentest (92.6), quantum-crypto-attack (92.5), macos-security (92.2), username-profiling (92.2), hf-vhf-radio-attack (92.1), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
-| Excellent (80-91.9) | **79** | ad-cs-abuse (91.0 — near-Distinguished), email-security-deep (91.3 — near-Distinguished), storage-san-attack (89.5), hypervisor-introspection (87.4), satellite-leo-security (86.8), plus all prior Excellent-tier skills |
+| Distinguished (92+) | **32** | secret-management-attack (94.6), social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), deep-research (93.5), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), ad-cs-abuse (93.0), container-security (92.8), security-misconfiguration (92.8), 5g-telecom-attack (92.7), embedded-rtos-security (92.7), agentic-pentest (92.6), quantum-crypto-attack (92.5), macos-security (92.2), username-profiling (92.2), ai-security (92.3), crypto-attacks (92.2), hf-vhf-radio-attack (92.1), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), email-security-deep (92.0), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
+| Excellent (80-91.9) | **75** | dns-attacks (91.1 — near-Distinguished), storage-san-attack (91.5 — near-Distinguished), kubernetes-attack (90.2), blockchain-web3 (90.2), cloud-identity-attack (89.0), plus all prior Excellent-tier skills |
 | Strong (60-80) | **0** | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 88.46** | **107/107 scored Excellent or above (100%)** | **28 Distinguished** | **107 total skill domains**
+**Average score: 88.75** | **107/107 scored Excellent or above (100%)** | **32 Distinguished** | **107 total skill domains**
 
 ### Future Exploration
 
@@ -402,7 +403,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.37 |
+| **Version** | 0.1.38 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | 107 |

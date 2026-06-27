@@ -4,6 +4,79 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.38 (2026-06-27) — E Plan: Distinguished Sprint + Bottom Lift (+4 Distinguished, 28→32)
+
+### Driver: E Plan Executed Again (A + C Combo)
+
+v0.1.38 is the second E plan execution (first was v0.1.36). Combined **Distinguished sprint** (push 6 A-track skills at 89-91.9 → 92+) with **bottom lift** (raise 4 C-track skills below 85 to 87+). Result: +4 Distinguished, 4 of 4 bottom skills cleared target.
+
+### 10 Skills Lifted (4 Distinguished + 4 Excellent+ overshoot + 2 near-miss)
+
+| Skill | Before | After | Delta | Outcome |
+|-------|--------|-------|-------|---------|
+| **A-track (Distinguished sprint)** | | | | |
+| email-security-deep | 91.3 | **92.0** | +0.7 | Excellent→Distinguished |
+| ad-cs-abuse | 91.0 | **93.0** | +2.0 | Excellent→Distinguished |
+| ai-security | 89.3 | **92.3** | +3.0 | Excellent→Distinguished |
+| crypto-attacks | 89.0 | **92.2** | +3.2 | Excellent→Distinguished |
+| storage-san-attack | 89.5 | 91.5 | +2.0 | Excellent (0.5 below Distinguished) |
+| kubernetes-attack | 89.5 | 90.2 | +0.7 | Excellent (1.8 below Distinguished) |
+| **C-track (Bottom lift)** | | | | |
+| cloud-identity-attack | 83.8 | **89.0** | +5.2 | +5.2 overshoot |
+| mobile-app-instrumentation | 84.5 | **87.3** | +2.8 | Hit target |
+| dns-attacks | 84.6 | **91.1** | +6.5 | +4.1 overshoot |
+| blockchain-web3 | 84.6 | **90.2** | +5.6 | +3.2 overshoot |
+
+**Average lift**: +3.25 points across 10 skills.
+
+### Per-Skill Strategy
+
+**A-track (4 Distinguished achieved + 2 near-miss)**:
+- **email-security-deep** (91.3→92.0): +1 guide (mail infrastructure evasion / MTA chain forensics / AiTM refinements) — 1,561 lines new guide
+- **ad-cs-abuse** (91.0→93.0): +1 guide (AD CS detection & hardening with 10 detection rules in KQL/SPL/Sigma) — 1,032 lines new guide
+- **ai-security** (89.3→92.3): +1 guide (LLM jailbreak research: GCG/AutoDAN/PAIR/TAP/Crescendo) + 4 new SKILL.md sections — 1,671 lines new guide, sm 93→99
+- **crypto-attacks** (89.0→92.2): +1 guide (PQC migration + side-channel analysis: ML-KEM/ML-DSA, KyberSlash, ChipWhisperer labs) + 3 new SKILL.md sections — 1,118 lines new guide, sm 91→96
+- **storage-san-attack** (89.5→91.5): +1 guide (NetApp/Dell EMC/Pure/QNAP/Synology/TrueNAS vendor deep-dive, 13 CVEs) — 1,299 lines new guide
+- **kubernetes-attack** (89.5→90.2): +1 guide (runc/containerd CVEs + kernel escape chains, 21 CVEs with patch commits) — 1,271 lines new guide
+
+**C-track (4/4 cleared target, 3 overshoot)**:
+- **cloud-identity-attack** (83.8→89.0): +2 guides (Entra ID deep-dive 1,114 lines + Okta/Auth0 deep-dive 1,071 lines) — gd 58→78.7
+- **mobile-app-instrumentation** (84.5→87.3): +1 guide (iOS/Android deep instrumentation + SSL pinning catalog) + 4 SKILL.md subsections — 925 lines new guide, sm 83→88
+- **dns-attacks** (84.6→91.1): +1 guide (DNS rebinding/tunneling/modern variants) + 6 new payloads sections (+1,290 lines, +86 code blocks) — 846 lines new guide, pl 80→97.7
+- **blockchain-web3** (84.6→90.2): +1 guide (DeFi reentrancy taxonomy + composability attacks) + 7 new payloads sections (+1,423 lines, +63 code blocks) — 1,183 lines new guide, pl 82→98.5
+
+### Quality Snapshot
+
+| Metric | v0.1.37 | v0.1.38 | Change |
+|--------|---------|---------|--------|
+| Total skill domains | 107 | **107** | unchanged |
+| Distinguished (92+) | 28 | **32** | +4 (email-security-deep, ad-cs-abuse, ai-security, crypto-attacks) |
+| Excellent (80-91.9) | 79 | **75** | -4 (all promoted to Distinguished) |
+| Strong (60-80) | 0 | **0** | unchanged |
+| Average | 88.46 | **88.75** | +0.29 |
+| Min | 83.8 | **85.1** | +1.3 (no skills below 85 anymore) |
+| Max | 94.6 | **94.6** | unchanged |
+| Excellent+ coverage | 107/107 (100%) | **107/107 (100%)** | maintained |
+
+### Workload
+
+- New files: 11 new guide files + 0 new skills
+- New lines: ~13,500
+- SKILL.md expansions: 3 (ai-security, crypto-attacks, mobile-app-instrumentation)
+- Payloads expansions: 2 (dns-attacks +1,290 lines, blockchain-web3 +1,423 lines)
+- 107 skills, 494 total guides
+- HEARTBEAT_OK
+
+### Index Sync
+
+| File | Update |
+|------|--------|
+| README.md | Quality snapshot refresh (28→32 Distinguished, avg 88.46→88.75, min 83.8→85.1), +v0.1.38 changelog row, version 0.1.37→0.1.38 |
+| CHANGELOG.md | +v0.1.38 entry (this one) |
+| VERSION | 0.1.37→0.1.38 |
+
+---
+
 ## v0.1.37 (2026-06-27) — GitHub-Trending Expansion Wave 7: +4 Skill Domains (103→107)
 
 ### Driver: Wave 7 Returns to Horizontal Expansion

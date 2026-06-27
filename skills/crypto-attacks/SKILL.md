@@ -18,7 +18,7 @@ allowed-tools:
 metadata:
   domain: cryptography
   tool_count: 7
-  guide_count: 5
+  guide_count: 6
   owasp: "A04:2021-Cryptographic Failures"
 ---
 
@@ -101,6 +101,64 @@ Auxiliary tools: **hash-identifier** (hash type identification), **htlea** (Hash
   - Cert chain validation   - Hash extension attack   - Replay attacks
 ```
 
+### Post-Quantum Migration
+
+The post-quantum transition expands the crypto-attacks attack surface on three new axes that any Distinguished-tier engagement must cover: (a) classical-vs-quantum threat model, (b) hybrid construction correctness, and (c) protocol incompatibilities caused by larger PQ key / signature sizes. The attack chain below operationalizes the HNDL ("Harvest Now, Decrypt Later") adversary and the migration audit.
+
+```
+[PQM-1] Asset Inventory       [PQM-2] Algorithm Coverage   [PQM-3] Hybrid Construction
+  - Long-lived keys cataloged   - FIPS 203/204/205 support     - X25519 + ML-KEM-768 KEM
+  - HNDL exposure profiled      - liboqs / OQS-OpenSSL          - Transcript hash binding
+  - PKI chain depth analyzed    - pqm4 (Cortex-M4 targets)      - KDF length-prefixing
+       |                              |                                |
+       v                              v                                v
+[PQM-4] Protocol Compatibility [PQM-5] Downgrade Analysis   [PQM-6] PQC Implementation Audit
+  - MTU / fragment / EDNS(0)    - Stripping PQ group             - KyberSlash (barrett div)
+  - Middlebox cert handling     - Hybrid fallback policy         - Dilithium verify-before-release
+  - X.509 alt-signature path    - Cipher string hardening        - Cross-protocol key reuse
+```
+
+**Real research touchpoints**: KyberSlash (2021), Injecting Crystals (Manganote et al., 2023), Crystal-Slinger, GROUNDTRUTH (2024), and Shor's algorithm assumptions about ECC/RSA recovery under a cryptographically relevant quantum computer (CRQC). The full attack taxonomy, parameter sizes, and lab procedures live in `guides/crypto-attacks-pqc-migration-side-channel.md`.
+
+### Side-Channel Analysis
+
+Side-channel analysis (SCA) targets physical and microarchitectural leakage of secret-dependent computation -- the single largest source of real-world breaks of mathematically sound algorithms. Padding Oracle, Heartbleed, and Spectre/Meltdown are all side channels; the same methodology scales to power, EM, timing, and fault channels on cryptographic hardware.
+
+```
+[SCA-1] Channel Selection     [SCA-2] Trace Acquisition     [SCA-3] Statistical Attack
+  - Timing (dudect)              - ChipWhisperer + STM32F4      - SPA: single-trace op ID
+  - Power (SPA / DPA / CPA)      - Riscure Inspector            - DPA: difference-of-means
+  - Electromagnetic (EMA)        - Near-field EM probe + scope  - CPA: HW correlation
+  - Cache-timing (Spectre)       - Remote latency measurement   - Template: max likelihood
+       |                              |                                |
+       v                              v                                v
+[SCA-4] PQC-Specific Attacks   [SCA-5] Constant-Time Audit   [SCA-6] Fault Injection
+  - Kyber compress leak          - dudect / ctgrind / binsec    - Clock / power glitch
+  - Dilithium z-step             - HW-accel (AES-NI, ARMv8)     - Verify-before-release bypass
+  - SPHINCS+ WOTS+ chain         - Masking (order-1 minimum)    - Fault-tolerant chains
+```
+
+**Equipment baseline**: ChipWhisperer Husky or Lite + CW308/STM32F4 target for power/EM/glitch; `dudect` / `ctgrind` for software constant-time verification; Riscure Inspector for enterprise-grade CPA / template attacks. Deep dive: `guides/crypto-attacks-pqc-migration-side-channel.md`.
+
+### Crypto-Agility Framework
+
+Crypto-agility is the ability to swap cryptographic primitives without code changes or protocol breakage -- the strongest predictor of whether a PQC migration will succeed. The framework below structures the audit; an organization that cannot answer "yes" to every row is non-agile and at risk during any future algorithm transition (PQC today, AES-GCM-SIV tomorrow, whatever comes next).
+
+```
+[CA-1] Algorithm Inventory      [CA-2] Pluggable Primitive API  [CA-3] Negotiation & Telemetry
+  - Every long-term key mapped    - Algorithm as config string     - Negotiated group logged
+  - Every signature location      - Key store holds 5 KB PQ keys   - Downgrade detected
+  - Every TLS / SSH / IPsec       - No hardcoded constants         - Per-peer algorithm tracked
+       |                                |                                |
+       v                                v                                v
+[CA-4] Swap Planning             [CA-5] Test Coverage            [CA-6] Rollback Readiness
+  - 12-month / 24-month target    - ACVP / CAVP vectors            - Atomic rollback to classical
+  - Hybrid (classical + PQ)       - Cross-stack interop tests       - Re-key without service outage
+  - Pure-PQ end state             - Side-channel regression         - Root of trust migration
+```
+
+**Acceptance criterion**: a single configuration change in `crypto_policy.yaml` (e.g., `kem_group: x25519_mlkem768`) propagates to every endpoint, every library, every certificate, with no source modification -- and the change is observable in production telemetry within 24 hours. Anything less is non-agile.
+
 ### Defense Perspective
 
 | Defense Measure | Description | Attack Types Countered |
@@ -111,6 +169,22 @@ Auxiliary tools: **hash-identifier** (hash type identification), **htlea** (Hash
 | PBKDF2/bcrypt/argon2id | Slow hashing + salt, increases offline cracking cost | Hash cracking, rainbow tables |
 | JWT Security Practices | Algorithm allowlist + short expiration + strong keys + token blacklist | alg:none / Algorithm Confusion |
 | Certificate Pinning | Pin expected certificates/public keys, prevent MITM | Forged certificates, MITM |
+| Hybrid KEM (X25519 + ML-KEM-768) | Bind classical and PQ shares into transcript hash; secure if **either** primitive holds | HNDL, PQ-stripping downgrade, single-primitive break |
+| Verify-before-release on PQ signatures | Compute signature, verify under public key, retry on mismatch | Dilithium / FN-DSA fault injection (Injecting Crystals) |
+| First-order masking + NTT shuffling | Random-share secret-dependent lattice operations | Kyber / Dilithius SPA / DPA / single-trace EM |
+| Constant-time coding (verified) | `dudect` / `ctgrind` / `binsec` CI gates; AES-NI / ARMv8 SHA | Timing, cache-timing, KyberSlash-class leaks |
+| Crypto-agility policy layer | Algorithms expressed as config (OID / cipher string), not source constants | Migration blockers, future algorithm deprecations |
+| X.509 alt-signature (hybrid) | Two signatures (classical + PQ) per certificate with separate OIDs | Transitional PKI trust breakage, slow client rollout |
+| Per-protocol KEM key derivation | Domain-separated KDF on the shared secret | Kyber cross-protocol (Bosc et al. 2023) |
+
+#### PQC Migration and Side-Channel Mitigations
+
+Beyond the row-level defenses, four structural mitigations cover the emerging PQ and side-channel surface:
+
+1. **Hybrid-by-default for long-lived data**: any TLS / SSH / IPsec endpoint that protects data with a confidentiality lifetime of 10+ years MUST negotiate a hybrid group (e.g., `x25519_mlkem768`) and MUST reject ClientHello that strips the PQ group. Pure-PQ endpoints are acceptable only after the PQC primitive has accumulated 5+ years of adversarial analysis.
+2. **Verify-before-release everywhere**: every PQC signature implementation must compute the signature, run a full verification under the public key, and retry on failure. This single step defeats the cheapest single-fault attacks (Injecting Crystals class) and is now mandated by FIPS 204.
+3. **Constant-time as a CI gate, not a claim**: any "constant-time" assertion must be backed by automated `dudect` / `ctgrind` / `binsec` evidence in CI. Side-channel regression tests on cryptographic primitives must run on every commit, not as a release milestone. Hardware acceleration (AES-NI, ARMv8 SHA, dedicated PQ IP) is preferred over constant-time software where available.
+4. **Crypto-agility first**: every algorithm must be expressible as a single configuration entry (cipher string, KEM group, signature OID), not a refactoring project. The acceptance test is "swap `x25519` to `x25519_mlkem768` in one config file; production telemetry reflects the change within 24 hours; no source modification." Organizations that cannot pass this test are non-agile and will not complete the PQC migration before the HNDL window closes.
 
 ---
 
@@ -222,6 +296,7 @@ GPU-accelerated cracking with hashcat can achieve billions of MD5 hashes per sec
   **Related skills**: skills/web-auth-bypass/SKILL.md, skills/password-attack/SKILL.md
   **External resources**:
   - **Workspace internal materials**: `guides/cryptographic_failures_complete_guide.md` -- Complete OWASP A04 guide with weak algorithm attacks, ECB/Padding Oracle/IV Reuse attacks, JWT tampering, and complete offensive and defensive code for key management
+  - **Workspace internal materials**: `guides/crypto-attacks-pqc-migration-side-channel.md` -- Post-Quantum Cryptography migration (NIST FIPS 203/204/205, ML-KEM, ML-DSA, SLH-DSA, FN-DSA), hybrid TLS 1.3, X.509 cert handling, side-channel methodology (SPA / DPA / CPA / EMA / timing / cache-timing), PQC-specific attacks (KyberSlash, Injecting Crystals, SPHINCS+ WOTS+ faults), and end-to-end ChipWhisperer lab on STM32F4
   - **PortSwigger Crypto Lab**: https://portswigger.net/web-security/cryptography -- Systematic cryptographic attack labs
   - **Cryptopals**: https://cryptopals.com/ -- 8 sets of cryptography programming challenges, from basic to advanced
   - **testssl.sh GitHub**: https://github.com/drwetter/testssl.sh -- TLS/SSL security scanning tool

@@ -9,7 +9,7 @@ metadata:
   domain: mobile-deep
   category: mobile-deep
   tool_count: 13
-  guide_count: 1
+  guide_count: 2
   mitre: "T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol"
   keywords: [frida, objection, r2frida, introspy, instrumentation, ssl-pinning-bypass, jailbreak-detection, keychain, keystore, ios, android]
 ---
@@ -20,6 +20,7 @@ metadata:
 > - `payloads.md` — 18 instrumentation sections with 60+ Frida JS scripts, Objection CLI one-liners, r2frida bridges, and runtime manipulation recipes (SSL pinning bypass, jailbreak/root detection bypass, anti-debug bypass, keychain/keystore dumping, native lib instrumentation, crypto tracing, WebView manipulation, anti-Frida evasion, and blue-side detection patterns)
 > - `test-cases.md` — 12 structured test cases (TC-MI-001 .. TC-MI-012) covering environment bring-up, iOS/Android app acquisition, Frida SSL pinning bypass, Objection runtime exploration, keychain/keystore dumping, jailbreak detection bypass, anti-debug bypass, r2frida native lib analysis, crypto tracing, and anti-Frida detection bypass
 > - `guides/mobile-app-instrumentation-playbook.md` — End-to-end operational playbook (iOS/Android runtime model, instrumentation lab build-out on jailbroken iOS / Magisk-rooted Android, instrumentation workflow, real-world case studies of Instagram cookie hijack, Snapchat jailbreak detection history, Uber cert pinning evolution, TikTok keystore bypass, and defense patterns including Play Integrity API and iOS App Attest)
+> - `guides/mobile-app-instrumentation-ios-android-deep.md` — Advanced deep dive: iOS instrumentation internals (frida-server / frida-gadget / USBMUXD, SSL Kill Switch 3, BoringSSL bypass, Shadow / A-Bypass / Liberty / Choicy jailbreak detection defeat, Keychain dump, URL scheme hijack, App Attest bypass research, PAC on A12+, CoreTrust CVE-2023-41974 / kfd exploit chain), Android instrumentation (Frida gadget injection modes, Magisk + Zygisk + LSPosed, RASP bypass recipe for PGY / Promon / Arxan, Flutter reverse via reflutter + BoringSSL, React Native / Hermes via hbctool), high-value CVE targets (CVE-2024-0044 run-as sandbox escape, Play Integrity bypass via pif), the full SSL Pinning Bypass Catalog decision matrix (15+ libraries mapped to bypass technique), modern obfuscation defeat (OLLVM string deobfuscation, control-flow flattening via angr / HexRaysDeob / ghidra-emotet, radare2 native arm64 flow), and lab setup (Corellium, Android Studio Emulator + Frida, Genymotion, Objection tunneling)
 
 ## Summary
 
@@ -129,6 +130,78 @@ With hooks in place, manipulate the live process:
 - **Replay JWTs** extracted from the keychain against the backend with `curl` for a clean client-to-server compromise chain.
 
 Document every step: hook script, log output, screenshot, and the downstream consequence (decrypted HTTPS, extracted token, bypassed gate). This evidence packet is the deliverable.
+
+### iOS Instrumentation Stack
+
+The iOS instrumentation stack spans multiple layers — the operator must know which layer a given app uses to choose the right bypass. This stack is documented in detail in `guides/mobile-app-instrumentation-ios-android-deep.md`.
+
+- **Frida runtime variants**: `frida-server` (daemon, requires jailbreak, exposes `127.0.0.1:27042` via USBMUXD); `frida-gadget` (`FridaGadget.dylib` patched into the app's `.app` bundle and re-signed — works on non-jailbroken devices and evades `frida-server` detection). On A12+ arm64e devices, only the arm64e build of `frida-server` / `frida-gadget` can attach to native arm64e apps; PAC (Pointer Authentication Codes) forces this architecture match.
+- **SSL Kill Switch 3** (https://github.com/nicklama/ssl-kill-switch3) — system-wide pinning bypass at `SecTrustEvaluate` + `NSURLSession`. Lowest-effort bypass for iOS 15-17, but does NOT cover BoringSSL, custom `URLSessionDelegate`, or `Network.framework`-based pins. Install via Chariz repo on Dopamine jailbreak.
+- **BoringSSL / libssl bypass** — Flutter iOS apps and any app using `cronet`/`grpc` ship a static-linked BoringSSL. Bypass via `Interceptor.replace` on `SSL_set_custom_verify` / `SSL_CTX_set_custom_verify` / `SSL_verify_peer_chain` after pattern-scanning `libflutter.so` for the BoringSSL API pointer table.
+- **objection advanced patterns** — `ios hooking set return_value "-[SecurityManager isJailbroken]" false` is the most powerful jailbreak-detection bypass primitive; `ios hooking watch class UrlSessionDelegate` enumerates a class's full method surface; `ios bundles list_frameworks` confirms whether `TrustKit`, `AFNetworking`, or `CryptoKit` is linked.
+- **Jailbreak detection bypass tools** (per-app, configurable):
+  - **Shadow** (opa334) — full environment simulation; the operator's default for hardened apps. Replaces the entire userspace environment the app sees (hides `/Applications`, blocks `dyld` injection, fakes `sysctl` returns, scrubs `task_get_exception_ports`).
+  - **A-Bypass** (repo.co.kr, paid) — hooks every known JB-detection syscall (`fork`, `stat`, `access`, `lstat`, `open`, `dlopen`, `sysctl`, `ptrace`, `task_get_exception_ports`, `dyld_image_count`, `getppid`).
+  - **Liberty Lite / Liberty Duo** (level3tjg.xyz, free) — covers iOS 13-16 banking apps.
+  - **Choicy** (opa334) — selectively disable tweaks per-app; many banking apps detect any injected tweak, so you disable everything except Shadow/A-Bypass for the target app.
+- **iOS high-value targets** — Keychain dump (`keychain-dumper` root-run via `SecItemCopyMatching` or objection's `ios keychain dump`), URL scheme hijack (`Info.plist` `CFBundleURLTypes` + openURL validation), App Attest partial bypass (replay / dev-tier acceptance — the cryptographic chain is NOT bypassable as of 2026), PAC constraints on A12+ (use arm64e builds of frida-server), CoreTrust bypass via CVE-2023-41974 / kfd exploit chain (iOS 16.5-16.6.1 only).
+
+### Android Instrumentation Stack
+
+The Android stack has its own dynamics — gadget injection for non-rooted devices, Magisk + Zygisk + LSPosed as a Frida-invisible alternative, and a separate RASP-bypass discipline.
+
+- **Frida gadget injection modes** — patch `libfrida-gadget.so` into `lib/<abi>/` of a decompiled APK via apktool + LIEF, configure via `libfrida-gadget.config.so`:
+  - `"listen"` — binds `127.0.0.1:27042`, connect via `frida -H` after `adb forward`. Default, most flexible.
+  - `"script"` — auto-loads `libfrida-gadget.script.so` (a JS file with `.so` suffix to fool APK packers). Stealth: no listening port.
+  - `"connect"` — connects out to a remote frida-server. Useful for device-farm labs.
+  Gadget injection is the operator's default for non-rooted engagements (corporate-managed devices) and for stealth against RASP that detects `frida-server`.
+- **Magisk + Zygisk + LSPosed** — modern root stack. Magisk (root + Zygisk injection); Zygisk "Enforce DenyList" hides root from specified apps; LSPosed (modern Xposed) provides a Frida-invisible Java/Kotlin hooking path. Many RASP products (PGY, Promon) detect Frida by port/process/maps but not Xposed/LSPosed — when Frida is detected, drop to LSPosed module development.
+- **RASP bypass recipe** (covers PGY, Promon, Arxan, DexGuard, Verimatrix):
+  1. Port-shift Frida: `./frida-server -l 0.0.0.0:13371` (defeats the `27042` port check).
+  2. Rename the binary (defeats `/proc/<pid>/exe` name check).
+  3. Scrub `/proc/self/maps` and `/proc/self/status` via `fopen` interceptor (defeats the `frida-agent` / `libfrida` maps scan).
+  4. Rename Frida threads via `pthread_setname_np` interceptor (defeats the `gmain` / `gdbus` / `gum-js-loop` thread-name scan).
+  5. Hook `Debug.isDebuggerConnected` to return `false` (defeats the debugger check).
+- **Android high-value targets** — KeyStore abuse (CVE-2024-0044 `run-as` sandbox escape on Android 12-13), Play Integrity bypass via `pif` (PlayIntegrityFix) Magisk module + `MagiskHidePropsConf` for `MEETS_DEVICE_INTEGRITY` (no public bypass for `MEETS_STRONG_INTEGRITY`), content provider confusion (Drozer enumeration + Frida query logging), Intent redirection patterns (Frida hook on `startActivity` to detect nested Intents — CVE-2020-7663 Slack lineage).
+- **Flutter app reverse** — `reflutter` (https://github.com/Impact-I/reflutter) patches the APK to disable BoringSSL verify and route through mitmproxy; `frida-dexdump` dumps DEX; `doldrums` / `Blutter` parsers recover Dart class hierarchy from `_kDartIsolateSnapshotInstructions`. Standard OkHttp / X509TrustManager bypass scripts do NOT work on Flutter apps because no Java network layer is involved — must bypass BoringSSL inside `libflutter.so`.
+- **React Native reverse** — `apktool d` extracts `assets/index.android.bundle`; for Hermes bytecode (React Native 0.70+) use `hbctool disasm` to recover the instruction stream and string table. Runtime: hook `com.facebook.hermes.reactexecutor.HermesExecutor.callJSCallback` to log every JS → native call.
+
+### SSL Pinning Bypass Catalog
+
+Modern mobile apps pin TLS at multiple layers. The decision matrix below maps each pinning library to its bypass technique. Use it as the first lookup when triaging an app.
+
+| Library / Mechanism | Platform | Detection Signature | Bypass Technique |
+|---|---|---|---|
+| `OkHttp CertificatePinner` | Android | `okhttp3.CertificatePinner.check` | Objection `android sslpinning disable` or hook `check()` to no-op |
+| `X509TrustManager` (custom) | Android | Class implements `javax.net.ssl.X509TrustManager` | Replace with trust-all `TrustManager` via `Java.registerClass` |
+| `X509TrustManagerExtensions.checkServerTrusted` | Android | `android.net.http.X509TrustManagerExtensions` | Hook `checkServerTrusted` to return empty list |
+| `Network Security Config` (`<pin-set>`) | Android | `network_security_config.xml` | Hook Conscrypt's `TrustManagerImpl.checkTrustedRecursive` |
+| `Conscrypt` (Play Services BoringSSL) | Android | `com.google.android.gms.conscrypt` / `com.android.org.conscrypt.TrustManagerImpl` | Hook `TrustManagerImpl.checkTrustedRecursive` |
+| `BoringSSL` (Flutter `libflutter.so`) | Android/iOS | `SSL_CTX_set_custom_verify` / `SSL_set_custom_verify` in `libflutter.so` | Pattern-scan for the API and `Interceptor.replace` to disable verify |
+| `BoringSSL` (cronet / grpc) | iOS/Android | Static-linked into native lib | Same Flutter pattern — pattern-scan + `Interceptor.replace` |
+| `AFSecurityPolicy` (AFNetworking) | iOS | `- setSSLPinningMode:` / `- evaluateServerTrust:` | Hook `evaluateServerTrust:` to return `YES` |
+| `TrustKit` (iOS) | iOS | `TSKPinningValidator.validateTrust` | Hook `validateTrust` to return success |
+| `NSURLSessionDelegate` (custom) | iOS | `- URLSession:didReceiveChallenge:completionHandler:` | Hook delegate method to call completion with `useCredential` |
+| `URLSession` (Swift async/await) | iOS 15+ | Swift wrapper over `URLSessionDelegate` | Same as `NSURLSessionDelegate` |
+| `Network.framework` (`nw_protocol_options`) | iOS 14+ | `nw_protocol_options_create_tls` + `sec_protocol_options_set_verify_block` | Hook verify block to call `handler(true)` |
+| `SecureTransport` (legacy iOS) | iOS < 13 | `SSLHandshake` / `SSLSetSessionOption` | SSL Kill Switch 3 covers system-wide |
+| `WebViewClient.onReceivedSslError` | Android | Custom `WebViewClient` calls `handler.cancel()` | Hook to call `handler.proceed()` |
+| `WKWebView didReceiveServerTrustChallenge` | iOS | `- webView:didReceiveServerTrustChallenge:completionHandler:` | Hook to call completion with `useCredential` |
+| Custom pinning (in-house) | Both | Vendor-specific | Static triage (`jadx` / `jtool2 -objc`) → targeted Frida hook |
+
+**Operator workflow**: identify the pinning library (search the disassembled app), match against the matrix, apply the bypass technique, verify via mitmproxy. Modern banking apps stack 2-4 pinning layers (HTTP client + OS + native SDK) — the operator must bypass all layers; bypass scripts compose without conflict. See `guides/mobile-app-instrumentation-ios-android-deep.md` Section 6 for the full decision matrix and the stacked-pinning case study.
+
+### Modern Obfuscation Defeat
+
+Modern mobile native libraries (banking, gaming, DRM, anti-cheat) are protected by **OLLVM** (Obfuscator-LLVM) descendants. The same techniques that appear in desktop malware (Emotet, Conti, TrickBot) appear in mobile `libNative.so` / `Native.dylib`.
+
+- **OLLVM string deobfuscation** — encrypted strings with per-string keys, decrypted in a global constructor. Detect via Ghidra/IDA: functions with a long XOR loop over `.bss`. Bypass strategies: runtime dump via Frida `Memory.scan` of `.bss` after app launch; IDA Python / Ghidra script that pattern-matches the XOR-decryptor; hook the decryption function (`sub_XXXX`) to log decrypted plaintext.
+- **Control-flow flattening (CFF)** — function body reassembled under a `switch` dispatcher with a state variable. Detect in IDA graph view: "bicycle wheel" shape. Bypass strategies: symbolic execution via [angr](https://angr.io/) recovers the original CFG; [HexRaysDeob](https://github.com/RolfRolles/HexRaysDeob) IDA plugin (Rolf Rolles) transforms CFF back to structured form in the decompiler; [ghidra_emotet](https://github.com/Avast/ghidra-emotet) Akamai script auto-reconstructs any CFF'd function.
+- **IDA Python / Ghidra scripts** — for IDA Pro: identify large functions (`>0x400` bytes), count `cmp+jcc` patterns to flag dispatcher candidates. For Ghidra: use the Jython interface to scan for `XOR` instructions in long functions (string-decryptor heuristic).
+- **Native arm64 reverse via radare2** — `r2 -A libNative.so`; `afl~Java_` to list JNI exports; `pdf @ sym.Java_com_example_Native_nativeSign` to disassemble; `axt @ <addr>` for cross-references; `/x` for pattern scanning. Bridge to live analysis via `=+frida://spawn/<pkg>`.
+- **Virtualization-based protections** (Themis, VMProtect mobile, Inside Secure) — the function is compiled into a custom bytecode interpreter; full reversal requires identifying the interpreter's opcode table and writing a devirtualizer. Research-grade; outside the scope of a typical engagement.
+
+See `guides/mobile-app-instrumentation-ios-android-deep.md` Section 7 for full worked examples (Frida `.bss` dump script, angr CFF recovery, IDA Python dispatcher finder, radare2 JNI flow).
 
 ## Practical Steps
 
@@ -274,13 +347,22 @@ Java.perform(function () {
 
 Defenders should assume any non-server-side check is bypassable with sufficient time. The mitigation strategy is layered runtime defenses and server-side attestation:
 
-- **iOS App Attest / DeviceCheck**: Server validates an Apple-signed attestation that the request originated from a genuine app instance on a non-jailbroken device. Defeats runtime instrumented replays.
-- **Android Play Integrity API** (successor to SafetyNet): Server validates a Google-signed integrity verdict covering app authenticity, device integrity (CTS-passing, no known root), and account licensing. Combined with `Standard` or `Strong` integrity tiers, defeats most Frida bypasses.
-- **Multi-layer jailbreak / root detection**: Combine `fcntl`/`dyld`/`fork` checks on iOS and `RootBeer` + `/proc/self/maps` + `/system/bin/su` + `Magisk Hide` detection on Android. Detect Frida by scanning `/proc/self/maps` (Android) or `dyld_image_count` (iOS) for `frida-agent` / `libfrida`.
-- **Runtime self-integrity checks**: Periodically checksum the app's `.text` section and detect Frida stalker / interceptor trampolines by walking `dyld` / dlopen tables.
-- **Hardware-attested keys**: On Android, generate keys inside the hardware-backed Keystore (`setUserAuthenticationRequired(true)` + `setAttestationChallenge`) so even a hooked Cipher cannot export them.
-- **Certificate pinning with multiple pins + fallback**: Pin the leaf, intermediate, and CA; ship a pin rotation channel; have a documented fail-closed policy (the app must abort on pin failure rather than degrade to system trust).
-- **Defense-in-depth logging**: Report integrity failures back to the server; rate-limit or revoke compromised sessions even if the client-side gate is bypassed.
+- **iOS App Attest / DeviceCheck**: Server validates an Apple-signed attestation that the request originated from a genuine app instance on a non-jailbroken device. Defeats runtime instrumented replays. Pair with per-session server nonce binding to prevent assertion replay; reject dev-tier attestations in production.
+- **Android Play Integrity API** (successor to SafetyNet): Server validates a Google-signed integrity verdict covering app authenticity, device integrity (CTS-passing, no known root), and account licensing. Demand `MEETS_STRONG_INTEGRITY` for high-value operations (no public bypass exists as of 2026); `MEETS_DEVICE_INTEGRITY` is the realistic baseline but is bypassable via `pif` / Magisk Hide.
+- **Multi-layer jailbreak / root detection**: Combine `fcntl`/`dyld`/`fork` checks on iOS and `RootBeer` + `/proc/self/maps` + `/system/bin/su` + `Magisk Hide` detection on Android. Detect Frida by scanning `/proc/self/maps` (Android) or `dyld_image_count` (iOS) for `frida-agent` / `libfrida`. Be aware of the bypass recipe (port-shift, binary rename, `/proc/self/maps` scrub, thread-rename, `Debug.isDebuggerConnected` hook) and ship counter-measures for each: monitor for renamed frida processes, scrub-resistant maps via `readlink("/proc/self/exe")` cross-checks, additional checks for Zygisk modules.
+- **Runtime self-integrity checks**: Periodically checksum the app's `.text` section and detect Frida stalker / interceptor trampolines by walking `dyld` / dlopen tables. Detect objection by scanning for the `FRIDA_SCRIPT_AGENT` symbol or unusual `Java.use` patterns in ART.
+- **Hardware-attested keys**: On Android, generate keys inside the hardware-backed Keystore (`setUserAuthenticationRequired(true)` + `setAttestationChallenge`) so even a hooked Cipher cannot export them. Verify the attestation certificate chain server-side against the Google Hardware Attestation root. On iOS, generate attestation keys via `DCAppAttestService` so keys live in the Secure Enclave.
+- **Certificate pinning with multiple pins + fallback + native-layer enforcement**: Pin the leaf, intermediate, and CA; ship a pin rotation channel; have a documented fail-closed policy (the app must abort on pin failure rather than degrade to system trust). Stack pinning at multiple layers — HTTP client (`OkHttp CertificatePinner` / `AFSecurityPolicy`), OS (`X509TrustManager` / `SecTrustEvaluate`), and native (`BoringSSL SSL_set_custom_verify` inside a packed `libNative.so` with OLLVM control-flow flattening). Each layer raises bypass cost independently.
+- **Mobile app hardening (build-time + runtime)**:
+  - **Obfuscation** — apply R8/ProGuard (Android) and Swift symbol stripping + LLVM obfuscation (iOS) to slow static triage. Apply OLLVM control-flow flattening to native libraries holding secrets.
+  - **Anti-tamper** — sign the APK with v2/v3 scheme; verify the signature at app startup and inside native code (detect `apktool` rebuilds that resign with a different cert). On iOS, embed `dlsym` checks for non-Apple frameworks and abort on unknown dylib load.
+  - **Anti-debug** — call `ptrace(PT_DENY_ATTACH)` on iOS (defeats lldb; bypassable but raises the bar); check `/proc/self/status` `TracerPid` on Android; integrate a commercial anti-debug SDK (Promon, Arxan, Guardsquare) for high-value targets.
+  - **RASP** — Runtime Application Self-Protection SDKs (Promon SHIELD, Guardsquare DexGuard, Verimatrix, PGY/Pangu) combine anti-tamper, anti-debug, anti-Frida, root/JB detection, and method-swizzling protection into a single vendor library. Be realistic about their limits — every commercial RASP has been bypassed publicly within 6-12 months of release.
+  - **String encryption** — encrypt API keys, OAuth client secrets, and HMAC keys in the binary; decrypt only inside native code at runtime. Slows Frida `strings`-based secret extraction.
+  - **Screenshot / screen-recording protection** — flag sensitive screens with `FLAG_SECURE` (Android) / `isProtected` (iOS) to block screenshot/Mirroring-based exfiltration.
+  - **Tapjacking / overlay protection** — reject touches when an overlay is detected (Android `filterTouchesWhenObscured`).
+- **Defense-in-depth logging**: Report integrity failures back to the server; rate-limit or revoke compromised sessions even if the client-side gate is bypassed. Correlate client integrity signals (App Attest / Play Integrity verdict, device fingerprint, behavioral biometrics) for high-value operations.
+- **Server-side rate-limiting and anomaly detection**: Client-side checks always fail eventually; the server must detect anomalous patterns (a single user making thousands of API calls per minute, requests from unusual geolocations, replayed nonces) and revoke.
 
 A thorough mobile-app red-team deliverable should be paired with a mitigation mapping table: each finding → corresponding MASVS-RESILIENCE control → recommended runtime defense. See `guides/mobile-app-instrumentation-playbook.md` Section "Defense Patterns" for the full mapping.
 
