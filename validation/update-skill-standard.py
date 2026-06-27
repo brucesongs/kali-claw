@@ -92,7 +92,11 @@ ATTACK_SKILLS = {
     "storage-san-attack",
     "hypervisor-introspection",
     "satellite-leo-security",
-    "ad-cs-abuse"
+    "ad-cs-abuse",
+    "ci-cd-supply-chain-attack",
+    "pam-privilege-attack",
+    "cspm-casb-attack",
+    "sase-sse-attack"
 }
 
 DOMAIN_MAP = {
@@ -169,6 +173,10 @@ DOMAIN_MAP = {
     "hypervisor-introspection": "virtualization",
     "satellite-leo-security": "satellite",
     "ad-cs-abuse": "enterprise-cloud",
+    "ci-cd-supply-chain-attack": "supply-chain",
+    "pam-privilege-attack": "privileged-access",
+    "cspm-casb-attack": "cloud-posture",
+    "sase-sse-attack": "sase-sse",
 }
 
 OWASP_MAP = {
@@ -244,6 +252,10 @@ MITRE_MAP = {
     "hypervisor-introspection": "T1068-Exploitation for Privilege Escalation",
     "satellite-leo-security": "T1557-Adversary-in-the-Middle",
     "ad-cs-abuse": "T1552-Unsecured Credentials",
+    "ci-cd-supply-chain-attack": "T1195-Supply Chain Compromise",
+    "pam-privilege-attack": "T1552-Unsecured Credentials",
+    "cspm-casb-attack": "T1068-Exploitation for Privilege Escalation",
+    "sase-sse-attack": "T1557-Adversary-in-the-Middle",
 }
 
 # Non-tool entries to skip in tool tables

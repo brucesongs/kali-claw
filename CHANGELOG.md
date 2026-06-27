@@ -4,6 +4,63 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.1.39 (2026-06-27) — GitHub-Trending Expansion Wave 8: +4 Skill Domains (107→111)
+
+### Driver: Wave 8 Returns to Horizontal Expansion — Modern Enterprise Stack
+
+After v0.1.38's E plan (Distinguished sprint + bottom lift, +4 Distinguished), v0.1.38 resumes the GitHub-trending-driven expansion methodology — **wave 8**. Focus: the modern enterprise security stack (CI/CD pipelines + PAM vendors + CSPM/CASB + SASE/SSE).
+
+### +4 New Skill Domains
+
+| Skill | Category | Baseline | Tier |
+|-------|----------|----------|------|
+| **pam-privilege-attack** | privileged-access | **92.0** | **Distinguished** (rare baseline Distinguished) |
+| **ci-cd-supply-chain-attack** | supply-chain | **89.2** | Excellent (near-Distinguished) |
+| **cspm-casb-attack** | cloud-posture | **88.5** | Excellent |
+| **sase-sse-attack** | sase-sse | **88.2** | Excellent |
+
+**Cohort average: 89.5** — **highest of all 8 expansion waves** (beating Wave 7's 88.7). pam-privilege-attack scoring Distinguished on baseline is exceptionally rare (most new skills need a 2nd guide to reach 92+).
+
+### Per-Skill Coverage
+
+- **pam-privilege-attack** (CyberArk PVWA/PSM CVE-2025-32564, BeyondTrust PRA CVE-2022-2451, Delinea, One Identity Safeguard, ManageEngine PMP CVE-2022-28226, WALLIX, Devolutions, Xton — 8 vendors total) — 4 files (SKILL.md 460, payloads.md 2,463 / 168 code blocks, test-cases.md 445 / 18 TCs, playbook 702)
+- **ci-cd-supply-chain-attack** (Jenkins args4j CVE-2024-23897, GitLab CI, GitHub Actions pull_request_target, Argo CD CVE-2022-24348, Flux CD, CircleCI, Buildkite, Drone, dependency confusion, xz-utils CVE-2024-3094, SolarWinds SUNBURST, 3CX, Codecov) — 4 files (SKILL.md 557, payloads.md 1,722 / 89 code blocks, test-cases.md 234 / 12 TCs, playbook 750)
+- **cspm-casb-attack** (Wiz graph query, Palo Alto Prisma Cloud RQL, Microsoft Defender for Cloud, AWS Security Hub, Lacework, Orca, Sysdig, Netskope, Skyhigh, OPA/Kyverno policy bypass) — 4 files (SKILL.md 421, payloads.md 1,917 / 121 code blocks, test-cases.md 259 / 14 TCs, playbook 1,065)
+- **sase-sse-attack** (Zscaler ZIA/ZPA/ZDX, Netskope Security Cloud, Palo Alto Prisma Access, Cisco Umbrella, CATO Networks, Cloudflare One/WARP, Microsoft GSA, TLS inspection bypass, anonymizer evasion) — 4 files (SKILL.md 680, payloads.md 2,424 / 94 code blocks, test-cases.md 279 / 12 TCs, playbook 925)
+
+### Quality Snapshot
+
+| Metric | v0.1.38 | v0.1.39 | Change |
+|--------|---------|---------|--------|
+| Total skill domains | 107 | **111** | +4 |
+| Distinguished (92+) | 32 | **33** | +1 (pam-privilege-attack baseline Distinguished — rare) |
+| Excellent (80-91.9) | 75 | **78** | +3 (3 Wave 8 skills) |
+| Strong (60-80) | 0 | **0** | unchanged |
+| Average | 88.75 | **88.78** | +0.03 |
+| Min | 85.1 | **85.1** | unchanged |
+| Max | 94.6 | **94.6** | unchanged |
+| Excellent+ coverage | 107/107 (100%) | **111/111 (100%)** | maintained |
+
+### Index Sync
+
+| File | Update |
+|------|--------|
+| validation/update-skill-standard.py | Registered 4 new skills in ATTACK_SKILLS, DOMAIN_MAP, MITRE_MAP; 4 new categories (supply-chain, privileged-access, cloud-posture, sase-sse) |
+| IDENTITY.md | +4 skill tag rows |
+| TOOLS.md | +4 category rows; 107→111 skill domains |
+| README.md | 6 locations: 107→111, version 0.1.38→0.1.39, +v0.1.39 changelog row, refreshed quality snapshot, extended feature bullet description |
+| VERSION | 0.1.38→0.1.39 |
+
+### Workload
+
+- New files: 16 (4×SKILL.md + 4×payloads.md + 4×test-cases.md + 4×guides)
+- New lines: ~15,260
+- New test cases: 56 (12 + 18 + 14 + 12)
+- New tool references: ~60
+- 1 new Distinguished on baseline (pam-privilege-attack 92.0)
+
+---
+
 ## v0.1.38 (2026-06-27) — E Plan: Distinguished Sprint + Bottom Lift (+4 Distinguished, 28→32)
 
 ### Driver: E Plan Executed Again (A + C Combo)

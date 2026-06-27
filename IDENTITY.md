@@ -120,6 +120,10 @@
 | hypervisor-introspection | VMware ESXi/Hyper-V/KVM/Xen/Proxmox, LibVMI/DRAKVUF virtual machine introspection, VENOM (CVE-2015-3456), ESXiArgs, VM escape, hardware-assisted virtualization (VT-x/EPT/AMD-V) | First Principles, Defense in Depth |
 | satellite-leo-security | Starlink/Kuiper/OneWeb, Iridium/Inmarsat/Viasat KA-SAT (AcidRain wiper), DVB-S/S2, VSAT iDirect/Hughes, GNSS receiver attacks, ADS-B/AIS spoofing, terminal firmware | Trust but Verify, Assume Breach |
 | ad-cs-abuse | Active Directory CS — ESC1-ESC15, PetitPotam (CVE-2021-36942), Certifried (CVE-2022-26923), Shadow Credentials, Golden Certificate, PKINIT, ADCSPwn, Certipy | Assume Breach, First Principles |
+| ci-cd-supply-chain-attack | CI/CD pipelines — Jenkins (args4j CVE-2024-23897), GitLab CI (Runner abuse), GitHub Actions (pull_request_target trap), Argo CD (CVE-2022-24348), Flux CD, CircleCI, dependency confusion, typosquatting, xz-utils CVE-2024-3094, SolarWinds SUNBURST, 3CX, Codecov | Trust but Verify, Defense in Depth |
+| pam-privilege-attack | CyberArk PVWA/PSM (CVE-2025-32564), BeyondTrust PRA (CVE-2022-2451), Delinea Secret Server, One Identity Safeguard, ManageEngine PMP (CVE-2022-28226), WALLIX, Devolutions, Xton, .cue cred file theft | Assume Breach, First Principles |
+| cspm-casb-attack | Wiz graph query, Palo Alto Prisma Cloud RQL, Microsoft Defender for Cloud, AWS Security Hub, Lacework, Orca, Sysdig, Netskope, Skyhigh, OPA/Kyverno policy bypass, IaC state manipulation, CNAPP evasion | Trust but Verify, Defense in Depth |
+| sase-sse-attack | Zscaler ZIA/ZPA/ZDX, Netskope Security Cloud, Palo Alto Prisma Access, Cisco Umbrella, CATO Networks, Cloudflare One/WARP, Microsoft GSA, TLS inspection bypass, Client Connector reverse, anonymizer evasion | Trust but Verify, Assume Breach |
 
 ---
 

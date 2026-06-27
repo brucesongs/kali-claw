@@ -2,13 +2,13 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 107 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across 111 security domains. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 ---
 
 ## Features
 
-- **107 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), and AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), each with structured payloads, test cases, and learning guides
+- **111 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), CI/CD supply chain attack (Jenkins/GitLab CI/GitHub Actions/xz-utils/SolarWinds), PAM privilege attack (CyberArk/BeyondTrust/Delinea/ManageEngine), CSPM/CASB attack (Wiz/Prisma Cloud/Netskope/OPA/Kyverno policy bypass), and SASE/SSE attack (Zscaler ZIA/ZPA, Netskope, Cloudflare One, Cisco Umbrella), each with structured payloads, test cases, and learning guides
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -103,7 +103,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 107 security skill domains
+├── skills/              # 111 security skill domains
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + use cases
 │   │   ├── payloads.md      # Attack payloads
@@ -361,18 +361,19 @@ TOOLS.md:
 | v0.1.36 | 2026-06-25 | **E plan: Distinguished sprint + bottom lift (no new skills, +9 Distinguished)** | 9 skills lifted: 8 reached Distinguished (secret-management-attack 90.4→94.6, deep-research 90.6→93.5, 5g-telecom-attack 82.5→92.7, embedded-rtos-security 88.8→92.7, agentic-pentest 90.0→92.6, quantum-crypto-attack 90.8→92.5, macos-security 82.7→92.2, username-profiling 91.6→92.2, hf-vhf-radio-attack 89.3→92.1); email-security-deep 81.0→91.3 (Excellent+ but 0.7 below Distinguished); **Distinguished 19→28** (+9, exceeds 25+ target); avg 87.98→88.45; min 81.0→83.8; 9 new 2nd/3rd guide files; ~7,000 new lines |
 | v0.1.37 | 2026-06-27 | **GitHub-trending expansion wave 7: +4 skill domains (103→107)** | +4 domains (storage-san-attack, hypervisor-introspection, satellite-leo-security, ad-cs-abuse); 4 new categories (storage, virtualization, satellite, enterprise-cloud AD CS); covers enterprise storage infrastructure + hypervisor internals + satellite/LEO comms + AD CS privilege escalation; 4/4 new skills baselined Excellent (ad-cs-abuse 91.0 near-Distinguished, storage-san-attack 89.5, hypervisor-introspection 87.4, satellite-leo-security 86.8); **107/107 Excellent+ (100%)** maintained; cohort avg 88.7 (highest of all waves); 107 total |
 | v0.1.38 | 2026-06-27 | **E plan again: Distinguished sprint + bottom lift (+4 Distinguished, 28→32)** | 10 skills lifted: 4 reached Distinguished (email-security-deep 91.3→92.0, ad-cs-abuse 91.0→93.0, ai-security 89.3→92.3, crypto-attacks 89.0→92.2); 2 near-miss A-track (storage-san-attack 89.5→91.5, kubernetes-attack 89.5→90.2); 4 C-track bottom-lifted (cloud-identity-attack 83.8→89.0, mobile-app-instrumentation 84.5→87.3, dns-attacks 84.6→91.1, blockchain-web3 84.6→90.2); **Distinguished 28→32**; avg 88.46→88.75; min 83.8→85.1 (no skills below 85 anymore); 11 new guide files, ~13,500 new lines |
+| v0.1.39 | 2026-06-27 | **GitHub-trending expansion wave 8: +4 skill domains (107→111)** | +4 domains (ci-cd-supply-chain-attack, pam-privilege-attack, cspm-casb-attack, sase-sse-attack); 4 new categories (supply-chain, privileged-access, cloud-posture, sase-sse); covers modern enterprise stack (CI/CD pipelines + PAM vendors + CSPM/CASB + SASE/SSE); 3/4 new skills baselined Excellent + 1 Distinguished on baseline (pam-privilege-attack 92.0); **111/111 Excellent+ (100%)** maintained; cohort avg 89.5 (highest of all 8 waves); 111 total |
 
-### Current Quality Snapshot (v0.1.38, scoring v2)
+### Current Quality Snapshot (v0.1.39, scoring v2)
 
 | Tier | Count | Skills |
 |------|-------|--------|
-| Distinguished (92+) | **32** | secret-management-attack (94.6), social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), deep-research (93.5), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), ad-cs-abuse (93.0), container-security (92.8), security-misconfiguration (92.8), 5g-telecom-attack (92.7), embedded-rtos-security (92.7), agentic-pentest (92.6), quantum-crypto-attack (92.5), macos-security (92.2), username-profiling (92.2), ai-security (92.3), crypto-attacks (92.2), hf-vhf-radio-attack (92.1), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), email-security-deep (92.0), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
-| Excellent (80-91.9) | **75** | dns-attacks (91.1 — near-Distinguished), storage-san-attack (91.5 — near-Distinguished), kubernetes-attack (90.2), blockchain-web3 (90.2), cloud-identity-attack (89.0), plus all prior Excellent-tier skills |
+| Distinguished (92+) | **33** | secret-management-attack (94.6), social-intelligence (93.8), sdr-rf-attack (93.6), article-writing (93.6), deep-research (93.5), payload-generation (93.1), scada-ics-security (93.0), vulnerability-assessment (93.0), ad-cs-abuse (93.0), container-security (92.8), security-misconfiguration (92.8), 5g-telecom-attack (92.7), embedded-rtos-security (92.7), agentic-pentest (92.6), quantum-crypto-attack (92.5), macos-security (92.2), username-profiling (92.2), ai-security (92.3), crypto-attacks (92.2), hf-vhf-radio-attack (92.1), autonomous-loops (92.6), verification-loop (92.6), osint (92.5), vpn-attack (92.5), council (92.3), network-tunneling-proxy (92.3), web-deserialization (92.2), pam-privilege-attack (92.0 — Wave 8 baseline Distinguished), email-security-deep (92.0), cloud-security (92.1), security-bounty-hunter (92.0), network-pentest (92.0), web-xss (92.0) |
+| Excellent (80-91.9) | **78** | ci-cd-supply-chain-attack (89.2 — near-Distinguished), cspm-casb-attack (88.5), sase-sse-attack (88.2), dns-attacks (91.1 — near-Distinguished), storage-san-attack (91.5 — near-Distinguished), kubernetes-attack (90.2), blockchain-web3 (90.2), cloud-identity-attack (89.0), plus all prior Excellent-tier skills |
 | Strong (60-80) | **0** | — |
 | Adequate (40-60) | 0 | — |
 | Weak (0-40) | 0 | — |
 
-**Average score: 88.75** | **107/107 scored Excellent or above (100%)** | **32 Distinguished** | **107 total skill domains**
+**Average score: 88.78** | **111/111 scored Excellent or above (100%)** | **33 Distinguished** | **111 total skill domains**
 
 ### Future Exploration
 
@@ -403,10 +404,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | 0.1.38 |
+| **Version** | 0.1.39 |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 107 |
+| **Skill Domains** | 111 |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 

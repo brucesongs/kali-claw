@@ -1,0 +1,33 @@
+{
+  "skill": "cspm-casb-attack",
+  "timestamp": "2026-06-27T08:12:55Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 8221,
+    "payload_section_count": 19,
+    "payload_code_blocks": 121,
+    "test_case_count": 14,
+    "field_completeness_score": 0.86,
+    "guide_file_count": 1,
+    "guide_avg_words": 5847,
+    "guide_key_sections": 3,
+    "skill_section_score": 0.96
+  },
+  "normalized_scores": {
+    "payload_word": 100.0,
+    "payload_section": 100.0,
+    "payload_code": 100.0,
+    "test_case": 95.0,
+    "field": 86.0,
+    "guide": 68.0,
+    "skill_section": 96.0
+  },
+  "component_scores": {
+    "skill_md": 96.00,
+    "payloads_md": 100.00,
+    "test_cases_md": 90.50,
+    "guides": 68.0
+  },
+  "overall_score": 88.5,
+  "tier": "Excellent"
+}
