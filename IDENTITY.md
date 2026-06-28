@@ -124,6 +124,11 @@
 | pam-privilege-attack | CyberArk PVWA/PSM (CVE-2025-32564), BeyondTrust PRA (CVE-2022-2451), Delinea Secret Server, One Identity Safeguard, ManageEngine PMP (CVE-2022-28226), WALLIX, Devolutions, Xton, .cue cred file theft | Assume Breach, First Principles |
 | cspm-casb-attack | Wiz graph query, Palo Alto Prisma Cloud RQL, Microsoft Defender for Cloud, AWS Security Hub, Lacework, Orca, Sysdig, Netskope, Skyhigh, OPA/Kyverno policy bypass, IaC state manipulation, CNAPP evasion | Trust but Verify, Defense in Depth |
 | sase-sse-attack | Zscaler ZIA/ZPA/ZDX, Netskope Security Cloud, Palo Alto Prisma Access, Cisco Umbrella, CATO Networks, Cloudflare One/WARP, Microsoft GSA, TLS inspection bypass, Client Connector reverse, anonymizer evasion | Trust but Verify, Assume Breach |
+| gitops-security | Argo CD / FluxCD / Rancher Fleet / Jenkins X / Carvel control-plane attacks, CVE-2022-24348 path traversal, CVE-2024-21626 runc Leaky Vessels, AppProject namespace abuse, Flux HelmRelease self-heal backdoor, Sealed Secrets/SOPS/External Secrets compromise, Akuukam 2024 attack chain | Trust but Verify, Defense in Depth |
+| hsm-attack | Thales Luna (CVE-2024-47787), Utimaco (CVE-2024-45294), nCipher (CVE-2022-45137), YubiHSM 2 wrap/unwrap, AWS CloudHSM CU theft, PKCS#11 mechanism confusion, side-channel (DPA/CPA/EM), firmware reversing (JTAG/SWD/Chip-Off) | First Principles, Trust but Verify |
+| cps-attack | Cyber-Physical Systems — PLC/SCADA/OT protocols (Modbus/EtherNet-IP/OPC UA/DNP3/S7comm/GOOSE/PROFINET/BACnet), Stuxnet/Industroyer/TRITON/Pipedream/Unitronics/FrostyGoop, SIS bypass, Oldsmar/Colonial incidents, Rockwell CVE-2024-6184 | Safety First, Defense in Depth |
+| open-banking-attack | FAPI 1.0/2.0 + PSD2/PSD3 + EBA RTS SCA, OAuth2 PAR/DPoP/JARM/mTLS (RFC 8705), CIBA decoupled SCA, TPP onboarding/eIDAS QWAC forgery, AIS/PIS/CBPII abuse, UK OBIE / Brazil OF / India AA / US FDX / SG APIX / AU CDR | Trust but Verify, Least Privilege |
+| post-quantum-migration-attack | NIST FIPS 203 (ML-KEM) / 204 (ML-DSA) / 205 (SLH-DSA), HNDL/SNDL capture, hybrid PQC downgrade, KEM combiner flaws (XOR vs HKDF), Kyber side-channel (RowHammer/EM/timing), Signal PQXDH, QKD (BB84 detector blinding/PNS/trusted node), CNSA 2.0 / ANSSI compliance | First Principles, Trust but Verify |
 
 ---
 
@@ -136,4 +141,4 @@
 
 ---
 
-_Last updated: 2026-06-21_
+_Last updated: 2026-06-28_
