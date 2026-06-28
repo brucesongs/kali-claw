@@ -1,0 +1,33 @@
+{
+  "skill": "data-exfiltration-attack",
+  "timestamp": "2026-06-28T09:38:52Z",
+  "version": "v2",
+  "metrics": {
+    "payload_word_count": 3706,
+    "payload_section_count": 24,
+    "payload_code_blocks": 69,
+    "test_case_count": 34,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 2,
+    "guide_avg_words": 2481,
+    "guide_key_sections": 3,
+    "skill_section_score": 1.00
+  },
+  "normalized_scores": {
+    "payload_word": 97.1,
+    "payload_section": 100.0,
+    "payload_code": 87.6,
+    "test_case": 100.0,
+    "field": 100.0,
+    "guide": 76.0,
+    "skill_section": 100.0
+  },
+  "component_scores": {
+    "skill_md": 100.00,
+    "payloads_md": 94.90,
+    "test_cases_md": 100.00,
+    "guides": 76.0
+  },
+  "overall_score": 92.5,
+  "tier": "Distinguished"
+}
