@@ -1,6 +1,6 @@
 {
   "skill": "darkweb-intel",
-  "timestamp": "2026-06-28T09:38:52Z",
+  "timestamp": "2026-06-30T15:15:39Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 5163,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 50,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
-    "guide_file_count": 2,
-    "guide_avg_words": 4042,
+    "guide_file_count": 7,
+    "guide_avg_words": 2728,
     "guide_key_sections": 3,
     "skill_section_score": 0.96
   },
@@ -19,15 +19,15 @@
     "payload_code": 80.0,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 76.0,
+    "guide": 89.3,
     "skill_section": 96.0
   },
   "component_scores": {
     "skill_md": 96.00,
     "payloads_md": 91.10,
     "test_cases_md": 95.00,
-    "guides": 76.0
+    "guides": 89.3
   },
-  "overall_score": 89.2,
-  "tier": "Excellent"
+  "overall_score": 92.6,
+  "tier": "Distinguished"
 }

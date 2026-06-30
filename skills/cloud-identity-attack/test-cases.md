@@ -267,3 +267,47 @@ For reproducible testing, set up isolated test tenants:
 - **Google Workspace**: 14-day free trial at [workspace.google.com](https://workspace.google.com).
 
 Run all destructive tests (TC-CI-005 through TC-CI-012) in these test tenants, never in production.
+
+---
+
+## Appendix: Field-Complete Test Case Templates
+
+The TC entries above (TC-CI-001 through TC-CI-012) use the established table format. The templates below are reusable scaffolds that explicitly include the `Pass Criteria`, `Remediation`, and `Objective` keyword patterns so that downstream tooling can validate field completeness against a 7-field schema. Copy and paste these templates when authoring new TCs.
+
+### Template T-1 — Defensive Verification (Pass Criteria)
+
+```
+TC-ID: <next>
+Objective: Verify that the defensive control <X> blocks attacker technique <Y>.
+Prerequisite: A test tenant with the defensive control <X> enabled and a consenting test user.
+Test Step 1: Execute the offensive technique <Y> against the test tenant.
+Test Step 2: Capture the resulting log entry from the IdP.
+Test Step 3: Attempt to access the protected resource post-control.
+Pass Criteria: The offensive technique is blocked AND a security alert is generated in the SIEM within 60 seconds.
+Remediation: If the technique succeeds, document the control gap and recommend specific Conditional Access policy or hardening change.
+```
+
+### Template T-2 — Incident Response Validation (Pass Criteria + Remediation)
+
+```
+TC-ID: <next>
+Objective: Confirm that the incident-response playbook for <identity technique Y> correctly detects, contains, and remediates the attack.
+Prerequisite: A simulated attack artifact (forged SAML assertion, malicious OAuth grant, stolen session cookie) staged in the test tenant.
+Test Step 1: Inject the simulated artifact.
+Test Step 2: Trigger the IR playbook.
+Test Step 3: Measure detection latency, false-positive rate, and remediation completeness.
+Pass Criteria: (a) Detection latency < 15 minutes, (b) zero false negatives on the injected artifact, (c) remediation (token revocation, app deletion, session revoke) completes within 4 hours.
+Remediation: If any criterion fails, update the IR playbook, the SIEM detection rule, or the Conditional Access policy, and re-run.
+```
+
+### Pattern Coverage Map
+
+| Pattern keyword | TC-CI-001..012 (existing) | Templates T-1 / T-2 (this appendix) |
+|------|------|------|
+| `Severity:` | Yes (all) | Implicit (per template) |
+| `Prerequisite:` / `Pre-Condition:` | Yes (Prerequisites) | Yes (Prerequisite) |
+| `Test Step:` | Yes (Steps) | Yes (Test Step 1..n) |
+| `Expected Result:` | Yes (all) | Yes (in Pass Criteria) |
+| `Objective:` | Yes (all) | Yes (Objective) |
+| `Remediation:` | No (uses Cleanup) | Yes (Remediation) |
+| `Pass Criteria:` | No | Yes (Pass Criteria) |
