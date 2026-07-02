@@ -129,6 +129,8 @@
 | cps-attack | Cyber-Physical Systems — PLC/SCADA/OT protocols (Modbus/EtherNet-IP/OPC UA/DNP3/S7comm/GOOSE/PROFINET/BACnet), Stuxnet/Industroyer/TRITON/Pipedream/Unitronics/FrostyGoop, SIS bypass, Oldsmar/Colonial incidents, Rockwell CVE-2024-6184 | Safety First, Defense in Depth |
 | open-banking-attack | FAPI 1.0/2.0 + PSD2/PSD3 + EBA RTS SCA, OAuth2 PAR/DPoP/JARM/mTLS (RFC 8705), CIBA decoupled SCA, TPP onboarding/eIDAS QWAC forgery, AIS/PIS/CBPII abuse, UK OBIE / Brazil OF / India AA / US FDX / SG APIX / AU CDR | Trust but Verify, Least Privilege |
 | post-quantum-migration-attack | NIST FIPS 203 (ML-KEM) / 204 (ML-DSA) / 205 (SLH-DSA), HNDL/SNDL capture, hybrid PQC downgrade, KEM combiner flaws (XOR vs HKDF), Kyber side-channel (RowHammer/EM/timing), Signal PQXDH, QKD (BB84 detector blinding/PNS/trusted node), CNSA 2.0 / ANSSI compliance | First Principles, Trust but Verify |
+| patch-to-poc-pipeline | CyberGym-style patch-diff workflow — 5-phase pipeline (patch analysis → code path walk → PoC generation → differential verification → detection rule authoring), CVE-2023-4863 libwebp, CVE-2024-3094 xz-utils, CVE-2024-21626 runc, CVE-2023-4911 glibc Looney Tuner, CVE-2024-6387 regreSSHion, Schema 3 reproduction memory, ASan/UBSan/AFL++/libFuzzer harnesses, YARA+Sigma dual detection rules | Trust but Verify, First Principles |
+| multi-agent-runtime-engineering | Agent runtime patterns — structured memory schemas (Schema 1/2/3), memory-driven convergence, shared-memory multi-agent coordination (POSIX flock + atomic write + version vector), MopMonk three招 (CyberGym 73.1%), anti-pattern catalog (free-form exploration, memory drift, repeat-without-delta, path-claim deadlock, premature stop), convergence detection (multi-agent independent arrival → CONFIRMED) | First Principles, Divergent Thinking |
 
 ---
 
@@ -141,4 +143,4 @@
 
 ---
 
-_Last updated: 2026-06-28_
+_Last updated: 2026-07-03_
