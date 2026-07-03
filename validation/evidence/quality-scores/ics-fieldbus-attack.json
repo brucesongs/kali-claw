@@ -1,15 +1,15 @@
 {
   "skill": "ics-fieldbus-attack",
-  "timestamp": "2026-07-02T23:29:43Z",
+  "timestamp": "2026-07-03T16:40:04Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 10985,
     "payload_section_count": 23,
     "payload_code_blocks": 92,
     "test_case_count": 12,
-    "field_completeness_score": 0.86,
-    "guide_file_count": 1,
-    "guide_avg_words": 5923,
+    "field_completeness_score": 1.00,
+    "guide_file_count": 3,
+    "guide_avg_words": 5584,
     "guide_key_sections": 3,
     "skill_section_score": 1.00
   },
@@ -18,16 +18,16 @@
     "payload_section": 100.0,
     "payload_code": 96.8,
     "test_case": 90.0,
-    "field": 86.0,
-    "guide": 68.0,
+    "field": 100.0,
+    "guide": 78.7,
     "skill_section": 100.0
   },
   "component_scores": {
     "skill_md": 100.00,
     "payloads_md": 98.93,
-    "test_cases_md": 88.00,
-    "guides": 68.0
+    "test_cases_md": 95.00,
+    "guides": 78.7
   },
-  "overall_score": 88.1,
-  "tier": "Excellent"
+  "overall_score": 92.9,
+  "tier": "Distinguished"
 }

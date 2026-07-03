@@ -20,6 +20,24 @@
 
 ---
 
+## Global Prerequisites
+
+The following prerequisites apply to every test case in this file unless explicitly overridden in the test case itself.
+
+**Prerequisite 1 -- Authorisation.** Each test case must be executed only under a written authorisation that names the cloud account, subscription, project, and target SaaS applications in scope. Posture enumeration (TC-CP-001, TC-CP-002) is in-scope only when the engagement letter authorises cloud-asset discovery; the absence of a discovery clause removes every TC-CP-xxx test case from scope.
+
+**Prerequisite 2 -- Lab environment.** Any test case that exercises suppression, drift injection, broker evasion, or shadow SaaS primitives must be executed first in the isolated lab (see `guides/cspm-casb-attack-playbook.md` Section 10) before being run against an authorised production target. The lab provides a mock Wiz GraphQL endpoint, a mock CASB reverse proxy, an AWS Security Hub + Prowler installation, and a Terraform drift playground.
+
+**Prerequisite 3 -- Credential tier.** Every test case assumes the operator already holds the credentials named in the test case (e.g., `WIZ_JWT`, `PRISMA_JWT`, `AWS_ACCESS_KEY_ID` for the relevant IAM role). Acquiring those credentials is out of scope for this file; see `cloud-identity-attack` for credential acquisition primitives.
+
+**Prerequisite 4 -- Engagement logging.** Every command executed under any TC-CP-xxx test case must be recorded in the engagement log with timestamp, operator, target ARN, and observed output. Suppression primitives (TC-CP-005, TC-CP-006, TC-CP-007) must additionally record the original finding state and the post-suppression state, to support engagement-exit restoration.
+
+**Prerequisite 5 -- Out-of-scope exclusions.** The following are always out of scope: (a) any operation against a CSPM/CASB vendor's own production infrastructure, (b) any operation against a SaaS application not named in the engagement letter, (c) any destructive primitive (`DeleteTrail`, `DeleteRole`, infrastructure deletion) regardless of authorisation breadth.
+
+**Pre-condition check.** Before executing any TC-CP-xxx test case, the operator must confirm in writing that all five prerequisites above are satisfied. The pre-condition check is itself recorded in the engagement log.
+
+---
+
 ## A. CSPM Presence Enumeration
 
 ### TC-CP-001: AWS CSPM Presence Enumeration

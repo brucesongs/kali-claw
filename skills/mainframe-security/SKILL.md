@@ -19,7 +19,7 @@ metadata:
   domain: mainframe
   category: mainframe
   tool_count: 13
-  guide_count: 1
+  guide_count: 4
   mitre: "TA0006-Credential Access, T1078-Valid Accounts, T1003-OS Credential Dumping"
   keywords:
     - mainframe

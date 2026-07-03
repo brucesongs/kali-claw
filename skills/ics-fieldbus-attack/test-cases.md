@@ -19,6 +19,20 @@
 
 ---
 
+## Common Prerequisites
+
+All test cases share the following **Prerequisites / Pre-conditions** that must be met before execution:
+
+1. **Authorization**: Written scope-of-work naming in-scope IP ranges, protocols, devices, and time windows. Explicit exclusion of any Safety Instrumented System (SIS).
+2. **Lab replica or isolated OT segment**: Live process testing forbidden. All write/fuzz/DoS operations require a lab replica or maintenance window with operator standby.
+3. **Operator presence**: Operations team member on-site during every active test step, with authority to halt testing on any safety concern.
+4. **Asset inventory**: Operator-supplied list of all in-scope devices, firmware versions, and operational role (incl. process hazards analysis).
+5. **Capture infrastructure**: Network tap or SPAN port configured on OT switch; one-way tap (Waterfall / Owl) preferred for highest assurance.
+6. **Stop conditions**: Pre-defined abort criteria — physical process deviation, operator request, alarm generation, or detection by ICS-aware IDS.
+7. **Backups**: Verified clean backups of every PLC program, RTU configuration, HMI project, and historian archive restored within 24h if needed.
+
+---
+
 ## A. DNP3 (Power Utility)
 
 ### TC-FB-001: DNP3 Unauthenticated Read

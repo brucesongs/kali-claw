@@ -42,6 +42,27 @@ REPO_ID = "sunblaze-ucb/cybergym"
 REPO_TYPE = "dataset"
 TASK_FILES = ["description.txt", "error.txt", "patch.diff", "repo-vul.tar.gz", "repo-fix.tar.gz"]
 
+# Auto-detect CN network: if huggingface.co unreachable but hf-mirror.com is, use mirror.
+# Override via HF_ENDPOINT env var (standard huggingface_hub convention).
+import os
+def _setup_hf_mirror():
+    if os.environ.get("HF_ENDPOINT"):
+        return  # user explicitly set, respect it
+    import socket
+    def _reachable(host, port=443, timeout=2):
+        try:
+            socket.create_connection((host, port), timeout=timeout).close()
+            return True
+        except OSError:
+            return False
+    if _reachable("huggingface.co"):
+        return
+    if _reachable("hf-mirror.com"):
+        os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+        print("[INFO] primary HF unreachable, using mirror https://hf-mirror.com", file=sys.stderr)
+
+_setup_hf_mirror()
+
 
 def list_local_tasks(cybergym_root: Path) -> set[str]:
     """Return set of arvo IDs already downloaded locally."""

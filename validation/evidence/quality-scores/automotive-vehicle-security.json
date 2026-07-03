@@ -1,6 +1,6 @@
 {
   "skill": "automotive-vehicle-security",
-  "timestamp": "2026-07-02T23:29:43Z",
+  "timestamp": "2026-07-03T16:40:04Z",
   "version": "v2",
   "metrics": {
     "payload_word_count": 14175,
@@ -8,8 +8,8 @@
     "payload_code_blocks": 51,
     "test_case_count": 12,
     "field_completeness_score": 1.00,
-    "guide_file_count": 2,
-    "guide_avg_words": 6757,
+    "guide_file_count": 8,
+    "guide_avg_words": 3426,
     "guide_key_sections": 3,
     "skill_section_score": 0.88
   },
@@ -19,15 +19,15 @@
     "payload_code": 80.4,
     "test_case": 90.0,
     "field": 100.0,
-    "guide": 76.0,
+    "guide": 92.0,
     "skill_section": 88.0
   },
   "component_scores": {
     "skill_md": 88.00,
     "payloads_md": 93.47,
     "test_cases_md": 95.00,
-    "guides": 76.0
+    "guides": 92.0
   },
-  "overall_score": 88.7,
-  "tier": "Excellent"
+  "overall_score": 92.7,
+  "tier": "Distinguished"
 }
