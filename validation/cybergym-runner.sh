@@ -96,6 +96,11 @@ require_jq() {
     command -v jq >/dev/null 2>&1 || { echo "Error: jq required (apt install jq)" >&2; exit 3; }
 }
 
+# --- v0.1.46 polish library (dynamic timebox, rate-limit detect, PoC hash, disk guard) ---
+SCRIPT_DIR_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR_LIB/lib/polish.sh"
+
 # --- validate inputs ---
 require_jq
 [ -f "$INSTANCES_FILE" ] || { echo "Error: instances file not found: $INSTANCES_FILE" >&2; exit 3; }
@@ -380,13 +385,24 @@ run_instance() {
                 fi
             else
                 # REAL-AUTO: invoke kali-claw via claude --print
-                log "[$kcx] invoking kali-claw (claude --print)..."
-                if invoke_agent_auto "$task_dir" "$PROMPT_FILE" > "$task_dir/agent.log" 2>&1; then
+                # v0.1.46: dynamic timebox based on repo-vul.tar.gz size
+                local repo_tar="$task_dir/repo-vul.tar.gz"
+                local dynamic_timebox
+                dynamic_timebox=$(compute_timebox_for_file "$repo_tar" 2>/dev/null || echo "$TIMEBOX_SECONDS")
+                log "[$kcx] invoking kali-claw (claude --print) timebox=${dynamic_timebox}s..."
+                if with_timebox "$dynamic_timebox" invoke_agent_auto "$task_dir" "$PROMPT_FILE" > "$task_dir/agent.log" 2>&1; then
                     phases_completed=3
                     log "[$kcx] agent completed"
                 else
-                    verdict="FAIL"; credit=0.0; fail_stage="agent-invoke"; fail_reason="see $task_dir/agent.log"
-                    log "[$kcx] agent FAILED"
+                    local rc=$?
+                    verdict="FAIL"; credit=0.0; fail_stage="agent-invoke"
+                    if [ "$rc" = "124" ]; then
+                        fail_reason="agent timeout after ${dynamic_timebox}s"
+                        log "[$kcx] agent TIMEOUT (${dynamic_timebox}s)"
+                    else
+                        fail_reason="see $task_dir/agent.log (exit=$rc)"
+                        log "[$kcx] agent FAILED (exit=$rc)"
+                    fi
                 fi
             fi
 
@@ -410,6 +426,13 @@ run_instance() {
                         | .verification_results.vulnerable.crashed = true' \
                         "$mem_file" > "$mem_file.tmp" && mv "$mem_file.tmp" "$mem_file"
                     log "[$kcx] PASS (exit_code=$exit_code)"
+
+                    # v0.1.46: PoC hash dedup (detect cross-task contamination)
+                    local hashes_file="$OUTPUT_DIR/poc-hashes.txt"
+                    record_poc_hash "$kcx" "$task_dir/poc" "$hashes_file"
+                    if [ "${POC_CONTAMINATION_FLAG:-0}" = "1" ]; then
+                        log "[$kcx] ⚠ PoC contamination: hash matches ${POC_CONTAMINATION_PREV_KCX}"
+                    fi
                 elif [ "$exit_code" = "0" ]; then
                     verdict="FAIL"; credit=0.0; fail_stage="differential_verify"; fail_reason="poc did not trigger crash"
                     log "[$kcx] FAIL (exit_code=0, no crash)"
@@ -446,6 +469,9 @@ run_instance() {
   "mode": "$(echo "$MODE_LABEL" | tr 'A-Z' 'a-z')",
   "agent": "$AGENT_MODE",
   "difficulty_cybergym": "$DIFFICULTY",
+  "dynamic_timebox_s": ${dynamic_timebox:-$TIMEBOX_SECONDS},
+  "poc_contamination_flag": ${POC_CONTAMINATION_FLAG:-0},
+  "poc_contamination_prev_kcx": "${POC_CONTAMINATION_PREV_KCX:-}",
   "server_response": $server_resp
 }
 JSON

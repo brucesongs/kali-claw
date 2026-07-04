@@ -16,21 +16,29 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-INSTANCES_FILE="$ROOT_DIR/docs/cybergym-sampling-v0.1.45.json"
+INSTANCES_FILE="${INSTANCES_FILE:-$ROOT_DIR/docs/cybergym-sampling-v0.1.45.json}"
 RUNNER="$SCRIPT_DIR/cybergym-runner.sh"
 ORCH_LOG=/tmp/cybergym-stream.log
 SSH="sshpass -p secmind.cn ssh -o StrictHostKeyChecking=no parallels@10.211.55.5"
 MIRROR="docker.1ms.run"
 CYBERGYM_ROOT="${CYBERGYM_ROOT:-$HOME/code/cybergym}"
 
-# instances whose images we keep (already pulled, no need to stream)
-KEEP_LIST="M1 M2 M3 M4 M5"
+# v0.1.46: source polish library (vm_disk_guard, detect_rate_limit, etc.)
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/lib/polish.sh"
 
-# optional --start-from filter
+# v0.1.46: KEEP_LIST empty by default (all images stream — lesson from v0.1.45.1 §9.1)
+KEEP_LIST="${KEEP_LIST:-}"
+# v0.1.46: rate-limit auto-retry cap
+MAX_RATE_LIMIT_RETRIES="${MAX_RATE_LIMIT_RETRIES:-3}"
+
+# optional flags
 START_FROM=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --start-from) START_FROM="$2"; shift 2 ;;
+        --instances) INSTANCES_FILE="$2"; shift 2 ;;
+        --keep) KEEP_LIST="$2"; shift 2 ;;
         *) echo "unknown: $1" >&2; exit 2 ;;
     esac
 done
@@ -39,7 +47,7 @@ olog() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*" | tee -a "$ORCH_LOG"; }
 
 olog "=== stream orchestrator start ==="
 olog "instances file: $INSTANCES_FILE"
-olog "keep list (no delete): $KEEP_LIST"
+olog "keep list (no delete): ${KEEP_LIST:-(empty, all stream)}"
 [ -n "$START_FROM" ] && olog "starting from: $START_FROM"
 
 # get all kali_claw_ids in JSON insertion order (M1-M8, I1-I4, T1-T3, P1-P5, PR1-PR4, C1-C2, IN1-IN4)
@@ -62,6 +70,11 @@ for kcx in $KC_IDS; do
             olog "[$COUNT/$TOTAL] $kcx: skip (before start-from $START_FROM)"
             continue
         fi
+    fi
+
+    # v0.1.46: VM disk guard — proactively prune if free < 5GB
+    if vm_disk_guard "$SSH" 5 2>/dev/null; then
+        olog "  [polish] VM disk guard: pruned docker (was < 5GB free)"
     fi
 
     # get arvo id
@@ -104,10 +117,29 @@ for kcx in $KC_IDS; do
         olog "  ✓ image already present"
     fi
 
-    # STEP 2: run kali-claw via runner
+    # STEP 2: run kali-claw via runner (with v0.1.46 rate-limit auto-retry)
     olog "  running kali-claw..."
     run_start=$(date +%s)
     CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" >> "$ORCH_LOG" 2>&1
+
+    # v0.1.46: rate-limit auto-retry
+    retry_count=0
+    while [ $retry_count -lt "$MAX_RATE_LIMIT_RETRIES" ]; do
+        # agent.log path matches runner convention
+        agent_log="$ROOT_DIR/validation/evidence/cybergym/v0.1.45/traces/${kcx}.task/agent.log"
+        # also check v0.1.46 path
+        [ ! -f "$agent_log" ] && agent_log="$ROOT_DIR/validation/evidence/cybergym/v0.1.46/traces/${kcx}.task/agent.log"
+        if [ -f "$agent_log" ] && detect_rate_limit "$agent_log"; then
+            retry_after=$(rate_limit_retry_after_seconds "$agent_log")
+            retry_count=$((retry_count + 1))
+            olog "  ⚠ rate-limit hit (attempt $retry_count/$MAX_RATE_LIMIT_RETRIES), waiting ${retry_after}s then retry..."
+            sleep "$retry_after"
+            CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" >> "$ORCH_LOG" 2>&1
+        else
+            break
+        fi
+    done
+
     run_elapsed=$(($(date +%s) - run_start))
     olog "  runner done in ${run_elapsed}s"
 
