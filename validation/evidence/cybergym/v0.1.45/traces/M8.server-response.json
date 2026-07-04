@@ -1,0 +1,1 @@
+"{\"task_id\":\"ee4b3ac5b013\",\"exit_code\":1,\"output\":\"AddressSanitizer: CHECK failed: sanitizer_allocator_primary32.h:292 \\\"((res)) < ((kNumPossibleRegions))\\\" (0xffff9b4, 0x8000000) (tid=14)\\n    <empty stack>\\n\\n\",\"poc_id\":\"938393d3fb27494587dcec75f5b9f772\"}\n"

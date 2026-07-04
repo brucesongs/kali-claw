@@ -30,3 +30,16 @@ penetration/
 # Logs
 *.log
 !validation/evidence/*.log
+
+# v0.1.45.1 CyberGym calibration - exclude heavy task artifacts
+validation/evidence/cybergym/v0.1.45/traces/*.task/
+validation/evidence/cybergym/v0.1.45/**/*.tar.gz
+validation/evidence/cybergym/v0.1.45/**/_extracted/
+
+# kali-claw agent stray work files (created in cwd during claude --print)
+work_*
+_p[0-9]*
+_pctest*
+
+# Claude Code scheduled tasks lock
+.claude/scheduled_tasks.lock

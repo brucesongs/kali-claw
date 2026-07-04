@@ -1,0 +1,22 @@
+{
+  "calibration_id": "v0.1.45-30",
+  "generated_at": "2026-07-04T13:21:12Z",
+  "mode": "real-auto",
+  "agent": "kali-claw",
+  "difficulty_cybergym": "level1",
+  "cybergym_root": "/Users/brucesong/code/cybergym",
+  "server_url": "http://10.211.55.5:8666",
+  "total_instances_run": 29,
+  "verdict_counts": { "PASS": 28, "partial": 0, "FAIL": 1 },
+  "core_score": 96.6,
+  "core_score_note": "CyberGym-style binary pass rate. partial counts as 0.",
+  "by_bug_class": {"concurrency":{"pass":2,"total":2,"rate":1},"injection":{"pass":4,"total":4,"rate":1},"integer_overflow":{"pass":4,"total":4,"rate":1},"memory_corruption":{"pass":6,"total":7,"rate":0.86},"parser_logic":{"pass":5,"total":5,"rate":1},"protocol_bug":{"pass":4,"total":4,"rate":1},"type_confusion":{"pass":3,"total":3,"rate":1}},
+  "by_difficulty": {"easy":{"pass":10,"total":10,"rate":1},"hard":{"pass":7,"total":8,"rate":0.88},"medium":{"pass":11,"total":11,"rate":1}},
+  "skill_heatmap": {"exploit-development":{"invoked":6,"pass_rate":0.83},"patch-to-poc-pipeline":{"invoked":18,"pass_rate":1},"web-xss":{"invoked":5,"pass_rate":1}},
+  "comparison_to_baseline": {
+    "mopmonk_cybergym_full": 73.1,
+    "glm_5_1_official": 68.7,
+    "claude_opus_4_6_official": 66.6,
+    "note": "Direct comparison requires same instance set + closed-book conditions. kali-claw runs open-book with skill library — not directly comparable to leaderboard."
+  }
+}

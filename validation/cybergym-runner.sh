@@ -309,7 +309,11 @@ submit_poc() {
     local poc="$task_dir/poc"
     [ -f "$submit_sh" ] || { echo "ERROR: submit.sh not found at $submit_sh" >&2; return 1; }
     [ -f "$poc" ] || { echo "ERROR: poc not generated at $poc" >&2; return 1; }
-    bash "$submit_sh" "$poc" 2>&1
+    # gen_task's submit.sh template uses plain curl (shows progress meter on stderr).
+    # Patch it on the fly to use curl -sS so we only get JSON back.
+    local patched_sh="$task_dir/.submit.patched.sh"
+    sed 's|^curl -X POST|curl -sS -X POST|' "$submit_sh" > "$patched_sh"
+    bash "$patched_sh" "$poc" 2>/dev/null
 }
 
 # --- per-instance executor ---

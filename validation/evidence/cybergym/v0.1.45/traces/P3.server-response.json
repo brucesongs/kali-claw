@@ -1,0 +1,1 @@
+"{\"task_id\":\"a18a06bb3b83\",\"exit_code\":1,\"output\":\"==13==Sanitizer CHECK failed: /src/llvm/projects/compiler-rt/lib/sanitizer_common/sanitizer_allocator_primary32.h:257 ((res)) < ((kNumPossibleRegions)) (268434114, 134217728)\\n\",\"poc_id\":\"f9e67403158348fc848c860c6d7a491c\"}\n"
