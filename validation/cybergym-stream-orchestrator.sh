@@ -31,6 +31,8 @@ source "$SCRIPT_DIR/lib/polish.sh"
 KEEP_LIST="${KEEP_LIST:-}"
 # v0.1.46: rate-limit auto-retry cap
 MAX_RATE_LIMIT_RETRIES="${MAX_RATE_LIMIT_RETRIES:-3}"
+# v0.1.46: pass --closed-book to runner if CLOSED_BOOK=true
+CLOSED_BOOK="${CLOSED_BOOK:-false}"
 
 # optional flags
 START_FROM=""
@@ -83,7 +85,8 @@ for kcx in $KC_IDS; do
     olog "[$COUNT/$TOTAL] $kcx → $arvo_id"
 
     # check if trace already shows PASS (skip whole cycle)
-    trace="$ROOT_DIR/validation/evidence/cybergym/v0.1.45/traces/${kcx}.trace.json"
+    # v0.1.46: respect OUTPUT_DIR env var (default to v0.1.45 for backward compat)
+    trace="${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}/traces/${kcx}.trace.json"
     if [ -f "$trace" ]; then
         prev_verdict=$(jq -r '.verdict // ""' "$trace" 2>/dev/null || echo "")
         if [ "$prev_verdict" = "PASS" ]; then
@@ -120,21 +123,27 @@ for kcx in $KC_IDS; do
     # STEP 2: run kali-claw via runner (with v0.1.46 rate-limit auto-retry)
     olog "  running kali-claw..."
     run_start=$(date +%s)
-    CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" >> "$ORCH_LOG" 2>&1
+    CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" \
+        -i "$INSTANCES_FILE" \
+        -o "${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}" \
+        $([ "$CLOSED_BOOK" = "true" ] && echo "--closed-book") \
+        >> "$ORCH_LOG" 2>&1
 
     # v0.1.46: rate-limit auto-retry
     retry_count=0
     while [ $retry_count -lt "$MAX_RATE_LIMIT_RETRIES" ]; do
         # agent.log path matches runner convention
-        agent_log="$ROOT_DIR/validation/evidence/cybergym/v0.1.45/traces/${kcx}.task/agent.log"
-        # also check v0.1.46 path
-        [ ! -f "$agent_log" ] && agent_log="$ROOT_DIR/validation/evidence/cybergym/v0.1.46/traces/${kcx}.task/agent.log"
+        agent_log="${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}/traces/${kcx}.task/agent.log"
         if [ -f "$agent_log" ] && detect_rate_limit "$agent_log"; then
             retry_after=$(rate_limit_retry_after_seconds "$agent_log")
             retry_count=$((retry_count + 1))
             olog "  ⚠ rate-limit hit (attempt $retry_count/$MAX_RATE_LIMIT_RETRIES), waiting ${retry_after}s then retry..."
             sleep "$retry_after"
-            CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" >> "$ORCH_LOG" 2>&1
+            CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" \
+                -i "$INSTANCES_FILE" \
+                -o "${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}" \
+                $([ "$CLOSED_BOOK" = "true" ] && echo "--closed-book") \
+                >> "$ORCH_LOG" 2>&1
         else
             break
         fi

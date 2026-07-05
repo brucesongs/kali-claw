@@ -47,9 +47,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # --- defaults ---
-INSTANCES_FILE="$ROOT_DIR/docs/cybergym-sampling-v0.1.45.json"
+INSTANCES_FILE="${INSTANCES_FILE:-$ROOT_DIR/docs/cybergym-sampling-v0.1.45.json}"
 CYBERGYM_ROOT="${CYBERGYM_ROOT:-}"
-OUTPUT_DIR="$SCRIPT_DIR/evidence/cybergym/v0.1.45"
+OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/evidence/cybergym/v0.1.45}"
 KCX_FILTER=""
 TIMEBOX_SECONDS=600
 MAX_INTERVENTIONS=2
@@ -407,8 +407,12 @@ run_instance() {
         IFS='|' read -r phases_completed verdict credit fail_reason fail_stage <<<"$(run_stub "$inst_json" "$kcx" "$mem_file")"
 
     elif [ "$REAL_AUTO" = true ] || [ "$REAL_INTERACTIVE" = true ]; then
-        # Scaffold task
-        local task_dir="$OUTPUT_DIR/traces/$kcx.task"
+        # Scaffold task (absolutize OUTPUT_DIR-derived paths so scaffold_task's cd doesn't break them)
+        local task_dir
+        case "$OUTPUT_DIR" in
+            /*) task_dir="$OUTPUT_DIR/traces/$kcx.task" ;;
+            *)  task_dir="$ROOT_DIR/$OUTPUT_DIR/traces/$kcx.task" ;;
+        esac
         mkdir -p "$task_dir"
         log "[$kcx] gen_task → $task_dir"
         if ! scaffold_task "$cybergym_task_id" "$task_dir" > "$task_dir/gen_task.log" 2>&1; then
@@ -440,20 +444,30 @@ run_instance() {
                 local cb_ws=""
                 if [ "$CLOSED_BOOK" = true ]; then
                     cb_ws=$(setup_closed_book_workspace "$kcx" "$task_dir")
-                    CLOSED_BOOK_WS="$cb_ws" log "[$kcx] closed-book workspace: $cb_ws"
+                    CLOSED_BOOK_WS="$cb_ws"
                     export CLOSED_BOOK_WS
+                    log "[$kcx] closed-book workspace: $cb_ws"
                 fi
 
                 log "[$kcx] invoking kali-claw (claude --print) timebox=${dynamic_timebox}s..."
-                if with_timebox "$dynamic_timebox" invoke_agent_auto "$task_dir" "$PROMPT_FILE" > "$task_dir/agent.log" 2>&1; then
+                # Run agent in background with sleep-based kill (timeout doesn't work on bash functions)
+                invoke_agent_auto "$task_dir" "$PROMPT_FILE" > "$task_dir/agent.log" 2>&1 &
+                local agent_pid=$!
+                ( sleep "$dynamic_timebox" && kill -TERM $agent_pid 2>/dev/null ) &
+                local killer_pid=$!
+                wait $agent_pid 2>/dev/null
+                local rc=$?
+                kill $killer_pid 2>/dev/null
+                wait $killer_pid 2>/dev/null
+
+                if [ $rc -eq 0 ]; then
                     phases_completed=3
                     log "[$kcx] agent completed"
                 else
-                    local rc=$?
                     verdict="FAIL"; credit=0.0; fail_stage="agent-invoke"
-                    if [ "$rc" = "124" ]; then
-                        fail_reason="agent timeout after ${dynamic_timebox}s"
-                        log "[$kcx] agent TIMEOUT (${dynamic_timebox}s)"
+                    if [ $rc -eq 143 ] || [ $rc -eq 137 ]; then
+                        fail_reason="agent timeout after ${dynamic_timebox}s (signal $rc)"
+                        log "[$kcx] agent TIMEOUT (${dynamic_timebox}s, signal $rc)"
                     else
                         fail_reason="see $task_dir/agent.log (exit=$rc)"
                         log "[$kcx] agent FAILED (exit=$rc)"

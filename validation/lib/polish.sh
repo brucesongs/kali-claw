@@ -126,12 +126,27 @@ vm_disk_guard() {
 }
 
 # --- 5. Helpers for runner integration ---
+# Resolve the right `timeout` binary (GNU coreutils on macOS via brew, native on Linux)
+_timeout_bin() {
+    if command -v timeout >/dev/null 2>&1; then echo timeout
+    elif command -v gtimeout >/dev/null 2>&1; then echo gtimeout
+    else echo ""
+    fi
+}
+
 # Wrap a command with `timeout` if timebox > 0; otherwise run as-is.
 with_timebox() {
     local timebox_s=$1
     shift
     if [ "$timebox_s" -gt 0 ]; then
-        timeout "$timebox_s" "$@"
+        local bin
+        bin=$(_timeout_bin)
+        if [ -n "$bin" ]; then
+            "$bin" "$timebox_s" "$@"
+        else
+            # Fallback: no timeout bin, run as-is (will be unbounded)
+            "$@"
+        fi
     else
         "$@"
     fi
