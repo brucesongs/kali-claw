@@ -1,6 +1,6 @@
 # kali-claw v0.1.45 CyberGym 校准报告（首版）
 
-> **报告版本**：v1.0 · 2026-07-04
+> **报告版本**：v1.0 · 2026-07-07
 > **校准 ID**：v0.1.45-smoke + historical
 > **状态**：smoke test 已验证 / 30-instance 完整校准推迟到 v0.1.45.1
 > **关联**：[Wave 12 commit `774b47a`](#) · [D2 commit `7e78303`](#) · [sampling doc](docs/cybergym-sampling-v0.1.45.md) · [integration guide](docs/cybergym-v0.1.45-integration-guide.md)
