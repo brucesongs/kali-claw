@@ -1,0 +1,2255 @@
+{
+  "scan_date": "2026-07-17T01:52:20.526639+00:00",
+  "scan_type": "full_130_skill_audit",
+  "summary": {
+    "total_skills": 130,
+    "high_priority_count": 18,
+    "missing_defense_count": 17,
+    "standard_batch_count": 95,
+    "avg_completion_pct": 95.4,
+    "target_completion_pct": 95
+  },
+  "high_priority": [
+    {
+      "skill": "network-pentest",
+      "skill_md_lines": 230,
+      "defense_lines": 10,
+      "payloads_lines": 1357,
+      "testcases_lines": 219,
+      "guides_count": 8,
+      "has_detection_methods": true,
+      "has_evasion_techniques": true,
+      "translation_residue_count": 23,
+      "completion_pct": 100,
+      "issues": [
+        "translation_residue"
+      ],
+      "priority": "P0",
+      "est_hours": 1.75
+    },
+    {
+      "skill": "post-exploitation",
+      "skill_md_lines": 209,
+      "defense_lines": 11,
+      "payloads_lines": 946,
+      "testcases_lines": 184,
+      "guides_count": 7,
+      "has_detection_methods": true,
+      "has_evasion_techniques": true,
+      "translation_residue_count": 30,
+      "completion_pct": 98,
+      "issues": [
+        "translation_residue"
+      ],
+      "priority": "P0",
+      "est_hours": 1.75
+    },
+    {
+      "skill": "web-xss",
+      "skill_md_lines": 363,
+      "defense_lines": 12,
+      "payloads_lines": 1086,
+      "testcases_lines": 244,
+      "guides_count": 8,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 96,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P0",
+      "est_hours": 1.25
+    },
+    {
+      "skill": "web-sqli",
+      "skill_md_lines": 260,
+      "defense_lines": 11,
+      "payloads_lines": 585,
+      "testcases_lines": 246,
+      "guides_count": 15,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 5,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "web-ssrf",
+      "skill_md_lines": 214,
+      "defense_lines": 11,
+      "payloads_lines": 915,
+      "testcases_lines": 190,
+      "guides_count": 6,
+      "has_detection_methods": true,
+      "has_evasion_techniques": true,
+      "translation_residue_count": 17,
+      "completion_pct": 98,
+      "issues": [],
+      "priority": "P1",
+      "est_hours": 0.5
+    },
+    {
+      "skill": "web-auth-bypass",
+      "skill_md_lines": 263,
+      "defense_lines": 12,
+      "payloads_lines": 979,
+      "testcases_lines": 259,
+      "guides_count": 5,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "api-security",
+      "skill_md_lines": 264,
+      "defense_lines": 12,
+      "payloads_lines": 849,
+      "testcases_lines": 300,
+      "guides_count": 6,
+      "has_detection_methods": true,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 97,
+      "issues": [
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 0.75
+    },
+    {
+      "skill": "password-attack",
+      "skill_md_lines": 209,
+      "defense_lines": 13,
+      "payloads_lines": 1021,
+      "testcases_lines": 197,
+      "guides_count": 7,
+      "has_detection_methods": true,
+      "has_evasion_techniques": true,
+      "translation_residue_count": 0,
+      "completion_pct": 99,
+      "issues": [],
+      "priority": "P1",
+      "est_hours": 0.5
+    },
+    {
+      "skill": "privilege-escalation",
+      "skill_md_lines": 280,
+      "defense_lines": 13,
+      "payloads_lines": 1287,
+      "testcases_lines": 211,
+      "guides_count": 3,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "social-engineering",
+      "skill_md_lines": 237,
+      "defense_lines": 12,
+      "payloads_lines": 1645,
+      "testcases_lines": 246,
+      "guides_count": 5,
+      "has_detection_methods": true,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 98,
+      "issues": [
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 0.75
+    },
+    {
+      "skill": "osint",
+      "skill_md_lines": 372,
+      "defense_lines": 7,
+      "payloads_lines": 1112,
+      "testcases_lines": 202,
+      "guides_count": 8,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 96,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "thin_defense_perspective"
+      ],
+      "priority": "P1",
+      "est_hours": 1.25
+    },
+    {
+      "skill": "cloud-security",
+      "skill_md_lines": 227,
+      "defense_lines": 10,
+      "payloads_lines": 1786,
+      "testcases_lines": 190,
+      "guides_count": 8,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "container-security",
+      "skill_md_lines": 211,
+      "defense_lines": 10,
+      "payloads_lines": 1228,
+      "testcases_lines": 179,
+      "guides_count": 8,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "binary-reverse",
+      "skill_md_lines": 285,
+      "defense_lines": 12,
+      "payloads_lines": 1132,
+      "testcases_lines": 204,
+      "guides_count": 5,
+      "has_detection_methods": true,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 98,
+      "issues": [
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 0.75
+    },
+    {
+      "skill": "exploit-development",
+      "skill_md_lines": 270,
+      "defense_lines": 12,
+      "payloads_lines": 1124,
+      "testcases_lines": 210,
+      "guides_count": 5,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 96,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "payload-generation",
+      "skill_md_lines": 345,
+      "defense_lines": 10,
+      "payloads_lines": 1166,
+      "testcases_lines": 213,
+      "guides_count": 8,
+      "has_detection_methods": true,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 98,
+      "issues": [
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 0.75
+    },
+    {
+      "skill": "database-attack",
+      "skill_md_lines": 327,
+      "defense_lines": 11,
+      "payloads_lines": 994,
+      "testcases_lines": 220,
+      "guides_count": 5,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    },
+    {
+      "skill": "firmware-reverse",
+      "skill_md_lines": 236,
+      "defense_lines": 14,
+      "payloads_lines": 1155,
+      "testcases_lines": 266,
+      "guides_count": 3,
+      "has_detection_methods": false,
+      "has_evasion_techniques": false,
+      "translation_residue_count": 0,
+      "completion_pct": 95,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques"
+      ],
+      "priority": "P1",
+      "est_hours": 1.0
+    }
+  ],
+  "missing_defense_perspective": [
+    {
+      "skill": "article-writing",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 94,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "autonomous-loops",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "browser-qa",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 94,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "chronicle",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "codebase-onboarding",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 93,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "concurrency-exploitation",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 91,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective",
+        "thin_payloads"
+      ]
+    },
+    {
+      "skill": "continuous-learning",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "data-scraper-agent",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 93,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "docker-patterns",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 91,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "exa-search",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "hardware-security",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 94,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "knowledge-ops",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 93,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "mcp-server-patterns",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 93,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "multi-agent-collaboration",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "safety-guard",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "search-first",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 93,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    },
+    {
+      "skill": "verification-loop",
+      "category": "non_core",
+      "est_hours": 1.0,
+      "current_completion_pct": 92,
+      "issues": [
+        "missing_detection_methods",
+        "missing_evasion_techniques",
+        "missing_defense_perspective"
+      ]
+    }
+  ],
+  "standard_batch": {
+    "count": 95,
+    "target_completion_pct": 90,
+    "est_total_hours": 28.5,
+    "approach": "batch_review_and_polish",
+    "skills": [
+      {
+        "skill": "5g-telecom-attack",
+        "skill_md_lines": 440,
+        "defense_lines": 12,
+        "payloads_lines": 2148,
+        "testcases_lines": 468,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ad-cs-abuse",
+        "skill_md_lines": 379,
+        "defense_lines": 1,
+        "payloads_lines": 2227,
+        "testcases_lines": 376,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ad-ldap-attack",
+        "skill_md_lines": 261,
+        "defense_lines": 1,
+        "payloads_lines": 1195,
+        "testcases_lines": 243,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "agentic-pentest",
+        "skill_md_lines": 769,
+        "defense_lines": 13,
+        "payloads_lines": 1771,
+        "testcases_lines": 199,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ai-agent-framework-attack",
+        "skill_md_lines": 310,
+        "defense_lines": 3,
+        "payloads_lines": 1549,
+        "testcases_lines": 642,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ai-agent-security",
+        "skill_md_lines": 576,
+        "defense_lines": 14,
+        "payloads_lines": 2184,
+        "testcases_lines": 204,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ai-fuzzing",
+        "skill_md_lines": 279,
+        "defense_lines": 11,
+        "payloads_lines": 1373,
+        "testcases_lines": 406,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ai-security",
+        "skill_md_lines": 569,
+        "defense_lines": 62,
+        "payloads_lines": 1084,
+        "testcases_lines": 621,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 100,
+        "issues": [
+          "missing_detection_methods"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "anti-forensics",
+        "skill_md_lines": 161,
+        "defense_lines": 11,
+        "payloads_lines": 1077,
+        "testcases_lines": 274,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "automotive-vehicle-security",
+        "skill_md_lines": 436,
+        "defense_lines": 16,
+        "payloads_lines": 2608,
+        "testcases_lines": 256,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "av-edr-evasion",
+        "skill_md_lines": 221,
+        "defense_lines": 12,
+        "payloads_lines": 1118,
+        "testcases_lines": 149,
+        "guides_count": 9,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "blockchain-l2-attack",
+        "skill_md_lines": 684,
+        "defense_lines": 14,
+        "payloads_lines": 2380,
+        "testcases_lines": 274,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "blockchain-web3",
+        "skill_md_lines": 579,
+        "defense_lines": 14,
+        "payloads_lines": 2626,
+        "testcases_lines": 271,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "bluetooth-rfid-nfc",
+        "skill_md_lines": 216,
+        "defense_lines": 13,
+        "payloads_lines": 953,
+        "testcases_lines": 258,
+        "guides_count": 3,
+        "has_detection_methods": true,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ci-cd-supply-chain-attack",
+        "skill_md_lines": 557,
+        "defense_lines": 19,
+        "payloads_lines": 1722,
+        "testcases_lines": 234,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "cloud-identity-attack",
+        "skill_md_lines": 469,
+        "defense_lines": 16,
+        "payloads_lines": 1209,
+        "testcases_lines": 313,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "cloud-native-vuln-research",
+        "skill_md_lines": 318,
+        "defense_lines": 20,
+        "payloads_lines": 1253,
+        "testcases_lines": 222,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "cms-framework-attack",
+        "skill_md_lines": 301,
+        "defense_lines": 12,
+        "payloads_lines": 1275,
+        "testcases_lines": 158,
+        "guides_count": 3,
+        "has_detection_methods": true,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "command-injection-advanced",
+        "skill_md_lines": 745,
+        "defense_lines": 1,
+        "payloads_lines": 570,
+        "testcases_lines": 370,
+        "guides_count": 4,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "confidential-computing-attack",
+        "skill_md_lines": 261,
+        "defense_lines": 1,
+        "payloads_lines": 1298,
+        "testcases_lines": 662,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "council",
+        "skill_md_lines": 325,
+        "defense_lines": 7,
+        "payloads_lines": 1772,
+        "testcases_lines": 750,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "cps-attack",
+        "skill_md_lines": 629,
+        "defense_lines": 1,
+        "payloads_lines": 1137,
+        "testcases_lines": 911,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "crypto-attacks",
+        "skill_md_lines": 304,
+        "defense_lines": 17,
+        "payloads_lines": 1253,
+        "testcases_lines": 190,
+        "guides_count": 6,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "cspm-casb-attack",
+        "skill_md_lines": 421,
+        "defense_lines": 14,
+        "payloads_lines": 1917,
+        "testcases_lines": 277,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "darkweb-intel",
+        "skill_md_lines": 582,
+        "defense_lines": 12,
+        "payloads_lines": 1227,
+        "testcases_lines": 253,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "data-exfiltration-attack",
+        "skill_md_lines": 493,
+        "defense_lines": 24,
+        "payloads_lines": 1156,
+        "testcases_lines": 905,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "data-platform-attack",
+        "skill_md_lines": 251,
+        "defense_lines": 1,
+        "payloads_lines": 1401,
+        "testcases_lines": 723,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "deception-honeypot",
+        "skill_md_lines": 790,
+        "defense_lines": 22,
+        "payloads_lines": 1936,
+        "testcases_lines": 272,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "deep-research",
+        "skill_md_lines": 441,
+        "defense_lines": 6,
+        "payloads_lines": 2212,
+        "testcases_lines": 264,
+        "guides_count": 6,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "detection-engineering",
+        "skill_md_lines": 756,
+        "defense_lines": 13,
+        "payloads_lines": 2325,
+        "testcases_lines": 281,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "digital-forensics",
+        "skill_md_lines": 201,
+        "defense_lines": 10,
+        "payloads_lines": 1232,
+        "testcases_lines": 215,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "dns-attacks",
+        "skill_md_lines": 299,
+        "defense_lines": 12,
+        "payloads_lines": 2430,
+        "testcases_lines": 148,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "edge-computing-attack",
+        "skill_md_lines": 323,
+        "defense_lines": 1,
+        "payloads_lines": 1154,
+        "testcases_lines": 624,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "email-protocol-attack",
+        "skill_md_lines": 233,
+        "defense_lines": 11,
+        "payloads_lines": 1047,
+        "testcases_lines": 258,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "email-security-deep",
+        "skill_md_lines": 471,
+        "defense_lines": 15,
+        "payloads_lines": 1870,
+        "testcases_lines": 281,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "embedded-rtos-security",
+        "skill_md_lines": 550,
+        "defense_lines": 14,
+        "payloads_lines": 2891,
+        "testcases_lines": 256,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "engagement-manager",
+        "skill_md_lines": 197,
+        "defense_lines": 11,
+        "payloads_lines": 1028,
+        "testcases_lines": 235,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "file-inclusion",
+        "skill_md_lines": 224,
+        "defense_lines": 11,
+        "payloads_lines": 938,
+        "testcases_lines": 185,
+        "guides_count": 3,
+        "has_detection_methods": true,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "game-anticheat-bypass",
+        "skill_md_lines": 244,
+        "defense_lines": 13,
+        "payloads_lines": 2168,
+        "testcases_lines": 223,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "gitops-security",
+        "skill_md_lines": 492,
+        "defense_lines": 1,
+        "payloads_lines": 1842,
+        "testcases_lines": 954,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "hf-vhf-radio-attack",
+        "skill_md_lines": 508,
+        "defense_lines": 1,
+        "payloads_lines": 3434,
+        "testcases_lines": 204,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "hsm-attack",
+        "skill_md_lines": 580,
+        "defense_lines": 1,
+        "payloads_lines": 1069,
+        "testcases_lines": 791,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "hypervisor-introspection",
+        "skill_md_lines": 376,
+        "defense_lines": 12,
+        "payloads_lines": 2223,
+        "testcases_lines": 267,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "ics-fieldbus-attack",
+        "skill_md_lines": 508,
+        "defense_lines": 1,
+        "payloads_lines": 2853,
+        "testcases_lines": 267,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "insecure-design",
+        "skill_md_lines": 252,
+        "defense_lines": 10,
+        "payloads_lines": 918,
+        "testcases_lines": 203,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "iot-pentest",
+        "skill_md_lines": 500,
+        "defense_lines": 15,
+        "payloads_lines": 1303,
+        "testcases_lines": 270,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "kubernetes-attack",
+        "skill_md_lines": 510,
+        "defense_lines": 14,
+        "payloads_lines": 1243,
+        "testcases_lines": 302,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "llm-red-team",
+        "skill_md_lines": 584,
+        "defense_lines": 12,
+        "payloads_lines": 1723,
+        "testcases_lines": 209,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "logging-monitoring",
+        "skill_md_lines": 170,
+        "defense_lines": 12,
+        "payloads_lines": 980,
+        "testcases_lines": 392,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "macos-security",
+        "skill_md_lines": 610,
+        "defense_lines": 14,
+        "payloads_lines": 1912,
+        "testcases_lines": 493,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "mainframe-security",
+        "skill_md_lines": 282,
+        "defense_lines": 1,
+        "payloads_lines": 1525,
+        "testcases_lines": 325,
+        "guides_count": 4,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "malware-analysis-advanced",
+        "skill_md_lines": 518,
+        "defense_lines": 23,
+        "payloads_lines": 1189,
+        "testcases_lines": 1031,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "mobile-app-instrumentation",
+        "skill_md_lines": 380,
+        "defense_lines": 22,
+        "payloads_lines": 1317,
+        "testcases_lines": 236,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "mobile-security",
+        "skill_md_lines": 199,
+        "defense_lines": 12,
+        "payloads_lines": 979,
+        "testcases_lines": 176,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "multi-agent-runtime-engineering",
+        "skill_md_lines": 462,
+        "defense_lines": 11,
+        "payloads_lines": 3032,
+        "testcases_lines": 972,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 7,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "network-sniffing-mitm",
+        "skill_md_lines": 231,
+        "defense_lines": 11,
+        "payloads_lines": 1320,
+        "testcases_lines": 226,
+        "guides_count": 3,
+        "has_detection_methods": true,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 99,
+        "issues": [],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "network-tunneling-proxy",
+        "skill_md_lines": 456,
+        "defense_lines": 28,
+        "payloads_lines": 1038,
+        "testcases_lines": 184,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "open-banking-attack",
+        "skill_md_lines": 559,
+        "defense_lines": 1,
+        "payloads_lines": 1321,
+        "testcases_lines": 831,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "pam-privilege-attack",
+        "skill_md_lines": 460,
+        "defense_lines": 1,
+        "payloads_lines": 2463,
+        "testcases_lines": 445,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "patch-to-poc-pipeline",
+        "skill_md_lines": 630,
+        "defense_lines": 1,
+        "payloads_lines": 1915,
+        "testcases_lines": 912,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "payment-security",
+        "skill_md_lines": 519,
+        "defense_lines": 13,
+        "payloads_lines": 966,
+        "testcases_lines": 270,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "pentest-reporting",
+        "skill_md_lines": 155,
+        "defense_lines": 10,
+        "payloads_lines": 1308,
+        "testcases_lines": 224,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "physical-security-testing",
+        "skill_md_lines": 810,
+        "defense_lines": 18,
+        "payloads_lines": 1790,
+        "testcases_lines": 310,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "post-quantum-migration-attack",
+        "skill_md_lines": 467,
+        "defense_lines": 26,
+        "payloads_lines": 1095,
+        "testcases_lines": 881,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "protocol-state-exploitation",
+        "skill_md_lines": 778,
+        "defense_lines": 1,
+        "payloads_lines": 420,
+        "testcases_lines": 120,
+        "guides_count": 4,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 93,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective",
+          "thin_payloads"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "quantum-crypto-attack",
+        "skill_md_lines": 412,
+        "defense_lines": 14,
+        "payloads_lines": 2360,
+        "testcases_lines": 313,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "recon-osint",
+        "skill_md_lines": 165,
+        "defense_lines": 8,
+        "payloads_lines": 939,
+        "testcases_lines": 501,
+        "guides_count": 11,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "red-team-infrastructure",
+        "skill_md_lines": 700,
+        "defense_lines": 24,
+        "payloads_lines": 1263,
+        "testcases_lines": 971,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "repo-scan",
+        "skill_md_lines": 207,
+        "defense_lines": 7,
+        "payloads_lines": 1215,
+        "testcases_lines": 550,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "reverse-engineering-advanced",
+        "skill_md_lines": 551,
+        "defense_lines": 21,
+        "payloads_lines": 1624,
+        "testcases_lines": 1198,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "sase-sse-attack",
+        "skill_md_lines": 680,
+        "defense_lines": 17,
+        "payloads_lines": 2424,
+        "testcases_lines": 279,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "satellite-leo-security",
+        "skill_md_lines": 292,
+        "defense_lines": 11,
+        "payloads_lines": 2014,
+        "testcases_lines": 677,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "scada-ics-security",
+        "skill_md_lines": 443,
+        "defense_lines": 1,
+        "payloads_lines": 1691,
+        "testcases_lines": 187,
+        "guides_count": 7,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "sdr-rf-attack",
+        "skill_md_lines": 361,
+        "defense_lines": 1,
+        "payloads_lines": 859,
+        "testcases_lines": 125,
+        "guides_count": 9,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "secret-management-attack",
+        "skill_md_lines": 528,
+        "defense_lines": 14,
+        "payloads_lines": 1808,
+        "testcases_lines": 390,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "security-bounty-hunter",
+        "skill_md_lines": 278,
+        "defense_lines": 6,
+        "payloads_lines": 1082,
+        "testcases_lines": 656,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "security-misconfiguration",
+        "skill_md_lines": 346,
+        "defense_lines": 12,
+        "payloads_lines": 927,
+        "testcases_lines": 202,
+        "guides_count": 8,
+        "has_detection_methods": true,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 14,
+        "completion_pct": 97,
+        "issues": [
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "security-review",
+        "skill_md_lines": 254,
+        "defense_lines": 6,
+        "payloads_lines": 1099,
+        "testcases_lines": 446,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "social-intelligence",
+        "skill_md_lines": 296,
+        "defense_lines": 9,
+        "payloads_lines": 1857,
+        "testcases_lines": 212,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "steganography",
+        "skill_md_lines": 243,
+        "defense_lines": 11,
+        "payloads_lines": 1548,
+        "testcases_lines": 152,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "storage-san-attack",
+        "skill_md_lines": 362,
+        "defense_lines": 19,
+        "payloads_lines": 2230,
+        "testcases_lines": 336,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "supply-chain-security",
+        "skill_md_lines": 182,
+        "defense_lines": 13,
+        "payloads_lines": 1169,
+        "testcases_lines": 180,
+        "guides_count": 5,
+        "has_detection_methods": true,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "terminal-ops",
+        "skill_md_lines": 206,
+        "defense_lines": 6,
+        "payloads_lines": 1214,
+        "testcases_lines": 916,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 96,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "threat-hunting",
+        "skill_md_lines": 599,
+        "defense_lines": 10,
+        "payloads_lines": 1175,
+        "testcases_lines": 253,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "threat-intel-platform-attack",
+        "skill_md_lines": 549,
+        "defense_lines": 23,
+        "payloads_lines": 1247,
+        "testcases_lines": 907,
+        "guides_count": 2,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "tool-mastery",
+        "skill_md_lines": 204,
+        "defense_lines": 13,
+        "payloads_lines": 922,
+        "testcases_lines": 256,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "uav-drone-security",
+        "skill_md_lines": 299,
+        "defense_lines": 1,
+        "payloads_lines": 2197,
+        "testcases_lines": 230,
+        "guides_count": 1,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "username-profiling",
+        "skill_md_lines": 518,
+        "defense_lines": 10,
+        "payloads_lines": 1675,
+        "testcases_lines": 271,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "voip-sip-attack",
+        "skill_md_lines": 176,
+        "defense_lines": 3,
+        "payloads_lines": 873,
+        "testcases_lines": 213,
+        "guides_count": 3,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "vpn-attack",
+        "skill_md_lines": 390,
+        "defense_lines": 14,
+        "payloads_lines": 888,
+        "testcases_lines": 126,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 94,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "vulnerability-assessment",
+        "skill_md_lines": 207,
+        "defense_lines": 9,
+        "payloads_lines": 2431,
+        "testcases_lines": 195,
+        "guides_count": 8,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "web-access-control",
+        "skill_md_lines": 281,
+        "defense_lines": 12,
+        "payloads_lines": 1057,
+        "testcases_lines": 204,
+        "guides_count": 6,
+        "has_detection_methods": true,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "web-deserialization",
+        "skill_md_lines": 482,
+        "defense_lines": 1,
+        "payloads_lines": 2005,
+        "testcases_lines": 171,
+        "guides_count": 5,
+        "has_detection_methods": false,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 95,
+        "issues": [
+          "missing_detection_methods",
+          "missing_evasion_techniques",
+          "thin_defense_perspective"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "web-xxe",
+        "skill_md_lines": 234,
+        "defense_lines": 12,
+        "payloads_lines": 1289,
+        "testcases_lines": 158,
+        "guides_count": 3,
+        "has_detection_methods": true,
+        "has_evasion_techniques": true,
+        "translation_residue_count": 0,
+        "completion_pct": 98,
+        "issues": [],
+        "category": "standard",
+        "est_hours": 0.3
+      },
+      {
+        "skill": "wifi-pentest",
+        "skill_md_lines": 201,
+        "defense_lines": 12,
+        "payloads_lines": 960,
+        "testcases_lines": 242,
+        "guides_count": 5,
+        "has_detection_methods": true,
+        "has_evasion_techniques": false,
+        "translation_residue_count": 0,
+        "completion_pct": 97,
+        "issues": [
+          "missing_evasion_techniques"
+        ],
+        "category": "standard",
+        "est_hours": 0.3
+      }
+    ]
+  },
+  "total_estimated_hours": {
+    "high_priority": 18.0,
+    "missing_defense": 17.0,
+    "standard_batch": 28.5,
+    "subtotal": 63.5,
+    "with_buffer_25pct": 79.4
+  }
+}
