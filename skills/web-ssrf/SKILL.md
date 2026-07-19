@@ -2,7 +2,7 @@
 name: web-ssrf
 description: "Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced bypass techniques, internal port scanning, cloud metadata extraction (AWS/GCP/Azure), protocol smuggling (gopher://, dict://, file://), and chained RCE exploitation."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -21,6 +21,7 @@ metadata:
   guide_count: 6
   owasp: "A10:2021-SSRF"
   mitre: "T1190-Exploit Public-Facing App"
+  last_reviewed: "2026-07-19"
 ---
 
 
@@ -54,8 +55,8 @@ Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced 
 
 1. **Web applicationpenetration testing** - Detecttargetapplicationin URL obtain、fileimport、Webhook etc.successcan SSRF vulnerability，exploititsaccessinternalresource
 2. **cloudenvironmentsecurity assessment** - through SSRF Extract AWS/GCP/Azure realexamplemetadata，obtaintemporarywhen credentialsandsensitiveconfigurationinformation
-3. **internal networkpenetration拓expand** - exploit SSRF workasjump板Scaninternal networkserviceport、accessinternal API、detect Kubernetes/Docker etc.basic facility
-4. **CTF competitionsolve题** - quick Identify SSRF 题type，constructprotocolsmuggling、DNS rebinding、IP encoding bypassetc.advanced payload
+3. **Internal network penetration pivot** - Exploit SSRF as a pivot to scan internal network service ports, access internal APIs, and detect Kubernetes/Docker and other infrastructure.
+4. **CTF competition challenges** - Quickly identify SSRF challenge types; construct protocol smuggling, DNS rebinding, IP encoding bypass, and other advanced payloads.
 5. **security code audit** - fromDefense Perspectivereview URL handlinglogic，assessmentfilter bypassrisk，realimplementpartlayerdefensesolution
 
 ## Core Tools / Core Tools
@@ -109,24 +110,24 @@ URL 参数发现 → 协议走私 → 内网扫描 → 云元数据提取 → RC
 
 | Defense Measure | Description | Priority |
 |----------|------|--------|
-| URL whitelist | onlyallowsaccess预definition domain namelist，denyall itsotherrequest | CRITICAL |
-| IP scopechecksum | DNS solveanalysisafterchecktarget IP，blockprivate/return环/chainpathlocaladdress | CRITICAL |
+| URL whitelist | Allow access only to a predefined domain name list; deny all other requests | CRITICAL |
+| IP scope validation | After DNS resolution, check target IP; block private/loopback/link-local addresses | CRITICAL |
 | disabledangerousprotocol | onlyallows http/https protocol，prohibit file/gopher/dict/ldap | HIGH |
 | cloud metadatadataprotect | use IMDSv2（AWS）/ deploymentfirewallruleblockfor 169.254.169.254 access | HIGH |
 | networkisolation | applicationserverdeploymentinindependentnetworksegment，limitationoutputsiteflowamounttonecessaryservice | HIGH |
 | responsesizelimitation | limitation SSRF request responsebodysize，preventlargeamountdataleakage | MEDIUM |
-| disableredirect跟random | notautomated 跟random HTTP 3xx redirect，prevent open redirect bypass | MEDIUM |
+| Disable redirect following | Do not auto-follow HTTP 3xx redirects; prevents open-redirect bypass | MEDIUM |
 
 ## Practical Steps / Practical Steps
 
 ### Step 1: basic SSRF Detect
-testinglocalreturn环address（`127.0.0.1`、`localhost`）andfileprotocol（`file:///etc/passwd`），coordinate IP addresstransformation（hexadecimal、decimal、IPv6、octal、all零）bypassbasic filter。
+testing loopback addresses (`127.0.0.1`, `localhost`) and file protocol (`file:///etc/passwd`); combine with IP address transformations (hexadecimal, decimal, IPv6, octal, all-zero) to bypass basic filters.
 
 ### Step 2: cloud metadatadata extraction
 Extract AWS IAM rolecredentials、GCP Service Account Token、Azure Managed Identity Token，use IP transformationbypasscloud metadatadataaddressfilter。
 
 ### Step 3: protocolsmugglingexploit
-exploit `gopher://` protocol操控 Redis/MySQL，`dict://` detectserviceversion，`file://` readserversensitivefile。
+Exploit `gopher://` protocol to manipulate Redis/MySQL, `dict://` to detect service versions, `file://` to read server sensitive files.
 
 ### Step 4: advanced bypasstechnique
 Open Redirect exploit、`@` characternumberspoofing、DNS rebinding、URL encoding bypass、URL solveanalysisdifferenceexploit。
@@ -189,13 +190,13 @@ Advanced SSRF exploitation includes: HTTP request smuggling combined with SSRF t
 
 ## Hacker Laws / Hacker Laws
 
-1. **Minimize Attack Surface (minimumizeattack surface)** - SSRF existsmeaningapplicationexposure notnecessary URL requestcanpower。defense coreisreducecan byexternalcontrol requestparameter，usewhitelistandnonblacklist，disablenon必needprotocol。
+1. **Minimize Attack Surface** - SSRF exists because the application exposes unnecessary URL-fetch capabilities. Defense core is to reduce user-controllable request parameters; use whitelist not blacklist; disable unneeded protocols.
 
-2. **Trust but Verify (Trust but Verify)** - i.e.make URL seeminglypoint tocombinemethoddomain name，alsomust DNS solveanalysisafterverifyactual IP address。DNS rebinding、Open Redirect、@ characternumberspoofingallexploit "information任table面Value" vulnerability。eachalayerallrequiresindependentverify。
+2. **Trust but Verify** - Even when a URL appears to point to a legitimate domain, you must verify the actual IP address after DNS resolution. DNS rebinding, open redirect, and `@` character spoofing all exploit "trust at face value" vulnerabilities. Each layer requires independent verification.
 
-3. **Defense in Depth (defense in depth)** - singleafilter手segment（such as blacklist IP）notenoughwithblock SSRF。mustgroupcombineuse URL whitelist + IP scopechecksum + protocollimitation + networkisolation + cloud metadatadataprotect，形成multiplelayerdefensebodysystem。
+3. **Defense in Depth** - A single filter (such as IP blacklist) is not enough to block SSRF. Combine URL whitelist + IP scope validation + protocol restriction + network isolation + cloud metadata protection to form a layered defense system.
 
-4. **Assume Breach (assumptionalready byintrusion)** - incloudenvironmentin，assumptionattackercan canthrough SSRF obtaintorealexamplemetadata。use IMDSv2、least privilege IAM role、短periodcredentials、networksegmentcomelimitationlateral movement impactscope。
+4. **Assume Breach** - In cloud environments, assume attackers can obtain instance metadata via SSRF. Use IMDSv2, least-privilege IAM roles, short-lived credentials, and network segmentation to limit lateral movement impact.
 
 ## Learning Resources / Learning Resources
 

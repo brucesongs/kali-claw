@@ -2,7 +2,7 @@
 name: password-attack
 description: "Password attacks encompass the complete attack chain from hash extraction, hash type identification, dictionary attacks, rule-based attacks, and bruteforcing to online service brute forcing."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 7
   mitre: "TA0006-Credential Access"
+  last_reviewed: "2026-07-19"
 ---
 
 

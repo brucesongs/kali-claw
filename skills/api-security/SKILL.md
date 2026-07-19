@@ -2,7 +2,7 @@
 name: api-security
 description: "API Security Testing covers security assessment across three major API architectures: REST, GraphQL, and gRPC, focusing on the OWASP API Security Top 10 core risks: Broken Authentication, Broken Object Level Authorization (BOLA), Excessive Data Exposure, Rate Limiting Bypass."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   owasp: "API Security Top 10"
+  last_reviewed: "2026-07-19"
 ---
 
 
@@ -231,6 +232,63 @@ A common mistake in API testing is focusing exclusively on CRUD endpoints while 
 ## Detection Methods
 
 API vulnerability detection starts with comprehensive endpoint discovery using multiple complementary techniques: kiterunner for spec-based route enumeration, ffuf for path fuzzing, and passive analysis of JavaScript bundles for hardcoded API paths. GraphQL introspection queries and gRPC reflection services provide complete schema maps when available. Once endpoints are catalogued, automated BOLA testing swaps resource IDs across authenticated sessions while Mass Assignment testing injects additional properties into request bodies.
+
+### API Gateway / WAF Indicators
+- **Unusual endpoint access**: Requests to undocumented or deprecated endpoints; correlation of paths across multiple user tokens.
+- **Rate-limit violations**: Burst patterns exceeding typical user behavior (BOLA brute forcing).
+- **Parameter manipulation**: Mass assignment attempts (additional JSON keys in request body); suspicious query parameters.
+- **JWT anomalies**: `alg: none`, multiple `kid` header values, RS256/HS256 algorithm confusion patterns.
+- **GraphQL abuse**: Excessive query depth (>10), introspection queries in production, batch query abuse.
+
+### Behavioral Indicators
+- **Token reuse across IPs**: Same JWT used from many source IPs (token sharing or compromise).
+- **Horizontal enumeration**: User A repeatedly accessing resources owned by user B, C, D (BOLA pattern).
+- **Excessive data exposure**: API responses returning more fields than the UI renders (data over-fetching).
+- **Time-based patterns**: Off-hours bulk queries (data scraping), automated request cadence (bot detection).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=api gateway.route="/api/v1/users/*" | stats dc(resource_id) by user_token | where dc > 50`
+- **Sigma rule**: `sigma/rules/api/bola_pattern.yml` — detects horizontal ID enumeration.
+- **AWS WAF**: `AWSManagedRulesAPIGatewayRuleSet` + custom rate-based rules (100 req/5min/IP).
+- **Cloudflare**: API Shield with schema validation (OpenAPI spec enforcement).
+- **GraphQL**: Disable introspection in production; alert on `__schema` / `__type` queries.
+
+## Defense Evasion Techniques
+
+### Rate Limit Evasion
+- **Distributed sources**: Rotate through residential proxies, Tor, or botnets to spread load across IPs.
+- **Slow & low**: Pace requests below rate-limit threshold (e.g., 1 req/sec); use jitter to avoid pattern detection.
+- **IP rotation**: Cloud provider accounts with autoscaling IPs; AWS Lambda / serverless rotation.
+- **Header manipulation**: Spoof `X-Forwarded-For`, `X-Real-IP`, `True-Client-IP` to bypass IP-based limits.
+- **Multiple accounts**: Distribute enumeration across many authenticated sessions (user A probes 100 IDs, user B probes next 100).
+
+### Authentication Bypass
+- **JWT algorithm confusion**: If server uses RS256 (asymmetric), test if it accepts HS256 with public key as HMAC secret.
+- **kid header injection**: `"kid": "../../dev/null"` or SQL injection in `kid` lookup.
+- **null signature**: `eyJhbGciOiJub25lIn0.eyJzdWIiOiJhZG1pbiJ9.` bypasses signature check on weak libraries.
+- **Token replay**: Reuse captured JWT past expiration if server clock drift exists.
+- **Refresh token abuse**: Use long-lived refresh tokens to maintain access after password reset.
+
+### Authorization Evasion (BOLA)
+- **UUID prediction**: If UUIDs are v1 (time-based), predict next UUIDs from observed timestamps.
+- **Sequential IDs**: Brute force `/api/users/1`, `/api/users/2`, ... when IDs are auto-increment integers.
+- **Method swap**: Try `GET /api/users/123` blocked, try `PUT /api/users/123` or `PATCH` allowed.
+- **Nested resource paths**: `/api/orgs/5/users/123` may bypass `/api/users/123` authorization.
+- **Inconsistent object keys**: Use email instead of ID, or username, or slug — different code paths may have different authorization.
+
+### GraphQL Evasion
+- **Alias abuse**: Use multiple aliases to bypass query depth limits (`{a: user b: user c: user}`).
+- **Batch queries**: Single request with multiple operations to bypass rate limits.
+- **Fragment cycling**: Cycle through fragments to extract data without triggering query complexity limits.
+- **Directive abuse**: Use `@skip(if: false)` and `@include(if: true)` to obfuscate queries.
+- **Mutation via GET**: Some GraphQL endpoints allow mutations via GET (bypasses CSRF protection).
+
+### Stealth Techniques
+- **Mimic legitimate clients**: Use exact User-Agent / Accept-Language / Referer headers from official mobile app.
+- **Spread timing**: Spread BOLA tests across hours; cache results locally to avoid re-querying.
+- **Cache poisoning**: Poison CDN cache of BOLA response so subsequent legitimate users see compromised data.
+- **Schema obfuscation**: Use complex GraphQL queries that look like legitimate analytics to evade schema validation.
+- **TLS fingerprinting**: Use `curl-impersonate` or `pyhttpx` to mimic browser TLS fingerprints.
 
 ---
 
