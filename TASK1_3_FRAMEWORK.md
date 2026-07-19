@@ -161,7 +161,7 @@ mkdir -p skills/<skill-name>/{guides}
 name: <skill-name>
 description: "<2-3 sentence description>"
 origin: openclaw
-version: "0.1.50"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code

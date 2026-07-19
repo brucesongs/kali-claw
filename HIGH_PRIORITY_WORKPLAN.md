@@ -29,7 +29,7 @@
 4. **关键质量问题**：
    - **翻译残留**：network-pentest 有中英文混排 ("networksegment", "limitationattacker")
    - **辅助 Defense 章节缺失**：部分 SKILL 缺少 `## Detection Methods` 和 `## Defense Evasion Techniques`
-   - **版本一致性**：所有 SKILL version=0.1.18，需 bump 到 0.1.50
+   - **版本一致性**：所有 SKILL version=0.1.18，需 bump 到 0.2.0.2 (Phase 1 目标版本)
 
 ---
 
@@ -155,7 +155,7 @@ cat skills/<skill>/SKILL.md
 3. **添加 Detection Methods** (若缺)：参考 network-pentest 格式
 4. **添加 Defense Evasion Techniques** (若缺)：参考 network-pentest 格式
 5. **更新 payloads.md**：添加 2026 新攻击向量
-6. **bump version**: 0.1.18 → 0.1.50
+6. **bump version**: 0.1.18 → 0.2.0.2
 
 ### Step 4: 验证 (5 min)
 ```bash
@@ -165,7 +165,7 @@ python3 validation/update-skill-standard.py --skill <skill>
 ### Step 5: Commit (5 min)
 ```bash
 git add skills/<skill>/
-git commit -m "refactor(<skill>): polish defense perspective and bump to v0.1.50
+git commit -m "refactor(<skill>): polish defense perspective and bump to v0.2.0.2
 
 - Standardize Defense Perspective as table
 - Add Detection Methods section
@@ -189,7 +189,7 @@ git commit -m "refactor(<skill>): polish defense perspective and bump to v0.1.50
 - [ ] `## Defense Evasion Techniques` 存在
 - [ ] `payloads.md` 至少 60 sections
 - [ ] `test-cases.md` 至少 8 tests (AAA 格式)
-- [ ] YAML `version: "0.1.50"`
+- [ ] YAML `version: "0.2.0.2"`
 - [ ] 无中英混排翻译残留
 - [ ] 通过 `update-skill-standard.py` 验证
 
@@ -202,7 +202,7 @@ git commit -m "refactor(<skill>): polish defense perspective and bump to v0.1.50
 - **15 个高优先级 SKILL**: 完成度 95%+ → **98%+**
 - **基线提升**: 整体完成度 92% → 94%+
 - **质量提升**: 翻译残留 0、结构一致、Defense 完整
-- **版本一致**: 全部 v0.1.50 (2026-07)
+- **版本一致**: 全部 v0.2.0.2 (2026-07)
 
 ---
 

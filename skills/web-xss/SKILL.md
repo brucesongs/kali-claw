@@ -2,7 +2,7 @@
 name: web-xss
 description: "XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites."
 origin: openclaw
-version: "0.1.50"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code

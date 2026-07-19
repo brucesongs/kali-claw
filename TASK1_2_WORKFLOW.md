@@ -51,13 +51,13 @@ For each SKILL in today's list:
   │   ├── Add Detection Methods (if missing)
   │   ├── Add Defense Evasion Techniques (if missing)
   │   ├── Update payloads.md with 2026 vectors
-  │   └── Bump version: 0.1.18 → 0.1.50
+  │   └── Bump version: 0.1.18 → 0.2.0.2
   │
   ├── Step 4: Validate (5 min)
   │   └── python3 validation/update-skill-standard.py --skill <name>
   │
   └── Step 5: Commit (5 min)
-      └── git commit -m "refactor(<skill>): polish defense + bump to v0.1.50"
+      └── git commit -m "refactor(<skill>): polish defense + bump to v0.2.0.2"
 ```
 
 ### Daily Wrap-up (17:00-17:30, 30 min)
@@ -120,7 +120,7 @@ git push origin phase1/skill-audit 2>/dev/null || true
 - [ ] `guides/` ≥ 3 deep-dive 文档
 
 ### 质量标准
-- [ ] YAML `version: "0.1.50"`
+- [ ] YAML `version: "0.2.0.2"`
 - [ ] 无中英混排翻译残留
 - [ ] 通过 `update-skill-standard.py --skill <name>` 验证
 - [ ] Markdown 格式规范 (无空 link、无破损 table)
@@ -208,14 +208,14 @@ git push origin phase1/skill-audit 2>/dev/null || true
 ### 标准格式
 
 ```
-refactor(<skill-name>): polish defense sections and bump to v0.1.50
+refactor(<skill-name>): polish defense sections and bump to v0.2.0.2
 
 - Standardize Defense Perspective as table format (5+ layers)
 - Add Detection Methods section (3+ indicators)
 - Add Defense Evasion Techniques section
 - Update payloads.md with 2026 attack vectors
 - Fix translation residue (mixed CN/EN terms)
-- Bump version: 0.1.18 → 0.1.50
+- Bump version: 0.1.18 → 0.2.0.2
 
 Addresses: SKILL_REMEDIATION_LIST.json high_priority
 ```
@@ -231,7 +231,7 @@ refactor(network-pentest): fix translation residue and standardize defense
 - Expand Detection Methods with SIEM Sigma rules
 - Expand Defense Evasion Techniques with timing manipulation
 - Update tool versions: nmap 7.95, wireshark 4.2.5, bettercap 2.40
-- Bump SKILL version: 0.1.18 → 0.1.50
+- Bump SKILL version: 0.1.18 → 0.2.0.2
 
 Quality gate: passes update-skill-standard.py validation
 EOF

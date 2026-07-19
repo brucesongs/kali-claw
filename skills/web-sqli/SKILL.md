@@ -2,7 +2,7 @@
 name: web-sqli
 description: "SQL injection attacks and defense - covering all major SQLi types including error-based, union-based, blind (boolean/time), double query (error-based), stacked queries, and out-of-band injection."
 origin: openclaw
-version: "0.1.50"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
