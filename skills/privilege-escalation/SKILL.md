@@ -2,7 +2,7 @@
 name: privilege-escalation
 description: "Privilege escalation is the process of elevating access from a low-privileged user context (standard user, service account, or limited shell) to root on Linux or SYSTEM/Administrator on Windows."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 3
   mitre: "TA0004-Privilege Escalation"
+  last_reviewed: "2026-07-21"
 ---
 
 
@@ -258,6 +259,76 @@ Privilege escalation explicitly accesses resources and data beyond the initial c
 ## Integration with Other Skills
 
 Privilege escalation receives initial access from `skills/network-pentest/`, `skills/web-xss/`, `skills/web-sqli/`, and `skills/web-auth-bypass/`. Successful escalation feeds into `skills/post-exploitation/` for persistence and lateral movement. Credential material harvested during escalation (hashes, SSH keys, tokens) feeds into `skills/password-attack/` for cracking. Container escape findings relate to `skills/container-security/`. Active Directory escalation connects to `skills/api-security/` for domain-level attack paths.
+
+---
+
+## Detection Methods
+
+Privilege escalation detection combines endpoint telemetry (EDR), system audit logs, and behavioral baselines. Understanding detection signals helps testers operate more stealthily and helps defenders prioritize monitoring.
+
+### Linux Host Indicators
+- **SUID binary execution**: Unusual SUID binaries executed (`find / -perm -4000 -type f 2>/dev/null`); known privesc tools like `linpeas`, `pspy`, `linux-smart-enumeration`.
+- **sudo abuse**: `sudo -l` enumeration; sudo rules with NOPASSWD or wildcard commands; `sudo` invocations outside user's typical pattern.
+- **Cron job tampering**: Modifications to `/etc/crontab`, `/etc/cron.d/*`, or user crontabs; root-owned cron entries executing scripts in writable directories.
+- **Kernel exploit signatures**: `dirtycow` / `dirtypipe` / `DirtyPipe` / `OverlayFS` patterns in process name or memory.
+- **Capability misuse**: Binaries with `cap_setuid`, `cap_dac_override`, `cap_sys_admin` capabilities; `setcap` invocations.
+
+### Windows Host Indicators
+- **Token impersonation**: `ImpersonateNamedPipeClient` API calls; duplicate token handle operations; `whoami /priv` queries listing `SeImpersonatePrivilege`.
+- **UAC bypass**: COM interface hijacking patterns; `eventvwr.exe` / `fodhelper.exe` / `computerdefaults.exe` executed by non-admin users.
+- **Service exploitation**: Service binary path with unquoted spaces; weak service permissions modified by non-admin (`accesschk.exe` enumeration); `sc config` modifications.
+- **LSASS access**: Non-system processes accessing LSASS memory; `procdump -ma lsass.exe`; `comsvcs.dll` MiniDump calls.
+- **SAM/NTDS dumping**: `reg save HKLM\SAM`; `volume shadow copy` of `ntds.dit`; `ntdsutil` invocation.
+
+### Container-Specific Indicators
+- **Container escape attempts**: Access to `/proc/1/root`, `cgroup` manipulation, `mount` of host filesystem, `CAP_SYS_ADMIN` capability usage.
+- **Privileged container abuse**: `kubectl exec --privileged`; `docker run --privileged`; containers running as `--pid=host` or `--network=host`.
+- **kubelet API access**: Requests to `https://node:10250/pods`; anonymous auth attempts on kubelet.
+
+### SIEM Detection Rules
+- **Sysmon Event ID 1**: Process creation; alert on `whoami /priv`, `systeminfo`, `accesschk.exe`, `winPEAS.exe`.
+- **Sysmon Event ID 10**: Process access; alert on `TargetImage: lsass.exe`.
+- **Sysmon Event ID 13**: Registry value set; alert on `HKLM\\SYSTEM\\CurrentControlSet\\Services\\.*\\ImagePath` modifications.
+- **Auditd rules**: `acl,/etc/sudoers` modification; `perm_su` events; SUID binary creation.
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | stats count by a0 | where a0 IN ("linpeas","pspy","unix-privesc-check")`
+
+## Defense Evasion Techniques
+
+### Stealth Enumeration
+- **Slow scanning**: Space enumeration across hours; cache results to avoid repeated `find` calls.
+- **LOLBins over custom tools**: Use `getent`, `id`, `groups`, `ls -la /etc/sudoers` instead of dropping `linpeas`.
+- **Native binary renaming**: Copy `find` to `~/.local/bin/.cache` to avoid process-name detection.
+- **PowerShell without AMSI**: Patch `amsi.dll` in-memory before enumeration; use `pwsh` CoreCLR bypass.
+- **In-memory enumeration**: Use `Reflective PE` loading or `.NET Interactive` to run tools without disk artifacts.
+
+### Service Exploitation Stealth
+- **Service binary obfuscation**: Encode service binary with custom encoder to evade AV signatures.
+- **DLL hijacking over custom binary**: Use legitimate signed binary + malicious DLL sidecar (less suspicious than dropping .exe).
+- **WMI over PsExec**: Use WMI subscription (`__EventFilter` + `CommandLineEventConsumer`) instead of `PsExec` to avoid `PSEXESVC.exe` service creation event.
+- **DCOM over RPC**: Use DCOM (`MMC20.Application`) for lateral movement to avoid standard RPC patterns.
+
+### Token Impersonation Stealth
+- **Stolen token over delegation**: Use stolen token to access services instead of creating new logon events.
+- **Process injection into legit process**: Inject into `explorer.exe` or `svchost.exe` to inherit legitimate token.
+- **Avoid `whoami /priv`**: Use `OpenProcessToken` + `GetTokenInformation` API directly to avoid SIEM-detected `whoami` invocation.
+
+### Kernel Exploit Stealth
+- **Target isolated hosts**: Run kernel exploits on isolated hosts to avoid panic-induced reboots visible to monitoring.
+- **Match kernel version precisely**: Avoid partial-match exploitation (crashes); use `uname -r` exact match.
+- **Memory-only exploits**: Prefer in-memory kernel exploits (no `/tmp/exploit` artifacts).
+- **Use known-good variants**: `DirtyPipe` (CVE-2022-0847) over `DirtyCOW` (CVE-2016-5195) — newer, less signatured.
+
+### Log Manipulation
+- **Selective clearing**: Delete only specific audit logs (`/var/log/audit/audit.log` lines for our session) instead of full file.
+- **Time-stomping**: Modify file timestamps with `timestomp` (Meterpreter) to match legitimate binaries.
+- **Auditd rule abuse**: Pause auditd rules via `auditctl -e 0` if root; restore after operations.
+- **Hide processes**: Use rootkit-style `LD_PRELOAD` hook to hide our processes from `ps`.
+
+### Container Escape Stealth
+- **Sidecar injection over new container**: Inject into existing pod rather than spawning new container (visible to kubectl get pods).
+- **Bypass via mounted Docker socket**: Use `/var/run/docker.sock` mount to spawn sibling container (less visible than escape).
+- **kubelet over API server**: Use kubelet API on worker node (`10250`) to escape API server monitoring.
+- **eBPF bypass**: Some kernel exploits don't trigger eBPF-based Falco rules (e.g., `CVE-2022-0185` before Falco rule update).
 
 ---
 

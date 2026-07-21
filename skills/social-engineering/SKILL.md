@@ -2,7 +2,7 @@
 name: social-engineering
 description: "Social engineering is the art of exploiting human psychological weaknesses rather than technical vulnerabilities to execute attacks. Attack vectors encompass Phishing, Pretexting, Baiting, Tailgating, Vishing, and other techniques."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   mitre: "TA0043-Reconnaissance"
+  last_reviewed: "2026-07-21"
 ---
 
 
@@ -201,6 +202,77 @@ recon-ng
 ## Detection Methods
 
 Detecting social engineering threats requires monitoring multiple communication channels simultaneously. Email header analysis (SPF, DKIM, DMARC pass/fail) identifies spoofed senders before users interact with malicious content. URL inspection tools reveal lookalike domains and credential harvesting pages. On the human side, tracking unusual request patterns — such as employees suddenly requesting sensitive data access or password resets outside normal procedures — helps identify active pretexting campaigns targeting the organization.
+
+### Email Gateway Indicators
+- **Authentication failures**: SPF `SoftFail` / `Permerror`, DKIM `fail` / `neutral`, DMARC `quarantine` / `reject` verdicts.
+- **Lookalike domains**: Homoglyph attacks (`аpple.com` Cyrillic `а`), `reply-` prefixes, punycode (`xn--` IDN), recently registered sender domains (<30 days).
+- **Header anomalies**: `Reply-To` differs from `From`; `Received` chain shows unusual hops; `X-Originating-IP` from bulletproof hosting.
+- **Attachment patterns**: Password-protected archives with password in email body; `.iso`/`.img`/`.vhd` container files (Mark-of-the-Web bypass); LNK files with embedded PowerShell.
+
+### Web / Credential Harvesting Indicators
+- **Lookalike TLS**: Recently issued Let's Encrypt certs for `secure-login-*` domains; typosquatted SAN entries.
+- **Modlishka / Evilginx patterns**: Reverse proxy traffic to legitimate IdP (Okta/Azure AD); user-agent anomalies (bot-like JS execution).
+- **Newly registered domains**: Domains registered <7 days ago; `cdn-` / `login-` / `auth-` prefixed domains mimicking target's brand.
+- **Form action URLs**: Login forms POSTing to non-corporate domains; form `action` attribute changed via JavaScript after page load.
+
+### Behavioral / Human Indicators
+- **Off-hours requests**: Executives requesting wire transfers or sensitive data outside business hours (BEC pattern).
+- **Urgency cues**: Emails with phrases like "ASAP", "urgent wire transfer", "ceo request"; pressure to bypass normal procedures.
+- **Geo-anomalies**: VPN logins from new country/region followed by sensitive data access.
+- **Reporting cadence**: Spike in user-reported phishing emails indicates either a campaign or improved training — correlate with click rates.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=email sourcetype=mailscanner action=reject | stats count by sender_domain | sort -count`
+- **Sigma rule**: `sigma/rules/email/bec_pattern.yml` — detects CEO fraud patterns.
+- **Microsoft 365 ATP**: Anti-phishing policies with mailbox intelligence; first-contact safety tip for external senders.
+- **SOAR playbooks**: Auto-disable user account after click on known-bad URL; force password reset + MFA re-enrollment.
+
+## Defense Evasion Techniques
+
+### Email Bypass Techniques
+- **Bypass SPF/DMARC via legitimate relay**: Compromise an account on a trusted relay (e.g., Mailchimp, SendGrid, Microsoft 365 tenant) to inherit reputation.
+- **Reply-To mismatch exploitation**: Use `From: ceo@company.com` (SPF fails) but `Reply-To: ceo@attacker.com` — many clients show only From.
+- **Display name abuse**: `From: "CEO Name" <attacker@external.com>` — mobile clients hide the email address.
+- **Unicode homoglyphs**: `аpple.com` (Cyrillic а), `microsоft.com` (Cyrillic о), `bnа.com` (Cyrillic а).
+- **Punycode confusion**: `xn--80ak6aa92e.com` renders as `аррӏе.com` (Apple lookalike).
+- **Thread hijacking**: Compromise one party, then reply to an existing legitimate thread to insert malicious link (high trust).
+
+### Web / Credential Theft Evasion
+- **Reverse proxy phishing (Modlishka, Evilginx, Muraena)**: Proxy real IdP login; capture credentials AND session cookies in real-time; bypasses MFA.
+- **Cloudflare Workers abuse**: Host phishing page on `*.workers.dev` to inherit Cloudflare reputation.
+- **Blob URLs**: Use `URL.createObjectURL()` to serve malicious JS without persistent URL (evades scanners).
+- **Open redirect chains**: Chain 3+ open redirects to obfuscate final destination.
+- **Brand logo SVG theft**: Use real SVG logos to evade image-comparison detection.
+- **JS cloaking**: Show benign content to security scanners (User-Agent, IP-based) but phishing page to real users.
+
+### Pretext Engineering
+- **Vendor impersonation**: Impersonate a known vendor (e.g.,CrowdStrike, Microsoft support) — trust transferred from legitimate brand.
+- **Internal team spoofing**: Impersonate IT support / HR / Legal — use shared document pretexts ("Q4 salary review", "compliance training").
+- **MFA fatigue + helpdesk social**: Trigger MFA fatigue, then call helpdesk claiming lost phone to reset MFA.
+- **Callback bypass**: Some organizations require callback verification — pre-text as target's manager to authorize.
+- **AI voice cloning**: Use ElevenLabs / Resemble to clone CEO voice for vishing calls ($243K deepfake CEO scam in 2024).
+- **Deepfake video**: Real-time deepfake for video calls (2024 Arup engineer case — $25M loss).
+
+### Delivery Stealth
+- **SMS over email**: SMS open rate 98% vs email 20%; use SMS for credential theft links.
+- **QR codes (Quishing)**: Embed phishing URL in QR code (bypasses email URL scanners; user opens on personal phone).
+- **Multipart attachments**: Hide payload in `multipart/related` MIME structure; some scanners only inspect first part.
+- **Password-protected archive**: Use `.zip` with password "2024" shared in email body — bypasses AV signature scanning.
+- **Steganography**: Hide payload URL in image LSB; user extracted via "view image" reveals the link.
+
+### Persistence & Lateral Movement
+- **OAuth consent phishing**: Trick user into granting OAuth app consent (persistent access without credentials).
+- **Session token theft over credentials**: Steal session cookies via reverse proxy; use them past MFA re-enrollment.
+- **Email rule creation**: Create hidden inbox rule (`pm-sent` folder) to hide replies from user's view.
+- **Forwarding rule**: Auto-forward sensitive emails to external address via legitimate email rule.
+
+### Tracking Evasion
+- **Pixel blocking**: Use CSS-only "view" tracking (no pixel image); evade email client image-blocking.
+- **Unique URLs per recipient**: Generate unique URL per email to identify which recipient clicked (don't reuse).
+- **Time-decay links**: URL valid only for 30 min after send; evades delayed sandbox detonation.
+- **Geo-fenced links**: URL only returns phishing page if accessed from target company's IP range.
+
+---
 
 ## Reporting
 

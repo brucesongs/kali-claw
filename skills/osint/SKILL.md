@@ -2,7 +2,7 @@
 name: osint
 description: "A specialized skill for intelligence gathering using publicly available sources."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 0
   guide_count: 8
   mitre: "TA0043-Reconnaissance"
+  last_reviewed: "2026-07-21"
 ---
 
 
@@ -352,6 +353,90 @@ recon-ng
 - **Compliant operations**: Only scan authorized targets, comply with local laws and regulations
 - **Encrypted data storage**: Encrypt sensitive intelligence, regularly clean up temporary files
 - **Harmless User-Agent**: Use common browser UAs to avoid being identified as a scanner
+
+## Detection Methods
+
+OSINT detection focuses on identifying reconnaissance activity from external sources and monitoring what information about your organization is publicly available. Understanding attacker reconnaissance patterns helps defenders deploy decoys and detect intelligence-gathering activity.
+
+### Network-Level Indicators (Defender Perspective)
+- **Certificate Transparency monitoring**: New SSL certificates issued for typosquatted or subdomains of your brand (use `crt.sh` alerts, CertSpotter).
+- **DNS enumeration patterns**: Spike in `ANY` queries, `AXFR` attempts, or DNS brute forcing (`subfinder`, `amass`, `gobuster` signature).
+- **Shodan / Censys exposure**: Regular export of your org's exposed services from Shodan/Censys; alert on new open ports or services.
+- **Search engine dorking**: Google / Bing searches containing `site:yourdomain.com filetype:pdf inurl:admin`; monitor Google Search Console for suspicious query patterns.
+- **WHOIS lookups**: Spike in WHOIS queries for your domain from non-trusted resolvers.
+
+### Web Infrastructure Indicators
+- **Subdomain takeover monitoring**: Regular `subjack` / `nuclei takeover` scans of own infrastructure; alert on dangling DNS pointing to decommissioned services.
+- **Wayback Machine freshness**: Monitor `web.archive.org` for leaked credentials or internal URLs in archived snapshots.
+- **GitHub dorking**: Monitor GitHub search for `org:yourcompany password`, `filename:.env org:yourcompany`; use GitGuardian / TruffleHog.
+- **Pastebin monitoring**: Use `psbdmp.ws` API or PasteHunter to detect leaked credentials or internal docs.
+
+### Social / Human Recon Indicators
+- **LinkedIn scraping patterns**: Spike in profile views from unknown accounts; bulk profile data requests.
+- **Twitter / X mention anomalies**: New accounts mentioning your brand keywords; sentiment shift.
+- **Job boards**: Monitor your company's job posts for tech stack disclosure (informs attackers about your stack).
+- **Employee blog oversharing**: Internal tools / project names disclosed in tech blogs; alert via Google Alerts.
+
+### Decoy / Honeypot Detection
+- **Canary tokens**: Embed unique tokens (Thinkst Canary) in documents, DNS records, AWS API keys; alert on token activation.
+- **Honeypot subdomains**: Deploy fake `vpn-internal.yourdomain.com`, `git.yourdomain.com` — any DNS resolution indicates enumeration.
+- **Fake breach data**: Plant fake user `admin_honeypot` with known password in forums; alert on usage.
+- **Honeydocs**: Track unique honeytokens in documents; alert when found in unexpected location.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns query="*.yourdomain.com" | stats count by src_ip | where count > 100`
+- **Sigma rule**: `sigma/rules/recon/subdomain_enum.yml` — detects subfinder/amass patterns.
+- **AWS CloudTrail**: Alert on `Describe*` API calls from unrecognized ARNs.
+- **GitHub**: Audit log monitoring for `repo.*.clone` from new IPs.
+
+## Defense Evasion Techniques
+
+### Stealth Reconnaissance
+- **Passive over active**: Prefer `crt.sh` (Certificate Transparency logs) over `nmap -sS`; no packets hit target.
+- **Rate limiting**: Cap Shodan / Censys queries to legitimate research patterns; avoid `bulk export` API.
+- **Distributed source IPs**: Use residential proxies for active recon; rotate to avoid WAF rate limiting.
+- **Off-peak timing**: Schedule active scans during target's off-hours; blend with maintenance traffic.
+- **Source port spoofing**: Use `nmap --source-port 53` to look like DNS; `--source-port 80` to look like HTTP.
+
+### Search Engine Dorking Stealth
+- **Distributed queries**: Use multiple search engines (Google, Bing, DuckDuckGo, Brave Search) to distribute query load.
+- **Search operators in payloads**: Avoid obvious `inurl:admin` patterns; use natural language queries that yield same results.
+- **Custom search engines**: Yandex, Baidu, Mojeek often index different content than Google; less likely to be alerted.
+- **Search Console manipulation**: Use Google's `site:` operator via custom scripts rather than browser — evades Google's anti-bot.
+- **Cached content access**: Use `cache:` operator or `web.archive.org` to view content without hitting target.
+
+### Social Engineering Recon Stealth
+- **LinkedIn via proxy**: Use LinkedIn Sales Navigator via legitimate subscription; avoid scraping patterns.
+- **Twitter/X API abuse**: Use Twitter API for bulk mention lookups rather than browser scraping.
+- **Browser fingerprint variation**: Rotate User-Agent, viewport, language to evade anti-bot (Cloudflare, PerimeterX).
+- **Multiple accounts**: Distribute recon across multiple social media accounts to avoid rate limits and pattern detection.
+- **Burner accounts**: Use single-use accounts for sensitive recon (no history to correlate).
+
+### Dark Web Monitoring Evasion
+- **Tor for dark web research**: Use Tor for pastebin / forum access; rotate circuits per request.
+- **VPN chain**: Tor + VPN combination for maximum anonymity during sensitive searches.
+- **Forum burners**: Use unique credentials for each dark web forum; assume breach inevitable.
+- **Cryptocurrency for paid access**: Use Monero (private) over Bitcoin for forum donations / paid access.
+
+### Code Repository Recon Stealth
+- **GitHub API over search**: Use `api.github.com/search/code` with authenticated token rather than `github.com/search` (rate limits, less suspicious).
+- **Mirror repositories**: Clone repos to local before searching; avoid `git grep` patterns across many repos.
+- **Fork before analyze**: Fork target repo privately before scanning for secrets (don't reveal interest).
+- **TruffleHog locally**: Run secret scanners locally rather than uploading to third-party scanning services.
+
+### Email / User Enumeration Stealth
+- **SMTP VRFY avoidance**: Avoid `VRFY` command (logged); use `RCPT TO` responses instead.
+- **Microsoft 365 enumeration**: Use `GetCredentialType` API endpoint (no log) over `AutoDiscover` (logged).
+- **Gmail enumeration**: Use Gmail API rather than SMTP `RCPT TO` (rate-limited but less suspicious).
+- **OAuth consentGrant pattern**: Use legitimate OAuth consent flow to enumerate user existence without SMTP.
+
+### Cloud Reconnaissance Stealth
+- **AWS S3 enumeration**: Use `ListObjectsV2` with valid credentials (no `Anonymous` flag); less suspicious than anonymous bucket checks.
+- **Azure Blob enumeration**: Use Azure Storage Explorer with legitimate SAS tokens over anonymous GET.
+- **GCP Bucket enumeration**: Use authenticated API calls rather than anonymous `storage.googleapis.com` GETs.
+- **Container registry recon**: Pull images individually with delays rather than bulk `skopeo sync`.
+
+---
 
 ## Hacker Laws
 
