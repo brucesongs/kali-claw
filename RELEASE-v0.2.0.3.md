@@ -1,340 +1,383 @@
-# kali-claw v0.2.0.3 — Phase 1 Day 3 完成 (80% Phase 1)
+# kali-claw v0.2.0.3 版本说明
 
-> **报告版本**：v0.2.0.3 · 2026-07-21  
-> **发布 ID**：v0.2.0.3  
-> **状态**：🟡 **进行中** (Task 1.2 Phase 1 Day 1-3 完成)  
-> **启动日期**：2026-07-17  
-> **目标完成**：2026-08-23 (Phase 1 全部完成)  
-> **类型**：质量升级 (Quality Release)  
-> **关联**：[v0.2.0.2](RELEASE-v0.2.0.2.md) | [v0.2.0.1 战略](RELEASE-v0.2.0.1.md)
+> **版本编号**：v0.2.0.3  
+> **发布日期**：2026 年 7 月 21 日  
+> **版本类型**：质量升级版本  
+> **上一版本**：v0.2.0.2（2026-07-19）  
+> **下一里程碑**：v0.2.0.4（Phase 1 第一阶段全部完成）
 
 ---
 
-## 1. v0.2.0.3 核心进展
+## 一、版本概述
 
-### 1.1 Phase 1 Task 1.2 进度 (12/15 SKILLs = 80%)
+kali-claw 是基于 OpenClaw 框架构建的 AI 渗透测试智能体工作空间，覆盖 127 个安全技能域，掌握 Kali Linux 2025-2 全部 518 款安全工具。本仓库作为智能体的结构化知识库与配置系统，配套自动化脚本完成校验、编排与报告工作。
 
-按 `HIGH_PRIORITY_WORKPLAN.md` 计划，v0.2.0.3 在 v0.2.0.2 基础上新增 **4 个 P1 SKILL** 完成深度优化：
+v0.2.0.3 是 kali-claw **Phase 1 SKILL 库完善项目**的第三个迭代版本，本次发布的核心目标是**对 4 个高优先级安全技能域进行深度质量升级**，重点补齐检测方法（Detection Methods）与防御规避技术（Defense Evasion Techniques）两大防御侧章节。
 
-| SKILL | 优先级 | 主要改进 | Commit |
-|-------|--------|---------|--------|
-| privilege-escalation | P1 | 添加 Detection Methods (4 类) + Defense Evasion (6 类，含 Linux/Windows/Container SIEM 规则) | `4aacb0fc` |
-| social-engineering | P1 | 扩展 Detection Methods (4 类，含 BEC/deepfake) + 添加 Defense Evasion (6 类，含 reverse proxy phishing/homoglyphs/Quishing) | `4aacb0fc` |
-| osint | P1 | 添加 Detection Methods (5 类，含 decoy/Canary tokens) + Defense Evasion (7 类，含 dark web/cloud recon stealth) | `4aacb0fc` |
-| cloud-security | P1 | 添加 Detection Methods (6 类，含 CloudTrail/IMDS/S3/Container) + Defense Evasion (6 类，含 CloudTrail evasion/STS chain/Lambda stealth) | `4aacb0fc` |
-
-### 1.2 累计 v0.2.0.x 成果
-
-| 阶段 | SKILL 数 | 累计 | 版本 |
-|------|---------|------|------|
-| v0.2.0.1 | 0 (战略文档) | 0/15 | - |
-| v0.2.0.2 (Day 1-2) | +8 | 8/15 (53%) | v0.2.0.2 |
-| **v0.2.0.3 (Day 3)** | **+4** | **12/15 (80%)** | **v0.2.0.2** |
-| v0.2.0.4 (Day 4, 待) | +3 | 15/15 (100%) | v0.2.0.2 |
+截至本版本发布，Phase 1 第一阶段已完成 **12/15 个高优先级 SKILL**（完成度 80%），覆盖网络安全、Web 安全、后渗透、凭证攻击、社会工程、OSINT、云安全等核心领域。
 
 ---
 
-## 2. v0.2.0.3 新交付 SKILLs 详解
+## 二、版本亮点
 
-### 2.1 privilege-escalation
+### 1. 四个核心 SKILL 完成深度升级
 
-**核心新增**: Detection Methods + Defense Evasion Techniques 双章节
+本次发布的四个 SKILL 全部具备完整的"防御三件套"：**防御视角（Defense Perspective）**、**检测方法（Detection Methods）**、**防御规避技术（Defense Evasion Techniques）**。
 
-**Detection Methods (4 类检测信号)**:
-- Linux 主机: SUID 滥用、sudo 配置、Cron 篡改、内核 exploit 签名、Capability 滥用
-- Windows 主机: Token impersonation、UAC bypass、Service exploitation、LSASS 访问、SAM/NTDS dump
-- Container: 逃逸尝试、kubelet API 访问、CAP_SYS_ADMIN 使用
-- SIEM 规则: Sysmon Event 1/10/13、auditd 规则、Splunk SPL
+| SKILL 名称 | 中文领域 | 主要新增内容 |
+|-----------|---------|------------|
+| privilege-escalation | 权限提升 | Linux/Windows/容器三层检测体系；6 类规避技术 |
+| social-engineering | 社会工程 | 商业邮件欺诈（BEC）检测、深度伪造对抗、二维码钓鱼 |
+| osint | 开源情报收集 | 蜜罐识别、Canary 令牌检测；7 类隐身侦察技术 |
+| cloud-security | 云安全 | 云审计日志监控、STS 角色链追踪、容器逃逸规避 |
 
-**Defense Evasion (6 类绕过技术)**:
-- Stealth 枚举: LOLBins、AMSI bypass、内存枚举
-- Service exploit stealth: DLL hijacking、WMI over PsExec、DCOM over RPC
-- Token impersonation: 进程注入、stolen token over delegation
-- Kernel exploit stealth: 隔离主机、版本精确匹配、内存-only
-- Log 操纵: 选择性清除、time-stomping、auditd rule abuse
-- Container escape: Sidecar injection、Docker socket、kubelet over API server、eBPF bypass
+### 2. 防御视角全面表格化
 
-### 2.2 social-engineering
+所有 SKILL 的防御视角章节由原来的简单条目列表升级为**多层防御矩阵**，每个 SKILL 至少覆盖 5 个防御层，并提供：
 
-**核心新增**: Detection Methods 扩展 + Defense Evasion 全章节
+- 具体的防护措施（如 VLAN 隔离 + 微分段）
+- 部署建议（如 IMDSv2 强制启用）
+- 关键注意事项（如误报率控制、季度审查节奏）
 
-**Detection Methods (扩展 4 类)**:
-- Email Gateway: SPF/DKIM/DMARC 失败、Homoglyph 攻击、Header 异常、附件模式
-- Web/Credential Harvesting: Modlishka/Evilginx 反向代理、Newly registered domains、Form action 异常
-- Behavioral/Human: Off-hours 请求、Urgency 信号、Geo 异常、报告节奏
-- SIEM 规则: Splunk、Sigma BEC pattern、Microsoft 365 ATP、SOAR playbooks
+### 3. 检测方法章节对接主流 SOC 工具链
 
-**Defense Evasion (6 类)**:
-- Email bypass: 合法 relay 滥用、Reply-To mismatch、Display name abuse、Unicode homoglyphs、Thread hijacking
-- Web/Credential theft: Reverse proxy phishing、Cloudflare Workers、Blob URLs、Open redirect chains、JS cloaking
-- Pretext engineering: Vendor impersonation、AI voice cloning、Deepfake video、MFA fatigue + helpdesk
-- Delivery stealth: SMS over email、QR codes (Quishing)、Multipart 附件、Password-protected archive、Steganography
-- Persistence: OAuth consent phishing、Session token theft、Email rules、Forwarding rules
-- Tracking evasion: CSS-only tracking、Unique URLs、Time-decay links、Geo-fenced links
+所有新增的检测方法章节均提供**可直接复制使用**的 SIEM 检测规则，包括：
 
-### 2.3 osint
+- Splunk SPL 查询语句
+- Sigma 规则文件路径
+- Windows Sysmon 事件 ID（1/10/13 等）
+- AWS GuardDuty 检测器配置
+- Linux auditd 规则
 
-**核心新增**: Detection Methods + Defense Evasion Techniques 双章节
+### 4. 翻译质量全面清理
 
-**Detection Methods (5 类)**:
-- Network-level: CT 监控、DNS 枚举模式、Shodan/Censys 暴露、Search engine dorking、WHOIS 查询峰值
-- Web Infrastructure: Subdomain takeover、Wayback Machine、GitHub dorking、Pastebin 监控
-- Social/Human Recon: LinkedIn scraping、Twitter mention、Job boards、员工博客过度分享
-- Decoy/Honeypot: Canary tokens、Honeypot subdomains、Fake breach data、Honeydocs
-- SIEM: Splunk SPL、Sigma recon、AWS CloudTrail、GitHub audit log
-
-**Defense Evasion (7 类)**:
-- Stealth Reconnaissance: 被动 > 主动、Rate limiting、分布式 source IP、Off-peak timing、Source port 伪造
-- Search Engine Dorking: 多引擎分散、Natural language queries、Yandex/Baidu/Mojeek、Cached content
-- Social Engineering Recon: LinkedIn via Sales Navigator、Twitter API、Browser fingerprint rotation、Burner accounts
-- Dark Web Monitoring: Tor、VPN chain、Forum burners、Monero
-- Code Repository Recon: GitHub API over search、Mirror repos、Fork before analyze、TruffleHog local
-- Email/User Enumeration: VRFY 避免、M365 GetCredentialType、OAuth consentGrant
-- Cloud Reconnaissance: Authenticated API over anonymous、S3 ListObjectsV2、Azure Storage Explorer
-
-### 2.4 cloud-security
-
-**核心新增**: Detection Methods + Defense Evasion Techniques 双章节
-
-**Detection Methods (6 类)**:
-- Cloud Provider Audit Logs: AWS CloudTrail、AWS ConsoleLogin、AWS IAM events、Azure Activity Log、GCP Audit Logs、K8s Audit Log
-- Identity & Access Anomalies: IMDS 访问、STS AssumeRole 链、Service Account key 创建、Admin role grant、SSRF metadata access
-- Storage/Data Exfiltration: S3 GET spike、Bucket policy 改动、EBS snapshot sharing、AMI publishing、Cloud Storage egress
-- Compute/Container: EC2 UserData、Lambda function 创建、ECS privileged task、EKS pod 创建异常
-- SIEM 规则: Splunk SPL (AWS/K8s)、Sigma rules、GuardDuty、Microsoft Defender for Cloud、Falco
-- CSPM/Posture Management: Public S3 buckets、Security groups 开放、Missing encryption、IAM keys > 90 days
-
-**Defense Evasion (6 类)**:
-- CloudTrail/Logging Evasion: Disable trail、Event selector 操纵、Log file KMS disable、VPC Flow Logs tampering、Region hopping
-- Identity Evasion: STS role chaining、Cross-account role assumption、Service role abuse、Long-lived keys、Federation abuse
-- Compute Stealth: Lambda in-region、Fargate over EC2、Spot Instance、Lightsail、Lambda layer obfuscation
-- Data Exfiltration Stealth: S3 cross-region replication、EBS snapshot copy、AMI copy、Snowball、AWS Transfer Family、VPC endpoint
-- Container/Kubernetes: Sidecar injection、SA token theft、Anonymous auth abuse、kubeconfig in ConfigMap、Privileged pod via cron
-- Network Stealth: VPC peering、Transit Gateway、PrivateLink、Direct Connect、CloudFront/API Gateway
+消除了上一版本遗留的**机器翻译中英文混杂**问题（如 "attack surfaceminimumize"、"Defense Perspectivethenisdisablea切notnecessary" 等），所有 SKILL 文档达到生产级专业度。
 
 ---
 
-## 3. 关键数据更新
+## 三、详细更新内容
 
-### 3.1 Phase 1 Task 1.2 Phase 1 实时进度
+### 1. privilege-escalation（权限提升）
+
+**适用场景**：渗透测试中从普通用户权限提升至 root 或 SYSTEM。
+
+#### 检测方法（新增 4 类）
+
+- **Linux 主机检测**：SUID 二进制滥用、sudo 配置异常、Cron 任务篡改、内核利用签名、Capabilities 滥用
+- **Windows 主机检测**：令牌模拟、UAC 绕过、服务漏洞利用、LSASS 内存访问、SAM/NTDS 转储
+- **容器场景检测**：逃逸尝试（如访问 `/proc/1/root`）、kubelet API 异常调用、`CAP_SYS_ADMIN` 能力使用
+- **SIEM 规则**：Sysmon Event ID 1/10/13、Linux auditd、Splunk SPL 查询语句
+
+#### 防御规避技术（新增 6 类）
+
+- **隐身枚举**：使用系统自带二进制（LOLBins）替代自定义工具、AMSI 内存补丁、内存枚举
+- **服务漏洞利用隐身**：DLL 劫持替代独立可执行文件、WMI 订阅替代 PsExec、DCOM 替代 RPC
+- **令牌模拟隐身**：注入到 `explorer.exe` 等合法进程、使用被盗令牌避免新增登录事件
+- **内核利用隐身**：在隔离主机上运行、版本精确匹配避免崩溃、纯内存利用
+- **日志操纵**：选择性清除而非整文件删除、时间戳伪造（`timestomp`）、auditd 规则暂停
+- **容器逃逸隐身**：Sidecar 注入替代新建容器、Docker Socket 挂载、kubelet 替代 API Server、eBPF 规则绕过
+
+### 2. social-engineering（社会工程）
+
+**适用场景**：渗透测试中针对人员的攻击与防护。
+
+#### 检测方法（扩展 4 类）
+
+- **邮件网关指标**：SPF/DKIM/DMARC 验证失败、同形异义字域名（Homoglyph）、`Reply-To` 与 `From` 不一致、附件模式异常
+- **Web/凭证窃取指标**：Modlishka/Evilginx 反向代理特征、新注册域名（<7 天）、表单 action URL 动态修改
+- **行为/人员指标**：非工作时间资金转账请求、紧急性诱导（"ASAP"等关键词）、地理位置异常、报告节奏异常
+- **SIEM 规则**：Splunk SPL、Sigma BEC 模式规则、Microsoft 365 ATP 反钓鱼策略、SOAR 自动化剧本
+
+#### 防御规避技术（新增 6 类）
+
+- **邮件绕过**：合法邮件中继滥用（Mailchimp/SendGrid/M365）、`Reply-To` 错位利用、显示名伪装、Unicode 同形异义字（西里尔字母 а）、会话劫持注入恶意链接
+- **Web/凭证窃取**：反向代理钓鱼（Modlishka/Evilginx/Muraena）、Cloudflare Workers 滥用、Blob URL 规避扫描、开放重定向链、JS 按访问者类型分流
+- **场景预设工程**：供应商冒充（信任传递）、内部团队伪装、MFA 疲劳 + 客服社工、AI 语音克隆（ElevenLabs）、实时深度伪造视频
+- **载荷投递隐身**：短信优于邮件（98% vs 20% 打开率）、QR 码钓鱼（Quishing）规避邮件 URL 扫描、多部分 MIME 结构、密码保护压缩包、隐写术
+- **持久化**：OAuth 同意钓鱼（无需凭证的持久访问）、会话令牌窃取优于凭证、隐藏邮箱规则、自动转发规则
+- **追踪规避**：CSS-only 追踪（无图片像素）、每收件人唯一 URL、时间衰减链接、地理围栏链接
+
+### 3. osint（开源情报收集）
+
+**适用场景**：渗透测试前期对目标的情报收集。
+
+#### 检测方法（新增 5 类）
+
+- **网络层指标**：证书透明度日志监控、DNS 枚举模式、Shodan/Censys 暴露面监控、搜索引擎 dorking 检测、WHOIS 查询峰值
+- **Web 基础设施指标**：子域名接管监控、Wayback Machine 泄露、GitHub dorking、Pastebin 监控
+- **社会/人员侦察指标**：LinkedIn 抓取模式、Twitter 提及异常、招聘信息泄露技术栈、员工博客过度分享
+- **蜜罐/诱饵检测**：Canary 令牌（Thinkst Canary）、蜜罐子域名（`vpn-internal.yourdomain.com`）、伪造的泄露数据、Honeydocs
+- **SIEM 规则**：Splunk SPL 子域名枚举检测、Sigma 侦察规则、AWS CloudTrail 异常 API 调用、GitHub 审计日志监控
+
+#### 防御规避技术（新增 7 类）
+
+- **隐身侦察**：被动优先于主动（`crt.sh` 替代 `nmap`）、速率限制、分布式源 IP、非高峰时段、源端口伪造（`--source-port 53`）
+- **搜索引擎 Dorking 隐身**：多引擎分散查询、自然语言替代明显操作符、Yandex/Baidu/Mojeek、缓存内容访问
+- **社会工程侦察隐身**：LinkedIn Sales Navigator 替代抓取、Twitter API 替代浏览器抓取、浏览器指纹轮换、Burner 账号
+- **暗网研究隐身**：Tor 网络访问、Tor + VPN 链式匿名、论坛一次性账号、Monero 替代比特币
+- **代码仓库侦察**：GitHub API 替代网页搜索、本地克隆后搜索、私有 Fork 后扫描、TruffleHog 本地运行
+- **邮件/用户枚举隐身**：避免 SMTP VRFY（被记录）、使用 M365 `GetCredentialType` API（无日志）、OAuth consentGrant 模式
+- **云侦察隐身**：认证 API 替代匿名访问、S3 `ListObjectsV2` 使用合法凭证、Azure Storage Explorer 替代匿名 GET
+
+### 4. cloud-security（云安全）
+
+**适用场景**：AWS、Azure、GCP、Kubernetes 环境的安全评估。
+
+#### 检测方法（新增 6 类）
+
+- **云厂商审计日志**：AWS CloudTrail 全 API 调用、Azure Activity Log、GCP Audit Logs、Kubernetes Audit Log；监控 `DeleteTrail`、`StopLogging` 等反取证行为
+- **身份与访问异常**：IMDS 元数据服务异常访问、STS AssumeRole 长链（A→B→C）、Service Account 密钥创建峰值、管理员角色即时分配、SSRF 元数据提取
+- **存储/数据外泄**：S3 GetObject 突增、Bucket 策略变更为公开、EBS 快照共享至外部账号、AMI 发布为公开、Cloud Storage 出站流量异常
+- **计算/容器指标**：EC2 UserData 包含反向 Shell、Lambda 创建带过度权限、ECS 特权任务、EKS Pod 创建异常
+- **SIEM 规则**：Splunk SPL（AWS / K8s）、Sigma 规则、AWS GuardDuty、Microsoft Defender for Cloud、Falco 运行时检测
+- **CSPM 态势管理**：公开 S3 桶持续扫描、对互联网开放的安全组、缺失加密、超过 90 天的 IAM 密钥
+
+#### 防御规避技术（新增 6 类）
+
+- **CloudTrail/日志规避**：禁用追踪、事件选择器操纵、日志文件 KMS 密钥禁用、VPC Flow Logs 篡改、跨区域操作（部分区域未配置追踪）
+- **身份规避**：STS 角色链洗钱、跨账号角色假设、EC2 实例配置文件凭证滥用、长效密钥替代 STS、SAML 联邦伪造
+- **计算隐身**：同区域 Lambda、Fargate 替代 EC2（无主机日志）、Spot 实例（瞬态）、Lightsail（日志更简略）、Lambda 层混淆代码
+- **数据外泄隐身**：S3 跨区域复制（伪装为灾备）、EBS 快照复制、AMI 复制、Snowball 物理外泄、AWS Transfer Family SFTP、VPC 终端节点
+- **容器/Kubernetes 规避**：Sidecar 注入替代新建 Pod、ServiceAccount 令牌窃取、匿名认证滥用、ConfigMap 嵌入 kubeconfig、CronJob 短生命周期 Pod、仅 hostPID/hostNetwork（无 privileged 标志）、多层镜像载荷隐藏
+- **网络隐身**：VPC 对等连接、Transit Gateway 复杂路由、PrivateLink 私有 IP 空间、Direct Connect 专线、CloudFront/API Gateway 反向代理
+
+---
+
+## 四、Phase 1 累计成果
+
+### 已完成 SKILL 清单（12 个）
+
+**P0 核心域（3 个）**：
+
+1. network-pentest（网络渗透测试）
+2. post-exploitation（后渗透）
+3. web-xss（跨站脚本攻击）
+
+**P1 重要域（9 个）**：
+
+4. web-sqli（SQL 注入攻击）
+5. web-ssrf（服务端请求伪造）
+6. web-auth-bypass（认证绕过）
+7. api-security（API 安全）
+8. password-attack（口令攻击）
+9. privilege-escalation（权限提升）
+10. social-engineering（社会工程）
+11. osint（开源情报收集）
+12. cloud-security（云安全）
+
+### 质量指标对照
+
+| 指标 | v0.2.0.1（升级前） | v0.2.0.3（本版本） | 提升 |
+|------|-------------------|------------------|------|
+| 高优先级 SKILL 处理数 | 0 / 15 | 12 / 15 | +12 |
+| SKILL 版本统一 | 0% (各为 0.1.18) | 100% (统一 v0.2.0.2) | +100% |
+| 防御视角表格化 | 部分 | 100% | 显著提升 |
+| 检测方法章节 | 30% | 100% (12/12) | +70% |
+| 防御规避技术章节 | 20% | 100% (12/12) | +80% |
+| 翻译残留（中英混杂） | 多处 | 全部清零 | 100% 清理 |
+
+### 安全域覆盖
 
 ```
-Task 1.2 Phase 1 (15 高优先级 SKILL 深度优化)
-├── Day 1 (7.19) ✅ 4 SKILLs (27%)
-│   ├── network-pentest (P0) ✅
-│   ├── post-exploitation (P0) ✅
-│   ├── web-xss (P0) ✅
-│   └── web-sqli (P1) ✅
-├── Day 2 (7.19) ✅ 4 SKILLs (53%)
-│   ├── web-ssrf (P1) ✅
-│   ├── web-auth-bypass (P1) ✅
-│   ├── api-security (P1) ✅
-│   └── password-attack (P1) ✅
-├── Day 3 (7.21) ✅ 4 SKILLs (80%) ← 今日完成
-│   ├── privilege-escalation (P1) ✅
-│   ├── social-engineering (P1) ✅
-│   ├── osint (P1) ✅
-│   └── cloud-security (P1) ✅
-├── Day 4 (待) ⬜ 3 SKILLs (将达 100%)
-│   ├── container-security
-│   ├── binary-reverse
-│   └── exploit-development
-└── Day 5 (待) ⬜ Phase 1 整体审查 + Phase 2 启动
+网络攻击域       ✓ network-pentest
+Web 攻击域       ✓ web-xss / web-sqli / web-ssrf / web-auth-bypass
+凭证访问域       ✓ password-attack
+后渗透域         ✓ post-exploitation / privilege-escalation
+社会工程域       ✓ social-engineering
+情报收集域       ✓ osint
+API 安全域       ✓ api-security
+云安全域         ✓ cloud-security
 ```
-
-### 3.2 Git 提交统计 (Phase 1 至今)
-
-```
-51bfbf61 docs: Task 1.1 Day 1 - SKILL audit baseline data
-82ec6a21 docs: Phase 1 planning + Task 1.2 preparation framework
-159ad4ef refactor(network-pentest): fix translation residue and standardize defense
-d7828cd4 refactor(post-exploitation): fix translation residue and standardize defense
-3771e1c1 refactor(web-xss): add Detection Methods + Defense Evasion sections
-49c7386e refactor(web-sqli): fix translation residue + add Detection/Evasion
-8d4613f6 fix: correct SKILL version baseline 0.1.50 -> 0.2.0.2
-74c936ef refactor: Day 2 P1 SKILLs - add Detection/Evasion sections + bump v0.2.0.2
-d3605c90 docs: add RELEASE-v0.2.0.2.md - Phase 1 progress through Day 2
-a88e2e64 docs: add RELEASE-v0.2.0.1.md - Phase 1 strategic source document
-4aacb0fc refactor: Day 3 P1 SKILLs - add Detection/Evasion sections + bump v0.2.0.2  ← 今日
-```
-
-共 **11 个 commits**，分支 `phase1/skill-audit`，本地领先 origin 11 commits (push 待重试)。
-
-### 3.3 质量指标
-
-| 维度 | v0.2.0.2 状态 | v0.2.0.3 状态 |
-|------|--------------|--------------|
-| 处理 SKILL 数 | 8/15 (53%) | **12/15 (80%)** |
-| 版本统一 | 8/8 = 100% | **12/12 = 100%** |
-| Defense Perspective 表格化 | 8/8 = 100% | **12/12 = 100%** |
-| Detection Methods 章节 | 8/8 = 100% | **12/12 = 100%** |
-| Defense Evasion 章节 | 8/8 = 100% | **12/12 = 100%** |
-| 翻译残留 | 全部 0 | **全部 0** |
-
-### 3.4 时间节省
-
-| 项目 | 原计划 | 实际 | 节省 |
-|------|--------|------|------|
-| 周末准备 | 16h | ~4h | **12h** |
-| Phase 1 启动 | 7.20 周一 | 7.19 周日 | **1 day** |
-| Phase 1 完成日 | 7.23 | 预计 7.22 | **1 day** |
-| 总节省时间 | - | - | **~26h** |
 
 ---
 
-## 4. 后续路线
+## 五、安装与使用
 
-### 4.1 立即任务 (Day 4, 7.22 周二)
+### 快速开始
 
-完成剩余 3 个 P1 SKILL：
+```bash
+# 克隆仓库
+git clone https://github.com/brucesongs/kali-claw.git
+cd kali-claw
 
-| SKILL | 预估工作 | 状态 |
-|-------|---------|------|
-| container-security | Detection + Evasion + bump | ⬜ |
-| binary-reverse | 已有 Detection, 仅加 Evasion + bump | ⬜ |
-| exploit-development | Detection + Evasion + bump | ⬜ |
+# 启动 Claude Code
+claude
 
-**预估工时**: 1.5h
+# 初始化（自动加载所有 SKILL）
+/init
 
-### 4.2 Day 5 (7.23 周三) - Phase 1 完成
-
-- 15/15 SKILL 最终验证
-- 更新 SKILL_REMEDIATION_LIST.json 进度
-- 生成 Phase 1 完成报告
-- **启动 Phase 2** (115 standard SKILLs 标准化)
-
-### 4.3 Phase 2 + Task 1.3 (7.24-8.04)
-
-- Phase 2: 95 standard SKILLs 批量优化 (目标 90%+)
-- Missing Defense: 17 个非核心 SKILL 补 Defense Perspective
-- Task 1.3: 7 个新 SKILL 创建 (与 Phase 2 并行)
-  - ai-safety-redteam-advanced
-  - identity-provider-attack
-  - data-loss-prevention-bypass
-  - edge-computing-security
-  - quantum-cryptography-transition
-  - hardware-side-channel-advanced
-  - 5g-6g-telecom-attack-advanced
-
-### 4.4 Phase 1 全程目标 (8.23)
-
-- SKILL 总数: 130 → **150+**
-- 平均完成度: 95.4% → **98%+**
-- Defense Perspective: 86% → **100%**
-- 版本发布: v0.2.0.2 → **v0.2.1**
-
----
-
-## 5. 战略价值对比 (v0.2.0.2 → v0.2.0.3)
-
-| 维度 | v0.2.0.2 | v0.2.0.3 | 增量 |
-|------|---------|---------|------|
-| 处理 P0 SKILL | 3/3 (100%) | 3/3 (100%) | - |
-| 处理 P1 SKILL | 5/12 (42%) | **9/12 (75%)** | **+4 SKILLs** |
-| 总完成度 | 53% | **80%** | **+27%** |
-| 覆盖安全域 | Web/Network/Post-Exploitation/Cred/Cloud base | + Privilege Escalation/Social/OSINT/Cloud deep | **+4 关键域** |
-| 现代 SOC 检测覆盖 | 部分 | 完整 (Sysmon/SIEM/Sigma/GuardDuty/Falco) | ✅ |
-| 现代攻击 Evasion 覆盖 | 部分 | 完整 (BEC/deepfake/Quishing/STS chain/Container escape) | ✅ |
-
-### v0.2.0.3 的差异化亮点
-
-1. **完整 SOC 检测体系**: 所有 12 SKILL 都包含 Sigma 规则、Splunk SPL、SIEM Event IDs 等具体检测规则
-2. **现代攻击向量覆盖**: AI voice cloning、Deepfake video、Quishing、Modlishka reverse proxy、STS role chaining
-3. **Cloud-native 安全完整**: CloudTrail evasion、Container escape stealth、Kubernetes API abuse - 覆盖 2026 主流云攻击面
-4. **中文翻译清理历史**: v0.1.x 时代 machine translation 残留全面清除，达到生产级专业度
-
----
-
-## 6. 版本里程碑 (更新)
-
-| 版本 | 日期 | 内容 | 状态 |
-|------|------|------|------|
-| v0.2.0.1 | 2026-07-16 | 战略定位 + 项目计划 | ✅ 已发布 |
-| v0.2.0.2 | 2026-07-19 | Phase 1 Day 1-2 完成 (8 SKILLs, 53%) | ✅ 已发布 |
-| **v0.2.0.3** | **2026-07-21** | **Phase 1 Day 3 完成 (累计 12 SKILLs, 80%)** | **🟡 进行中** |
-| v0.2.0.4 | 2026-07-22 | Phase 1 Day 4 完成 (15/15 SKILLs, 100%) | ⬜ 待发布 |
-| v0.2.0.5 | 2026-07-29 | Phase 2 启动 + Task 1.3 启动 | ⬜ 待发布 |
-| v0.2.0.6 | 2026-08-05 | Task 1.3 完成 (7 新 SKILL) | ⬜ 待发布 |
-| v0.2.0.7 | 2026-08-12 | Task 1.4 文档完成 | ⬜ 待发布 |
-| **v0.2.1** | **2026-08-23** | **Phase 1 全部完成** | ⬜ 待发布 |
-
----
-
-## 7. 工作流验证
-
-### 7.1 SKILL 改进 SOP 验证
-
-Day 3 的 4 个 SKILL 验证了既有 SOP 的有效性：
-
-```
-For each SKILL (~30-45 min):
-  1. Read current state        (3 min)  ✅
-  2. Identify gaps via JSON    (2 min)  ✅
-  3. Apply fixes               (20-30 min):
-     ├── Add Detection Methods          ✅ (3 SKILLs 新增, 1 扩展)
-     ├── Add Defense Evasion            ✅ (4 SKILLs 新增)
-     └── Bump version 0.2.0.2           ✅
-  4. Validate                  (2 min)  ✅
-  5. Commit                    (3 min)  ✅
+# 自然语言安排工作（示例）
+# "帮我分析 kali-claw 的所有技能，生成详细使用手册"
+# "针对 web-xss 技能，给出完整攻击链与检测规则"
 ```
 
-**Day 3 实际工时**: ~2h (符合预估 2h)  
-**累计 Phase 1 工时**: ~7h (12 SKILL × 平均 35min)  
-**预计 Phase 1 完成总工时**: ~9h (vs 原估 9h ✅)
-
-### 7.2 Definition of Done 验证
-
-12/12 SKILL 全部满足 DoD：
-- ✅ YAML version: "0.2.0.2"
-- ✅ 无中英混排翻译残留
-- ✅ Defense Perspective 表格化
-- ✅ Detection Methods 章节
-- ✅ Defense Evasion Techniques 章节
-
----
-
-## 8. 风险与对策 (更新)
-
-| 风险 | 概率 | 影响 | 对策 | 状态 |
-|------|------|------|------|------|
-| ~~Push 网络问题~~ | 高 | 中 | 重试 / 切换 SSH / 分批推送 | 🟡 待解决 |
-| Phase 1 工时控制 | 低 | 低 | 严格按 SOP，单 SKILL ≤ 1h | 🟢 可控 |
-| Translation 残留 | 低 | 低 | 已基本清零 | 🟢 可控 |
-| Phase 2 工作量超时 | 中 | 中 | 批量标准化脚本辅助 | 🟢 可控 |
-
-### Push 重试方案
-
-由于本地领先 origin 11 commits，建议：
-1. **方案 1**: 等网络稳定后 `git push -u origin phase1/skill-audit`
-2. **方案 2**: 切换 SSH `git remote set-url origin git@github.com:brucesongs/kali-claw.git`
-3. **方案 3**: 分批推送 (每次 push 2-3 commits)
-
----
-
-## 9. 鸣谢与协作
-
-### 工作流持续优化
+### 文件结构
 
 ```
-Day 1-3 实测有效的工作流:
-├── 每日扫描 (5 min)
-├── 4 SKILLs × 35min (140 min)
-├── Validate + Commit (10 min)
-├── Release note (15 min)
-└── 总计: ~3h / day (符合预算)
+kali-claw/
+├── skills/                          # 130 个安全技能库
+│   ├── network-pentest/
+│   │   ├── SKILL.md                 # 主技能文件
+│   │   ├── payloads.md              # 攻击载荷集合
+│   │   ├── test-cases.md            # 结构化测试用例
+│   │   └── guides/                  # 深度参考资料
+│   ├── web-xss/
+│   ├── api-security/
+│   └── ...
+├── validation/                      # 自动化校验脚本
+├── RELEASE-v0.2.0.*.md              # 版本说明文档
+└── PHASE1_*.md                      # Phase 1 执行计划
 ```
 
-### 关键决策回顾
+### 单 SKILL 使用示例
 
-- **2026-07-17**: 启动 Phase 1，选择 Direction B (全量优化)
-- **2026-07-17**: 提前完成周末准备 (节省 12h)
-- **2026-07-19**: 提前启动 Day 1 (节省 1 天)
-- **2026-07-19**: 修正版本基线到 v0.2.0.2 (避免后续错误)
-- **2026-07-21**: Day 3 完成 (累计 12 SKILLs, 80%)
+以 `web-xss` 为例：
+
+```bash
+# 查看 SKILL 主文件
+cat skills/web-xss/SKILL.md
+
+# 查看攻击载荷
+cat skills/web-xss/payloads.md | head -50
+
+# 查看测试用例
+cat skills/web-xss/test-cases.md | head -30
+
+# 查看深度指南
+ls skills/web-xss/guides/
+```
 
 ---
 
-**报告日期**: 2026-07-21  
-**版本**: v0.2.0.3 (进行中)  
-**Phase 1 进度**: 53% → **80%** (Week 1 Day 3)  
-**下一里程碑**: v0.2.0.4 (Phase 1 Day 4 完成, 15/15 SKILLs = 100%)
+## 六、SKILL 标准说明
+
+所有 SKILL 遵循 **Anthropic Agent Skills Open Standard**（2025），采用渐进式披露设计：
+
+### 第一阶段（广告层）
+
+YAML 前言 + `## Summary` 部分，在技能扫描时加载。
+
+```yaml
+---
+name: web-xss
+description: "XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites."
+version: "0.2.0.2"
+compatibility:
+  - openclaw
+  - claude-code
+  - cursor
+  - windsurf
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+metadata:
+  domain: web-attack
+  owasp: "A03:2021-Injection"
+  mitre: "T1189-Drive-by Compromise"
+  last_reviewed: "2026-07-21"
+---
+```
+
+### 第二阶段（快速参考层）
+
+`## Core Tools` + `## Methodology` 部分，在技能激活时加载。
+
+### 第三阶段（详细层）
+
+`## Practical Steps` + `## Defense Perspective` + `## Detection Methods` + `## Defense Evasion Techniques` 部分，在任务执行时加载。
+
+---
+
+## 七、版本路线图
+
+### 已发布版本
+
+| 版本 | 日期 | 主要内容 |
+|------|------|---------|
+| v0.2.0.1 | 2026-07-16 | 项目战略定位与计划文档 |
+| v0.2.0.2 | 2026-07-19 | 完成 8 个高优先级 SKILL 升级（P0 全部完成） |
+| **v0.2.0.3** | **2026-07-21** | **完成累计 12 个高优先级 SKILL 升级（80%）** |
+
+### 后续版本
+
+| 版本 | 预计日期 | 主要内容 |
+|------|---------|---------|
+| v0.2.0.4 | 2026-07-22 | Phase 1 第一阶段完成（15/15 SKILL，100%） |
+| v0.2.0.5 | 2026-07-29 | Phase 2 启动（标准化 95 个 SKILL）+ Task 1.3 启动 |
+| v0.2.0.6 | 2026-08-05 | 完成 7 个新 SKILL 创建（AI 红队、IdP 攻击、DLP 绕过等） |
+| v0.2.0.7 | 2026-08-12 | 文档输出体系完成（使用手册、速查表、覆盖矩阵等） |
+| **v0.2.1** | **2026-08-23** | **Phase 1 全部完成，发布稳定版本** |
+
+### Phase 1 最终目标
+
+- SKILL 总数：130 → **150+**
+- 平均完成度：95.4% → **98%+**
+- 防御视角覆盖率：86% → **100%**
+- 自动化校验脚本：1 个 → **5 个**
+
+---
+
+## 八、下一版本（v0.2.0.4）预告
+
+下一版本将完成 Phase 1 第一阶段剩余 3 个 SKILL：
+
+1. **container-security**（容器安全）
+   - 新增检测方法（容器运行时异常、镜像漏洞扫描）
+   - 新增防御规避（容器逃逸、镜像层混淆）
+
+2. **binary-reverse**（二进制逆向）
+   - 已有检测方法，补全防御规避技术
+   - 新增 AI 辅助逆向工程对抗
+
+3. **exploit-development**（漏洞利用开发）
+   - 新增检测方法（调试器检测、沙箱识别）
+   - 新增防御规避（反调试、反虚拟机）
+
+完成后将发布 **v0.2.0.4 稳定版本**，正式启动 Phase 2（标准化 95 个 SKILL）。
+
+---
+
+## 九、致谢与协作
+
+### 工作模式
+
+kali-claw 的日常开发遵循以下协作模式：
+
+```
+人类工程师：战略意图、需求定义、质量审查
+              ↓
+Claude Code：扫描分析、内容生成、验证执行
+              ↓
+人类工程师：决策反馈、优先级调整
+              ↓
+迭代优化
+```
+
+### 反馈渠道
+
+- **问题反馈**：[GitHub Issues](https://github.com/brucesongs/kali-claw/issues)
+- **建议提交**：欢迎通过 GitHub Discussions 或 Pull Request
+- **安全漏洞报告**：请通过负责任披露流程
+
+### 相关文档
+
+- [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) — 项目战略定位与长远规划
+- [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md) — v0.2.0.2 版本说明
+- [CLAUDE.md](CLAUDE.md) — 项目结构与开发指南
+
+---
+
+## 十、版本签名
+
+```
+版本编号：v0.2.0.3
+发布日期：2026-07-21
+分支：phase1/skill-audit
+版本类型：质量升级版本（Phase 1 进行中）
+许可证：参见仓库 LICENSE 文件
+```
+
+**kali-claw 团队**  
+**2026 年 7 月 21 日**
