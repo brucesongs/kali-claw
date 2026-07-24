@@ -98,6 +98,10 @@
 | secret-management-attack | Secrets/SAST: gitleaks, semgrep, trufflehog, infisical, Vault/CI-CD/registry exploitation, canarytoken evasion | Trust but Verify, Minimize Attack Surface |
 | ai-agent-security | Offensive AI agent testing: MCP tool poisoning, indirect prompt injection, RAG poisoning, agent sandbox escape, multi-agent compromise | Trust but Verify, Assume Breach |
 | iot-pentest | IoT application layer: MQTT broker abuse, CoAP attacks, AMQP, cloud IoT (AWS/Azure), device mgmt, mobile companion | Trust but Verify, Minimize Attack Surface |
+| patch-to-poc-pipeline | Integer overflow analysis from patch diffs, Bindiff/Diaphora comparison, symbol recovery, regression-based exploit dev | First Principles, Trust but Verify |
+| concurrency-exploitation | TOCTOU race conditions, signal handler races, thread synchronization bypasses, race window amplification, ThreadSanitizer/helgrind | First Principles, Murphy's Security Law |
+| protocol-state-exploitation | SSH/TLS/HTTP2/DNS state machine attacks, illegal transitions, stateful fuzzing, Boofuzz/AFLNet/Scapy packet crafting | First Principles, Trust but Verify |
+| command-injection-advanced | OS command injection filter bypass, LDAP/NoSQL/template injection (SSTI), XPath, blind injection, encoding obfuscation | Trust but Verify, Minimize Attack Surface |
 | detection-engineering | Detection-as-code: Sigma rule authoring, YARA signatures, SPL/KQL/EQL, MITRE ATT&CK mapping, FP tuning, CI/CD pipelines | Defense in Depth, Trust but Verify |
 | agentic-pentest | LLM-driven autonomous pentest: PentestGPT, HexStrike, Viper, PentestAgent, multi-agent team coordination, HITL checkpoints | Trust but Verify, Skill Over Credentials |
 | cloud-identity-attack | Azure AD/Entra ID, Okta, Auth0, Ping federation abuse, OAuth token theft, SAML forgery, conditional access bypass, MFA fatigue | Trust but Verify, Least Privilege |
