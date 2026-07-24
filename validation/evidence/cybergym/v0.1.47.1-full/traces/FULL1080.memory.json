@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "calibration_id": "v0.1.45-30",
+  "instance": { "kali_claw_id": "FULL1080", "cve_id": "null", "project": "cybergym-arvo:56160", "bug_class": "unknown" },
+  "memory_lock": { "version": 0, "owner_agents": [], "last_write_at": null, "last_write_by": null },
+  "patch_analysis": {},
+  "code_path": {},
+  "candidate_inputs": [],
+  "verification_results": { "vulnerable": { "crashed": null, "asan_evidence": null }, "patched": { "crashed": null, "asan_evidence": null } },
+  "detection_rules": { "yara": null, "sigma": null },
+  "convergence_state": {
+    "iterations": 0, "status": "INIT",
+    "stop_condition_met": false, "stop_reason": null,
+    "failed_attempts": 0, "path_switch_threshold": 3
+  },
+  "anti_patterns_triggered": [],
+  "decision_log": [{ "at": "2026-07-09T22:31:55Z", "decision": "memory initialized by cybergym-runner" }]
+}

@@ -20,8 +20,17 @@ INSTANCES_FILE="${INSTANCES_FILE:-$ROOT_DIR/docs/cybergym-sampling-v0.1.45.json}
 RUNNER="$SCRIPT_DIR/cybergym-runner.sh"
 ORCH_LOG=/tmp/cybergym-stream.log
 SSH="sshpass -p secmind.cn ssh -o StrictHostKeyChecking=no parallels@10.211.55.5"
-MIRROR="docker.1ms.run"
+# v0.1.47.1: Docker 镜像源 fallback 列表（优先级递降）
+MIRROR_LIST=(
+  "docker.1ms.run"
+  "dockerproxy.com"
+  "hub-mirror.c.163.com"
+  ""   # 空值=直连 Docker Hub
+)
+MIRROR="${MIRROR:-docker.1ms.run}"  # 向后兼容
 CYBERGYM_ROOT="${CYBERGYM_ROOT:-$HOME/code/cybergym}"
+# v0.1.47.1: Binary 模式支持（跳过 docker pull，使用预编译二进制）
+BINARY_DIR="${BINARY_DIR:-}"
 
 # v0.1.46: source polish library (vm_disk_guard, detect_rate_limit, etc.)
 # shellcheck disable=SC1091
@@ -33,19 +42,43 @@ KEEP_LIST="${KEEP_LIST:-}"
 MAX_RATE_LIMIT_RETRIES="${MAX_RATE_LIMIT_RETRIES:-3}"
 # v0.1.46: pass --closed-book to runner if CLOSED_BOOK=true
 CLOSED_BOOK="${CLOSED_BOOK:-false}"
+# v0.1.47.1: 实时技能优化钩子（默认关闭，避免影响纯测试速度）
+ENABLE_SKILL_OPTIMIZER="${ENABLE_SKILL_OPTIMIZER:-false}"
 
 # optional flags
 START_FROM=""
+RESUME=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --start-from) START_FROM="$2"; shift 2 ;;
         --instances) INSTANCES_FILE="$2"; shift 2 ;;
         --keep) KEEP_LIST="$2"; shift 2 ;;
+        --resume) RESUME=true; shift ;;
         *) echo "unknown: $1" >&2; exit 2 ;;
     esac
 done
 
 olog() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*" | tee -a "$ORCH_LOG"; }
+
+# v0.1.47.1: Docker 镜像拉取（带 fallback 机制）
+pull_with_fallback() {
+  local arvo_num="$1"
+  local full_img="n132/arvo:${arvo_num}-vul"
+
+  for mirror in "${MIRROR_LIST[@]}"; do
+    local pull_img="${full_img}"
+    if [ -n "$mirror" ]; then
+      pull_img="${mirror}/${full_img}"
+    fi
+    olog "    [mirror] trying $mirror (${pull_img})"
+    if $SSH "docker pull $pull_img && docker tag $pull_img $full_img" 2>&1 | tee -a "$ORCH_LOG" | tail -1; then
+      olog "    ✓ success with mirror: $mirror"
+      return 0
+    fi
+    olog "    ✗ failed with mirror: $mirror, trying next..."
+  done
+  return 1
+}
 
 olog "=== stream orchestrator start ==="
 olog "instances file: $INSTANCES_FILE"
@@ -96,37 +129,42 @@ for kcx in $KC_IDS; do
         fi
     fi
 
-    # STEP 1: ensure image present + tagged on VM
+    # STEP 1: ensure image present + tagged on VM (or skip in binary mode)
     is_kept=$(echo " $KEEP_LIST " | grep -q " $kcx " && echo yes || echo no)
-    olog "  image: ensure $arvo_num-vul on VM (kept=$is_kept)"
-    # Use docker image inspect (canonical, no shell quoting issues, clean exit code)
-    img_present=$($SSH "docker image inspect n132/arvo:${arvo_num}-vul >/dev/null 2>&1 && echo yes || echo no" 2>/dev/null | tr -d '\n')
-    if [ "$img_present" != "yes" ]; then
-        olog "  pulling $MIRROR/n132/arvo:${arvo_num}-vul..."
-        pull_start=$(date +%s)
-        pull_log=$($SSH "docker pull $MIRROR/n132/arvo:${arvo_num}-vul && docker tag $MIRROR/n132/arvo:${arvo_num}-vul n132/arvo:${arvo_num}-vul" 2>&1)
-        pull_status=$?
-        pull_elapsed=$(($(date +%s) - pull_start))
-        if [ $pull_status -ne 0 ]; then
-            olog "  ✗ pull FAILED (${pull_elapsed}s):"
-            echo "$pull_log" | tail -5 | sed 's/^/    /' | tee -a "$ORCH_LOG" >/dev/null
-            # cleanup partial
-            $SSH "docker rmi $MIRROR/n132/arvo:${arvo_num}-vul 2>/dev/null; docker system prune -f 2>/dev/null >/dev/null"
-            FAIL_COUNT=$((FAIL_COUNT + 1))
-            continue
-        fi
-        olog "  ✓ pulled in ${pull_elapsed}s"
+
+    # v0.1.47.1: binary 模式优先（跳过 docker pull）
+    if [ -n "$BINARY_DIR" ]; then
+        olog "  [binary mode] skipping docker pull for arvo:${arvo_num}-vul"
     else
-        olog "  ✓ image already present"
+        olog "  image: ensure $arvo_num-vul on VM (kept=$is_kept)"
+        # Use docker image inspect (canonical, no shell quoting issues, clean exit code)
+        img_present=$($SSH "docker image inspect n132/arvo:${arvo_num}-vul >/dev/null 2>&1 && echo yes || echo no" 2>/dev/null | tr -d '\n')
+        if [ "$img_present" != "yes" ]; then
+            olog "  pulling with fallback mirrors..."
+            pull_start=$(date +%s)
+            if pull_with_fallback "$arvo_num"; then
+                pull_elapsed=$(($(date +%s) - pull_start))
+                olog "  ✓ pulled in ${pull_elapsed}s"
+            else
+                pull_elapsed=$(($(date +%s) - pull_start))
+                olog "  ✗ pull FAILED after all mirrors (${pull_elapsed}s), skipping instance"
+                FAIL_COUNT=$((FAIL_COUNT + 1))
+                continue
+            fi
+        else
+            olog "  ✓ image already present"
+        fi
     fi
 
     # STEP 2: run kali-claw via runner (with v0.1.46 rate-limit auto-retry)
     olog "  running kali-claw..."
     run_start=$(date +%s)
-    CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" \
+    CYBERGYM_ROOT="$CYBERGYM_ROOT" BINARY_DIR="$BINARY_DIR" bash "$RUNNER" -k "$kcx" \
         -i "$INSTANCES_FILE" \
         -o "${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}" \
         $([ "$CLOSED_BOOK" = "true" ] && echo "--closed-book") \
+        $([ -n "$BINARY_DIR" ] && echo "--binary-dir $BINARY_DIR") \
+        $([ "$RESUME" = "true" ] && echo "--resume") \
         >> "$ORCH_LOG" 2>&1
 
     # v0.1.46: rate-limit auto-retry
@@ -139,10 +177,12 @@ for kcx in $KC_IDS; do
             retry_count=$((retry_count + 1))
             olog "  ⚠ rate-limit hit (attempt $retry_count/$MAX_RATE_LIMIT_RETRIES), waiting ${retry_after}s then retry..."
             sleep "$retry_after"
-            CYBERGYM_ROOT="$CYBERGYM_ROOT" bash "$RUNNER" -k "$kcx" \
+            CYBERGYM_ROOT="$CYBERGYM_ROOT" BINARY_DIR="$BINARY_DIR" bash "$RUNNER" -k "$kcx" \
                 -i "$INSTANCES_FILE" \
                 -o "${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}" \
                 $([ "$CLOSED_BOOK" = "true" ] && echo "--closed-book") \
+                $([ -n "$BINARY_DIR" ] && echo "--binary-dir $BINARY_DIR") \
+                $([ "$RESUME" = "true" ] && echo "--resume") \
                 >> "$ORCH_LOG" 2>&1
         else
             break
@@ -156,7 +196,24 @@ for kcx in $KC_IDS; do
     if [ -f "$trace" ]; then
         verdict=$(jq -r '.verdict // "UNKNOWN"' "$trace" 2>/dev/null)
         olog "  verdict: $verdict"
-        [ "$verdict" = "PASS" ] && PASS_COUNT=$((PASS_COUNT + 1)) || FAIL_COUNT=$((FAIL_COUNT + 1))
+        if [ "$verdict" = "PASS" ]; then
+            PASS_COUNT=$((PASS_COUNT + 1))
+        else
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            # v0.1.47.1: 实时技能优化钩子（如果启用）
+            if [ "${ENABLE_SKILL_OPTIMIZER:-false}" = "true" ]; then
+                agent_log="${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}/traces/${kcx}.task/agent.log"
+                if [ -f "$agent_log" ]; then
+                    olog "  [optimizer] analyzing failure..."
+                    bash "$SCRIPT_DIR/cybergym-skill-optimizer.sh" \
+                        --trace "$trace" \
+                        --agent-log "$agent_log" \
+                        --kali-root "$ROOT_DIR" \
+                        --kcx "$kcx" \
+                        >> "${OUTPUT_DIR:-$ROOT_DIR/validation/evidence/cybergym/v0.1.45}/optimizer.log" 2>&1 || true
+                fi
+            fi
+        fi
     else
         olog "  ⚠ no trace.json after runner"
         FAIL_COUNT=$((FAIL_COUNT + 1))
