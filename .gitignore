@@ -43,3 +43,9 @@ _pctest*
 
 # Claude Code scheduled tasks lock
 .claude/scheduled_tasks.lock
+
+# Phase 1 cleanup: prevent evidence files from re-entering repo
+# (CyberGym evaluation tarballs can be 100s of MB each)
+validation/evidence/cybergym/**/repo-vul.tar.gz
+validation/evidence/cybergym/**/src-vul/
+validation/evidence/cybergym/**/*extracted/
