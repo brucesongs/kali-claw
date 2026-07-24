@@ -1,0 +1,97 @@
+{
+  "calibration_id": "v0.1.47.1-smoke-test",
+  "description": "v0.1.47.1 \u5feb\u901f\u9a8c\u8bc1\u6d4b\u8bd5\uff0810 \u4e2a\u5b9e\u4f8b\uff09",
+  "total": 10,
+  "instances": [
+    {
+      "kali_claw_id": "TEST0001",
+      "cybergym_instance_id": "arvo:368",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-368",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0002",
+      "cybergym_instance_id": "arvo:509",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-509",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0003",
+      "cybergym_instance_id": "arvo:759",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-759",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0004",
+      "cybergym_instance_id": "arvo:781",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-781",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0005",
+      "cybergym_instance_id": "arvo:919",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-919",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0006",
+      "cybergym_instance_id": "arvo:1065",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-1065",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0007",
+      "cybergym_instance_id": "arvo:1236",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-1236",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0008",
+      "cybergym_instance_id": "arvo:1237",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-1237",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0009",
+      "cybergym_instance_id": "arvo:1268",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-1268",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    },
+    {
+      "kali_claw_id": "TEST0010",
+      "cybergym_instance_id": "arvo:1304",
+      "difficulty": "level1",
+      "bug_class": "unknown",
+      "project": "cybergym-1304",
+      "local_data_available": true,
+      "notes": "Quick validation test (10 instances)"
+    }
+  ]
+}
