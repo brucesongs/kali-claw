@@ -2,7 +2,7 @@
 name: container-security
 description: "Container security covers the complete lifecycle from image building, registry management, runtime protection, to orchestration platform (Kubernetes) security."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   mitre: "TA0008-Lateral Movement"
+  last_reviewed: "2026-07-22"
 ---
 
 
@@ -163,9 +164,89 @@ Container security findings connect to multiple adjacent skill domains. Image vu
 - **Kubernetes ServiceAccount escalation**: A pod's default ServiceAccount had `cluster-admin` RBAC bindings due to a misconfigured Helm chart. An attacker who compromised the application used the mounted token to read all Secrets across all namespaces, including database credentials and TLS private keys.
 - **Supply chain attack via image poisoning**: A development team used `node:latest` as their base image. An upstream compromise of the Node.js Docker image (before it was detected and pulled) would have deployed malicious code to all downstream builds. Shifting to pinned digests and cosign verification prevented this vector.
 
-## Detection and Evasion
+## Detection Methods
 
-Container runtime detection relies on tools like Falco that monitor system calls and alert on anomalous behavior: unexpected shell execution inside containers, sensitive file access (`/etc/shadow`, `/proc/sysrq-trigger`), network connections to unusual destinations, and privilege escalation syscalls. Kubernetes audit logs capture API server requests including RBAC changes, Secret access, and Pod creation events. To evade container security monitoring: use static binaries instead of interpreted scripts, leverage capabilities already present in the container rather than downloading new tools, and perform escape attempts through less commonly monitored kernel system calls. In Kubernetes, use existing ServiceAccount tokens rather than creating new RBAC bindings to avoid API server audit logging.
+Container security detection combines runtime monitoring (Falco, Tetragon), Kubernetes audit logging, image scanning (Trivy, Grype), and cloud-native SIEM integration. Understanding detection patterns helps testers operate more stealthily and helps defenders prioritize monitoring.
+
+### Container Runtime Indicators
+- **Unexpected shell execution**: Processes like `/bin/sh`, `/bin/bash` spawned inside non-shell containers (web servers, databases); detected by Falco default rules.
+- **Sensitive file access**: Reads of `/etc/shadow`, `/proc/sysrq-trigger`, `/proc/1/root`, host paths mounted via `hostPath`.
+- **Anomalous syscalls**: `ptrace`, `keyctl`, `mount`, `unshare` syscalls from inside containers indicate escape attempts.
+- **Network anomalies**: Reverse shells on non-standard ports; Tor / Tor-like traffic; DNS tunneling.
+- **Capability misuse**: `CAP_SYS_ADMIN`, `CAP_DAC_READ_SEARCH`, `CAP_SYS_PTRACE` invoked by non-privileged container processes.
+
+### Kubernetes API Server Indicators
+- **Privileged Pod creation**: Pod spec with `privileged: true`, `hostPID: true`, `hostNetwork: true`, `hostPath` mounts.
+- **ServiceAccount token abuse**: Pods mounting `serviceAccountToken` not declared in spec; access to `/var/run/secrets/kubernetes.io/serviceaccount/token` from unexpected processes.
+- **RBAC escalation**: `clusterrolebindings.rbac.authorization.k8s.io` create/update with subject = user (not service account).
+- **Anonymous auth**: API server with `--anonymous-auth=true` enabled; requests with no authentication.
+- **kubectl exec patterns**: `kubectl exec` on system pods (`kube-apiserver`, `etcd`); exec on pods in `kube-system` namespace from non-admin users.
+
+### Container Image / Registry Indicators
+- **Image without digest pinning**: Deployments using `:latest` or unpinned tags; vulnerable to supply chain attack.
+- **Suspicious base images**: Images from unknown registries, recently pushed images (<7 days), images with high CVSS vulnerabilities.
+- **Cosign / Notation verification failure**: Image signature missing or invalid; image verification bypassed via admission controller config.
+- **Registry compromise**: Pulls from compromised public registries (e.g., Docker Hub free tier); anomalous pull volume.
+
+### CI/CD Pipeline Indicators
+- **Build argument injection**: CI logs showing unexpected build args; image layers containing secrets not in `.dockerignore`.
+- **Cache poisoning**: Build cache from untrusted contributor; CI runs with cache-from external source.
+- **Dependency confusion**: Build pulls package from public registry when private package exists; anomalous package install.
+- **Run-as-root in CI**: Build containers running as root instead of non-root user.
+
+### SIEM Detection Rules
+- **Falco default rules**: `Terminal shell in container`, `Contact Kubernetes API Server from Container`, `Write below etc`, `Read sensitive file`.
+- **Tetragon**: eBPF-based runtime security; policies for syscalls, capabilities, namespaces.
+- **Splunk SPL (K8s Audit)**: `index=k8s verb=create resource=pods requestObject.spec.securityContext.privileged=true`
+- **Splunk SPL (Container)**: `index=container sourcetype=falco rule="Terminal shell in container"`
+- **Sigma rule**: `sigma/rules/cloud/k8s_privileged_pod.yml`
+- **AWS GuardDuty EKS Protection**: Detector for anomalous `kubectl` access patterns.
+
+## Defense Evasion Techniques
+
+### Runtime Stealth
+- **Static binaries over interpreted scripts**: Drop statically-compiled `nmap` instead of Python `nmap-python`; avoids Python interpreter dependency on Falco rules.
+- **LOLBins (Living off the Land)**: Use existing container binaries (`wget`, `curl`, `awk`) instead of dropping new tools; avoids write events to filesystem.
+- **Memory-only execution**: Use `memfd_create()` syscall to run tools without disk artifacts; reflective DLL injection.
+- **Process name spoofing**: Rename malicious process to `nginx` or `redis-server` to blend with legitimate workload.
+- ** syscall proxying**: Use legitimate process (like `nginx`) to issue sensitive syscalls; inject code into worker process.
+
+### Container Escape Stealth
+- **CVE selection**: Choose newer, less-signatured CVEs (CVE-2024-1086 netfilter) over well-known ones (CVE-2022-0185); Falco rules lag.
+- **Capability-based escape over privileged**: Use `CAP_SYS_ADMIN` already in container spec rather than escalating to privileged; less suspicious.
+- **Lesser-monitored syscalls**: Use `openat2`, `io_uring`, `bpf` syscalls to evade default Falco rules.
+- **Kernel namespace manipulation**: `unshare -U -r --map-root-user` over `setuid` syscall; less signature coverage.
+- **Cgroup v2 abuse**: Cgroup v2 has fewer monitoring tools; exploit cgroup escape via v2-specific paths.
+
+### Kubernetes Stealth
+- **Existing ServiceAccount over new RBAC**: Use mounted SA token in compromised Pod; avoid creating new RoleBinding (logs).
+- **Sidecar injection over new Pod**: Inject into existing Pod via shared process namespace; avoids Pod creation event.
+- **ConfigMap over Secret**: Embed payload in ConfigMap (not flagged as sensitive); fetch via API later.
+- **CronJob one-shot Pod**: Schedule short-lived Pod via CronJob; complete action before runtime detection sees it.
+- **PreStop hook abuse**: Use existing Pod's preStop lifecycle hook to execute payload; blends with legitimate lifecycle.
+- **HostPID/HostNetwork only**: Skip `privileged: true`; use `hostPID` and `hostNetwork` which provide many capabilities with less alarming spec.
+
+### Image / Supply Chain Stealth
+- **Multi-layer image obfuscation**: Hide payload in lower image layers; lazy scanners may miss it.
+- **Cosign signature theft**: Steal cosign private key; sign malicious image as legitimate.
+- **Admission controller bypass**: Modify MutatingWebhookConfiguration to allowlist malicious images.
+- **Build cache poisoning**: Push poisoned layer to shared cache; affects all downstream builds silently.
+- **Dependency confusion hybrid**: Name private package similar to public one; trigger fallback to public (attacker-controlled) version.
+- **SBOM manipulation**: Generate fake SBOM after build; submitted SBOM does not match actual image contents.
+
+### Network Stealth
+- **Cloudflare / API Gateway proxy**: Route container traffic through Cloudflare to mask C2 destination.
+- **DNS tunneling over HTTP**: Use DNS-over-HTTPS to bypass network policy that allows only HTTP/HTTPS.
+- **WebSocket over HTTP**: Use WebSocket for C2 (persistent connection); evades connection-counting rate limits.
+- **PrivateLink / VPC peering**: Use private network paths instead of internet; bypass egress monitoring.
+- **Service mesh abuse**: Use Istio / Linkerd mTLS for C2; encrypted traffic invisible to L7 monitoring.
+
+### Persistence Stealth
+- **DaemonSet deployment**: Use DaemonSet (runs on every node) over Deployment; harder to detect anomaly across many pods.
+- **Admission webhook persistence**: Deploy mutating webhook as persistence; intercepts all Pod creations.
+- **CRD-based persistence**: Use Custom Resource Definition to store payload; blends with operator-deployed resources.
+- **etcd direct manipulation**: Modify etcd directly (if access); bypasses API server audit log.
+- **kubelet anonymous auth abuse**: Kubelets with `--anonymous-auth=true`; appear as anonymous system user.
 
 ## Advanced Techniques
 

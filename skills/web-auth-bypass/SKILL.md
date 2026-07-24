@@ -2,7 +2,7 @@
 name: web-auth-bypass
 description: "Authentication Bypass refers to attackers exploiting design flaws or implementation vulnerabilities in authentication mechanisms to bypass the normal authentication process and gain unauthorized access."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   owasp: "A07:2021-Identification"
+  last_reviewed: "2026-07-19"
 ---
 
 
@@ -233,6 +234,77 @@ done
 curl -s -d "email=admin@target.com" http://target.com/reset-password
 # Obtain reset link -> Reset password -> Direct login (MFA may have been reset)
 ```
+
+---
+
+## Detection Methods
+
+Authentication bypass detection combines behavioral anomaly analysis, rate-based rules, and protocol-level validation. Understanding detection signals helps testers operate more stealthily and helps defenders prioritize monitoring.
+
+### Authentication Server Indicators
+- **Geographic anomalies**: Login from new country / continent; impossible travel (login from US + China within 1h).
+- **Velocity patterns**: >5 failed logins from same IP in 1 min (brute force); 100+ successful logins from same IP (credential stuffing).
+- **Time anomalies**: Off-hours admin logins (3 AM on weekend); logins outside user's typical window.
+- **User-agent anomalies**: Login with curl/python-requests when user typically uses Chrome/Safari.
+- **Session anomalies**: Multiple concurrent sessions for same user from different IPs.
+
+### Token & Cookie Indicators
+- **JWT manipulation**: Multiple `kid` header values; algorithm switching (`alg` parameter changes across requests); expired tokens passing validation.
+- **Session fixation**: Same session ID before and after login (server not rotating on auth).
+- **Cookie tampering**: Decoded cookie values show role escalation (`user` → `admin`); signature bypass attempts.
+- **Refresh token abuse**: Refresh tokens used past revocation; multiple access tokens from one refresh.
+
+### Account-Level Indicators
+- **Password reset floods**: Reset emails triggered for many accounts in short window (account enumeration).
+- **MFA fatigue**: Multiple MFA push notifications in short window (push bombing).
+- **Dormant account activation**: Long-inactive accounts suddenly active with new IP / device fingerprint.
+- **Privilege anomaly**: Regular user suddenly accessing admin endpoints; role change without admin action.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=auth action=failure | stats count by src_ip user | where count > 5`
+- **Sigma rule**: `sigma/rules/auth/impossible_travel.yml` — detects logins from geographically distant IPs within implausible time.
+- **Sigma rule**: `sigma/rules/auth/brute_force.yml` — detects >10 failures in 5 min.
+- **Sigma rule**: `sigma/rules/auth/mfa_fatigue.yml` — detects >5 MFA challenges in 1 min.
+- **JWT validation**: Reject tokens with `alg: none` or missing signature; log all rejected tokens.
+- **Velociraptor / Wazuh**: Account lockout events correlated with successful login (lockout bypass).
+
+## Defense Evasion Techniques
+
+### Brute Force Evasion
+- **Low & slow**: Pace attempts below lockout threshold (e.g., 2 attempts/min/IP); use jitter.
+- **IP rotation**: Distribute attempts across residential proxies / botnet / Tor (3 attempts per IP then rotate).
+- **User rotation**: Spread attempts across many usernames (1 attempt per user, then cycle back after cooldown).
+- **Account lockout bypass**: Trigger lockout, then use password reset flow to bypass; or use valid credentials from breach corpus.
+- **Time delay**: Wait 15+ min between attempts to avoid sliding-window rate limits.
+
+### Credential Stuffing Stealth
+- **Reverse proxy chains**: Use residential proxies (Bright Data, Smartproxy) to mimic real user IPs.
+- **Browser fingerprint matching**: Use Playwright / Selenium with realistic fingerprints (Canvas, WebGL, fonts).
+- **TLS fingerprinting**: Use `curl-impersonate` to mimic browser TLS handshake (JA3 hash match).
+- **Captcha bypass**: Use 2Captcha / Anti-Captcha services for automated solving; or train ML model on the specific captcha.
+- **Mobile API abuse**: Use mobile app's API endpoint which often has weaker rate limiting than web.
+
+### MFA Bypass Techniques
+- **Push bombing**: Send many MFA push notifications until user fatigues and approves (target off-hours).
+- **SIM swap**: Social engineer mobile carrier to port victim's number to attacker-controlled SIM.
+- **MFA fatigue + helpdesk**: Trigger MFA fatigue, then call helpdesk claiming "lost phone" to reset MFA.
+- **OAuth abuse**: Use `prompt=none` or `max_age=0` to skip MFA re-prompt in OIDC flows.
+- **Session token theft**: Steal post-MFA session cookie via XSS / MITM / malware (bypasses MFA entirely).
+- **Code brute force**: Brute force 6-digit TOTP codes (1M possibilities; bypass if no rate limit).
+
+### OAuth / OIDC Evasion
+- **redirect_uri bypass**: Test variations (`https://app.example.com` vs `https://app.example.com.evil.com`).
+- **state parameter reuse**: Replay legitimate state across multiple OAuth flows.
+- **PKCE downgrade**: Try removing `code_challenge` to force fallback to implicit flow.
+- **Token leakage via referrer**: Initiate OAuth flow from page that leaks `code` via Referer header.
+- **Open redirect chain**: Use open redirect on legitimate domain to forward OAuth code to attacker.
+
+### Session Hijacking Stealth
+- **Cookieless session**: Pass session ID in URL parameter (some legacy apps); disappears from server logs.
+- **WebSocket session use**: Use WebSocket connection to maintain session without periodic HTTP requests.
+- **Session fixation via subdomain**: Set session cookie via vulnerable subdomain (cookie scope escalation).
+- **Concurrent session use**: Use stolen session from different geographic region during user's typical off-hours.
+- **Proxy Pivot**: Route session traffic through victim's geographic region (residential proxy in same city).
 
 ---
 

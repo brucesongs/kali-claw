@@ -2,7 +2,7 @@
 name: cloud-security
 description: "Cloud security covers security assessment for major cloud platforms including AWS, Azure, and GCP, with core focus on IAM misconfiguration detection, storage bucket exposure scanning, metadata service attacks, container escape, and Kubernetes RBAC auditing."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 8
   mitre: "TA0008-Lateral Movement"
+  last_reviewed: "2026-07-21"
 ---
 
 
@@ -189,6 +190,108 @@ See `guides/kubernetes-security-deep-dive.md`, `guides/serverless-security.md`, 
 | **Defense in Depth** | IAM alone is not enough. Need IAM + encryption + network segmentation + log monitoring + CSPM in multiple layers, ensuring a single misconfiguration does not lead to total compromise |
 | **Trust but Verify** | Do not trust cloud provider default configurations. S3 is not public by default but policies may change it to public; IMDSv1 is enabled by default but can be upgraded to v2 — always verify |
 | **First Principles** | Understand how cloud APIs work. Without understanding IAM policy evaluation logic, you cannot understand privilege escalation; without understanding metadata services, you cannot understand SSRF credential theft |
+
+---
+
+## Detection Methods
+
+Cloud security detection relies on CloudTrail / Audit Logs, Cloud Security Posture Management (CSPM), Cloud Workload Protection (CWP), and Cloud Detection & Response (CDR). Understanding attacker patterns helps defenders prioritize monitoring.
+
+### Cloud Provider Audit Logs
+- **AWS CloudTrail**: All API calls; alert on `DeleteTrail`, `UpdateTrail`, `StopLogging` (attacker trying to blind monitoring).
+- **AWS ConsoleLogin**: Alert on root logins, logins without MFA, logins from new geographies.
+- **AWS IAM events**: `CreateAccessKey`, `CreateUser`, `AttachUserPolicy`, `AssumeRole` chains; correlate with source IP & UA.
+- **Azure Activity Log**: Alert on `Microsoft.Authorization/elevate/elevate` (PIM activation), new Role Assignments.
+- **GCP Audit Logs**: Alert on `SetIamPolicy`, `iam.serviceAccountKeys.create`, `gce.instances.setMetadata` (SSH key injection).
+- **Kubernetes Audit Log**: `kubectl` exec, privileged pod creation, RBAC modifications, ServiceAccount token creation.
+
+### Identity & Access Anomalies
+- **IMDS access**: EC2 making IMDS calls from non-ECS-workload processes (credential theft via SSRF).
+- **STS AssumeRole chains**: Long assume role chains (role A → B → C); indicates privesc lateral movement.
+- **Service Account key creation**: GCP `serviceAccount.keys.create` spikes — long-lived keys are discouraged; alert.
+- **Admin role grant**: Newly created user immediately assigned `roles/owner` or `AdministratorAccess`.
+- **SSRF metadata access**: EC2 outbound to `169.254.169.254` from web app logs; metadata extraction attempt.
+
+### Storage / Data Exfiltration
+- **S3 GET spike**: One principal requesting `s3:GetObject` across many buckets in short window (mass download).
+- **S3 bucket policy changes**: `s3:PutBucketPolicy` making bucket public; `s3:PutBucketAcl` granting `AllUsers`.
+- **EBS snapshot sharing**: `ec2:ModifySnapshotAttribute` adding `shared-with:external-account`.
+- **AMI publishing**: `ec2:ModifyImageAttribute` making AMI public (data exfil via AMI sharing).
+- **Cloud Storage egress**: GCS / Azure Blob download volume exceeding baseline (>10 GB/day per principal).
+- **Snowball / Transfer Family**: Data transfer to physical media; correlate with budget alerts.
+
+### Compute / Container Indicators
+- **EC2 instance metadata**: EC2 launched with `UserData` containing reverse shell or IAM role over-privilege.
+- **Lambda function creation**: New Lambda with `LambdaFullAccess` or `AmazonS3FullAccess` permission; data exfil vector.
+- **ECS task privileged**: ECS task definition with `privileged: true`; container escape risk.
+- **EKS pod creation**: Pod with `hostPath`, `hostPID`, `hostNetwork` mounts; node-level access.
+- **Instance launch anomalies**: Burst of EC2 launches in unusual region (cryptomining).
+
+### SIEM Detection Rules
+- **Splunk SPL (AWS)**: `index=aws sourcetype=aws:cloudtrail eventName=ConsoleLogin sourceIPAddress=*NOT-DEFAULT* | stats count by userIdentity.arn`
+- **Splunk SPL (K8s)**: `index=k8s verb=create resource=pods AND requestObject.spec.securityContext.privileged=true`
+- **Sigma rule**: `sigma/rules/cloud/aws_root_login.yml`
+- **GuardDuty**: Native AWS threat detection — enable all detector types (especially `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration`).
+- **Microsoft Defender for Cloud**: Enable all plans (Servers, Containers, SQL, Storage, Key Vault).
+- **Falco** (runtime K8s): Default ruleset catches container escapes, reverse shells, privilege escalations.
+
+### CSPM / Posture Management
+- **Public S3 buckets**: Continuous scan via Prowler / CloudSploit / ScoutSuite; alert on new public buckets.
+- **Security groups open to internet**: `0.0.0.0/0` on ports 22, 3389, 3306, 5432, 6379; alert on creation.
+- **Missing encryption**: EBS volumes, S3 buckets, RDS instances without `KmsKeyId` or `ServerSideEncryption`.
+- **IAM keys > 90 days**: Alert on long-lived access keys; encourage rotation.
+- **CloudTrail disabled**: Alert on `CloudTrail` deletion, S3 bucket policy changes affecting logs.
+
+## Defense Evasion Techniques
+
+### CloudTrail / Logging Evasion
+- **Disable CloudTrail**: `aws cloudtrail delete-trail` or `stop-logging` (loud; needs `cloudtrail:DeleteTrail`).
+- **Event selector manipulation**: Modify trail event selectors to exclude `ReadWriteType` events or specific keys (subtle).
+- **Logging by service bypass**: Use services that don't emit CloudTrail events (e.g., `s3:ListAllMyBuckets` on global endpoint).
+- **Data events exclusion**: Ensure S3/Lambda data events are NOT enabled; attacker's `s3:GetObject` won't be logged.
+- **Log file encryption/key disablement**: Disable the KMS key used to encrypt CloudTrail logs (`kms:DisableKey`).
+- **VPC Flow Logs tampering**: Disable VPC Flow Logs (`ec2:DeleteFlowLogs`); add `deny` for logging services in SCP.
+- **Region hopping**: Operate in regions where CloudTrail is not configured (need to verify multi-region trail).
+
+### Identity Evasion
+- **STS role chaining**: Use assume role multiple times to launder credentials across accounts (harder to track origin).
+- **Cross-account role assumption**: Use role in target account; trail in target account shows different identity than attacker.
+- **Service role abuse**: Use EC2 instance profile credentials; appears as legit workload in CloudTrail.
+- **Long-lived keys over STS**: Use IAM user keys (no session token) — easier to hide among legitimate long-lived key usage.
+- **Federation abuse**: Use SAML federation with forged assertion; appears as legit SSO user in logs.
+- **Web identity federation**: Use OIDC tokens from GitHub / Google; exploit trust relationships.
+
+### Compute Stealth
+- **Lambda in same region as target**: Use Lambda in target's region for credentialed API calls; blends with legit Lambda traffic.
+- **ECS Fargate over EC2**: Fargate leaves no EC2 host logs; harder to detect runtime activity.
+- **Spot Instance over On-Demand**: Spot instances are transient; less monitoring baseline.
+- **Lightsail over EC2**: Lightsail has less detailed CloudTrail events; defenders may not monitor it.
+- **Lambda layer obfuscation**: Hide malicious code in Lambda layer (less visible than function code).
+
+### Data Exfiltration Stealth
+- **S3 cross-region replication**: Set up replication to attacker-controlled bucket (looks like legitimate DR config).
+- **EBS snapshot copy**: `ec2:CopySnapshot` to external account; defender must check `CreateVolumePermission`.
+- **AMI copy**: `ec2:CopyImage` to external account; defender must check `LaunchPermission`.
+- **Snowball**: Physical data exfil via Snowball; bypasses network DLP.
+- **AWS Transfer Family**: SFTP / FTPS data exfil using legitimate service.
+- **VPC endpoint to external service**: Use PrivateLink to attacker's VPC service; appears as private network traffic.
+
+### Container / Kubernetes Evasion
+- **Sidecar over new pod**: Inject into existing pod via `kubectl exec`; avoids new pod creation alert.
+- **ServiceAccount token theft over creation**: Steal mounted SA token; appear as legit pod to API server.
+- **Anonymous auth abuse**: Kubelet / API server with `--anonymous-auth=true`; appear as anonymous system user.
+- **kubeconfig in ConfigMap**: Embed kubeconfig in ConfigMap (no Secret creation event); attacker fetches via API.
+- **Privileged pod via cron**: Schedule one-shot pod via CronJob; short-lived, may evade runtime detection.
+- **Host PID/Network only (no Privileged)**: Pods with `hostPID` / `hostNetwork` get many capabilities without `privileged: true` flag.
+- **Capability drop evasion**: Drop all caps, then add `CAP_SYS_ADMIN` via `setcap`; appears benign on initial inspection.
+- **Container layer obfuscation**: Use multi-layer images with payload in lower layers; evades simple image scans.
+
+### Network Stealth
+- **VPC peering to external account**: Use peering connection; traffic appears as private VPC traffic.
+- **Transit Gateway**: Use TGW with complex routing; harder to trace east-west traffic.
+- **PrivateLink**: Exfiltrate via AWS PrivateLink (private IP space); evades internet-facing DLP.
+- **Direct Connect**: Use Direct Connect for high-bandwidth exfil; bypasses internet egress monitoring.
+- **CloudFront / API Gateway**: Use CloudFront as reverse proxy; appears as legit CDN traffic.
 
 ---
 

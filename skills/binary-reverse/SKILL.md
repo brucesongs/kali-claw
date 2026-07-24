@@ -2,7 +2,7 @@
 name: binary-reverse
 description: "Binary reverse engineering covers the complete chain from static analysis, dynamic debugging, to vulnerability discovery, exploit development, and malware analysis."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: binary-analysis
   tool_count: 10
   guide_count: 5
+  last_reviewed: "2026-07-22"
 ---
 
 
@@ -262,6 +263,90 @@ A frequent mistake in binary exploitation is relying solely on decompiler output
 ## Detection Methods
 
 Identifying vulnerable binaries requires systematic pattern recognition across multiple dimensions. String analysis (`strings -n 8`) reveals hardcoded paths, credentials, and format strings that may be exploitable. Symbol table inspection (`readelf -s`, `nm`) exposes dangerous imported functions like `strcpy`, `system`, and `sprintf`. Cross-reference analysis in radare2 (`axt @ sym.imp.strcpy`) maps every call site, enabling prioritized review of the most dangerous functions first.
+
+### Binary Analysis Indicators (Defender Perspective)
+- **Hardcoded secrets**: Strings analysis revealing API keys (`AKIA...`), JWT tokens (`eyJ...`), private keys (`-----BEGIN RSA PRIVATE KEY-----`); use `trufflehog filesystem` or `secretscanner`.
+- **Dangerous function imports**: `strcpy`, `strcat`, `sprintf`, `gets`, `system`, `popen` — flagged via `checksec` and `readelf --dyn-syms`.
+- **Missing protections**: Binaries without RELRO, Stack Canary, NX, PIE; detected via `checksec --file=binary`.
+- **Debug symbols retained**: Production binaries with `symbol table` intact; expose internal function names, variable names.
+- **Suspicious entropy**: Sections with high entropy indicate packed / encrypted payloads; use `binwalk -E binary`.
+
+### Runtime / Dynamic Analysis Indicators
+- **Debugging artifacts**: Process attaching via `ptrace`; detected via `/proc/<pid>/status` TracerPid field.
+- **Memory protection bypass**: Calls to `mprotect` changing memory to `PROT_WRITE|PROT_EXEC`; signal of shellcode injection.
+- **Anomalous syscalls**: Process calling `execve` from non-shell binary; unexpected `open("/etc/shadow")` from non-setuid binary.
+- **Library injection**: `LD_PRELOAD` environment variable set; `LD_LIBRARY_PATH` modifications; detected via `/proc/<pid>/maps`.
+- **Function hooking**: PLT / GOT modifications; detected via comparing in-memory GOT to on-disk version.
+
+### Reverse Engineering Tool Detection
+- **Process enumeration**: Defenders detect `gdb`, `radare2`, `ghidra`, `ida`, `frida-server` processes running on production systems.
+- **Network anomalies**: Frida default port (27042); Ghidra debug bridge (18001); IDA sync ports.
+- **Filesystem artifacts**: `/tmp/.ghidra` project files; `~/.radare2_history`; `~/.gdb_history` containing sensitive commands.
+- **Memory snapshots**: Detecting `gcore` or `procdump` invocations; large memory files in `/tmp`.
+
+### Anti-Tamper Detection
+- **Integrity monitoring**: AIDE / OSSEC detecting binary modifications; hash mismatch on `/usr/bin/*`.
+- **Code signing validation**: macOS Notarization; Windows Authenticode; Linux IMA/EVM signatures.
+- **Trusted boot**: UEFI Secure Boot detects unsigned bootloader / kernel.
+- **eBPF observability**: Modern kernels with eBPF can monitor every syscall from analysis tools.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | search a0 IN ("/usr/bin/gdb", "/usr/bin/r2", "/usr/bin/strace")`
+- **Sysmon Event ID 1**: Process creation; alert on `gdb.exe`, `ida.exe`, `x64dbg.exe` on production endpoints.
+- **Falco rule**: `Launching Suspicious Reverse Engineering Tool`.
+- **YARA**: Scan filesystem for known RE tool signatures (`frida-server`, `gdbserver`).
+
+## Defense Evasion Techniques
+
+### Anti-Debugging
+- **ptrace self-attach**: Process attaches to itself via `ptrace(PTRACE_TRACEME, 0, 0, 0)`; prevents gdb from attaching.
+- **Timing checks**: Measure time between two `rdtsc` instructions; debugger introduces delay.
+- **INT 3 detection**: Scan own code for `0xCC` byte (breakpoint instruction); alert if found.
+- **Hardware breakpoint detection**: Check debug registers (`DR0-DR7`) via `/proc/self/status` or `get_thread_area()`.
+- **Single-step detection**: Set Trap Flag (`EFLAGS.TF`); check if SIGTRAP handler receives unexpected signal.
+- **Debug register poisoning**: Set DR0 to invalid address; cause debugger to crash when continuing.
+
+### Anti-VM / Anti-Sandbox
+- **MAC address check**: VMware uses `00:50:56`, `00:0C:29`; VirtualBox uses `08:00:27`; Hyper-V uses `00:15:5D`.
+- **CPU vendor check**: `cpuid` instruction reveals hypervisor bit (CPUID.1:ECX[31]).
+- **Timing anomalies**: RDTSC inside VM shows non-monotonic or jittered timestamps.
+- **Registry artifacts** (Windows): `HKLM\SOFTWARE\VMware, Inc.\VMware Tools`; `HKLM\HARDWARE\DESCRIPTION\System\BIOS` (SystemManufacturer).
+- **Filesystem artifacts**: `/proc/vz` (OpenVZ); `/proc/xen` (Xen); `/sys/class/dmi/id/product_name` (VMware/VirtualBox/Hyper-V).
+- **Process list check**: `vmtoolsd.exe` (VMware); `vboxservice.exe` (VirtualBox); `prl_tools_service.exe` (Parallels).
+
+### Code Obfuscation
+- **Packing**: UPX, ASPack, Themida, VMProtect; detect via high-entropy sections and few imports.
+- **Polymorphic code**: Each execution generates different decryption key; same payload, different bytes.
+- **Metamorphic code**: Virus body is rewritten each generation (no static signature).
+- **Control flow flattening**: Replace `if-else` chains with switch dispatcher; defeats static analysis.
+- **Junk code insertion**: Insert no-op instructions (`xchg eax, eax`) between real instructions.
+- **Opaque predicates**: Conditions that always evaluate the same but are hard to statically determine.
+- **String encryption**: Encrypt sensitive strings; decrypt only at use; revealed via dynamic analysis only.
+
+### Anti-Instrumentation
+- **Frida detection**: Scan for `frida-agent` in `/proc/self/maps`; check for `gum-js-loop` thread; detect `frida-server` port (27042).
+- **Hook detection**: Compare function prologue in memory vs on-disk; detect inline hooks.
+- **Inline syscall invocation**: Use raw syscalls via `syscall` (x64) or `int 0x80` (x86) to bypass libc hooks.
+- **Self-integrity check**: Compute hash of own `.text` section; abort if modified (defeats inline hooks).
+
+### Anti-Analysis Files
+- **Anti-disassembly**: Insert `jmp` to next instruction +垃圾 byte; confuses linear sweep disassemblers.
+- **Anti-IDA patterns**: Use instructions IDA handles poorly (e.g., `aaa` register on x86_64, `BSWAP` with 16-bit operand).
+- **Resource section abuse**: Embed misleading PE resources (icon, version info) to confuse analysts.
+- **PDB path spoofing**: Compile with fake PDB path (`cargo build` with custom debug info).
+
+### Stealth Execution
+- **Process hollowing**: Replace legitimate process memory with malicious code; appears as `explorer.exe` etc.
+- **Process injection**: Inject DLL / shellcode into running process via `CreateRemoteThread` or `QueueUserAPC`.
+- **Reflective DLL injection**: Load DLL from memory without touching disk; no file artifacts.
+- **Atom bombing**: Use Global Atom Table to deliver payload to other processes.
+- **Process doppelgänging**: Use Transactional NTFS to load process from rolled-back file.
+
+### Network C2 Stealth
+- **Domain fronting**: Use CDN for C2; appears as legitimate CDN traffic.
+- **TLS fingerprinting**: Use `curl-impersonate` or custom TLS stack to match Chrome / Firefox JA3 hash.
+- **Protocol camouflage**: C2 over DNS, ICMP, HTTPS (mimicking legitimate API calls).
+- ** beaconing jitter**: Random intervals between C2 check-ins to evade statistical detection.
 
 ---
 

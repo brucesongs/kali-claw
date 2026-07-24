@@ -1,0 +1,28 @@
+# SKILL 库基线审查数据 (2026-07-22)
+
+## 数据快照
+总 SKILL 数:      130
+有 YAML 前言:      130 /      130 (100%)
+有防御视角:      113 /      130 (86%) - 需补齐 17 个
+有 payloads.md:      130 /      130 (100%)
+有 test-cases.md:      130 /      130 (100%)
+有 guides/:      130 /      130 (100%)
+
+## 缺失防御视角的 SKILL 清单
+article-writing
+autonomous-loops
+browser-qa
+chronicle
+codebase-onboarding
+concurrency-exploitation
+continuous-learning
+data-scraper-agent
+docker-patterns
+exa-search
+hardware-security
+knowledge-ops
+mcp-server-patterns
+multi-agent-collaboration
+safety-guard
+search-first
+verification-loop
