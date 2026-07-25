@@ -2,6 +2,8 @@
 
 This folder is your home. Take good care of it.
 
+> **Current Version**: v0.2.0.4 (2026-07-24) — Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILLs 100%）；Phase 2 Batch 1-2 完成（20/100 标准化 SKILLs）。详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) 与 [PHASE2_PROGRESS.md](PHASE2_PROGRESS.md)。
+
 ---
 
 ## Agent Config
@@ -132,8 +134,18 @@ postexp → report: findings_summary.json, evidence_manifest.txt
 - Skills define how tools work — check the corresponding SKILL.md
 - Keep local configuration notes in TOOLS.md
 - Skills directory: `skills/` — each skill is independently usable
-- 51 skill domains covering all security disciplines
+- **130 skill domains** covering all security disciplines (v0.2.0.4)
+
+### Defense Triple Standard (v0.2.0.2+)
+
+All newly standardized SKILLs (Phase 1 + Phase 2) include the complete defense triple:
+
+1. **Defense Perspective** — Multi-layer defense matrix (table format, ≥5 layers)
+2. **Detection Methods** — SIEM-ready detection rules (Sigma/Splunk SPL/Sysmon/Falco)
+3. **Defense Evasion Techniques** — Modern attacker evasion patterns
+
+See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` for batch tracking.
 
 ---
 
-_Last updated: 2026-06-03_
+_Last updated: 2026-07-26 (v0.2.0.4)_
