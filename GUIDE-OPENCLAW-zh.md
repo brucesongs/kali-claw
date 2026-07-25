@@ -1,6 +1,17 @@
 # OpenClaw + kali-claw 完整使用指南
 
-> 面向 v0.1.39 | 从零开始，手把手教你搭建和使用 AI 渗透测试智能体（111 个技能域、33 个 Distinguished）
+
+> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
+> - **130 个技能域**（早期版本为 49 或 111）
+> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
+> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
+> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+>
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+
+
+
+> 面向 v0.1.39 | 从零开始，手把手教你搭建和使用 AI 渗透测试智能体（130 个技能域、33 个 Distinguished）
 
 ---
 
@@ -24,7 +35,7 @@ kali-claw 是基于 OpenClaw 框架的 **预构建渗透测试智能体工作空
 
 核心组成：
 
-- **111 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云与身份、容器与云原生、AI/LLM 安全、企业身份（Entra ID/Okta）、现代企业栈（PAM/CI-CD/CSPM-CASB/SASE-SSE）、关键基础设施（SCADA/ICS）、区块链/Web3、移动与物联网、量子与后量子、无线电/卫星等
+- **130 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云与身份、容器与云原生、AI/LLM 安全、企业身份（Entra ID/Okta）、现代企业栈（PAM/CI-CD/CSPM-CASB/SASE-SSE）、关键基础设施（SCADA/ICS）、区块链/Web3、移动与物联网、量子与后量子、无线电/卫星等
 - **518 个 Kali Linux 工具知识库** — 从 nmap 到 sqlmap，从 burpsuite 到 metasploit
 - **12 条黑客法则** — 定义智能体的思维方式（第一性原理、发散思维、最小攻击面等）
 - **三层记忆系统** — 每日日志 / 月度编年史 / 长期精炼知识
@@ -37,7 +48,7 @@ kali-claw 是基于 OpenClaw 框架的 **预构建渗透测试智能体工作空
 | 特性 | ChatGPT/Claude | kali-claw |
 |------|----------------|-----------|
 | 持久记忆 | 无（每次对话从零开始） | 有（文件级三层记忆系统） |
-| 技能体系 | 无 | 111 个领域、结构化技能 |
+| 技能体系 | 无 | 130 个领域、结构化技能 |
 | 工具执行 | 不能直接执行命令 | 可调用 Kali Linux 全部 518 安全工具 |
 | 人格一致性 | 无 | SOUL.md 定义固定人格 + 12 条法则 |
 | 学习进化 | 无 | 通过记忆和心跳持续学习 |
@@ -63,7 +74,7 @@ kali-claw 工作空间
   +-- TOOLS.md             <-- 518 工具学习进度
   +-- HEARTBEAT.md         <-- 心跳自动化任务
   +-- CHANGELOG.md         <-- 版本变更日志（v0.1.1 → v0.1.39）
-  +-- skills/              <-- 111 个技能域
+  +-- skills/              <-- 130 个技能域
   |   +-- web-sqli/
   |   |   +-- SKILL.md        <-- 含 YAML frontmatter（Agent Skills 标准）
   |   |   +-- payloads.md     <-- 攻击载荷
@@ -75,7 +86,7 @@ kali-claw 工作空间
   |   +-- sase-sse-attack/
   |   +-- ad-cs-abuse/
   |   +-- cloud-identity-attack/
-  |   +-- ... (共 111 个)
+  |   +-- ... (共 130 个)
   +-- validation/          <-- 自动化验证与编排
   |   +-- SCORE.sh               <-- 质量评分引擎
   |   +-- heartbeat.sh            <-- 工作空间健康检查
@@ -117,7 +128,7 @@ kali-claw 内置了一套 **客观可量化** 的技能质量评分系统，每�
 | Weak（薄弱） | 0 - 39.9 | 0 | 缺失关键组件 |
 
 **当前状态（v0.1.39）**：
-- 111/111 技能达到 Excellent+（**100%**）
+- 130/130 技能达到 Excellent+（**100%**）
 - 平均分：**88.78**
 - 最低分 / 最高分：85.1 / 94.6
 - Distinguished 比例：33/111 ≈ **30%**
@@ -406,7 +417,7 @@ openclaw gateway start
 bash validation/SCORE.sh
 ```
 
-这会生成所有 111 个技能域的 JSON 评分文件到 `validation/evidence/quality-scores/`。如果你计划自己改造技能，这套分数能帮你定位薄弱环节。
+这会生成所有 130 个技能域的 JSON 评分文件到 `validation/evidence/quality-scores/`。如果你计划自己改造技能，这套分数能帮你定位薄弱环节。
 
 ---
 
@@ -414,7 +425,7 @@ bash validation/SCORE.sh
 
 ### 4.1 技能系统
 
-kali-claw 拥有 **111 个技能域**，按攻击面/防御面/能力类型大致分为 8 大类：
+kali-claw 拥有 **130 个技能域**，按攻击面/防御面/能力类型大致分为 8 大类：
 
 **Web 与 API 攻击**
 
@@ -671,7 +682,7 @@ TOOLS.md 是智能体的 **工具能力清单**：
 **运行评分**：
 
 ```bash
-bash validation/SCORE.sh                # 全量评分 111 个技能
+bash validation/SCORE.sh                # 全量评分 130 个技能
 bash validation/SCORE.sh --skill web-sqli  # 单技能评分
 ```
 
@@ -1180,7 +1191,7 @@ kali-claw 采用"**扩面 ↔ 质量**"交替迭代的节奏，每个版本都�
 
 | 阶段 | 版本 | 关键里程碑 |
 |------|------|------------|
-| 基础建设 | v0.1.1 - v0.1.7 | 45 → 49 技能域，建立分层架构 |
+| 基础建设 | v0.1.1 - v0.1.7 | 45 → 130 个技能域，建立分层架构 |
 | 全量丰富 | v0.1.8 - v0.1.10 | 49/49 全部 FULL enrichment，集成测试 7/7 PASS |
 | **质量评分引入** | v0.1.11 - v0.1.14 | SCORE.sh v1，49/49 Excellent 100% |
 | **质量评分 v2** | v0.1.15 - v0.1.17 | Distinguished 等级引入，TEMPLATE.md |
@@ -1204,7 +1215,7 @@ kali-claw 采用"**扩面 ↔ 质量**"交替迭代的节奏，每个版本都�
 | Adequate (40-60) | **0** | — |
 | Weak (0-40) | **0** | — |
 
-**平均分：88.78** | **111/111 Excellent+（100%）** | **33 Distinguished**
+**平均分：88.78** | **130/130 Excellent+（100%）** | **33 Distinguished**
 
 ### 7.3 下一版本（v0.1.40）方向
 
@@ -1390,7 +1401,7 @@ JSON 中包含 4 个组件的明细分（skill_md / payloads_md / test_cases_md 
 | `TOOLS.md` | 518 工具的学习进度和笔记 | 添加新工具 / 更新进度 |
 | `HEARTBEAT.md` | 心跳自动化任务定义 | 调整检查频率和内容 |
 | `CHANGELOG.md` | 全部版本变更日志 | 一般不手动修改 |
-| `skills/` | 111 个技能域目录 | 添加新技能 / 更新现有技能 |
+| `skills/` | 130 个技能域目录 | 添加新技能 / 更新现有技能 |
 | `validation/` | 自动化脚本套件（SCORE.sh、orchestrator.sh 等） | 调整评分权重 / 添加新场景 |
 | `validation/engagement-template/` | 授权渗透模板（targets/scope/report） | 新增 engagement 类型 |
 | `memory/` | 每日记忆日志（YYYY-MM-DD.md） | 一般不手动修改 |
@@ -1404,4 +1415,4 @@ JSON 中包含 4 个组件的明细分（skill_md / payloads_md / test_cases_md 
 
 ---
 
-_Built with the OpenClaw Agent Framework. 当前版本 v0.1.39（111 技能域、33 Distinguished）。如有问题，请在 GitHub Issues 中反馈。_
+_Built with the OpenClaw Agent Framework. 当前版本 v0.1.39（130 个技能域、33 Distinguished）。如有问题，请在 GitHub Issues 中反馈。_

@@ -1,8 +1,19 @@
 # OpenClaw + kali-claw: Complete Usage Guide
 
+
+> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
+> - **130 skill domains** (up from 49/111 in earlier versions)
+> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
+> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
+> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+>
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+
+
+
 > A beginner-friendly guide to setting up and using the OpenClaw framework with the kali-claw penetration testing agent workspace.
 >
-> **Target version: v0.1.39** — 111 skill domains, 33 Distinguished, 100% Excellent+.
+> **Target version: v0.1.39** — 130 skill domains, 33 Distinguished, 100% Excellent+.
 
 ---
 
@@ -40,7 +51,7 @@ OpenClaw is an AI agent runtime framework installed via npm. It provides the inf
 kali-claw is a pre-built penetration testing agent workspace for the OpenClaw framework. It is NOT a traditional software code repository -- it is a **Markdown knowledge base + configuration system + automation scripts**.
 
 **What it includes:**
-- **111 security skill domains** -- from OSINT and web exploitation to cloud + identity, modern enterprise stack (PAM / CI-CD / CSPM-CASB / SASE-SSE), AI/LLM security, SCADA/ICS, blockchain/Web3, mobile/IoT, quantum/post-quantum, radio/satellite, and more
+- **130 security skill domains** -- from OSINT and web exploitation to cloud + identity, modern enterprise stack (PAM / CI-CD / CSPM-CASB / SASE-SSE), AI/LLM security, SCADA/ICS, blockchain/Web3, mobile/IoT, quantum/post-quantum, radio/satellite, and more
 - **518 Kali Linux tool knowledge base** -- mastery tracking, learning notes, usage experience
 - **12 Hacker Laws** -- behavioral guidelines derived from real-world security philosophy
 - **Layered memory system** -- daily logs, monthly chronicles, and long-term distilled knowledge
@@ -68,13 +79,13 @@ User --> OpenClaw Gateway --> kali-claw Workspace
                                   |
                                   +-- SOUL.md              (personality + 12 Hacker Laws)
                                   +-- USER.md              (user profile and preferences)
-                                  +-- IDENTITY.md          (111 skill tag rows)
+                                  +-- IDENTITY.md          (130 skill tag rows)
                                   +-- AGENTS.md            (workspace config + session flow)
                                   +-- MEMORY.md            (long-term distilled knowledge)
                                   +-- TOOLS.md             (518 tool knowledge base)
                                   +-- HEARTBEAT.md         (automated task framework)
                                   +-- CHANGELOG.md         (v0.1.1 -> v0.1.39 history)
-                                  +-- skills/              (111 skill domains)
+                                  +-- skills/              (130 skill domains)
                                   |    +-- web-sqli/
                                   |    |    +-- SKILL.md     (YAML frontmatter)
                                   |    |    +-- payloads.md
@@ -86,7 +97,7 @@ User --> OpenClaw Gateway --> kali-claw Workspace
                                   |    +-- sase-sse-attack/
                                   |    +-- ad-cs-abuse/
                                   |    +-- cloud-identity-attack/
-                                  |    +-- ... (111 total)
+                                  |    +-- ... (130 total)
                                   +-- validation/          (automation and orchestration)
                                   |    +-- SCORE.sh              (quality scoring engine)
                                   |    +-- heartbeat.sh           (workspace health check)
@@ -125,7 +136,7 @@ kali-claw ships with an **objective, quantifiable** skill quality scoring system
 | Weak | 0 - 39.9 | 0 | Missing critical components |
 
 **Current state (v0.1.39):**
-- 111/111 skills at Excellent or above (**100%**)
+- 111/130 skills at Excellent or above (**100%**)
 - Average score: **88.78**
 - Min / Max: 85.1 / 94.6
 - Distinguished ratio: 33/111 ≈ **30%**
@@ -420,7 +431,7 @@ After cloning, run the scoring script once to confirm all skills are intact:
 bash validation/SCORE.sh
 ```
 
-This generates JSON score files for all 111 skill domains in `validation/evidence/quality-scores/`. If you plan to modify skills, these scores help you locate weak spots.
+This generates JSON score files for all 130 skill domains in `validation/evidence/quality-scores/`. If you plan to modify skills, these scores help you locate weak spots.
 
 ---
 
@@ -428,7 +439,7 @@ This generates JSON score files for all 111 skill domains in `validation/evidenc
 
 ### 4.1 Skill System
 
-kali-claw includes **111 skill domains** organized into 8 broad categories:
+kali-claw includes **130 skill domains** organized into 8 broad categories:
 
 **Web and API Attacks**
 
@@ -679,7 +690,7 @@ Introduced in v0.1.11, upgraded to v2 in v0.1.16. This subsystem makes "is this 
 **Running the score:**
 
 ```bash
-bash validation/SCORE.sh                    # Score all 111 skills
+bash validation/SCORE.sh                    # Score all 130 skills
 bash validation/SCORE.sh --skill web-sqli   # Score a single skill
 ```
 
@@ -1240,7 +1251,7 @@ kali-claw follows an alternating "**expansion <-> quality**" rhythm, each versio
 
 | Phase | Versions | Key Milestone |
 |-------|----------|---------------|
-| Foundation | v0.1.1 - v0.1.7 | 45 -> 49 skill domains, layered architecture established |
+| Foundation | v0.1.1 - v0.1.7 | 45 -> 130 skill domains, layered architecture established |
 | Full Enrichment | v0.1.8 - v0.1.10 | 49/49 FULL enrichment, 7/7 integration tests PASS |
 | **Quality scoring introduced** | v0.1.11 - v0.1.14 | SCORE.sh v1, 49/49 Excellent 100% |
 | **Scoring v2** | v0.1.15 - v0.1.17 | Distinguished tier introduced, TEMPLATE.md |
@@ -1264,7 +1275,7 @@ kali-claw follows an alternating "**expansion <-> quality**" rhythm, each versio
 | Adequate (40-60) | **0** | -- |
 | Weak (0-40) | **0** | -- |
 
-**Average: 88.78** | **111/111 Excellent+ (100%)** | **33 Distinguished**
+**Average: 88.78** | **130/130 Excellent+ (100%)** | **33 Distinguished**
 
 ### 7.3 What's Coming in v0.1.40
 
@@ -1451,7 +1462,7 @@ The JSON includes the 4-component breakdown (skill_md / payloads_md / test_cases
 | `TOOLS.md` | 518 tool inventory, learning progress, learning strategy | Adding new tools, updating mastery status |
 | `HEARTBEAT.md` | Automated heartbeat tasks: health, learning, security, maintenance | Adjusting check frequency, adding custom monitoring |
 | `CHANGELOG.md` | Full version change log | Generally do NOT edit manually |
-| `skills/` | 111 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
+| `skills/` | 130 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
 | `validation/` | Automation script suite (SCORE.sh, orchestrator.sh, ...) | Adjusting scoring weights, adding new scenarios |
 | `validation/engagement-template/` | Authorized pentest templates (targets/scope/report) | Adding new engagement types |
 | `memory/` | Daily memory logs (`YYYY-MM-DD.md`) | Generally do NOT edit manually |
@@ -1465,4 +1476,4 @@ All other files are maintained automatically by the agent and usually do not nee
 
 ---
 
-_This guide covers OpenClaw + kali-claw **v0.1.39** (111 skill domains, 33 Distinguished, 100% Excellent+). For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._
+_This guide covers OpenClaw + kali-claw **v0.1.39** (130 skill domains, 33 Distinguished, 100% Excellent+). For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._
