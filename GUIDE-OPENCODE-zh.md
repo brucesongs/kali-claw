@@ -1,6 +1,17 @@
 # kali-claw 技能包使用指南：在 OpenCode 上运行
 
-> 面向 kali-claw v0.1.7 + OpenCode 最新版 | 从零开始，手把手教你将 kali-claw 技能包迁移到 OpenCode 平台
+
+> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
+> - **130 个技能域**（早期版本为 49 或 111）
+> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
+> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
+> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+>
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+
+
+
+> 面向 kali-claw v0.2.0.4 + OpenCode 最新版 | 从零开始，手把手教你将 kali-claw 技能包迁移到 OpenCode 平台
 
 ---
 
@@ -13,7 +24,7 @@
 核心能力：
 # kali-claw 技能包使用指南：在 OpenCode 上运行
 
-> 面向 kali-claw v0.1.7 + OpenCode 最新版 | 从零开始，手把手教你将 kali-claw 技能包迁移到 OpenCode 平台
+> 面向 kali-claw v0.2.0.4 + OpenCode 最新版 | 从零开始，手把手教你将 kali-claw 技能包迁移到 OpenCode 平台
 
 ---
 
@@ -500,7 +511,7 @@ Follow these laws as guiding principles in every task:
 
 ## Skill Domain Index
 
-You have access to 49 security skill domains under the `skills/` directory. Each skill
+You have access to 130 security skill domains under the `skills/` directory. Each skill
 contains SKILL.md (definition), payloads.md (attack payloads), test-cases.md (test templates),
 and guides/ (deep-dive materials).
 
@@ -1504,7 +1515,7 @@ kali-claw/
 ├── MEMORY.md                  # [不变] 长期记忆
 ├── TOOLS.md                   # [不变] 工具进度
 ├── HEARTBEAT.md               # [不变] 心跳框架
-├── skills/                    # [不变] 49 个技能域
+├── skills/                    # [不变] 130 个技能域
 │   ├── web-sqli/
 │   │   ├── SKILL.md智能体
 │   │   ├── payloads.md
@@ -1512,7 +1523,7 @@ kali-claw/
 │   │   └── guides/
 │   ├── network-pentest/
 │   ├── cloud-security/
-│   └── ... (49 domains)
+│   └── ... (130 domains)
 ├── memory/                    # [不变] 每日记忆
 ├── chronicle/                 # [不变] 月度编年史
 └── bak/                       # [不变] 备份
@@ -1532,7 +1543,7 @@ kali-claw/
 
 ---
 
-_基于 kali-claw v0.1.7 + OpenCode 最新版编写 | 2026-05-18_
+_基于 kali-claw v0.2.0.4 + OpenCode 最新版编写 | 2026-05-18_
 
 - **多 AI 提供商支持** — OpenAI、Anthropic、Google、Ollama 本地模型，模型无关设计
 - **项目级配置** — 通过 `opencode.json` 定义模型、指令、命令、MCP 工具
@@ -2009,7 +2020,7 @@ Follow these laws as guiding principles in every task:
 
 ## Skill Domain Index
 
-You have access to 49 security skill domains under the `skills/` directory. Each skill
+You have access to 130 security skill domains under the `skills/` directory. Each skill
 contains SKILL.md (definition), payloads.md (attack payloads), test-cases.md (test templates),
 and guides/ (deep-dive materials).
 
@@ -3013,7 +3024,7 @@ kali-claw/
 ├── MEMORY.md                  # [不变] 长期记忆
 ├── TOOLS.md                   # [不变] 工具进度
 ├── HEARTBEAT.md               # [不变] 心跳框架
-├── skills/                    # [不变] 49 个技能域
+├── skills/                    # [不变] 130 个技能域
 │   ├── web-sqli/
 │   │   ├── SKILL.md
 │   │   ├── payloads.md
@@ -3021,7 +3032,7 @@ kali-claw/
 │   │   └── guides/
 │   ├── network-pentest/
 │   ├── cloud-security/
-│   └── ... (49 domains)
+│   └── ... (130 domains)
 ├── memory/                    # [不变] 每日记忆
 ├── chronicle/                 # [不变] 月度编年史
 └── bak/                       # [不变] 备份
@@ -3041,4 +3052,4 @@ kali-claw/
 
 ---
 
-_基于 kali-claw v0.1.7 + OpenCode 最新版编写 | 2026-05-18_
+_基于 kali-claw v0.2.0.4 + OpenCode 最新版编写 | 2026-05-18_

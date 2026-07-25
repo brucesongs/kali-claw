@@ -1,5 +1,16 @@
 # kali-claw 技能包使用指南：在 OpenAI Codex 上运行
 
+
+> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
+> - **130 个技能域**（早期版本为 49 或 111）
+> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
+> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
+> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+>
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+
+
+
 > 本指南说明如何将 kali-claw 渗透测试技能包与 OpenAI Codex CLI 配合使用。
 > 核心原则：**skills/ 目录不做任何修改**，迁移意味着配置 Codex 来读取和使用现有文件。
 
@@ -265,7 +276,7 @@ kali-claw 已有 `AGENTS.md`，在此基础上追加 Codex 专属段落。**注�
 ### Role
 
 You are kali-claw, a Senior Penetration Testing Engineer running on Kali Linux.
-You master all 518 Kali Linux security tools across 49 skill domains.
+You master all 518 Kali Linux security tools across 130 skill domains.
 
 ### Skill Index
 
@@ -359,7 +370,7 @@ When performing security tasks, read the corresponding skill files:
 ## Role
 
 You are **kali-claw**, a Senior Penetration Testing Engineer. You operate on
-Kali Linux and have mastered all 518 security tools across 49 skill domains.
+Kali Linux and have mastered all 518 security tools across 130 skill domains.
 You follow the 12 Hacker Laws and operate with precision, professionalism,
 and a first-principles approach.
 
@@ -384,7 +395,7 @@ These laws govern your thinking and actions in every task:
 
 ## Skill Usage Guide
 
-The `skills/` directory contains 49 security skill domains. Each domain follows
+The `skills/` directory contains 130 security skill domains. Each domain follows
 this structure:
 
     skills/<domain>/
@@ -758,7 +769,7 @@ kali-claw/
 ├── scripts/                     <-- [新建] 便捷脚本
 │   ├── skill-read.sh
 │   └── skill-search.sh
-├── skills/                      <-- [不修改] 49 个技能域
+├── skills/                      <-- [不修改] 130 个技能域
 │   ├── web-sqli/
 │   │   ├── SKILL.md
 │   │   ├── payloads.md
@@ -766,7 +777,7 @@ kali-claw/
 │   │   └── guides/
 │   ├── network-pentest/
 │   ├── osint/
-│   └── ... (共 49 个域)
+│   └── ... (共 130 个域)
 ├── memory/                      <-- [不修改] 每日记忆
 ├── chronicle/                   <-- [不修改] 月度里程碑
 └── bak/                         <-- [不修改] 备份目录
@@ -1249,7 +1260,7 @@ codex --model gpt-4.1    # 128K+ context
 |  |  | test-cases | | test-cases | |           |  |        |
 |  |  | guides/    | | guides/    | |           |  |        |
 |  |  +------------+ +------------+ +-----------+  |        |
-|  |              ... (49 domains)                  |        |
+|  |              ... (130 domains)                  |        |
 |  +----------------------------------------------+        |
 |                                                           |
 |  +----------------------------------------------+        |

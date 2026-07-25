@@ -1,6 +1,17 @@
 # kali-claw Skill Pack Migration Guide: OpenClaw to Hermes Agent
 
-> A comprehensive guide to migrating kali-claw's 49 security skill domains from the OpenClaw framework to Hermes Agent.
+
+> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
+> - **130 skill domains** (up from 49/111 in earlier versions)
+> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
+> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
+> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+>
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+
+
+
+> A comprehensive guide to migrating kali-claw's 130 security skill domains from the OpenClaw framework to Hermes Agent.
 
 ---
 
@@ -33,7 +44,7 @@ Hermes Agent (by Nous Research) is an open-source, self-evolving AI agent framew
 
 **kali-claw skill pack value:**
 
-- **49 security skill domains** -- covering web exploitation, network pentest, OSINT, crypto attacks, cloud security, mobile security, and more.
+- **130 security skill domains** -- covering web exploitation, network pentest, OSINT, crypto attacks, cloud security, mobile security, and more.
 - **518 Kali Linux tool knowledge base** -- mastery tracking, usage notes, and learning strategies for the complete Kali toolset.
 - **Thousands of lines of payloads and test cases** -- ready-to-use attack payloads organized by type, and structured test case templates with prerequisites and expected results.
 - **12 Hacker Laws** -- behavioral guidelines derived from real-world security philosophy.
@@ -50,7 +61,7 @@ Three approaches, ordered by increasing complexity and control:
 | **2. Semi-Manual Migration** | Advanced | 30 minutes | Production use, reference stubs for all skills |
 | **3. Fully Manual Migration** | Expert | 4-8 hours | Complete control, custom optimizations |
 
-**Recommendation:** Start with Approach 1 to validate the process. Then use Approach 2 to create reference stubs for all 49 skill domains.
+**Recommendation:** Start with Approach 1 to validate the process. Then use Approach 2 to create reference stubs for all 130 skill domains.
 
 ### 1.3 Before/After Comparison
 
@@ -142,7 +153,7 @@ hermes claw migrate --dry-run
 
 # Review the output carefully. You should see:
 # - Workspace detected: kali-claw
-# - Skills found: 49 domains
+# - Skills found: 130 domains
 # - Memory files found: X daily logs
 # - Personality file found: SOUL.md
 
@@ -187,7 +198,7 @@ Auto-migration handles the basics well, but has important limitations:
 # List all imported skills
 hermes skills list
 
-# Expected: ~49 skills listed with names like:
+# Expected: ~130 skills listed with names like:
 # web-sqli, web-xss, network-pentest, osint, ...
 
 # Search imported memories
@@ -880,7 +891,7 @@ Run a comprehensive verification:
 ```bash
 # 1. List all migrated skills
 hermes skills list
-# Expected: ~49 skills
+# Expected: ~130 skills
 
 # 2. Test all skills
 hermes skills test --all
@@ -1055,9 +1066,9 @@ chmod +x ~/.hermes/tools/*.sh
 # See tools/sqli-labs-auto.sh for SQLi-Labs automated testing
 ```
 
-### Q9: Stub creation takes too long for 49 skills
+### Q9: Stub creation takes too long for 130 skills
 
-**Problem:** Creating stubs for all 49 skills is slow or produces errors for some skills.
+**Problem:** Creating stubs for all 130 skills is slow or produces errors for some skills.
 
 **Solution:** Process skills in batches:
 
@@ -1139,7 +1150,7 @@ python3 ~/create_stubs.py
 
 ### Skill Count Reference
 
-kali-claw includes the following 49 security skill domains:
+kali-claw includes the following 130 security skill domains:
 
 **Attack Skills (17):**
 web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, api-security, network-pentest, password-attack, post-exploitation, wifi-pentest, binary-reverse, crypto-attacks, mobile-security, social-engineering, hardware-security, supply-chain-security, insecure-design
@@ -1161,4 +1172,4 @@ digital-forensics, cloud-security, security-bounty-hunter, social-intelligence
 
 ---
 
-_This guide covers kali-claw v0.1.7 migration to Hermes Agent. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw) and the [Hermes Agent repository](https://github.com/NousResearch/hermes-agent)._
+_This guide covers kali-claw v0.2.0.4 migration to Hermes Agent. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw) and the [Hermes Agent repository](https://github.com/NousResearch/hermes-agent)._

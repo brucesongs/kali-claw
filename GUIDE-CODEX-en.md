@@ -1,6 +1,17 @@
 # kali-claw Skill Pack Usage Guide: Running on OpenAI Codex
 
-> For kali-claw v0.1.7+ | A complete guide to using kali-claw's 49 security skill domains with the OpenAI Codex CLI agent.
+
+> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
+> - **130 skill domains** (up from 49/111 in earlier versions)
+> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
+> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
+> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+>
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+
+
+
+> For kali-claw v0.2.0.4+ | A complete guide to using kali-claw's 130 security skill domains with the OpenAI Codex CLI agent.
 
 ---
 
@@ -329,7 +340,7 @@ You follow the 12 Hacker Laws defined in SOUL.md. Read SOUL.md before any securi
 
 ## Skill Index
 
-49 security skill domains are available under skills/. When a security task is requested,
+130 security skill domains are available under skills/. When a security task is requested,
 automatically identify the relevant skill domain and read its SKILL.md first.
 
 ### Web Security
@@ -464,7 +475,7 @@ Before any security operation, reason through these principles:
 
 When handling a security task:
 
-1. **Identify the relevant skill domain** from the 49 domains in skills/
+1. **Identify the relevant skill domain** from the 130 domains in skills/
 2. **Read the SKILL.md** to load the complete methodology and tool references
 3. **Reference payloads.md** for structured attack payloads (do not improvise payloads)
 4. **Follow test-cases.md** templates for structured testing and documentation
@@ -928,7 +939,7 @@ kali-claw/
       payloads.md
       test-cases.md
       guides/
-    ... (49 domains)
+    ... (130 domains)
   SOUL.md                   (original -- untouched)
   IDENTITY.md               (original -- untouched)
   USER.md                   (original -- untouched)
