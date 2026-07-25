@@ -2,7 +2,7 @@
 name: cloud-identity-attack
 description: Cloud identity provider attacks covering Azure AD/Entra ID, Okta, Auth0, Ping, AWS IAM Identity Center, and Google Workspace — including OAuth 2.0 token theft, OIDC redirect abuse, SAML response forgery, conditional access bypass, MFA fatigue, federation compromise (AD FS, Ping), app registration abuse, and JIT access exploitation using ROADtools, AADInternals, MicroBurst, MFASweep, TokenTactics, and Okta API probing tools.
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 1
   mitre: "T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -415,6 +416,67 @@ Set-AADIntDomainFederation -DomainName 'corp.com' \
 - **MFA fatigue**: push-bombing real users is harassment and may have legal implications even in authorized engagements. Use only against test accounts or with explicit user consent in scope.
 - **Token exfiltration**: a stolen refresh token is a credential that grants access for hours to days. Treat it as a secret: store in a vault, rotate post-engagement, never commit to git.
 - **Audit log footprint**: every Graph API call is audited in Entra ID sign-in logs. Assume actions are visible; plan detection-evasion strategy in advance and disclose in the final report.
+
+## Detection Methods
+
+### Identity Provider Audit Logs
+- **AWS CloudTrail**: All AWS STS / IAM events; alert on `AssumeRole` chains, `GetCallerIdentity` from new regions.
+- **Azure Activity Log**: Sign-in logs with anomalous geo / IP / device fingerprint; risk events in Identity Protection.
+- **GCP Audit Logs**: Cloud Identity logs; alert on `SetIamPolicy` changes, service account key creation.
+- **Okta System Log**: App access, user state changes, MFA device enrollment; alert on anomalous patterns.
+
+### Behavioral Anomalies
+- **Impossible travel**: Login from US + China within 1h (geographic impossibility).
+- **MFA fatigue**: Multiple MFA challenges in short window (push bombing).
+- **Token reuse**: Same JWT from many source IPs in short window.
+- **Service account abuse**: Service account performing user-level actions (e.g., reading Gmail).
+- **Permission explosion**: User suddenly granted privileged role across many resources.
+
+### Conditional Access Policy Bypass
+- **Legacy auth**: Basic authentication bypasses MFA; protocol-specific logging.
+- **Device compliance bypass**: User agent strings indicating non-managed device.
+- **Location bypass**: Use of residential proxies to mimic legitimate location.
+- **App-specific bypass**: Use of legacy protocols (IMAP, SMTP) not subject to modern policies.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=aws sourcetype=aws:cloudtrail eventName=AssumeRole | stats dc(sourceIPAddress) by userIdentity.arn | where dc > 5`
+- **Sigma rule**: `sigma/rules/cloud/aws_sts_role_chain.yml`
+- **Microsoft Entra ID Protection**: Native risk detection (impossible travel, anonymous IP, unfamiliar sign-in).
+- **AWS GuardDuty**: Detects anomalous API calls; `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration`.
+
+## Defense Evasion Techniques
+
+### Identity Evasion
+- **STS role chaining**: Use assume role across multiple accounts; launder credentials.
+- **Service account tokens over user credentials**: Don't trigger user-behavior analytics.
+- **Long-lived credentials over STS**: Avoid assume-role audit trail.
+- **Federation abuse**: Use SAML/OIDC federation; appears as legitimate SSO.
+- **Web identity federation**: Use GitHub Actions OIDC, Google Cloud Build; inherit trust.
+
+### MFA Bypass
+- **Push bombing**: Trigger MFA fatigue during off-hours; user approves to silence phone.
+- **SIM swap**: Social engineer mobile carrier; intercept SMS OTP.
+- **MFA fatigue + helpdesk social**: Trigger fatigue, then call helpdesk claiming lost phone.
+- **OAuth consent phishing**: Trick user into granting OAuth app; persistent access without MFA.
+- **Session token theft**: Steal post-MFA session cookie via XSS/MITM; bypasses MFA entirely.
+
+### Conditional Access Bypass
+- **Legacy protocol abuse**: IMAP/SMTP/POP3 often exempt from modern policies.
+- **Trusted IP spoofing**: X-Forwarded-For manipulation if gateway trusts header.
+- **Device compliance bypass**: Register personal device as compliant; then access resources.
+- **App proxy abuse**: Use legitimate reverse proxy app to bypass IP restrictions.
+
+### Token Theft Stealth
+- **Steal refresh tokens over access tokens**: Refresh tokens are longer-lived; less suspicious.
+- **Off-hours token use**: Use stolen token during user's typical active window; blend with normal activity.
+- **Distribute token usage across regions**: Mimic user's travel pattern; avoid impossible-travel alert.
+- **Pivot through legitimate SaaS**: Use stolen token to access third-party SaaS that's pre-approved.
+
+### Cloud Persistence Stealth
+- **OAuth consent grant**: Persistent access via OAuth refresh tokens; no user account compromise needed.
+- **Service principal abuse**: Create new SP with legitimate-looking name; persistent access.
+- **Custom role with broad scope**: Avoid built-in privileged roles; create custom role with required permissions.
+- **IMDS in cloud** (AWS): Inject into compromised EC2 to inherit instance profile; legitimate-looking workload traffic.
 
 ## Hacker Laws
 

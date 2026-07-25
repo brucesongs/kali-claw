@@ -2,7 +2,7 @@
 name: ai-agent-framework-attack
 description: "AI agent framework attack surface — orchestration-layer compromise of LangChain (Python/JS), LangGraph, CrewAI, Microsoft AutoGen, OpenAI Assistants API v2, Anthropic Claude Agent SDK, LlamaIndex, Microsoft Semantic Kernel, Google ADK, SmolAgents, and MCP-integrated agent runtimes. Covers tool poisoning (Simon Willison 2025 research), indirect prompt injection via untrusted tool outputs, tool rug-pull attacks (npm/PyPI dependency confusion in agent toolkits), LangChain SSRF via RequestsTool / SqlQueryTool / PythonREPLTool (CVE-2024-21514 area, CVE-2024-43480 area), CrewAI tool RCE via decorators (CVE-2024-10231 area), AutoGen code executor escape (Docker/code execution services), OpenAI Assistants API code_interpreter abuse, Claude Agent SDK MCP injection, LangGraph state injection via checkpoint poisoning, LlamaIndex query engine injection, MCP server poisoning (Anthropic/rug-pull.com research Nov 2024), tool description injection, agent memory poisoning, Retrieval-Augmented Generation (RAG) corpus poisoning, agent-in-the-middle attacks, shadow tools, and recent APT actor abuse of agentic AI systems (UNC5812, STAC-0050)."
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - claude-sonnet-4.5
@@ -22,6 +22,7 @@ metadata:
   tool_count: 14
   guide_count: 1
   mitre: "T1195-Supply Chain Compromise"
+  last_reviewed: "2026-07-24"
   keywords:
     - AI agent
     - LLM agent
@@ -291,6 +292,55 @@ For blue-team readers, the high-value telemetry sources for agent systems are:
 - **Anomalous tool sequences** — a research agent that suddenly calls `delete_file` is suspicious.
 
 Sigma rules, Splunk SPL, and KQL queries for these patterns are in `guides/ai-agent-framework-attack-playbook.md`.
+
+## Detection Methods
+
+### LLM Gateway / Proxy Indicators
+- **Prompt injection signatures**: Requests containing "ignore previous instructions", "system:", "developer:" in user message.
+- **Tool description anomalies**: Diff against baseline tool descriptions; alert on changes (esp. added exfil capabilities).
+- **Token count anomalies**: Single request exceeding 100K tokens (potential context stuffing).
+- **Tool call frequency**: Agent making >50 tool calls per minute (automation signature).
+- **Unusual MCP server connections**: Outbound to non-default MCP ports; new MCP server registrations.
+
+### Behavioral Indicators
+- **Tool call patterns**: Sequential calls to `read_file` → `search` → `send_email` (exfil chain).
+- **Output-of-context responses**: Agent responses containing base64-encoded blobs, raw credentials, or system paths.
+- **Reflection abuse**: Agent introspecting on its own system prompt via crafted tool inputs.
+- **Cross-session data leakage**: Same user querying about data from a different session.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=llm gateway.route="/v1/messages" | where tokens_input > 100000`
+- **Sigma rule**: `sigma/rules/ai/prompt_injection_pattern.yml`
+- **LangSmith / Helicone**: Built-in anomaly detection on LLM traces.
+- **Llama Guard / Azure Prompt Shields**: Real-time prompt classification; reject malicious patterns.
+
+## Defense Evasion Techniques
+
+### Prompt Injection Stealth
+- **Indirect injection**: Inject via RAG content / file content rather than direct prompt (evades input filters).
+- **Multi-lingual obfuscation**: Translate injection to non-English language; many filters are English-only.
+- **Token-splitting**: Split injection across multiple tokens that combine at model layer.
+- **Base64 / encoding**: Encode payload in base64 + ask model to decode; some filters don't follow.
+- **Context bleeding**: Use long context (>50K tokens) to dilute injection signature below threshold.
+
+### Tool Call Stealth
+- **Use existing tools for exfil**: Exfiltrate via legitimate `http_request` tool to attacker-controlled endpoint (looks like API call).
+- **Distributed tool calls**: Spread exfil across multiple agent sessions (one chunk each).
+- **Off-hours tool calls**: Trigger agent actions during low-traffic hours; blends with maintenance.
+- **Tool description poisoning**: Modify tool description via MCP update to add new "feature" (looks like legitimate update).
+- **Reflection abuse**: Use `describe_tool` introspection to discover undocumented capabilities.
+
+### Memory / State Exploitation
+- **Long-context exploitation**: Inject via session history; many filters scan only current turn.
+- **Vector store poisoning**: Modify embeddings to trigger retrieval of malicious context.
+- **Cross-session state**: Abuse shared memory across user sessions (if not isolated).
+- **Cached response poisoning**: Modify LLM gateway cache to inject malicious response.
+
+### Side-Channel Exfiltration
+- **Timing-based exfil**: Encode exfil data in response latency (0.5s = 0, 1.5s = 1).
+- **Token-count exfil**: Encode data in length of model output (matches specific token counts).
+- **Error message exfil**: Trigger specific errors with attacker-readable error messages.
+- **Tool result exfil**: Encode data in tool return values that aren't directly visible to user.
 
 ## References
 

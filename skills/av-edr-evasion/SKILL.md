@@ -2,7 +2,7 @@
 name: av-edr-evasion
 description: "AV/EDR evasion covers techniques for bypassing antivirus (AV) and Endpoint Detection/Response (EDR) solutions during payload delivery, execution, and post-exploitation."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 5
   mitre: "TA0005-Defense Evasion"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -195,6 +196,66 @@ Advanced AV/EDR evasion includes: direct syscall invocation (bypassing ntdll hoo
 | **donut** | .NET assembly to shellcode conversion | Fast | High (in-memory execution) | Intermediate |
 | **pe2shc** | PE to position-independent shellcode | Fast | High (enables loaders) | Intermediate |
 | **hyperion** | AES encryption of PE files | Moderate | Moderate-High | Beginner |
+
+## Detection Methods
+
+### AV/EDR Telemetry Indicators
+- **AMSI scan failures**: Event ID 1100 (Windows Defender stopped); Event ID 2000-2004 (real-time protection disabled).
+- **LSASS access**: Non-system process accessing `lsass.exe` memory; Sysmon Event ID 10.
+- **Suspicious process injection**: `CreateRemoteThread` + `VirtualAllocEx` + `WriteProcessMemory` chain.
+- **PSExec / WMI lateral movement**: Sysmon Event ID 1 with parent `services.exe` or `wmiprvse.exe`.
+- **PatchGuard triggers**: BSOD with `KERNEL_AUTO_BOOST_INVALID_LOCK_RELEASE` (kernel callback tampering).
+- **Driver loading**: Unsigned driver loads; Event ID 6 (Sysmon); Event ID 4688 (process start with signature).
+
+### Behavioral Indicators
+- **Process hollowing**: Legitimate process (e.g., `svchost.exe`) with mismatched PE header vs disk image.
+- **Reflective DLL loading**: DLL loaded from memory (no file on disk); memory region with RWX permissions.
+- **Direct syscall**: Process executing syscalls without going through ntdll.dll (signature of syscall stub bypass).
+- **Token impersonation**: Process holding tokens of multiple users; unusual for legitimate services.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=windows sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational EventCode=10 TargetImage="*lsass.exe"`
+- **Sigma rule**: `sigma/rules/windows/sysmon_lsass_access.yml`
+- **Microsoft Defender for Endpoint**: Native EDR detections for credential theft, process injection.
+- **CrowdStrike / SentinelOne**: Process ancestry analysis catches most injection patterns.
+
+## Defense Evasion Techniques
+
+### AMSI/ETW Bypass
+- **AMSI patch**: Patch `amsi.dll!AmsiScanBuffer` to return `AMSI_RESULT_CLEAN` always (`0x80070057`).
+- **ETW patch**: Patch `ntdll!EtwEventWrite` to return success without logging.
+- **CLR hooking**: Hook .NET CLR to prevent assembly load events from being raised.
+- **AMSI unload**: Force-unload `amsi.dll` from process memory before payload execution.
+- **Provider disable**: Disable specific ETW providers via registry (`HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\Channels`).
+
+### Direct Syscalls
+- **SysWhispers2 / SysWhispers3**: Generate custom syscall stubs without ntdll imports.
+- **HellsGate / HalosGate**: Dynamically resolve SSNs by parsing ntdll at runtime.
+- **Native API abuse**: Use `Nt*` APIs directly via syscall; bypasses user-mode hooks.
+- **Indirect syscalls**: Use legitimate `ntdll.dll` returns address but custom syscall instruction.
+
+### Process Injection Stealth
+- **Process hollowing over CreateRemoteThread**: Replace legitimate process memory; appears as legitimate process.
+- **Reflective DLL injection**: Load DLL from memory; no file on disk; bypasses AV scanning.
+- **APC injection**: Queue APC to existing threads; no `CreateRemoteThread` call.
+- **Thread hijacking**: Suspend existing thread, modify context, resume; no new thread creation.
+- **EarlyBird injection**: Queue APC before main thread starts; runs in legitimate process startup.
+
+### Driver / Kernel Bypass
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Load legitimately-signed but vulnerable driver (`RTCore64.sys`, `gdrv.sys`); use it for kernel R/W.
+- **DSE bypass**: Disable Driver Signature Enforcement via boot modifications or kernel exploits.
+- **Kernel callback removal**: Remove `PsSetCreateProcessNotifyRoutine` callbacks; blind EDR.
+
+### EDR Splitting
+- **Operation splitting**: Spread payload across multiple processes; each does partial work; no single process triggers.
+- **Cross-process token theft**: Steal token in one process, use in another; confuses EDR correlation.
+- **Lateral via WMI/DCOM**: Use WMI subscriptions and DCOM to avoid PsExec/WinRM signatures.
+
+### Memory-Only Operations
+- **`memfd_create`**: Linux; run payload from memory-backed file.
+- **Reflective loading**: Map PE into process memory without `LoadLibrary`.
+- **Module stomping**: Load legitimate DLL, overwrite with payload; appears as legitimate module.
+- **Phantom DLL hollowing**: Hollow a DLL that is loaded but not actually used.
 
 ## Performance and Remediation
 

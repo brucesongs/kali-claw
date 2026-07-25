@@ -2,7 +2,7 @@
 name: blockchain-web3
 description: "Blockchain & Web3 security — Solidity/Vyper smart contract auditing, DeFi attack vectors (flash loans, MEV, oracle manipulation), bridge attacks, wallet security, with tooling from Slither/Mythril/Foundry."
 origin: openclaw
-version: "0.1.29"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -32,6 +32,7 @@ metadata:
     - echidna
     - certora
     - bridge-attack
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -541,6 +542,48 @@ external call. Additionally inherit OpenZeppelin's `ReentrancyGuard` and apply
 - **Private keys**: never commit RPC URLs with embedded API keys. Never commit deployer private keys, even for testnet. Use `forge script` with `--interactive` or environment variables in `.env` (gitignored).
 - **Flash loan attacks are real**: if your protocol is live and you discover a flash loan vulnerability, treat it as a 911 incident — fund retrieval is a race against anonymous searchers. Contact the team privately first, not on Twitter.
 - **Immutability cuts both ways**: a deployed contract cannot be patched. If you find a bug post-deployment, the only options are (a) a proxy upgrade (if wired in), (b) a migration to a new contract, or (c) a whitehat rescue. Plan for all three.
+
+## Detection Methods
+
+### Smart Contract Audit Detection
+- **Static analysis tools**: Slither, Mythril, Mythos; detect reentrancy, overflow, access control.
+- **Formal verification**: Certora, K Framework; proves contract behavior against spec.
+- **Fuzz testing**: Echidna, Harvey; finds assertion violations via randomized inputs.
+- **Runtime monitoring**: Forta, OpenZeppelin Defender; live detection of exploit patterns.
+
+### On-Chain Anomaly Detection
+- **Gas price spikes**: Sudden gas price increase; MEV extraction or DoS attack.
+- **Token transfer patterns**: Large transfers to newly-created contracts; potential exploit.
+- **Flash loan signatures**: Borrow + multiple protocol interactions + repay in single tx.
+- **Sandwich attack patterns**: Same-block swap + opposite-direction swap sandwiching victim.
+
+### SIEM Detection Rules
+- **Splunk SPL (Web3)**: `index=web3 method="eth_getLogs" | stats count by address | where count > 1000`
+- **Forta bots**: Community-built detection bots for emerging threats.
+- **Chainalysis / TRM Labs**: Transaction monitoring for sanctioned addresses.
+- **Etherscan token approval alerts**: User notification for suspicious token approvals.
+
+## Defense Evasion Techniques
+
+### Smart Contract Exploit Stealth
+- **Obfuscate exploit logic**: Use complex math to hide malicious behavior; defeats Slither.
+- **Use assembly/Yul**: Bypass Solidity safety checks; lower-level manipulation.
+- **Self-destruct after exploit**: `selfdestruct` to make contract unrecoverable for analysis.
+- **Use CREATE2**: Pre-compute address; deploy malicious contract at known address later.
+- **Proxy pattern abuse**: Use upgradeable proxy to deploy "update" that drains funds.
+
+### On-Chain Laundering
+- **Tornado Cash**: 100 ETH denominations; breaks deterministic trace.
+- **Railgun**: Privacy-preserving DEX; zk-based shielding.
+- **Cross-chain bridges**: Hop, Across, Stargate; spread funds across L2s.
+- **Mixers + DEX**: Mixer → DEX swap → mixer; multiple currency swaps break trace.
+- **NFT wash trading**: Convert ETH to NFT, transfer NFT, sell on different marketplace.
+
+### MEV / Front-Running Stealth
+- **Private mempools**: Flashbots Protect, Merkle, BloXroute; avoid public mempool visibility.
+- **MEV boost**: Use block builder auctions; ensure transaction inclusion.
+- **Back-running**: Wait for victim transaction; exploit immediately after (no frontrun needed).
+- **Sandwich in same block**: Use builder to ensure ordering; no public mempool visibility.
 
 ## Hacker Laws
 

@@ -2,7 +2,7 @@
 name: cloud-native-vuln-research
 description: CVE research methodology, PoC reproduction, patch gap analysis, and exploit chain composition across container/k8s/cloud-native surfaces; SBOM-driven vuln management and nuclei template authoring.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
@@ -12,6 +12,7 @@ metadata:
   guide_count: 1
   mitre: T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App
   keywords: [cve, poc, nuclei, trivy, grype, sbom, log4shell, spring4shell, chaos-db, omigod, patch-gap, exploit-chain]
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: Cloud-Native Vulnerability Research
@@ -304,6 +305,53 @@ The research skill's defense counterpart is SBOM-driven vulnerability management
 | `supply-chain-security` | Supply chain integrity — dependency provenance, SBOM verification, CI/CD hardening | Shares Codecov-style supply chain CVEs; this skill researches the CVE, supply-chain-security defends the pipeline. |
 
 **This skill is research/methodology**, not assessment (use cloud-security/container-security for that), not offense (use kubernetes-attack), not defense (use container-security). It produces CVE write-ups, PoCs, nuclei templates, and exploit chain narratives.
+
+## Detection Methods
+
+### Vulnerability Research Detection
+- **CVE database monitoring**: NVD, MITRE ATT&CK; weekly review of new cloud-native CVEs.
+- **GitHub Security Advisories**: Subscribe to dependent package advisories.
+- **Vendor disclosures**: AWS Security Bulletins, Azure Updates, GCP Release Notes.
+- **Cloud security blogs**: Aqua, Sysdig, Wiz, Palo Alto Prisma; weekly vulnerability write-ups.
+
+### Runtime Vulnerability Detection
+- **Container image scanning**: Trivy, Grype, Snyk Container; CI/CD integration.
+- **Runtime workload scanning**: Falco, Tetragon; eBPF-based runtime detection.
+- **CSPM (Cloud Security Posture Management)**: Prowler, ScoutSuite; continuous configuration audit.
+- **CWPP (Cloud Workload Protection Platform)**: Aqua, Sysdig Secure; runtime protection.
+
+### Common Vulnerable Component Categories
+- **Container escape CVEs**: CVE-2022-0185 (heap overflow), CVE-2024-1086 (netfilter), runc CVE-2024-21626.
+- **Kubernetes API server CVEs**: CVE-2023-2728 (anonymous auth bypass), CVE-2024-5321 (etcd compromise).
+- **Service mesh CVEs**: Istio CVE-2023-44387, Envoy CVE-2024-32975.
+- **Cloud provider CVEs**: AWS IMDSv1 weaknesses, Azure AD connectivity issues.
+
+### SIEM Detection Rules
+- **Trivy scan action**: GitHub Actions integration; block PRs with CRITICAL CVEs.
+- **Falco rules**: Runtime detection of container escape attempts.
+- **Splunk SPL**: `index=vuln scanner=trivy | stats count by vuln_id | sort -count`
+
+## Defense Evasion Techniques
+
+### Vulnerability Research Stealth
+- **Use bug bounty disclosures**: Research publicly disclosed CVEs; test on your own infrastructure only.
+- **Responsible disclosure**: Coordinate with vendor before public disclosure.
+- **Avoid active exploitation in prod**: Test only in lab/CTF environments.
+
+### Exploit Stealth (when authorized)
+- **Target patched components**: Test that patch actually mitigates; report gap to vendor.
+- **Avoid destructive payloads**: Use read-only PoCs; don't modify customer data.
+- **Off-hours testing**: Schedule scans during maintenance windows; minimize impact.
+
+### Reporting Stealth
+- **Coordinated disclosure timeline**: 90 days standard; respect vendor's release cadence.
+- **CVE assignment**: Request CVE from MITRE or CNA; official record of research.
+- **Bug bounty platforms**: HackerOne, Bugcrowd; structured reporting and rewards.
+
+### Defensive Counter-Perspective
+- **Verify remediation effectiveness**: Don't just disclose; help vendor validate fix.
+- **Detection rule contribution**: Submit YARA / Sigma rules for community defense.
+- **Educational content**: Conference talks (DEF CON, Black Hat) raise awareness without weaponization.
 
 ## References
 
