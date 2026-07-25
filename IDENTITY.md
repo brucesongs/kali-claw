@@ -147,4 +147,4 @@
 
 ---
 
-_Last updated: 2026-07-03_
+_Last updated: 2026-07-26 (v0.2.0.4 — 130 skill domains, 35 at Defense Triple standard)_

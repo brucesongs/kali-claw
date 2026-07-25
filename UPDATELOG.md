@@ -1,3 +1,153 @@
+# kali-claw v0.2.0.4 — Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%)
+
+*Generated: 2026-07-24 | Version: v0.2.0.3 → v0.2.0.4 | Focus: Phase 1 milestone | Total Skills: 130*
+
+---
+
+## 摘要
+
+v0.2.0.4 是 kali-claw Phase 1 SKILL 库完善项目的第四个迭代版本。本次发布的核心成就是 **Phase 1 Task 1.2 第一阶段全部完成** — 15 个高优先级 SKILL 已全部完成深度质量升级，达到 100% 完成度。
+
+Day 4 完成 3 个 P1 SKILL：container-security、binary-reverse、exploit-development。
+
+详细发布说明：[RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+
+---
+
+## 一、Day 4 新增完成（3 个 P1 SKILL）
+
+| SKILL | Detection Methods | Defense Evasion Techniques | 关键内容 |
+|-------|-------------------|---------------------------|---------|
+| container-security | 5 类（运行时/K8s API/镜像/CI-CD/SIEM） | 6 类（运行时隐身/逃逸/K8s/供应链/网络/持久化） | 拆分原合并章节为独立 D+E；Falco/Tetragon/Sysmon 规则 |
+| binary-reverse | 5 类（二进制分析/动态/工具检测/防篡改/SIEM） | 7 类（反调试/反VM/混淆/反插桩/反分析/隐身执行/C2） | Frida/Ghidra 检测；UPX/Themida 混淆；进程镂空 |
+| exploit-development | 6 类（静态/内存保护/行为/Shellcode/网络/SIEM） | 6 类（内存绕过/Shellcode 规避/反分析/注入隐身/C2/现代防御） | AMSI/ETW 绕过；BYOVD；SysWhispers |
+
+---
+
+## 二、累计 Phase 1 第一阶段成果 (15/15 = 100%)
+
+### P0 核心域（3/3）
+
+- network-pentest（网络渗透测试）
+- post-exploitation（后渗透）
+- web-xss（跨站脚本攻击）
+
+### P1 重要域（12/12）
+
+- web-sqli, web-ssrf, web-auth-bypass, api-security
+- password-attack, privilege-escalation, social-engineering
+- osint, cloud-security, container-security
+- binary-reverse, exploit-development
+
+---
+
+## 三、质量指标对比
+
+| 指标 | v0.2.0.1 | v0.2.0.4 | 提升 |
+|------|----------|----------|------|
+| 高优先级 SKILL 完成数 | 0/15 | **15/15** | +15 |
+| Phase 1 第一阶段完成度 | 0% | **100%** | +100% |
+| SKILL 版本统一 | 各为 0.1.x | **全部 v0.2.0.2** | +100% |
+| 防御视角表格化 | 部分 | **100%** | 显著 |
+| 检测方法章节 | 30% | **100%** | +70% |
+| 防御规避技术章节 | 20% | **100%** | +80% |
+| 翻译残留 | 多处 | **全部清零** | 100% 清理 |
+
+---
+
+## 四、版本里程碑回顾
+
+| 版本 | 日期 | 主要内容 |
+|------|------|---------|
+| v0.2.0.1 | 2026-07-16 | 战略定位：SKILL 库维护者 |
+| v0.2.0.2 | 2026-07-19 | Phase 1 Day 1-2 完成（8 SKILLs, 53%） |
+| v0.2.0.3 | 2026-07-21 | Phase 1 Day 3 完成（12 SKILLs, 80%） |
+| **v0.2.0.4** | **2026-07-24** | **Phase 1 Task 1.2 Phase 1 完成（15/15, 100%）** |
+
+---
+
+# v0.2.0.5 (2026-07-26) — Phase 2 Batch 1-2 + 文档基线对齐
+
+## 一、Phase 2 标准化启动（20/100 SKILLs）
+
+按 SKILL_REMEDIATION_LIST.json 与 PHASE2_PROGRESS.md 计划启动 Phase 2 批量标准化：
+
+### Batch 1（10 个 SKILL）
+
+5g-telecom-attack, ad-cs-abuse, ad-ldap-attack, agentic-pentest, ai-agent-framework-attack, ai-agent-security, ai-fuzzing, ai-security, anti-forensics, automotive-vehicle-security
+
+### Batch 2（10 个 SKILL）
+
+autonomous-loops, av-edr-evasion, blockchain-l2-attack, blockchain-web3, bluetooth-rfid-nfc, browser-qa, chronicle, ci-cd-supply-chain-attack, cloud-identity-attack, cloud-native-vuln-research
+
+### 标准化内容
+
+每个 SKILL 添加：
+- Detection Methods 章节（含 Sigma/Splunk SPL/Sysmon/Falco 检测规则）
+- Defense Evasion Techniques 章节（现代攻击规避技术）
+- 版本升级至 v0.2.0.2
+- last_reviewed 元数据
+- 翻译残留：全部 0
+
+---
+
+## 二、仓库清理（3.7 GB → 19 MB）
+
+清理历史 evidence 文件，仓库瘦身：
+
+- 删除 `validation/evidence/cybergym/**/repo-vul.tar.gz`（最大单文件 594 MB）
+- .git/ 目录从 3.7 GB 减至 19 MB（减少 99.5%）
+- 保留所有有价值的代码与文档（3 个新 SKILL + validation 脚本 + RELEASE 文档）
+
+详见 PR #2：salvage v0.1.x 有价值内容（清理大文件后保留）
+
+---
+
+## 三、文档基线对齐 v0.2.0.4
+
+| 文档 | 更新内容 |
+|------|---------|
+| README.md | 111 → 130 SKILL；添加 v0.2.0.4 徽章；Defense Triple 说明；新版 Roadmap |
+| AGENTS.md | v0.2.0.4 徽章；130 SKILL；Defense Triple Standard 章节 |
+| CLAUDE.md | 130 domains；Phase 1 Project Artifacts 表；Phase 1 Workflow 章节 |
+| CHANGELOG.md | 新增 v0.2.0.1-v0.2.0.4 详细条目 |
+| 10 个 GUIDE 文件 | 全部添加 Update Notice；版本/技能数引用更新 |
+| IDENTITY.md | 时间戳更新至 2026-07-26 |
+| MEMORY.md | 顶部 Current Status 更新；添加 v0.2.0.x 决策条目 |
+| UPDATELOG.md（本文件） | 顶部追加 v0.2.0.4 + v0.2.0.5 条目 |
+| VERSION | 0.1.39 → 0.2.0.4 |
+| HEARTBEAT.md / TOOLS.md / USER.md | SKILL 数引用同步 |
+
+---
+
+## 四、累计进度
+
+```
+Phase 1 P0/P1: 15/15 SKILLs (100%) at v0.2.0.2
+Phase 2 标准化: 20/100 SKILLs (20%) at v0.2.0.2
+─────────────────────────────────────────────
+总计: 35/130 SKILLs (27%) at v0.2.0.2
+```
+
+---
+
+## 五、推送策略经验
+
+发现 v0.1.x 时代的 evidence 大文件（3.9 GB packfile）无法通过 SOCKS5 代理推送。解决方案：
+
+1. 创建轻量分支（cherry-pick 仅 Phase 1 commits）
+2. 轻量分支 packfile：157 KB（vs 原 3.9 GB，减少 24849x）
+3. 推送成功后通过 PR 合并到 main
+4. 详见 RELEASE-v0.2.0.4.md 附录（推送策略案例研究）
+
+---
+
+# 历史版本（v0.1.x 及更早）
+
+以下为 v0.1.x 时代的历史记录，保留作为参考。这些条目反映了 kali-claw 从 49 个技能域扩展到 111 个的演进过程。
+
+---
+
 # kali-claw v0.1.13 消除所有 Weak 层级技能报告
 
 *Generated: 2026-05-29 | Version: 0.1.12 → 0.1.13 | Fixes: 3 SCORE.sh bugs | Content: 6 guides, 3 payloads, 5 test cases | Total Skills: 49*

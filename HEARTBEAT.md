@@ -9,14 +9,14 @@
 - [ ] Check system resource usage (CPU, memory, disk)
 - [ ] Verify core configuration file integrity (SOUL.md, AGENTS.md, IDENTITY.md)
 - [ ] Confirm bak/ directory backup is up to date (no older than 3 hours)
-- [ ] Verify core file consistency: VERSION matches README version, skill count in CLAUDE.md matches actual directory count (127)
+- [ ] Verify core file consistency: VERSION matches README version, skill count in CLAUDE.md matches actual directory count (130)
 - [ ] Check for `__pycache__` artifacts in skills/ directories
 
 ---
 
 ## Skill Domain Completeness
 
-- [ ] Verify all 127 skill domains have FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
+- [ ] Verify all 130 skill domains have FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - [ ] Check for newly added skills that need supplementary files
 - [ ] Spot-check 2-3 random skill directories for file consistency
 

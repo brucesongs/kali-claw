@@ -2,19 +2,31 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-06-02
+**Last Updated**: 2026-07-26 (v0.2.0.4)
 
 ---
 
 ## Current Status
 
-- **Project Phase**: Infrastructure hardening + scoring system evolution + cross-skill scenario design
+- **Project Phase**: Phase 1 SKILL Library Enhancement — Task 1.2 Phase 2 in progress (20/100 standard SKILLs)
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
-- **Skill Domains**: 49/49 at FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
-- **Uptime**: ~11 weeks (since 2026-03-14 launch)
-- **Current Focus**: Structural integrity fixes, SCORE.sh v2 (guide quality metrics, score caps, Distinguished tier), 5 cross-skill composite attack chain scenarios
+- **Skill Domains**: **130** (15 P0/P1 at v0.2.0.2 Defense Triple standard + 20 Phase 2 standardized + 95 pending)
+- **Uptime**: ~19 weeks (since 2026-03-14 launch)
+- **Current Focus**: Phase 2 standardization (10 batches × 10 SKILLs), Task 1.3 new SKILL creation (7 candidates), Defense Triple rollout
+- **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent project will transform SKILLs into deliverable agents
+
+### Defense Triple Standard (v0.2.0.2+)
+
+All newly standardized SKILLs include:
+1. **Defense Perspective** — Multi-layer defense matrix (table format, ≥5 layers)
+2. **Detection Methods** — SIEM-ready rules (Sigma / Splunk SPL / Sysmon / Falco)
+3. **Defense Evasion Techniques** — Modern attacker evasion patterns (5+ categories)
+
+As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 
 ---
+
+## Key Decisions
 
 ## Key Decisions
 
@@ -120,6 +132,34 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - Average score: 84.0→88.6 (+4.6), Min: 80.0→85.3 (+5.3), Max: 90.3→99.7 (+9.4)
 - CI baseline updated to 88.6
 - Key insight: payload_code reaching 50 blocks is the universal threshold — it affects 30% weight and unlocks 20+ point gains in the Payloads component
+
+### 2026-07-16: Strategic Pivot — SKILL Library Maintainer (v0.2.0.1)
+- kali-claw repositioned as dedicated SKILL library maintainer
+- New xAgent project will transform SKILLs into deliverable agents (Phase 2/3 of broader strategy)
+- Wave 9-12 expansion completed: 111 → 127 skill domains
+- CyberGym evaluation (v0.1.47.1): 635/1508 instances, 1 PASS
+- See [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) for strategic rationale
+
+### 2026-07-19: Phase 1 Day 1-2 — Defense Triple Rollout (v0.2.0.2)
+- Started Phase 1 Task 1.2 Phase 1: 15 P0/P1 SKILLs深度优化
+- Day 1-2 completed 8 SKILLs (network-pentest, post-exploitation, web-xss, web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack)
+- Established **Defense Triple Standard**: Defense Perspective + Detection Methods + Defense Evasion Techniques
+- Version baseline correction: 0.1.50 → 0.2.0.2 (kali-claw switched to v0.2.x scheme)
+- See [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md)
+
+### 2026-07-21-24: Phase 1 Day 3-4 — 100% Phase 1 Milestone (v0.2.0.3 → v0.2.0.4)
+- Day 3 (v0.2.0.3): +4 P1 SKILLs (privilege-escalation, social-engineering, osint, cloud-security)
+- Day 4 (v0.2.0.4): Final 3 P1 SKILLs (container-security, binary-reverse, exploit-development)
+- **Milestone: 15/15 P0+P1 SKILLs at v0.2.0.2 (100%)**
+- Translation residue cleaned to 0 across all v0.2.0.2 SKILLs
+- See [RELEASE-v0.2.0.3.md](RELEASE-v0.2.0.3.md) and [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+
+### 2026-07-26: Phase 2 Standardization + Repo Cleanup
+- Phase 2 Batch 1-2 completed: 20/100 standard SKILLs at v0.2.0.2 (e.g., 5g-telecom-attack, ad-cs-abuse, blockchain-*, etc.)
+- Repository cleanup: removed 3.7 GB of CyberGym evidence files (retained via .gitignore + Git LFS strategy)
+- Salvaged 3 v0.1.47 SKILLs from local-only history: command-injection-advanced, concurrency-exploitation, protocol-state-exploitation
+- Documentation updated to v0.2.0.4 baseline (README, AGENTS, CLAUDE, CHANGELOG, 10 GUIDE files)
+- Lightweight branch strategy adopted for evidence-heavy history (see RELEASE-v0.2.0.4.md case study)
 
 ---
 
