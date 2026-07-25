@@ -2,7 +2,7 @@
 name: ad-cs-abuse
 description: "Active Directory Certificate Services (AD CS) abuse — ESC1-ESC15 attack patterns, PKINIT, PetitPotam to AD CS to Domain Admin chains, CVE-2022-26923 (Certifried), Shadow Credentials, Golden Certificate, certificate template ACL abuse, NTLM relay to web enrollment."
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - claude-sonnet-4.5
@@ -22,6 +22,7 @@ metadata:
   tool_count: 13
   guide_count: 1
   mitre: "T1552-Unsecured Credentials"
+  last_reviewed: "2026-07-24"
   keywords:
     - AD CS
     - PKI
@@ -356,6 +357,48 @@ openssl version
 | Need persistent backdoor | Shadow Credentials | `pywhisker add` | Survives password reset |
 | Have CA private key (PFX) | Golden Certificate | `certipy forge` | Forgery offline |
 | CA patched (post-Aug 2022) but machine cert path open | CVE-2022-26923 Certifried | `certipy req` with machine DNS attr | Bypasses SID binding |
+
+## Detection Methods
+
+### ADCS Specific Event IDs
+- **Event ID 4886**: Certificate Services received a certificate request.
+- **Event ID 4887**: Certificate Services approved a certificate request; maps request to issued serial.
+- **Event ID 4885**: Certificate Services received a certificate revocation request.
+- **Event ID 5136**: Directory service object modified (template change = ESC4/ESC5/ESC7).
+- **Event ID 4662**: KeyCredentialLink attribute write (Shadow Credentials).
+- **Event ID 4768** (pre-auth type 16): PKINIT TGT request via certificate authentication.
+
+### Behavioral Indicators
+- **ESC1 exploitation**: User requests certificate for template with `ENROLLEE_SUPPLIES_SUBJECT` flag using different user SAN; correlate 4886/4887 requests.
+- **ESC4/5/7 modification**: Template ACL/flag changes followed by enrollment; spike in 5136 events.
+- **ESC8 NTLM relay**: IIS logs at CA's `certsrv` virtual directory showing NTLM auth (vs expected Kerberos).
+- **PKINIT anomalies**: Multiple TGT requests with pre-auth type 16 from same user; rare in mature environments.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=ad sourcetype=XmlWinEventLog:Security EventCode=4887 | stats count by TemplateName by RequesterName`
+- **Sigma rule**: `sigma/rules/windows/ad_cs_abuse.yml`
+- **Microsoft Defender for Identity**: Native alerts for Shadow Credentials, ESC1, ESC8 patterns.
+- **Certipy audit mode**: Run `certipy find -vulnerable` against your own CA; map results to detection rules.
+
+## Defense Evasion Techniques
+
+> **See also**: `## Anti-Forensics and OPSEC Considerations` above for detailed OPSEC notes per ESC technique.
+
+### Template Modification Stealth
+- **Save and restore**: Use `certipy template -save-old` to capture original state, restore after enrollment (Event 5136 spike avoided).
+- **Single-action edits**: Batch template changes into a single modification; multiple 5136 events over short window is suspicious.
+- **Reuse existing vulnerable templates**: Prefer ESC1 templates over ESC4 modifications (no modification = no 5136 events).
+- **Time-shift**: Make modifications during scheduled change windows (legitimate-looking).
+
+### PKINIT Stealth
+- **Single TGT per engagement**: Avoid repeated PKINIT TGT requests; reuse one TGT via pass-the-ticket.
+- **Distribute across accounts**: Use multiple compromised accounts rather than one for PKINIT.
+- **Off-hours requests**: Make PKINIT requests during peak business hours (rare-events blend in normal noise).
+
+### ESC8 NTLM Relay Stealth
+- **Use existing HTTP endpoints**: Relay to legitimate IIS apps rather than `certsrv` directly.
+- **Avoid auth rate limits**: Pace relay attempts; rapid NTLM auths from one source is suspicious.
+- **Use PrinterBug / PetitPotam**: Trigger NTLM from legitimate services (lsass, spoolsv) rather than attacker-controlled binaries.
 
 ## Anti-Forensics and OPSEC Considerations
 

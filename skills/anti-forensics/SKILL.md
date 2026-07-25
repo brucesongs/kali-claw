@@ -2,7 +2,7 @@
 name: anti-forensics
 description: "Anti-forensics is the offensive counterpart to digital forensics."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 3
   mitre: "TA0005-Defense Evasion"
+  last_reviewed: "2026-07-24"
 ---
 
 # Anti-Forensics
@@ -143,6 +144,73 @@ Anti-forensic techniques must only be used within authorized penetration testing
 ## Integration with Other Tools
 
 Anti-forensics connects directly to the digital-forensics skill domain. Every anti-forensic technique has a corresponding forensic detection method, and understanding both sides makes each more effective. The steganography skill provides additional steganographic tools beyond steghide (zsteg, stegcracker, stegseek). Post-exploitation techniques often require anti-forensic cleanup to maintain persistence without detection. Binary reverse engineering helps analyze anti-forensic tools themselves to understand exactly what artifacts they leave behind.
+
+## Detection Methods
+
+Anti-forensic activity leaves distinctive traces that forensic examiners and EDR/XDR platforms detect through timeline analysis, entropy scanning, and behavioral anomalies.
+
+### Filesystem-Level Indicators
+- **Secure deletion signatures**: `shred`, `wipe`, `srm`, `bcwipe` process execution; high-entropy writes followed by file truncation.
+- **Timestamp manipulation**: NTFS `$STANDARD_INFORMATION` vs `$FILE_NAME` mismatch (timestomp signature); MAC times that don't fit timeline baseline.
+- **Encrypted volume creation**: `tcplay`, `VeraCrypt`, `LUKS` device mapper events; loop device creation; partition table changes; sudden high-entropy partition.
+- **Hidden partition indicators**: GPT entries with mismatched partition sizes; hidden sectors between visible partitions.
+- **Alternate Data Streams (ADS)**: NTFS file size anomalies; zone identifier misuse.
+
+### Log Tampering Indicators
+- **Missing log sequence**: Windows Event Log gaps (sequence number jumps); missing syslog entries between specific timestamps.
+- **Suspicious log clearing**: Event ID 1102 (Audit log cleared); `/var/log/auth.log` truncation; inotifywatch events on `/var/log/`.
+- **Log injection artifacts**: Unusual `awk`/`sed` invocations on log files; rootkits with `prctl` syscalls hiding processes.
+- **Time skew**: System clock changes (Event ID 4616); NTP sync anomalies following user-mode time writes.
+
+### Memory Forensics Indicators
+- **Process hollowing signatures**: Volatility `malfind` output with `PAGE_EXECUTE_READWRITE` permissions; hollowed process with mismatched PEB.
+- **DKOM (Direct Kernel Object Manipulation)**: Hidden processes (psxview mismatch); unlinking from `EPROCESS` ActiveProcessLinks.
+- **Rootkit hooks**: SSDT hooks; IRP hooks; inline function hooks in `ntdll.dll`/`libc.so`.
+- **Shellcode in memory**: `MEM_PRIVATE | MEM_EXECUTE` regions; RWX pages outside loaded modules.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | search a0 IN ("shred","wipe","srm","tcplay")`
+- **Sysmon Event ID 1**: Process creation; alert on `shred.exe`, `sdelete.exe`, `ccleaner.exe`, `bcdwipe.exe`.
+- **Sysmon Event ID 4656/4663**: File permission changes followed by deletion.
+- **Sigma rule**: `sigma/rules/windows/audit_log_cleared.yml` (Event ID 1102).
+- **YARA**: Memory scanning for known timestomp / logtamper signatures.
+
+## Defense Evasion Techniques
+
+### Sophisticated Timestamp Manipulation
+- **Both $STANDARD_INFO and $FILE_NAME**: Update both NTFS timestamps to defeat timeline analysis (use `setMACE` over `timestomp`).
+- **Nanosecond precision matching**: Match legitimate file nanosecond jitter to avoid statistical detection.
+- **USN Journal cleaning**: Use `fsutil usn deletejournal` to remove update sequence number journal before timestomping.
+- **$LogFile overwrite**: Overwrite NTFS transaction log to remove rollback records.
+- **MFT entry slack**: Hide data in MFT slack space (up to 1024 bytes per entry).
+
+### Log Cleaning Beyond Simple Clearing
+- **Selective log entry removal**: Use `logtamper` to remove specific entries matching engagement IP/user without clearing the entire log.
+- **Journal spam before deletion**: Fill systemd-journald with synthetic events to push real entries past retention limit.
+- **Auditd configuration reload**: `auditctl -D` to delete rules temporarily; restore after operations.
+- **Forwarded log poisoning**: Modify syslog forwarding rules to drop specific entries before they reach SIEM.
+- **NTFS USN journal sparse**: Sparse-allocate USN journal to make entries appear unreferenced.
+
+### Hidden Storage
+- **NTFS ADS persistence**: Hide payloads in `:Zone.Identifier` or custom ADS; rarely inspected by AV.
+- **Volume boot record slack**: Hide data in volume boot record slack space (fixed-size, ~32 KB).
+- **Hibernation file weaponization**: Use `hiberfil.sys` for both hiding and persistence.
+- **Pagefile persistence**: Hide payload in pagefile.sys; survives reboots.
+- **Steganography in unused drivers**: Embed payload in `.sys` file slack space.
+- **MFT slack space**: Hide up to 1024 bytes per file entry in MFT.
+
+### Memory-Resident Evasion
+- **Reflective DLL injection**: Load DLL from memory without file on disk.
+- **Process doppelgänging**: Use Transactional NTFS to load process from rolled-back file.
+- **Process hollowing + dual token**: Hollow legitimate process AND inherit its token; combines identity theft with stealth.
+- **Hook NtQuerySystemInformation**: Hide processes from `ps`, Task Manager, Get-Process.
+- **DKOM on handle table**: Remove process handle from CSRSS; fully invisible to userland tools.
+
+### Anti-Memory Forensics
+- **Null out VAD tree**: Manipulate Virtual Address Descriptors to hide memory regions from Volatility.
+- **Unlink EPROCESS**: Disconnect process from active list; survives live response but caught by dead-box forensics.
+- **PteUAF**: Use-after-free in page table entries to hide executable pages.
+- **Bypass Kernel Mode checks**: Use vulnerable signed drivers (`RTCore64.sys`) to disable PatchGuard temporarily.
 
 ## Learning Resources
 

@@ -2,7 +2,7 @@
 name: 5g-telecom-attack
 description: 5G core (AMF/SMF/UPF), RAN, signaling (PFCP/GTP/Diameter/SS7), IMSI catchers, O-RAN security, roaming abuse, SMS interception, and telecom infrastructure red team operations.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration"
+  last_reviewed: "2026-07-26"
   keywords: [5g, telecom, srsran, open5gs, pfcp, gtp, diameter, ss7, imsi-catcher, oran, roaming, sms-interception]
 ---
 
@@ -364,6 +365,56 @@ The O-RAN Alliance architecture exposes new interfaces with new attack surfaces:
 - **A1** (Non-RT RIC) — HTTP/2 (443). Vulnerabilities: shared bearer tokens, unscoped OAuth2.
 
 The O-RAN Alliance WG11 (Security) specifications define the required controls. Adoption is uneven in early deployments; engagements frequently find default credentials and unauthenticated management interfaces.
+
+## Detection Methods
+
+### 5G Core (SBA) Detection
+- **SBI anomaly detection**: Northbound API requests from unexpected Network Functions (NF); abnormal requester-respondent patterns.
+- **Diameter/SIP signaling storms**: Signaling rate exceeding baseline (typical: 100+ req/sec per subscriber = abnormal).
+- **AUSF/UDM anomaly**: Authentication vector requests for inactive IMSIs; spikes in SUCI (Subscription Concealed Identifier) decapsulation failures.
+- **Network slice abuse**: Cross-slice traffic; slice-isolated NF receiving requests from wrong slice.
+
+### Radio Access Network (RAN) Indicators
+- **IMSI Catcher signatures**: Tracking Area Update (TAU) storms; cells with same PLMN but unusual TAC; base stations advertising higher signal strength than legitimate cells.
+- **Rogue gNodeB**: Cell ID not in operator database; tracking area code mismatch; broadcast signals in licensed spectrum without authorization.
+- **5G Stingray detection**: Sudden downlink-only cells; absence of uplink grants; subscriber handovers to unexpected cell IDs.
+- **SS7/Diameter attackers**: MAP/ULP/SLh messages from non-roaming partners; international signaling partners routing through unexpected STPs.
+
+### Core Network Behavioral Indicators
+- **Subscriber cloning**: Multiple simultaneous sessions for same IMSI/SUPI; geographic impossibility (login from two cities <5 min apart).
+- **SMS/voice interception**: SCP anomalies; SMS home routing bypass; signaling links avoiding legitimate SMSC.
+- **GTP-U anomaly**: User plane tunnels between unrelated UEs; uplink traffic without corresponding downlink.
+
+### SIEM / Probe Detection
+- **5G probe**: Active probes (Keysight, Polystar, Empirix) for traffic analysis; detect signaling storms and protocol violations.
+- **Tennison / OSS-FS**: Diameter/SIP firewall rules; alert on malformed AVPs, unknown application IDs.
+- **Splunk SPL (telecom probe)**: `index=5g sourcetype=diameter | stats count by calling_party | where count > 1000`
+
+## Defense Evasion Techniques
+
+### IMSSI Catcher Stealth
+- **5G Stingray improvements**: 5G uses SUPI (concealed via SUCI), making catchers less effective; attackers use pseudo-base stations to force fallback to 4G/3G where IMSI is plaintext.
+- **Downlink-only operation**: Receive-only IMSSI catchers don't page subscribers; harder to detect.
+- **Burst operation**: Operate for short windows (<30 seconds) to avoid drive-by detection vehicles.
+- **Mimic legitimate cells**: Copy PLMN, TAC, Cell ID from nearby legitimate cells; only differ in physical layer signature.
+- **Directional antennas**: Limit catchment area to target device only; reduces collateral detections.
+
+### Signaling Attack Stealth
+- **Slow & low**: Pace attacks below signaling firewall threshold (typically 5-10 req/sec).
+- **Distributed source**: Spread attacks across multiple signaling partners; aggregate at target.
+- **Use compromised roaming partners**: Route through legitimate roaming STPs; appears as roaming traffic.
+- **Off-hours timing**: Execute during network maintenance windows (3-6 AM local); blends with test traffic.
+- **Spoofed originating country**: Use signaling partners from low-monitoring jurisdictions.
+
+### Network Slice Exploitation Stealth
+- **Reuse legitimate slice credentials**: Don't create new slice; abuse existing slice isolation weaknesses.
+- **Cross-slice via legitimate APIs**: Use Nnrf, Namf to pivot between slices; appears as legitimate NF.
+- **Slice-isolated eMBB**: Use eMBB slice for massive bandwidth abuse (DDoS or crypto mining).
+
+### CPE / UE Side Channel
+- **AT command abuse**: Send AT commands to compromised UE that exfiltrate SIM data via cellular control channel.
+- **OEM diagnostic mode**: Use Samsung / Qualcomm diagnostic mode to bypass normal cellular security.
+- **Baseband exploit via WiFi calling**: WiFi calling bypasses cellular checks; abuse baseband firmware via WiFi attack surface.
 
 ## Real-World Incident Timeline
 

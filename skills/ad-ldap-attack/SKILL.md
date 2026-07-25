@@ -2,7 +2,7 @@
 name: ad-ldap-attack
 description: "Active Directory is the backbone of enterprise identity and access management, making it a primary target during internal network penetration tests."
 origin: openclaw
-version: "0.1.20"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 0
   guide_count: 3
   mitre: "TA0006-Credential Access"
+  last_reviewed: "2026-07-24"
 ---
 
 
@@ -259,3 +260,56 @@ impacket-ticketer -nthash 'service_hash' -domain-sid S-1-5-21-XXXX -domain corp.
 - Regularly audit AD permissions, delegation settings, and ACL configurations.
 - Deploy Microsoft LAPS for local administrator password management.
 - Implement Privileged Access Management (PAM) and just-in-time access.
+
+## Detection Methods
+
+### Domain Controller Audit Events
+- **Event ID 1644**: LDAP query statistics; high result counts indicate enumeration.
+- **Event ID 2887-2889**: LDAP signing/channel binding failures.
+- **Event ID 4662**: DS-Replication-Get-Changes (DCSync signature); alert on non-DC sources.
+- **Event ID 4768**: TGT request (no pre-auth → AS-REP roasting).
+- **Event ID 4769**: TGS request with RC4 encryption type 0x17 (Kerberoasting).
+- **Event ID 4624**: Logon type 3 (network) or type 10 (RemoteInteractive) anomalies.
+- **Event ID 7045**: Service creation (`PSEXESVC`, custom names) for lateral movement.
+
+### Behavioral Indicators
+- **BloodHound SharpHound**: Process tree showing PowerShell + SharpHound.exe; LDAP queries containing `servicePrincipalName` or `memberOf:1.2.840.113556.1.4.1941:` (recursive memberOf).
+- **Mass Kerberoasting**: Multiple TGS-REQ for different SPNs in short window from same source.
+- **DCSync abuse**: LSASS on non-DC reading domain credentials; DRSUAPI bind from workstation.
+- **Pass-the-Hash**: 4624 logon with NTLMSSP when Kerberos expected; source system mismatch.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=ad sourcetype=XmlWinEventLog:Security EventCode=4662 | stats count by user | where count > 10`
+- **Sigma rule**: `sigma/rules/windows/ldap_enumeration.yml`
+- **Microsoft Defender for Identity**: Native AD threat detection (BloodHound, Kerberoasting, DCSync, hash dumping).
+- **Azure AD Identity Protection**: Risk events for on-prem AD synchronized accounts.
+
+## Defense Evasion Techniques
+
+### LDAP Enumeration Stealth
+- **Distributed source**: Spread enumeration across multiple compromised hosts (one per user query).
+- **Slow & low**: Pace LDAP queries below audit threshold (typical: 5+ queries per minute triggers alert).
+- **Vary LDAP filters**: Avoid BloodHound-typical patterns; use custom filters to look benign.
+- **Use already-delegated credentials**: Query via existing service accounts rather than attacker-controlled ones.
+- **Cache and reuse**: Avoid re-enumerating the same objects; export full dump once.
+
+### Kerberoasting Stealth
+- **Target only high-value SPNs**: Avoid blanket enumeration (one TGS-REQ per user is suspicious).
+- **Use AES where possible**: Mix in AES requests to dilute RC4 ratio below 5% threshold.
+- **Off-hours timing**: Run Kerberoasting during peak business hours to blend with normal traffic.
+- **Distribute requests**: One SPN per source IP, then aggregate cracked hashes.
+- **Use opsec wrappers**: Rubeus with `/opsec` flag avoids suspicious request patterns.
+
+### DCSync Stealth
+- **Single-drain**: Drain NTDS.dit once; avoid repeated DRSUAPI binds.
+- **Use legitimate DC credentials**: Compromise DC itself (via NtFrS abuse, MS14-068) before extracting.
+- **Recover from backup**: Restore NTDS.dit from backup media rather than live DRSUAPI call.
+- **IFM (Install From Media) abuse**: Use `ntdsutil ifm` on compromised DC; appears as legitimate backup operation.
+- **Volume Shadow Copy**: Create VSS of C: on DC; copy NTDS.dit offline.
+
+### Lateral Movement Stealth
+- **WMI over PsExec**: Avoid `PSEXESVC.exe` service creation (loud); use `wmic` or `Invoke-WmiMethod`.
+- **DCOM over RPC**: Use MMC20.Application, ShellWindows, ShellBrowserWindow DCOM objects.
+- **Kerberos delegation abuse**: Use RBCD (Resource-Based Constrained Delegation) for invisible SSO.
+- **Service account impersonation**: Use stolen service account token rather than creating new logon.
+- **Existing scheduled tasks**: Modify existing scheduled tasks rather than creating new ones (Event ID 4699/4700 vs 4698).

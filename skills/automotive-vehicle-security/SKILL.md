@@ -2,7 +2,7 @@
 name: automotive-vehicle-security
 description: CAN/CAN-FD bus analysis, UDS diagnostics, IVI pentest, OBD-II exploitation, key fob replay/relay attacks, GNSS spoofing, EV charging station (ISO 15118), and connected vehicle red team operations.
 origin: github-trending-2026
-version: 1.0.1
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
@@ -12,6 +12,7 @@ metadata:
   guide_count: 2
   mitre: TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle
   keywords: [can, can-fd, uds, obd-ii, automotive, vehicle, key-fob, gnss-spoofing, iso-15118, ecu, ivi]
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -379,6 +380,69 @@ done
 - **EV charging station testing** must be done on stations you own or operate. Charging-network operators (ChargePoint, Electrify America, IONITY) have explicit anti-tampering clauses; PLC interception on a public charger may violate state computer-fraud statutes.
 - **Firmware extraction from a production ECU** typically requires desoldering the NAND flash, which is destructive and voids the ECU warranty. Always obtain a second/spare ECU for destructive testing.
 - **OTA update interception** against a vehicle enrolled in OTA updates may cause it to fail an update mid-cycle, bricking the ECU. Never interrupt an OTA update in production.
+
+## Detection Methods
+
+### CAN Bus Anomaly Detection
+- **Message ID Whitelisting**: CAN-IDS (Intrusion Detection System) on ECU rejects messages from unauthorized CAN IDs.
+- **Periodic message timing**: Each ECU sends specific CAN messages at known intervals (e.g., 10ms, 100ms); deviations indicate injection.
+- **CAN frame structure validation**: DLC (Data Length Code) mismatch; CAN ID outside known whitelist; signal value out of range.
+- **Replay attack detection**: Repeated sequence of messages with identical timestamp patterns; protocol-aware IDS detects this.
+- **CAN bus errors**: Sudden spike in error frames; ECU dominating bus (DoS signature).
+
+### UDS Diagnostic Detection
+- **Diagnostic session control**: Unauthorized `$10 03` (Extended Diagnostic) request from non-diagnostic source.
+- **Security access failure**: Repeated `$27` (SecurityAccess) failures; brute force attempts on seed-key.
+- **Firmware download anomaly**: `$34` (RequestDownload) from non-programmer ECU; unexpected `$37` (RequestTransferExit) requests.
+- **Communication control**: `$28` (CommunicationControl) disabling other ECUs; potential attacker isolating target.
+
+### Key Fob / RF Detection
+- **Rolling code replay**: Same rolling code received twice; key fob message with timestamp earlier than last seen.
+- **PKES relay attack**: Key fob signal strength anomaly (too strong for distance); signal seen by multiple antennas with suspicious timing offset.
+- **Relay attack indicator**: Time-of-flight between challenge and response inconsistent with physical distance.
+
+### GNSS / Positioning Detection
+- **GNSS spoofing signatures**: Sudden jump in satellite pseudorange; carrier-to-noise ratio anomaly (too strong for environment); fix jumping between two locations.
+- **Multiple signal sources**: Receiver detecting same satellite from different directions (real + spoofed).
+- **Cross-validation**: IMU/odometer vs GNSS position mismatch (e.g., vehicle stationary but GNSS shows movement).
+
+### SIEM / Vehicle Telemetry Detection
+- **OEM telematics backend**: Anomaly detection on vehicle telemetry; CAN error rate spike; unexpected diagnostic codes (DTCs).
+- **Splunk SPL**: `index=vehicle sourcetype=can vehicle_id=* | stats count by arbitration_id | where count > 100000`
+- **Custom CAN-IDS**: Tools like CANalyzat0r, CANgue, CANdevStudio for protocol-aware monitoring.
+
+## Defense Evasion Techniques
+
+### CAN Injection Stealth
+- **Bus flooding**: Saturate bus with high-priority CAN IDs (lowest arbitration number) to disable other ECUs (DoS) before injection.
+- **Mimic legitimate ECU timing**: Send injected messages at exact periodicity of legitimate ECU; evade timing-based IDS.
+- **Avoid DLC/range anomalies**: Match DLC of legitimate message; use signal values within valid range.
+- **Target isolated ECUs**: Choose ECUs not monitored by CAN-IDS (legacy components without security).
+- **Single-shot injection**: Send malicious payload once (one CAN frame); many IDS only catch sustained patterns.
+
+### Diagnostic Session Stealth
+- **Use already-unlocked sessions**: If vehicle is in extended diagnostic mode (workshop setting), skip SecurityAccess.
+- **Seed prediction**: Some weak security implementations have predictable seeds; offline analysis reveals algorithm.
+- **Distribute brute force**: Spread seed-key attempts across multiple sessions; below lockout threshold.
+- **Use programmer credentials**: Compromise OEM workshop credentials; access via authorized channel.
+
+### Key Fob Attack Stealth
+- **Rolling code prediction**: Capture multiple key fob transmissions; reverse engineer PRNG; predict next code without replay.
+- **Relay attack with timing compensation**: Use directional antennas and signal amplifiers to minimize timing offset; defeat ToF-based detection.
+- **Multi-frequency**: Use 433MHz / 868MHz / 315MHz based on regional norm; choose least monitored.
+- **Capture off-hours**: Roll back codes during low-activity windows (night); reduces detection probability.
+
+### GNSS Spoofing Stealth
+- **Gradual drift**: Slowly drift spoofed location (1-2 m/s²) to avoid sudden jump detection.
+- **Match C/N0**: Match spoofed signal strength to expected (avoid "too strong" signature).
+- **Single satellite spoofing**: Spoof only 1-2 satellites rather than full constellation; harder to detect via multi-antenna receivers.
+- **Receiver-specific attacks**: Target GNSS chipsets known to lack anti-spoofing (older u-blox, NEO-M8 series).
+
+### EV Charging (ISO 15118) Stealth
+- **Use legitimate charging credentials**: Steal EV owner's billing credentials; charge appears legitimate.
+- **V2G protocol abuse**: Exploit bidirectional charging protocols; reverse energy flow at off-peak hours.
+- **PLC anomaly**: Power Line Communication attacks via mains; bypass wireless monitoring.
+- **Slow charging attack**: Pace attacks below billing threshold; evade fraud detection.
 
 ## Hacker Laws
 

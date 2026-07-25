@@ -2,7 +2,7 @@
 name: ai-fuzzing
 description: "AI-assisted fuzzing for automated vulnerability discovery. Coverage-guided fuzzing engines, AI-driven seed generation, intelligent mutation strategies, and systematic crash triage."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: ai
   tool_count: 6
   guide_count: 7
+  last_reviewed: "2026-07-24"
 ---
 
 
@@ -199,6 +200,48 @@ ASAN_SYMBOLIZER_PATH=llvm-symbolizer ./target_fuzz crash_input
 ```
 
 ---
+
+## Detection Methods
+
+### Fuzzer Process Detection
+- **Process names**: `afl-fuzz`, `libFuzzer`, `honggfuzz`, `boofuzz`, `peach`, `winAFL` running on production systems.
+- **High CPU signatures**: Sustained 100% CPU on a single process; pattern of crashes + restarts.
+- **Mutator signatures**: Distinctive mutations in input (long strings, hex patterns, special characters).
+- **Coverage instrumentation**: SanitizerCoverage / DynamoRIO / Pin agent loaded into target binary.
+
+### Target Application Indicators
+- **Crash dumps accumulation**: Spike in `core` files, `.dmp` files, `/var/crash/` entries.
+- **ASAN/MSAN reports**: Sanitizer error reports in stderr or syslog.
+- **OOM kills**: Linux OOM killer activity; Windows low-memory events.
+- **Watchdog triggers**: Service watchdog restart loops; systemd unit restart count spikes.
+- **Network protocol anomalies**: Boofuzz/Peach patterns in protocol captures; malformed magic bytes; oversized lengths.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | search a0 IN ("afl-fuzz","honggfuzz","boofuzz","Peach")`
+- **Sysmon Event ID 1**: Process creation; alert on `afl-fuzz.exe`, `winAFL.exe`, `boofuzz-*` on production.
+- **Sigma rule**: `sigma/rules/linux/fuzzing_tool_execution.yml`
+- **Container runtime**: Falco rule `Launching fuzzing tool in container`.
+
+## Defense Evasion Techniques
+
+### Fuzzer Obfuscation
+- **Rename binary**: Rename `afl-fuzz` to `network_monitor` to evade process name detection.
+- **Static build**: Statically compile fuzzer to avoid dynamic library dependencies.
+- **Memory-only execution**: Load fuzzer via `memfd_create`; no file artifacts.
+- **Slow fuzzing**: Pace fuzzing below detection threshold (e.g., 10 exec/sec instead of 1000).
+- **Distribute load**: Run fuzzer across multiple compromised hosts; aggregate crashes centrally.
+
+### Coverage Stealth
+- **User-mode-only instrumentation**: Avoid kernel hooks (eBPF detection); use compile-time instrumentation.
+- **Standalone harness**: Build custom harness rather than using LibFuzzer (avoid known signatures).
+- **Sanitizer alternatives**: Use custom signal handlers instead of ASAN (avoid sanitizer signatures in core dumps).
+- **Process injection**: Inject fuzzer into legitimate process (e.g., `chrome.exe`, `python`); inherits legitimate identity.
+
+### Crash Artifact Cleanup
+- **Immediate cleanup**: Delete `core` files, ASAN logs after each crash extraction.
+- **Custom logger**: Replace default ASAN symbol printer with custom logger that writes to encrypted location.
+- **Stream test cases**: Don't save crashing inputs to disk; stream over network to attacker-controlled collector.
+- **Disable apport/abrtd**: Disable crash reporters on Linux (`systemctl stop apport`).
 
 ## Hacker Laws
 

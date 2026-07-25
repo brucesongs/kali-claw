@@ -2,7 +2,7 @@
 name: ai-security
 description: "Semantic-layer attack testing against AI systems and LLM-integrated applications."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: ai
   tool_count: 8
   guide_count: 8
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -534,6 +535,32 @@ AI security assessment connects to multiple adjacent domains. API endpoint disco
 ## Automation and Scripting
 
 Automate AI security testing with garak for systematic vulnerability scanning across multiple probe categories (injection, jailbreak, toxicity, hallucination). Use promptfoo for config-driven regression testing that validates whether safety improvements break functionality. Build custom Python scripts for multi-turn attack chains that maintain conversation context across requests — essential for testing context-based injection persistence. Script model extraction probes that systematically query the model's capability boundaries and compile the results into a structured fingerprint.
+
+## Detection Methods
+
+### LLM Inference Indicators
+- **Prompt injection signatures**: User messages containing "ignore previous", "system:", "developer:", `</system>`, role confusion markers.
+- **Token count anomalies**: Requests >100K tokens (context stuffing); single-turn >50K tokens (potential DoS).
+- **Tool call frequency**: Agent making >50 tool calls/min; sequential recon patterns.
+- **Model output patterns**: Responses containing base64 blobs, raw credentials, system paths, shell commands.
+
+### Training Pipeline Indicators
+- **Data poisoning detection**: Statistical analysis of training data for anomalous samples (e.g., trigger phrases for backdoors).
+- **Model weight anomalies**: Hash of model weights diff from baseline; unexpected weight changes during fine-tuning.
+- **Fine-tuning data validation**: Out-of-distribution samples; samples with embedded instructions.
+- **Backdoor activation**: Specific input patterns triggering anomalous model behavior (validation suite required).
+
+### RAG / Vector Store Indicators
+- **Embedding anomalies**: Documents with embeddings far from cluster centroid (potential poisoning).
+- **Retrieval frequency**: Specific documents retrieved way more often than baseline (potential trigger).
+- **Document source validation**: Documents from untrusted sources being indexed without sanitization.
+- **Cross-user data leakage**: User A's query retrieving User B's indexed documents.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=llm gateway.route="/v1/messages" | where match(content, "(?i)(ignore|disregard).*(previous|above).*(instruction|prompt)")`
+- **Sigma rule**: `sigma/rules/ai/prompt_injection.yml`
+- **Llama Guard / Azure Prompt Shields**: Real-time classification of prompts.
+- **NeMo Guardrails**: Configuration-based input/output filtering.
 
 ## Defense Evasion Techniques
 

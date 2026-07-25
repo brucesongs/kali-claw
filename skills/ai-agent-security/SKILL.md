@@ -2,7 +2,7 @@
 name: ai-agent-security
 description: Offensive security testing of AI agent systems covering MCP server attacks, tool poisoning, indirect prompt injection against agents, RAG knowledge base poisoning, agent sandbox escape, multi-agent compromise chains, and autonomous agent hijacking — using MCP security testers, HexStrike AI, AI-Infra-Guard, custom agent harness probes, and prompt injection toolkits.
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.30"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -541,6 +542,60 @@ python3 report/generate.py \
 - **First Principles Thinking** — Behind every agent attack is a first-principles question: what does the agent treat as authoritative, and how can the attacker reach that channel? Tool descriptions, retrieved documents, ingested files, browsed pages, peer-agent messages — every input channel is an injection vector if the agent treats it as authoritative. Defensive recommendations flow from that principle: treat every input as untrusted, even when it comes from a peer agent.
 - **Divergent Thinking** — The highest-impact agent findings are never single payloads. They are chains — indirect injection → tool call → memory write → future-session retrieval → destructive action. Phase 5 is human-in-the-loop because no automated tool yet composes these chains well. Cultivate the instinct to ask "what if I poisoned the document that the agent retrieved that caused the memory write that the next session read that drove the destructive tool call?"
 - **Adapt** — Agent attack techniques evolve monthly. The MCP protocol spec, the major vendor agent runtimes (Claude Code, Cursor, Devin, ChatGPT Agent), and the open-source agent ecosystem (nanocoai, ECC, gemini-cli, github-mcp-server, playwright-mcp — 100k+ stars across them) all ship continuously. Re-baseline every engagement; the primitive that worked at v0.1.30 will be patched by v0.2.
+
+## Detection Methods
+
+### MCP / Tool Abuse Indicators
+- **Tool description diff**: Diff tool descriptions across versions; alert on new exfil capabilities.
+- **Tool call anomalies**: Agent calling tools with unexpected parameters (e.g., `read_file(path="../../etc/passwd")`).
+- **MCP server connections**: Outbound to non-default MCP ports; new server registrations.
+- **Token consumption**: Sudden spike in `prompt_tokens` per session (potential context-stuffing).
+- **Tool latency anomalies**: Excessive delays between tool call and response (potential side-channel exfil).
+
+### Sandbox / Runtime Indicators
+- **Process escape**: Agent process accessing parent process memory; cgroup filesystem access.
+- **Filesystem boundary**: Reads outside designated workspace (e.g., `/etc/`, `/root/`).
+- **Network egress**: Agent making outbound to non-allowed domains.
+- **Code interpreter abuse**: Code execution sandbox making filesystem changes; persistent processes spawned.
+
+### Multi-Agent Communication Indicators
+- **Inter-agent message volume**: Sudden spike in inter-agent messages; unusual recipient patterns.
+- **Coordinator hijack**: Coordinator agent receiving unexpected task definitions from worker agents.
+- **Token amplification**: Worker agents echoing prompts back (potential amplification attack).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=mcp server.tool="read_file" | where match(params.path, "\.\./\.\./")`
+- **Sigma rule**: `sigma/rules/ai/mcp_path_traversal.yml`
+- **Llama Guard / Prompt Shields**: Real-time prompt classification.
+- **Falco rule**: `MCP tool accessed sensitive path`.
+
+## Defense Evasion Techniques
+
+### Prompt Injection Stealth
+- **Indirect injection via RAG**: Poison vector store; retrieved context contains injection.
+- **Multi-modal injection**: Embed payloads in images, audio, PDFs that the agent ingests.
+- **Token-level obfuscation**: Split injection across tokens that combine at model layer.
+- **Encoding bypass**: Base64 / hex / Unicode normalization forms.
+- **Long-context dilution**: Embed injection in 50K+ token context to dilute attention.
+
+### Tool Poisoning Stealth
+- **Legitimate-looking tool updates**: Push updates via official channels; descriptions look benign.
+- **Gradual capability addition**: Add small exfil features across multiple updates; below diff threshold.
+- **Poison chained tools**: Modify tool A to call tool B (legitimate) with attacker-controlled args.
+- **Tool result poisoning**: Modify tool results to inject context for next call.
+- **Schema manipulation**: Modify JSON schema to allow hidden parameters.
+
+### Sandbox Escape Stealth
+- **Native code via ctypes**: Use Python ctypes / Java JNI to bypass sandbox restrictions.
+- **Subprocess abuse**: Spawn subprocess that inherits agent's identity; sandbox may not track.
+- **File descriptor reuse**: Reuse open file descriptors from parent process to read restricted files.
+- **Race conditions**: Exploit TOCTOU between sandbox check and tool use.
+
+### Multi-Agent Hijack Stealth
+- **Coordinator impersonation**: Worker agent sends commands mimicking coordinator's protocol.
+- **Task poisoning**: Modify queued tasks to inject malicious instructions.
+- **Memory poisoning**: Modify shared memory to plant triggers for future sessions.
+- **Trust abuse**: Use legitimate inter-agent trust (e.g., worker trusts coordinator output).
 
 ## Cross-References
 
