@@ -2,7 +2,7 @@
 name: ci-cd-supply-chain-attack
 description: CI/CD pipeline and software supply chain compromise covering Jenkins (script console, Jenkinsfile injection, shared library abuse, CVE-2024-23897 args4j), GitLab CI/CD (runner abuse, .gitlab-ci.yml injection, self-hosted runner takeover, CVE-2022-1162, OmniAuth CVE-2024-9653), GitHub Actions (self-hosted runner abuse, pull_request_target trap, workflow injection via issue/PR title, secrets exfiltration via cache/artifact, GITHUB_TOKEN scope), CircleCI (context theft, OIDC abuse), Argo CD (CVE-2022-24348, default app creds), Flux CD (GitRepository CRD abuse), Tekton, Buildkite, Drone CI, software supply chain attacks (dependency confusion, typosquatting, brandjacking, malicious npm/PyPI packages, SBOM/SLSA, Sigstore/cosign, in-toto, S2C2F), notable incidents (SolarWinds SUNBURST, 3CX, Codecov, xz-utils CVE-2024-3094, event-stream, ua-parser-js), and detection/defense tooling (StepSecurity Harden-Runner, OpenSSF Scorecard, Socket, Sonatype Nexus, Snyk, Anchore Syft/Grype, KICS, Checkov, semgrep).
 origin: github-trending-2026
-version: 0.1.39
+version: "0.2.0.2"
 compatibility: ">=0.1.38"
 allowed-tools:
   - Bash
@@ -34,6 +34,7 @@ metadata:
     - solarwinds
     - xz-utils
     - codecov
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -497,6 +498,59 @@ cosign verify \
 - **OIDC token theft is a lateral-movement fast lane**: a single stolen OIDC token from a GitHub Actions runner can mint AWS/GCP/Azure tokens for any role the workflow is allowed to assume. Treat OIDC minting events as anomalous by default.
 - **Malicious package reverse engineering**: take a snapshot of the sandbox (vm, container) before unpacking — many malicious packages have anti-analysis (VM detection, debugger traps). Run in an isolated VM with no network egress except a logged proxy.
 - **No real secrets in examples**: every token, key, URL, package name, and registry path in this skill is a placeholder (`REPLACE_WITH_YOUR_*`). Do not weaponize the payloads against real targets.
+
+## Detection Methods
+
+### CI/CD Pipeline Indicators
+- **Pipeline config changes**: Unauthorized `.github/workflows/*.yml` modifications; new `Jenkinsfile` rules.
+- **Secret access anomalies**: CI runner accessing secrets not used by typical pipeline.
+- **Out-of-band network calls**: CI runner making external API calls during build (data exfil).
+- **Build artifact modifications**: Hash of build output differs from source-controlled manifest.
+- **Self-hosted runner abuse**: Self-hosted GitHub Actions runner in dormant state; sudden activity.
+
+### Dependency Supply Chain Indicators
+- **New package versions**: Recently published package versions (<24h) suddenly widely used.
+- **Typosquatting**: Package name differs from legitimate by 1-2 characters.
+- **Maintainer changes**: Package maintainer changed recently; new email domain.
+- **Install script anomalies**: `postinstall` scripts executing network calls or system commands.
+- **Dependency confusion**: Private package name registered publicly; bypass internal registry.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=ci github.event="workflow_run" | stats count by head_branch | where head_branch NOT IN ("main", "develop")`
+- **GitHub Advanced Security**: Dependency review action; secret scanning; CodeQL analysis.
+- **Snyk / Dependabot**: Vulnerability scanning of dependencies; alert on new CVEs.
+- **Sigstore / Cosign**: Verify container/image signatures; alert on unsigned images.
+
+## Defense Evasion Techniques
+
+### CI/CD Compromise Stealth
+- **Modify pipeline in small increments**: Push small workflow changes over time; avoid diff detection.
+- **Use legitimate-looking steps**: Add malicious step disguised as "security scan" or "lint".
+- **Compromise shared runners**: Infect self-hosted runner; persistent across many pipelines.
+- **Use scheduled workflows**: Trigger malicious workflow via cron schedule (off-hours).
+- **Bypass required reviews**: Use admin tokens; push directly to main branch.
+
+### Dependency Confusion Stealth
+- **Use legitimate-looking package**: Match legitimate package metadata (README, license, author).
+- **Multi-stage payload**: First version is benign; later version adds malicious `postinstall`.
+- **Target internal package names**: Discover via job postings or GitHub leaks; register public version.
+- **Time-delayed activation**: Malicious code activates only in production (detect environment).
+
+### Build Artifact Stealth
+- **Reproducible builds evasion**: Modify build to inject payload without changing hash.
+- **Modify compiler**: Use Thompson's "Reflections on Trusting Trust" attack; backdoored compiler.
+- **Patch binary post-build**: Modify binary after build; not in source control.
+- **Backdoor libraries**: Modify shared library at runtime via LD_PRELOAD; bypass source-level audit.
+
+### Source Code Stealth
+- **Commit directly to release branch**: Skip main; avoid detection by PR-based monitoring.
+- **Use git hooks**: Install malicious `.git/hooks/post-commit`; spread to other clones.
+- **Compromise IDE plugins**: VS Code extension abuse; survives across projects.
+
+### SBOM Evasion
+- **Hide in transitive dependencies**: Don't be direct dependency; pull in via 3+ levels of indirection.
+- **Use build-time only deps**: Don't appear in runtime SBOM (e.g., devDependencies).
+- **Modify SBOM post-build**: Tamper with generated SBOM to hide malicious package.
 
 ## Hacker Laws
 

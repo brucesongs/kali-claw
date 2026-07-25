@@ -2,7 +2,7 @@
 name: browser-qa
 description: "Automated browser-based security testing using Playwright and browser devtools. Interact with web applications as a user would — click, type, navigate — while monitoring network traffic, JavaScript execution, and DOM changes for security issues."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: testing
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -117,6 +118,41 @@ Automated browser-based security testing using Playwright and browser devtools. 
 - Identify all XHR/fetch calls the application makes — hidden API endpoints often lack the same authz checks as page routes.
 - Monitor for credential leakage in URLs (tokens in query strings) and referrer headers (sensitive paths leaked to third-party origins).
 - Check for mixed content: HTTP subresources on HTTPS pages downgrade security guarantees.
+
+## Detection Methods
+
+### Browser Automation Detection
+- **WebDriver flags**: `navigator.webdriver === true`; legacy Selenium/Puppeteer signature.
+- **Headless indicators**: `--headless` flag in Chrome process args; missing `chrome.runtime` API.
+- **Canvas fingerprint anomalies**: WebGL renderer `Mesa`/`SwiftShader`; headless browser giveaway.
+- **Plugin enumeration**: Missing expected plugins (Chrome PDF, native messaging).
+- **Mouse movement patterns**: Linear mouse paths (no jitter) typical of automation.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=web http.user_agent="*HeadlessChrome*" OR http.user_agent="*PhantomJS*"`
+- **Sigma rule**: `sigma/rules/web/automated_browser_detection.yml`
+- **Cloudflare Bot Management**: ML-based bot detection catches most automation frameworks.
+- **Akamai Bot Manager**: Behavioral fingerprinting.
+
+## Defense Evasion Techniques
+
+### Stealth Automation
+- **puppeteer-extra-plugin-stealth**: Removes WebDriver signature; patches navigator APIs.
+- **undetected-chromedriver**: Patches ChromeDriver to remove detection signatures.
+- **Playwright with stealth**: Use `playwright-extra` with stealth plugin.
+- **Camoufox**: Firefox fork with built-in fingerprint randomization.
+- **Real browser binaries**: Use real Chrome/Firefox binaries (not headless); slower but stealthier.
+
+### Fingerprint Mimicry
+- **Use real user fingerprints**: Capture legitimate user fingerprint (Canvas, WebGL, fonts); replay it.
+- **TLS fingerprint matching**: `curl-impersonate` matches browser JA3/JA4 hashes.
+- **Realistic viewport**: Match common viewport sizes (1920x1080, 1366x768); avoid 800x600.
+- **Realistic timing**: Add jitter to mouse movements; random delays between actions.
+
+### Proxy / Network Stealth
+- **Residential proxies**: Bright Data, Smartproxy; mimics real user IPs.
+- **IP rotation**: Rotate per session; avoid single-IP burst patterns.
+- **Mobile carrier proxies**: 4G/5G IPs; harder to block (legitimate user pattern).
 
 ## Reporting and Evidence
 

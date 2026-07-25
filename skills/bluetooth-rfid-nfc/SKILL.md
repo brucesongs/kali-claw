@@ -2,7 +2,7 @@
 name: bluetooth-rfid-nfc
 description: "Near-field wireless penetration testing skills covering Bluetooth Classic device enumeration and exploitation, BLE GATT service attacks against IoT devices, RFID card cloning (MIFARE Classic/DESFire), NFC tag manipulation, and contactless payment probing."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 13
   guide_count: 3
   mitre: "TA0046-Initial Access"
+  last_reviewed: "2026-07-26"
 ---
 
 # Bluetooth, RFID & NFC Security
@@ -182,6 +183,37 @@ Advanced Bluetooth testing includes: Ubertooth promiscuous sniffing of encrypted
 | **mfoc** | MIFARE Classic key recovery | Narrow (MIFARE Classic) | Intermediate |
 | **mfcuk** | MIFARE Classic darkside attack | Narrow (MIFARE Classic) | Intermediate |
 | **libnfc** | NFC device operations | Broad (13.56 MHz NFC) | Intermediate |
+
+
+## Defense Evasion Techniques
+
+### Bluetooth Stealth
+- **MAC address randomization**: Modern mobile devices randomize MAC; attacker mimics this pattern.
+- **Reduce TX power**: Lower transmission power to reduce detection range.
+- **Frequency hopping sync**: Mimic legitimate BLE advertising pattern; avoid continuous transmission.
+- **Use legitimate Bluetooth names**: Mimic common device names (`AirPods`, `Galaxy Buds`).
+- **Active scanning avoidance**: Use passive scanning where possible; no probe requests emitted.
+
+### RFID / NFC Stealth
+- **Ultra-low-power operation**: Read at close range only; avoid long-range detection.
+- **Frequency hopping**: Switch between 125kHz / 13.56MHz / 900MHz to evade specific detectors.
+- **Use legitimate reader signatures**: Mimic commercial reader (Proxmark, Flipper) patterns.
+- **Directional antennas**: Limit RF footprint to target only.
+
+### Relay Attack Stealth
+- **Signal strength matching**: Use signal attenuators to mimic legitimate device proximity.
+- **Time-of-flight manipulation**: Pre-compute relay latency; compensate to avoid ToF detection.
+- **Use multiple relay hops**: Distribute relay across multiple devices; reduces per-hop pattern.
+
+### Rolling Code Exploitation Stealth
+- **Single capture**: Capture rolling code once; replay at predictable time (e.g., owner's typical arrival).
+- **Force next code**: Jam + capture next code; user re-presses fob; second capture is "free".
+- **Use SDR off-hours**: SDR scans during low-activity windows; reduces detection.
+
+### Wireless Covert Channels
+- **Bluetooth audio exfil**: Encode exfil data in audio packets; appears as media stream.
+- **BLE beacon abuse**: Use BLE advertising packets for low-bandwidth exfil.
+- **NFC tag hijacking**: Write exfil data to legitimate NFC tags (transit cards, etc.).
 
 ## Performance and Remediation
 

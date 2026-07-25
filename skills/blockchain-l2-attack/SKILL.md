@@ -2,7 +2,7 @@
 name: blockchain-l2-attack
 description: "Layer-2 blockchain attack — Lightning Network (BOLT, HTLC), Optimistic Rollups (Optimism/Arbitrum/Boba/Base), ZK Rollups (zkSync/StarkNet/Polygon zkEVM/Scroll/Linea), Polygon PoS, Gnosis sidechain, cross-chain bridges (Wormhole/Nomad/Ronin/Poly Network/Multichain/Horizon), state channels, ERC-4337 account abstraction, and DA layers (Celestia/EigenDA/Avail)."
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - claude-sonnet-4.5
@@ -33,6 +33,7 @@ metadata:
     - Wormhole
     - Nomad
     - Ronin
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -643,6 +644,48 @@ signatures on a fake mint message and asserts the L2 bridge mints tokens.
 - **Cryptography review requires expertise**: ZK proof system soundness, BLS signature aggregation, and threshold cryptography require specialist review. If you're not an expert, partner with one. A "looks correct" review of a verifier is worse than no review — it gives false confidence.
 - **Lightning Network mainnet**: opening real channels and conducting pin attacks on Lightning mainnet causes real financial harm to routing nodes. Use regtest (the `--network=regtest` flag) for any attack research.
 - **Sequencer DoS**: DoS-ing a mainnet sequencer (e.g., by spamming it with expensive transactions) is an attack on every user of the rollup. Use the local OP Bedrock / Arbitrum Nitro devnet only.
+
+## Detection Methods
+
+### L2 Bridge / Sequencer Detection
+- **Bridge transaction anomalies**: Sudden spike in large bridge transactions; user base correlation.
+- **Sequencer pause events**: Sequencer going offline without scheduled maintenance.
+- **Fraud proof submission**: Fraud proof transaction submitted; alert on protocol-level dispute.
+- **Validator set changes**: Unexpected validator additions/removals; signature threshold changes.
+- **Data availability anomalies**: L1 data posting delays; cert/fcommit batch missing.
+
+### Smart Contract Audit
+- **Reentrancy patterns**: External call before state update; `transfer` followed by `call`.
+- **Integer overflow/underflow**: Pre-Solidity 0.8 arithmetic without SafeMath.
+- **Access control flaws**: `public` modifier on privileged functions; missing `onlyOwner`.
+- **Flash loan attack signatures**: Same-block borrow + manipulate + repay pattern.
+
+### SIEM Detection Rules
+- **Forta Network**: Runtime detection bots for suspicious contract interactions.
+- **OpenZeppelin Defender Sentinel**: Custom monitoring rules.
+- **Splunk SPL (Web3)**: `index=web3 chain=l2 | stats count by from | where count > 100`
+- **Etherscan/ Arbiscan alerts**: Anomalous token movements flagged by community.
+
+## Defense Evasion Techniques
+
+### Bridge Exploitation Stealth
+- **Use legitimate bridge UI**: Don't directly interact with bridge contract; use official frontend (avoid phishing pattern).
+- **Multiple small withdrawals**: Split large exfil across many wallets; below exchange KYC threshold.
+- **Cross-chain laundering**: ETH → BTC → Monero via Thorchain; breaks on-chain traceability.
+- **Tornado Cash alternatives**: Use Railgun, Aztec v2 (when available); privacy-preserving pools.
+- **Time-delayed exfil**: Wait 24h+ between exploit and exfil; reduces exchange rate-limit alerts.
+
+### Sequencer Exploitation Stealth
+- **Single-shot exploit**: Don't replay attack across multiple blocks; avoid pattern detection.
+- **Off-hours timing**: Execute during low-L1-gas windows; reduces monitoring attention.
+- **Use MEV bundles**: Bundle exploit with legitimate MEV opportunity; blends with searcher activity.
+- **Frontrun yourself**: Use builder auction to ensure your tx is included; no mempool visibility.
+
+### Smart Contract Stealth
+- **Gradual fund drain**: Spread drain over many blocks; below per-block anomaly threshold.
+- **Use legitimate-looking contracts**: Mimic legitimate DeFi contract patterns; avoid obvious exploit signatures.
+- **Hide exploit in upgrade**: Push malicious upgrade as "security fix"; appears legitimate.
+- **Cross-protocol chaining**: Use flash loan from Aave to exploit Curve; harder to attribute.
 
 ## Hacker Laws
 
