@@ -4,6 +4,119 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.0.4 (2026-07-24) — Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%) 🎉
+
+### Milestone: Phase 1 第一阶段全部完成
+
+15 个高优先级 SKILL 全部完成深度质量升级，达到 100% 完成度。
+
+### Day 4 新增完成（3 个 P1 SKILL）
+
+- **container-security**: 拆分原合并章节为独立 Detection（5 类）+ Evasion（6 类）
+- **binary-reverse**: 扩展 Detection（5 类）+ 新增完整 Evasion（7 类）
+- **exploit-development**: 全新创建 Detection（6 类）+ Evasion（6 类），含现代防御绕过（AMSI/ETW/BYOVD）
+
+### 累计 Phase 1 Phase 1 完成 SKILLs (15/15 = 100%)
+
+**P0 核心域 (3)**: network-pentest, post-exploitation, web-xss  
+**P1 重要域 (12)**: web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack, privilege-escalation, social-engineering, osint, cloud-security, container-security, binary-reverse, exploit-development
+
+### 关键质量指标
+
+| 指标 | v0.2.0.1 | v0.2.0.4 | 提升 |
+|------|----------|----------|------|
+| 高优先级 SKILL 完成数 | 0/15 | **15/15** | +15 |
+| Phase 1 第一阶段完成度 | 0% | **100%** | +100% |
+| SKILL 版本统一 | 各为 0.1.x | **全部 v0.2.0.2** | +100% |
+| 防御视角表格化 | 部分 | **100%** | 显著 |
+| 检测方法章节 | 30% | **100%** | +70% |
+| 防御规避技术章节 | 20% | **100%** | +80% |
+| 翻译残留 | 多处 | **全部清零** | 100% 清理 |
+
+### 详细说明
+
+详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)（正式中文发布版本）。
+
+---
+
+## v0.2.0.3 (2026-07-21) — Phase 1 Day 3 完成 (12/15 = 80%)
+
+### +4 P1 SKILLs 完成
+
+- **privilege-escalation**: 新增 Detection (4 类) + Evasion (6 类，覆盖 Linux/Windows/Container)
+- **social-engineering**: 扩展 Detection (4 类) + 新增 Evasion (6 类，含 BEC/deepfake/Quishing)
+- **osint**: 新增 Detection (5 类，含 Canary tokens/蜜罐识别) + Evasion (7 类)
+- **cloud-security**: 新增 Detection (6 类) + Evasion (6 类，含 CloudTrail evasion/STS 链)
+
+详见 [RELEASE-v0.2.0.3.md](RELEASE-v0.2.0.3.md)（已重写为正式对外发布的中文版本）。
+
+---
+
+## v0.2.0.2 (2026-07-19) — Phase 1 Day 1-2 完成 (8/15 = 53%)
+
+### Day 1 (4 SKILLs)
+
+- **network-pentest** (P0): 修复严重翻译残留 (35+ → 0)；Defense 表格化 (8 层)；Detection/Evasion 双章节
+- **post-exploitation** (P0): 翻译修复；9 层 Defense 表格（含 Tiered Admin/AMSI）
+- **web-xss** (P0): 新增 Detection Methods (4 类) + Defense Evasion (5 类)
+- **web-sqli** (P1): 修复 5 处翻译残留；OOB 数据外带；跨数据库攻击
+
+### Day 2 (4 SKILLs)
+
+- **web-ssrf** (P1): 修复 17 处翻译残留；Defense 表格化清理
+- **web-auth-bypass** (P1): 新增 Detection (4 类，含 MFA fatigue/impossible travel) + Evasion (5 类)
+- **api-security** (P1): 扩展 Detection (3 新类) + 新增 Evasion (5 类，含 BOLA/JWT/GraphQL)
+- **password-attack** (P1): 版本升级（内容已完善）
+
+### 关键修正
+
+- **版本基线统一** (commit `8d4613f6`): 修正 0.1.50 → **v0.2.0.2**（用户澄清 kali-claw 已切换到 v0.2.x 编号体系）
+
+详见 [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md)。
+
+---
+
+## v0.2.0.1 (2026-07-16) — 战略定位：SKILL 库维护者
+
+### Strategic Pivot
+
+确立 kali-claw 作为**专注 SKILL 库维护者**的战略定位，将智能体化工作交给新项目 xAgent。
+
+### 关键决策
+
+- kali-claw：已有 SKILL 的升级维护 + 持续增加新 SKILL + 持续更新使用指南
+- xAgent：将 SKILLs 转变为各种单一工种的智能体 + 探索多智能体协作场景
+
+详见 [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md)。
+
+---
+
+## v0.1.40 - v0.1.47.1 (2026-06-28 ~ 2026-07-10) — Wave 9-12 + CyberGym 评估
+
+### Wave 9-12 (111→127 SKILLs)
+
+- Wave 9-10 (+9 domains): red-team-infrastructure, threat-intel-platform-attack, malware-analysis-advanced, data-exfiltration-attack, reverse-engineering-advanced 等
+- Wave 11 (+5 domains): data-exfil, red-team-infra, threat-intel, malware-RE, advanced-RE
+- Wave 12 (+7 domains): patch-to-poc-pipeline 等（CyberGym 验证 16/16 = 100%）
+
+### v0.1.47 重要里程碑
+
+- **+3 exploitation SKILLs** targeting 0% bug classes:
+  - command-injection-advanced (blind injection, filter bypass, LDAP/NoSQL, SSTI)
+  - concurrency-exploitation (race window, signal handler race, ThreadSanitizer, TOCTOU)
+  - protocol-state-exploitation (HTTP/2 rapid reset, Scapy, SSH, stateful fuzzing)
+
+### v0.1.47.1 CyberGym 完整评估
+
+- **635/1508 instances** (42.1%) 完成
+- **1 PASS** (0.16% score)
+- 基础设施改进：closed-book isolation, auto permission mode, mirror fallback
+- Binary mode 切换：352+ instances/hour (88-100x faster)
+
+详见 [RELEASE-v0.1.47.1-analysis.md](RELEASE-v0.1.47.1-analysis.md) 与 [docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md](docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md)。
+
+---
+
 ## v0.1.39 (2026-06-27) — GitHub-Trending Expansion Wave 8: +4 Skill Domains (107→111)
 
 ### Driver: Wave 8 Returns to Horizontal Expansion — Modern Enterprise Stack
