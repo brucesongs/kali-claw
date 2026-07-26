@@ -2,7 +2,7 @@
 name: ics-fieldbus-attack
 description: Industrial fieldbus protocol penetration testing beyond Modbus — Profibus/PROFINET, EtherCAT, DNP3, IEC 61850 (GOOSE/SV/MMS), IEC 60870-5-101/104, Foundation Fieldbus, HART, CC-Link, BACnet deep dive. Covers power utility, process automation, building automation, and automotive fieldbus attack surfaces.
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - Claude Code
   - Claude Sonnet 4.5+
@@ -39,6 +39,7 @@ metadata:
     - power utility
     - substation
     - process automation
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -70,6 +71,32 @@ Industrial fieldbus protocols are the central nervous system of critical infrast
 - **Automotive and railway** fieldbuses (CAN, LIN, FlexRay, MVBC) are covered in `automotive-vehicle-security` — this skill focuses on plant-side manufacturing and infrastructure.
 
 Each protocol family has its own framing, addressing model, security model (or lack thereof), and exploitation patterns. This skill provides deep-dive testing methodologies for all of them.
+
+## Detection Methods
+
+### Fieldbus Protocol Anomalies
+- **Profibus/PROFINET anomalies**: Unauthorized master taking control; DCP write requests.
+- **DNP3 anomalies**: Out-of-sequence fragments; unsolicited responses from RTU.
+- **EtherNet/IP (CIP) anomalies**: Unauthorized CIP messages; non-engineering workstation sending commands.
+- **Modbus anomalies**: Function codes 5/6/15/16 (write) from non-master source.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=ics sourcetype=modbus | where function_code IN (5,6,15,16) AND src_ip != "engineering_ws"`
+- **Dragos / Nozomi Guardian**: Native OT security platform detections.
+- **Claroty CTD**: Cyber threat detection for OT environments.
+
+## Defense Evasion Techniques
+
+### Protocol-Level Stealth
+- **Mimic legitimate master**: Use engineering workstation IP; match Modbus master timing.
+- **Passive reconnaissance**: Sniff fieldbus traffic before injecting; learn legitimate patterns.
+- **Single-shot attack**: Send one malicious write (e.g., open breaker); below sustained-pattern detection.
+- **Off-hours operation**: Execute during shift change; blends with maintenance.
+
+### Physical Effect Stealth
+- **Gradual setpoint change**: Change process setpoint slowly; avoids trip alarms.
+- **Sensor spoofing**: Send false sensor values to historian; mask physical effect.
+- **Safety bypass**: Disable SIS (Safety Instrumented System) before main attack.
 
 ## Differentiation
 

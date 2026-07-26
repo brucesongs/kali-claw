@@ -2,7 +2,7 @@
 name: hypervisor-introspection
 description: "Hypervisor introspection (VMI) and virtualization escape attacks — VMware ESXi, Hyper-V, KVM/QEMU, Xen, Proxmox, VirtualBox, LibVMI, DRAKVUF, VENOM CVE-2015-3456, hardware-assisted VT-x/EPT/AMD-V"
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - claude-sonnet-4.5
@@ -31,6 +31,7 @@ metadata:
     - escape
     - LibVMI
     - DRAKVUF
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -185,6 +186,31 @@ Snapshot the guest via `virsh dump <domain> out.dump --memory-only`, `qemu-monit
 > Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`, and the end-to-end playbook in `guides/hypervisor-introspection-playbook.md`.
 
 ---
+
+## Detection Methods
+
+### Hypervisor Audit
+- **VM escape signatures**: Guest accessing host resources (host filesystem, host processes).
+- **Hyperjacking**: Unauthorized hypervisor layer; new hypervisor on bare metal.
+- **Nested virtualization abuse**: Unauthorized nested VMs; new VMs spawning inside other VMs.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=vmware sourcetype=vmkernel | where event_type="vmkernel_error" | search "VMKernel heartbeat"`
+- **vSphere / Hyper-V audit logs**: Monitor for VM tools manipulation, hypervisor console access.
+- **LibVMI / DRAKVUF**: Runtime introspection for VM malware analysis.
+
+## Defense Evasion Techniques
+
+### VM Escape Stealth
+- **Target less-monitored hypervisors**: KVM/Xen have less mature monitoring than ESXi.
+- **Use guest tools channels**: Abuse VMware Tools / Hyper-V Integration Services channels; appears as legitimate traffic.
+- **Single-shot escape**: One escape attempt per VM; below anomaly threshold.
+- **Memory-only payloads**: No disk writes on host; survives forensic snapshot.
+
+### Hyperjacking Stealth
+- **Legitimate-looking hypervisor**: Mimic ESXi/Hyper-V API surface; appears as legit management.
+- **VMI (Virtual Machine Introspection) bypass**: Detect VMI agents (LibVMI, DRAKVUF); hide when introspection active.
+- **Snapshot manipulation**: Modify VM snapshot to inject malicious state; affects restored VMs.
 
 ## Common Pitfalls
 

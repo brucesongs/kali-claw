@@ -2,7 +2,7 @@
 name: knowledge-ops
 description: "Build and maintain structured, persistent knowledge graphs across sessions. Knowledge-ops transforms ephemeral session findings into reusable intelligence — connecting entities, tracking confidence over time, and enabling recall across engagements."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: knowledge
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -179,6 +180,30 @@ expires: [YYYY-MM-DD or null]
 3. **Cross-Engagement Intelligence**: Identify recurring patterns across different targets (org-level behavior)
 4. **Pentest Report Preparation**: Aggregate structured findings for final report generation
 5. **Knowledge Handoff**: Pass complete context to another session or team member
+
+## Detection Methods
+
+### Knowledge Base Audit
+- **Document access anomalies**: Bulk access to many documents in short window.
+- **Cross-tenant data access**: User accessing documents outside their tenant.
+- **Vector store poisoning**: Documents with embedding far from cluster centroid.
+- **Retrieval anomalies**: Specific queries consistently retrieving same documents (backdoor signature).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=kb sourcetype=document_access | stats dc(doc_id) by user_id | where dc > 100`
+- **Custom KB monitoring**: Anomaly detection on RAG retrieval patterns.
+
+## Defense Evasion Techniques
+
+### Knowledge Base Exfiltration Stealth
+- **Distribute across queries**: Pace document reads; below rate limit.
+- **Use legitimate search**: Mimic analyst search behavior; avoid bulk export patterns.
+- **Cache results**: Avoid re-querying same documents; reduces read-count anomaly.
+
+### Vector Store Poisoning Stealth
+- **Match embedding distribution**: Poisoned documents close to legitimate cluster centroid.
+- **Trigger-based backdoor**: Activates only on specific query patterns.
+- **Cross-tenant indexing**: Index poison in tenant A; affect queries from tenant B (if not isolated).
 
 ## Integration
 

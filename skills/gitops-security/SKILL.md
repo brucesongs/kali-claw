@@ -2,7 +2,7 @@
 name: gitops-security
 description: Attacks against GitOps control planes (Argo CD, FluxCD, Jenkins X, Tekton, Fleet, Rancher) — repo impersonation, manifest tampering, RBAC bypass, sync-wave abuse, secret management compromise (Sealed Secrets / SOPS / External Secrets / Vault), cluster privilege escalation via Application/CRDs, and post-exploitation persistence through CRD backdoors. Covers 2024-2025 Argo CD CVEs (CVE-2022-24348, CVE-2024-21626, CVE-2024-32564), FluxCD CVE-2024-37286, and the Akuukam/Code Catalyst supply chain incidents.
 origin: kali-claw Wave 10 (v0.1.41) — 2026-06-28
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -28,6 +28,7 @@ metadata:
   tool_count: 16
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host"
+  last_reviewed: "2026-07-26"
 ---
 
 # GitOps Security Attack Skill
@@ -474,6 +475,31 @@ When GitOps compromise is suspected:
 6. **Hunt** — for CRD backdoors, post-render hooks, sync-wave `wave: -100` manifests
 7. **Restore** — from last-known-good Git HEAD; force-resync; monitor reconciliation
 8. **Post-mortem** — full CRD audit, controller RBAC review, webhook signature policy
+
+## Detection Methods
+
+### GitOps Controller Audit
+- **Argo CD anomalies**: Unauthorized `Application` creation; sync to non-allowlisted repos; cluster-wide scope granted.
+- **Flux CD anomalies**: New `HelmRelease`/`Kustomization` from untrusted GitRepository; cross-namespace references.
+- **Fleet/Rancher**: Multi-cluster deploy from untrusted source; alert on new cluster registration.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=k8s sourcetype=kube:audit verb=create resource=applications.argoproj.io`
+- **Kyverno admission policies**: Block `privileged: true`, hostPath mounts, runAs root.
+- **Argo CD notifications**: Alert on sync to non-production cluster.
+
+## Defense Evasion Techniques
+
+### GitOps Controller Compromise
+- **Legitimate-looking commits**: Push as part of normal release cadence; appears as routine update.
+- **Modify Helm values**: Modify only `values.yaml` (looks benign) to inject malicious config.
+- **Cross-namespace abuse**: Use existing service account with broad permissions; no new RBAC.
+- **Sync window abuse**: Trigger sync during maintenance window; blends with normal activity.
+
+### Supply Chain Stealth
+- **Helm chart poisoning**: Push malicious chart to internal chart repo; appears as legitimate version bump.
+- **Dependency confusion**: Register public package with same name as private; bypass internal registry.
+- **Image tag rotation**: Modify existing tag (`latest`, `v1.2.3`) to point to malicious image; evades signature pinning.
 
 ## References
 

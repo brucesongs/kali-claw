@@ -2,7 +2,7 @@
 name: hf-vhf-radio-attack
 description: Licensed HF/VHF/UHF radio attack — ADS-B 1090 MHz, AIS, ACARS, VDL Mode 2, POCSAG/FLEX pagers, APRS, NDB, ATC/maritime VHF, DSC, weather fax, MLAT
 origin: kali-claw
-version: 1.0
+version: "0.2.0.2"
 compatibility:
   - Claude Code
   - Claude Sonnet 4.5+
@@ -38,6 +38,7 @@ metadata:
     - APRS
     - NDB
     - DSC
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -59,6 +60,31 @@ The defining property of these services is that **they are public broadcast or l
 **Domain**: hf-vhf-radio-attack
 
 **MITRE ATT&CK**: T1595-Active Scanning (RF), T1592-Gather Victim Host Info (RF fingerprinting), T1557-Adversary-in-the-Middle (RF relay), T1580-Cloud Infrastructure Discovery (RF telemetry exfil), T1499-Endpoint Denial of Service (RF jamming, authorized research only).
+
+## Detection Methods
+
+### RF Spectrum Monitoring
+- **Unauthorized transmissions**: Transmit on aviation/maritime frequencies without license.
+- **ADS-B anomalies**: Aircraft position reports with impossible geometry; signal strength inconsistent with reported altitude.
+- **POCSAG pager anomalies**: Pager messages with malformed capcodes; broadcast vs point-to-point.
+- **APRS anomalies**: Position beacons from fixed location reporting movement.
+
+### SIEM Detection Rules
+- **Splunk SPL (RF)**: `index=rf sourcetype=adsb | where altitude < 0 OR speed > 1500`
+- **SDR monitoring**: Continuous spectrum recording; alert on new transmissions in reserved bands.
+
+## Defense Evasion Techniques
+
+### Transmission Stealth
+- **Low power**: Use minimum TX power needed; reduces detection range.
+- **Brief transmissions**: <5 second bursts; below triangulation threshold.
+- **Frequency hopping**: Spread across many channels; per-channel detection threshold not exceeded.
+- **Directional antennas**: Limit RF footprint to target only; reduces collateral detection.
+
+### ADS-B Spoofing Stealth
+- **Match legitimate aircraft**: Use real aircraft Mode S address; mimic flight profile.
+- **Gradual drift**: Slowly drift spoofed position (1 m/s²); avoids sudden jump detection.
+- **Single target**: Don't spoof multiple aircraft simultaneously; reduces anomaly detection.
 
 ## Differentiation
 
