@@ -2,7 +2,7 @@
 name: pam-privilege-attack
 description: "Privileged Access Management (PAM) vendor abuse — CyberArk PVWA/PSM/EPV/AIM/CFE, BeyondTrust PRA/Password Safe/Identity Security Insights, Delinea Secret Server/Privilege Manager, One Identity Safeguard, ManageEngine Password Manager Pro, WALLIX Bastion, Devolutions Server, Xton Core. Covers PVWA auth bypass (CVE-2025-32564 area), CyberArk safe enumeration via WebSocket, credential file (.cue) theft and decryption, PSM session hijacking, AIM/CCP provider abuse, master key escrow analysis, BeyondTrust SAML account injection (CVE-2022-2451), Password Safe API abuse, session recording tampering, Delinea OAuth token theft, DPAPI-protected agent config extraction, distributed engine lateral movement, One Identity Safeguard SSL pinning bypass, ManageEngine PMP API key enumeration, PostgreSQL backend extraction (CVE-2022-28226 area), pass-the-hash in PAM contexts, golden ticket interaction with PAM credential rotation, and modern ransomware operator TTPs targeting PAM (BlackCat/ALPHV, LockBit, Royal/BlackSuit)."
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - claude-sonnet-4.5
@@ -59,6 +59,7 @@ metadata:
     - BlackCat
     - ALPHV
     - LockBit
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: Privileged Access Management (PAM) Privilege Attack
@@ -458,3 +459,27 @@ This skill does **not** cover:
 - Privileged identity in cloud providers (AWS IAM Identity Center, Entra PIM) -- see `cloud-identity-attack`
 
 When an engagement crosses into any of these, chain the relevant skill in sequence. PAM compromise is typically a mid-engagement step that produces material the other skills consume downstream.
+## Detection Methods
+
+### PAM Vendor Audit
+- **CyberArk PVWA anomalies**: Login from new geo; password access spike.
+- **BeyondTrust PRA anomalies**: Session recording disabled; new endpoint registered.
+- **Delinea/One Identity**: Secret retrieval spike; new endpoint with broad secret access.
+- **ManageEngine PMP**: API token abuse; bulk password retrieval.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=pam vendor="CyberArk" | stats count by user, action | where action="retrieve_password" | sort -count`
+- **Cyberark EPV / BeyondTrust logs**: Native SIEM integration.
+
+## Defense Evasion Techniques
+
+### PAM Compromise Stealth
+- **Use legitimate session recording gaps**: Exploit maintenance windows where recording disabled.
+- **Use legitimate service account**: Compromise service account that has PAM access; appears as legitimate admin.
+- **Off-hours access**: Access PAM during low-activity hours; less attention.
+
+### Credential Theft Stealth
+- **Use existing API tokens**: Steal long-lived API tokens; no auth events triggered.
+- **Bypass dual control**: Use emergency access (Break Glass) credential; less audit.
+- **Retrieve then use later**: Retrieve secret once, use outside PAM audit window.
+

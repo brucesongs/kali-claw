@@ -2,7 +2,7 @@
 name: patch-to-poc-pipeline
 description: The end-to-end patch-diff vulnerability reproduction workflow — patch analysis (read diff, identify protective pattern, hypothesize bug class), source or binary-only code path walking (Ghidra + BinDiff), PoC generation (manual craft OR AFL++/libFuzzer harness with ASan/UBSan), CyberGym-style differential verification (vuln crashes, patched clean) as the deterministic stop condition, and YARA + Sigma detection rule authoring tested against both versions. Covers 2024-2026 CVEs (libwebp, xz-utils, runc, glibc Looney Tuner, regreSSHion, MOVEit, Jenkins, Confluence, TeamCity, OFBiz). Solidifies validation/scenarios/SCEN-008.md into a reusable knowledge base and wires in Schema 3 reproduction memory for memory-driven convergence.
 origin: kali-claw Wave 12 (v0.1.45) — 2026-07-03
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -31,6 +31,7 @@ metadata:
   tool_count: 17
   guide_count: 2
   mitre: "TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal"
+  last_reviewed: "2026-07-26"
 ---
 
 # Patch-to-PoC Pipeline Skill
@@ -606,6 +607,35 @@ This skill aligns with the following Hacker Laws from `SOUL.md`:
 - **Law 6 (Diff before trust)** — Phase 4 differential verification is the formal expression of "trust nothing until you've seen both sides"
 - **Law 8 (Defense in depth, offense in breadth)** — Phase 5 YARA + Sigma + SBOM is the three-axis detection coverage
 - **Law 11 (Leave the camp cleaner than you found it)** — every CVE reproduced ships a YARA + Sigma rule that protects the entire fleet going forward
+
+## Detection Methods
+
+### Patch Diff Analysis
+- **CVE patch monitoring**: NVD, vendor security advisories; alert on new patches in dependent software.
+- **Patch-to-PoC tracking**: Monitor GitHub, ExploitDB for PoC code matching recently patched CVEs.
+- **Function-level diff**: Track changes in security-sensitive functions (alloc, copy, parse).
+
+### Runtime Detection
+- **Vulnerability scanner**: Nessus, Qualys; identify unpatched versions in environment.
+- **IDS signatures**: Snort / Suricata rules for known exploits.
+- **EDR detection**: Process anomalies matching known exploit patterns.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=vuln scanner=nessus | where cve_id matches "2025-*" | stats count by host`
+- **CISA KEV catalog**: Cross-reference internal vuln scan with Known Exploited Vulnerabilities.
+
+## Defense Evasion Techniques
+
+### PoC Weaponization Stealth
+- **Single-shot exploitation**: One exploit attempt per target; below sustained-pattern detection.
+- **Memory-only execution**: Run exploit from RAM; no disk artifacts.
+- **Use legitimate processes**: Inject exploit into legitimate process (e.g., browser, web server).
+
+### Detection Evasion
+- **Slow exploitation**: Pace exploit attempts below IDS threshold.
+- **Use new CVEs**: Exploit CVEs less than 30 days old; detection rules lag.
+- **Variants**: Modify public PoC to evade signature detection.
+- **Cross-architecture**: Port PoC to less-monitored architecture (e.g., ARM64 vs x86_64).
 
 ## Learning Resources
 

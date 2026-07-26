@@ -2,7 +2,7 @@
 name: open-banking-attack
 description: Open Banking / PSD2 / Open Finance attacks — FAPI (Financial-grade API), OpenID Connect for Financial APIs, OAuth2 PKCE, Strong Customer Authentication (SCA) bypass, AIS/PIS/CBPII API abuse, payment redirection, consent manipulation. Covers UK Open Banking, US FDX, Brazil Open Finance, India Account Aggregator, Singapore MAS APIX, Australia CDR. Includes 2024-2025 incidents (Token Hijacking, IdOR on AIS endpoints, PIS redirect manipulation).
 origin: kali-claw Wave 10 (v0.1.41) — 2026-06-28
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -23,6 +23,7 @@ metadata:
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser"
+  last_reviewed: "2026-07-26"
 ---
 
 # Open Banking Attack Skill
@@ -534,6 +535,31 @@ When Open Banking compromise suspected:
 6. **Notify affected customers** — within 72h (GDPR)
 7. **Forensics** — log analysis for token replay patterns
 8. **Post-mortem** — profile adherence audit, JWKS rotation
+
+## Detection Methods
+
+### Open Banking API Audit
+- **TPP anomaly**: Third-Party Provider making unusual API calls; new TPP registration with anomalous pattern.
+- **SCA bypass**: Strong Customer Authentication bypassed via legacy auth; consent reuse.
+- **Consent abuse**: Consent granted for one service but used for another; consent for AIS used to initiate PIS.
+- **eIDAS QWAC forgery**: TLS certificate from TPP with mismatched organization.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=openbanking sourcetype=ob:api | stats dc(endpoint) by tpp_id | where dc > 10`
+- **API gateway logging**: Open Banking API gateway (Kong, Apigee) with custom security policies.
+
+## Defense Evasion Techniques
+
+### TPP Compromise Stealth
+- **Use legitimate TPP credentials**: Steal TPP eIDAS credentials; appears as legitimate TPP.
+- **AIS to PIS pivot**: Use AIS (read-only) consent to gather data; pivot to PIS (payment) via separate flow.
+- **SCA exemption abuse**: Use low-value payment exemption (≤30 EUR); avoid SCA threshold.
+
+### FAPI Bypass
+- **PAR (Pushed Authorization Request) downgrade**: Force fallback to non-PAR; bypass request validation.
+- **JARM (JWT Authorization Response Mode) manipulation**: Modify response mode to leak auth code.
+- **DPoP (Demonstrating Proof-of-Possession) bypass**: Some implementations don't strictly validate DPoP token binding.
+- **mTLS bypass**: Exploit mTLS implementation flaws; some APIs don't strictly validate client cert.
 
 ## References
 

@@ -2,7 +2,7 @@
 name: payload-generation
 description: "Payload generation covers the creation, encoding, and delivery of shellcode and executable payloads for initial access and command-and-control (C2) communication."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 8
   mitre: "TA0007-Command and Control"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -295,6 +296,29 @@ The delivery method determines how the payload reaches the target system. Select
 2. Have multiple delivery methods prepared. If the primary method is blocked, immediately switch to the backup without re-generating payloads.
 3. Match the delivery method to the target's daily workflow. A malicious macro in a financial spreadsheet is more convincing than a generic HTA download.
 4. Consider the forensic artifacts each method leaves. HTA files create temporary files on disk. PowerShell web delivery may be logged in event logs. Memory-only delivery (hoaxshell) leaves fewer artifacts.
+
+
+## Defense Evasion Techniques
+
+### Encoder/Encryptor
+- **Shikata Ga Nai** (Metasploit): Polymorphic XOR encoder; signature changes per run.
+- **Custom encoders**: Write custom encoder; defeats known signatures.
+- **Multi-stage encoding**: Apply multiple encoders in sequence; harder to analyze.
+
+### NoPS Shellcode
+- **Pure syscall shellcode**: Avoid ntdll imports entirely; bypasses user-mode hooks.
+- **SysWhispers / HellsGate**: Dynamically resolve SSNs at runtime.
+- **Indirect syscalls**: Use legitimate ntdll return address but custom syscall instruction.
+
+### Staged Loading
+- **Stage 1 (small)**: Small loader pulls stage 2 over network; defeats signature scanning.
+- **In-memory only**: Stage 2 never touches disk; evades AV.
+- **Donut shellcode**: Convert .NET/PE/DLL to position-independent shellcode.
+
+### Reflective Loading
+- **Reflective DLL injection**: Load DLL from memory; no `LoadLibrary` call.
+- **ManualMap**: Manually map PE into process; no module table entry.
+- **Module stomping**: Load legitimate DLL, overwrite with payload.
 
 ## Automation and Scripting
 
