@@ -2,7 +2,7 @@
 name: steganography
 description: "Steganography is the practice of concealing data within non-secret carrier files such as images, audio, video, and documents. Unlike encryption, which makes data unreadable but visibly present, steganography hides the very existence of the hidden data."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: forensics
   tool_count: 6
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -167,6 +168,32 @@ binwalk suspicious.png
 > **For detailed payloads see `payloads.md`, and for the complete test checklist see `test-cases.md`.**
 
 ---
+
+## Detection Methods
+
+### Steganography Detection
+- **Statistical analysis**: Stegdetect, stegexpose for LSB manipulation signatures.
+- **File size anomalies**: Image size larger than expected for visible content.
+- **Entropy analysis**: High-entropy sections in image files (embedded encrypted data).
+- **Visual analysis**: Chi-square attack; sample pair analysis.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=files sourcetype=steganalysis | where entropy > 7.5`
+- **Custom file analysis**: StegExpose, StegDetect batch scanning.
+
+## Defense Evasion Techniques
+
+### Steganography Stealth
+- **Match container entropy**: Don't exceed container's natural entropy.
+- **Sparse embedding**: Embed data sparsely; reduces statistical anomaly.
+- **Use lossless formats**: PNG/BMP over JPEG; avoids recompression artifacts.
+- **Color palette abuse**: Hide data in palette of 8-bit PNG; minimal visual change.
+
+### Channel Selection
+- **Audio over image**: WAV/FLAC less monitored than PNG/JPG.
+- **Video steganography**: Frame-by-frame LSB; high bandwidth.
+- **Network packet timing**: Encode in inter-packet delays; covert timing channel.
+- **PDF object abuse**: Hide data in PDF object streams; less scanned.
 
 ## Common Pitfalls
 

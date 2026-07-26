@@ -2,7 +2,7 @@
 name: supply-chain-security
 description: "Software supply chain security covering the entire lifecycle from code development to deployment: dependency vulnerabilities (known-vulnerable third-party packages), malicious packages (injection and typosquatting."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A08:2021-Software Integrity"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -142,6 +143,24 @@ Register malicious packages with the same name as internal packages on public re
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
 
 ---
+
+
+## Defense Evasion Techniques
+
+### Supply Chain Attack Stealth
+- **Modify pipeline in small increments**: Push small workflow changes over time; avoid diff detection.
+- **Use legitimate-looking steps**: Add malicious step disguised as "security scan".
+- **Compromise shared runners**: Infect self-hosted runner; persistent across pipelines.
+
+### Dependency Confusion Stealth
+- **Use legitimate-looking package**: Match legitimate package metadata (README, license, author).
+- **Multi-stage payload**: First version is benign; later version adds malicious postinstall.
+- **Target internal package names**: Discover via job postings or GitHub leaks.
+
+### Build Artifact Stealth
+- **Reproducible builds evasion**: Modify build to inject payload without changing hash.
+- **Modify compiler**: Thompson's "Reflections on Trusting Trust" attack.
+- **Patch binary post-build**: Modify binary after build; not in source control.
 
 ## Hacker Laws
 

@@ -2,7 +2,7 @@
 name: social-intelligence
 description: "Real-time intelligence gathering from social platforms and community discussions — capturing what people are saying, sharing, and leaking right now."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 10
   guide_count: 8
   mitre: "TA0043-Reconnaissance"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -271,6 +272,29 @@ cat profiles.json | jq 'to_entries[] | select(.value == "Claimed") | .key'
 | Platform | Query | Results | Key Findings |
 |----------|-------|---------|-------------|
 ```
+
+## Detection Methods
+
+### Social Engineering Detection
+- **Phishing email patterns**: SPF/DKIM/DMARC failures; homoglyph domains; BEC patterns.
+- **Impersonation**: New account with similar name to executive; profile picture reuse.
+- **Brand mention anomalies**: Spike in mentions of brand keywords; sentiment shift.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=social | where account_age_days < 30 AND mention_count > 100`
+- **Social media monitoring**: Brand24, Mention, Hootsuite for brand protection.
+
+## Defense Evasion Techniques
+
+### Impersonation Stealth
+- **Aged accounts**: Buy aged social media accounts; higher trust.
+- **Gradual content buildup**: Post legitimate content for weeks before attack; build reputation.
+- **Mimic legitimate user**: Use same profile picture, bio, posting style as target.
+
+### OSINT Stealth
+- **Use sanctioned tools**: LinkedIn Sales Navigator over scraping; appears legitimate.
+- **API over web scraping**: Use Twitter/X API; rate-limited but less suspicious.
+- **Browser fingerprint variation**: Rotate User-Agent, viewport, language.
 
 ## Hacker Laws
 

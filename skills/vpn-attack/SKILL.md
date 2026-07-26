@@ -2,7 +2,7 @@
 name: vpn-attack
 description: "Virtual Private Networks (VPNs) are a critical component of enterprise network security, providing encrypted tunnels for remote access and site-to-site connectivity."
 origin: openclaw
-version: "0.1.21"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: security
   tool_count: 5
   guide_count: 8
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -363,6 +364,30 @@ ike-scan -2 --nat-t --trans='5,1,2,2' -M 192.168.1.1
 ### Monitoring Countermeasures for Defenders
 
 Defenders should implement: real-time alerting on IKE aggressive mode attempts, rate-limiting on VPN authentication endpoints, geo-IP blocking for VPN access from unexpected countries, and behavioral analytics to detect anomalous VPN session patterns (unusual times, excessive duration, unexpected internal network scanning through VPN).
+
+## Detection Methods
+
+### VPN Audit
+- **Auth anomalies**: Multiple VPN auth failures from same source (brute force).
+- **Concurrent sessions**: User with multiple active VPN sessions from different IPs.
+- **Geo anomalies**: VPN login from new country; impossible travel.
+- **Protocol downgrade**: VPN clients using weak protocols (PPTP, L2TP without IPsec).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=vpn sourcetype=auth | stats count by user, src_ip | where count > 10`
+- **VPN vendor logging**: Cisco AnyConnect, Palo Alto GlobalProtect, OpenVPN audit.
+
+## Defense Evasion Techniques
+
+### VPN Compromise Stealth
+- **Use legitimate credentials**: Don't trigger new-login alerts; use stolen but valid creds.
+- **Mimic user's typical session**: Connect from user's typical geo, time of day.
+- **Off-hours operation**: Use stolen VPN during user's typical off-hours (reduces concurrent-session alert).
+
+### VPN Bypass
+- **Split tunneling abuse**: Force traffic into split-tunnel path; bypass inspection.
+- **TLS fingerprinting**: Match legitimate VPN client JA3 to bypass SWG.
+- **Protocol confusion**: Use SSL/TLS VPN over HTTP/3 (QUIC); many monitoring tools don't decode.
 
 ## Learning Resources
 

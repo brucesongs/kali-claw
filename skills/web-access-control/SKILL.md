@@ -2,7 +2,7 @@
 name: web-access-control
 description: "Broken Access Control (OWASP Top 10 2025 - A01) attacks and defense — covering core attack surfaces including IDOR (Insecure Direct Object Reference), vertical/horizontal privilege escalation, path traversal, and permission bypass."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A01:2021-Broken Access Control"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -235,6 +236,19 @@ curl --path-as-is "http://target/admin%00/dashboard"
 ## Detection Methods
 
 Effective access control testing begins with mapping the complete authorization surface. Automated diff comparison between low-privilege and high-privilege session responses (using Burp Autorize or custom scripts) rapidly identifies endpoints missing authorization checks. Parameter enumeration through ffuf with sequential ID wordlists detects IDOR at scale, while HTTP method fuzzing across all discovered endpoints reveals method-level permission gaps that manual testing often misses.
+
+
+## Defense Evasion Techniques
+
+### Access Control Bypass Stealth
+- **Use existing privilege**: Don't escalate; abuse existing over-privileged role.
+- **Off-hours abuse**: Exploit during low-traffic hours.
+- **Distribute exploitation**: Spread IDOR attempts across many accounts/sessions.
+
+### Detection Evasion
+- **Use legitimate-looking requests**: Mimic normal user navigation; avoid deep-linking directly.
+- **Use GraphQL batch**: Batch IDOR attempts in single GraphQL request; bypass per-request rate limit.
+- **Method swap**: Try `GET /api/users/123` blocked, try `PUT /api/users/123` or `PATCH` allowed.
 
 ## Common Pitfalls
 

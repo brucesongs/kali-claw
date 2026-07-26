@@ -2,7 +2,7 @@
 name: threat-hunting
 description: "Proactive threat hunting — MITRE ATT&CK-mapped hunt hypotheses, Sigma detection engineering, SIEM query authoring (Splunk SPL, KQL, Lucene), and SOC workflow integration."
 origin: openclaw
-version: "0.1.29"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -29,6 +29,7 @@ metadata:
     - elastic-lucene
     - mitre-attack
     - false-positive-tuning
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -554,6 +555,31 @@ ranked = sorted(scores.items(),
 for host, techs in ranked[:20]:
     print(f"{host}: {len(techs)} techniques — {dict(techs)}")
 ```
+
+## Detection Methods
+
+### Threat Hunting Methodology
+- **Hypothesis-driven**: Form hypothesis based on threat intel; hunt for indicators.
+- **Anomaly hunting**: Statistical baseline; hunt for deviations.
+- **ATT&CK mapping**: Hunt for specific MITRE ATT&CK techniques.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=* | stats count by host, user | sort -count | head 20`
+- **YARA**: Memory + filesystem scanning for known signatures.
+- **MITRE ATT&CK Navigator**: Coverage mapping; identify gaps.
+
+## Defense Evasion Techniques
+
+### Hunt Evasion
+- **Use uncovered techniques**: Target MITRE ATT&CK techniques with no detection rules.
+- **Timing**: Execute slowly enough to fall below detection threshold.
+- **Living off the Land**: Use legitimate admin tools; blends with admin activity.
+- **Time-shifted attacks**: Execute during SOC off-hours (nights, weekends).
+
+### SIEM/Logging Blind Spots
+- **Log source gaps**: Operate on systems without log forwarding (legacy apps, IoT devices).
+- **Log tampering**: Compromise log forwarder; selectively drop entries.
+- **Volume-based DoS**: Flood SIEM with noise; bury real alerts.
 
 ## Safety Notes
 

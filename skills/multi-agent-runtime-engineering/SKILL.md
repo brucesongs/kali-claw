@@ -191,13 +191,13 @@ This skill organizes agent runtime engineering into five layers, each building o
 +------------------------------------------------------------------+
 | Layer 1 — Structured Memory                                      |
 |   JSON schema with required fields, confidence taxonomy          |
-|   machine-queryable (no散文 prose)                                |
+|   machine-queryable (no prose)                                |
 +------------------------------------------------------------------+
 ```
 
 ### Layer 1 — Structured Memory (MopMonk 招一)
 
-Every engagement maintains a machine-queryable memory JSON. No散文 prose memory. The agent must be able to query "what did we learn about X?" and get a deterministic answer. Every phase MUST: read the current memory file, execute its phase task, write a delta (fields added / updated / invalidated), and update `next_constraints` so downstream phases know the boundaries.
+Every engagement maintains a machine-queryable memory JSON. No prose memory. The agent must be able to query "what did we learn about X?" and get a deterministic answer. Every phase MUST: read the current memory file, execute its phase task, write a delta (fields added / updated / invalidated), and update `next_constraints` so downstream phases know the boundaries.
 
 This skill ships three canonical schemas: **Pentest Engagement Memory** (Schema 1 — for cross-phase engagements), **Exploit Attempt Memory** (Schema 2 — for parallel exploit dev), and **Patch-Diff Reproduction Memory** (Schema 3 — for CyberGym-style PoC generation). Full templates are in `payloads.md`.
 

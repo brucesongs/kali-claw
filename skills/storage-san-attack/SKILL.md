@@ -2,7 +2,7 @@
 name: storage-san-attack
 description: "Storage/SAN/NAS/Object storage penetration testing — iSCSI, Fibre Channel, NFSv3/v4, SMB3, S3-compatible APIs, NetApp ONTAP, Dell EMC, Pure Storage, QNAP, Synology, TrueNAS, NDMP backup tape pilfering, and ransomware patterns targeting storage appliances. Distinct from database-attack (which targets RDBMS/NoSQL query protocols) and cloud-native-vuln-research (which focuses on CVE research rather than storage fabric and appliance pentest)."
 origin: kali-claw
-version: "1.0"
+version: "0.2.0.2"
 compatibility:
   - kali-claw
   - claude-code
@@ -46,6 +46,7 @@ metadata:
     - NDMP
     - SMI-S
     - ONTAP
+  last_reviewed: "2026-07-26"
 ---
 
 # Storage SAN Attack
@@ -64,6 +65,30 @@ This skill targets the storage fabric underlying enterprise data — block (SAN)
 **Domain**: storage-san-attack
 
 **MITRE ATT&CK**: T1552 (Unsecured Credentials), T1021 (Remote Services), T1486 (Data Encrypted for Impact), T1530 (Data from Cloud Storage Object), T1213 (Data from Information Repositories)
+
+## Detection Methods
+
+### Storage System Audit
+- **iSCSI anomalies**: Unauthorized initiator access; cross-network LUN mounting.
+- **Fibre Channel anomalies**: WWN spoofing; zone bypass attempts.
+- **NFSv4 anomalies**: Unauthorized export mounts; cross-UID access.
+- **SMB3 anomalies**: Anomalous share access; encryption downgrade.
+
+### SIEM Detection Rules
+- **Splunk SPL (storage)**: `index=san sourcetype=iscsi | stats count by initiator_iqn | sort -count`
+- **NetApp / Dell EMC / QNAP audit**: Native storage system logging.
+
+## Defense Evasion Techniques
+
+### Storage Compromise Stealth
+- **Use legitimate initiator**: Spoof authorized initiator IQN/WWN; appears as legitimate host.
+- **Off-hours access**: Storage activity often low at night; blend with maintenance.
+- **Mimic legitimate patterns**: Match typical backup/replication traffic patterns.
+
+### LUN Compromise Stealth
+- **Snapshot abuse**: Mount snapshot read-only; no audit on primary LUN.
+- **Replication pivot**: Use replication traffic to access LUN at DR site.
+- **Backup tape/DVD abuse**: Some legacy systems still use tape; less monitored.
 
 ## Differentiation
 

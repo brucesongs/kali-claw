@@ -2,7 +2,7 @@
 name: tool-mastery
 description: "Verification and assessment of practical proficiency with Kali Linux security tools. Covers tool classification, proficiency levels, verification methods, and combination strategies across the 518-tool Kali arsenal."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: knowledge
   tool_count: 0
   guide_count: 2
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -133,6 +134,23 @@ Understanding security tools from the defender's viewpoint is critical for both 
 - **Forensic tools**: Volatility, binwalk, and autopsy leave no network footprint but create artifacts on the analysis system. Defenders should ensure forensic workstations are isolated and that evidence handling follows chain-of-custody procedures.
 
 Blue teams can use these same tools defensively — running nmap to audit their own exposure, nuclei for continuous vulnerability scanning, hashcat for password policy enforcement testing, and ffuf to discover forgotten endpoints before attackers do. Purple team exercises that run offensive tools against production monitoring help calibrate detection rules and identify blind spots.
+
+## Detection Methods
+
+### Tool Mastery Audit
+- **Tool proficiency tracking**: Per-tool skill level assessment.
+- **Coverage metrics**: How many of 518 Kali tools have been mastered.
+- **Maturity scoring**: Beginner → Intermediate → Advanced → Expert → Master.
+
+### SIEM Detection Rules
+- **Custom tracking**: TOOLS.md as living document; per-tool progress.
+
+## Defense Evasion Techniques
+
+### Tool Usage Stealth
+- **Avoid signatured tools**: Use lesser-known alternatives (e.g., `rustScan` over `nmap`).
+- **Custom wrappers**: Wrap known tools to evade signature detection.
+- **Memory-only execution**: Load tools from memory; no file artifacts.
 
 ## Key Decisions
 

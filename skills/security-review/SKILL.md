@@ -2,7 +2,7 @@
 name: security-review
 description: "Comprehensive security checklist and review patterns for analyzing applications, configurations, and infrastructure. This skill provides structured review methodology to identify vulnerabilities across OWASP Top 10 categories during penetration testing."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: assessment
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -196,6 +197,24 @@ trivy image target-image:tag
 - **Least privilege**: Grant minimum necessary permissions
 - **Secure defaults**: Default configurations should be secure, not permissive
 - **Fail closed**: Errors should deny access, not grant it
+
+## Detection Methods
+
+### Security Review Audit
+- **Code review metrics**: Review depth, finding density, false positive rate.
+- **Architecture review**: Threat model coverage (STRIDE, PASTA).
+- **Penetration test**: Coverage of OWASP Top 10, API Top 10, ATT&CK.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=code:review | stats count by reviewer | where count > 100`
+- **GitHub Advanced Security**: CodeQL, secret scanning in PRs.
+
+## Defense Evasion Techniques
+
+### Operational Security for Reviewers
+- **Verify findings**: Independent reproduction before reporting.
+- **Provide actionable remediation**: Don't just identify problems; suggest fixes.
+- **Map to MITRE ATT&CK**: Standardized framework for cross-org understanding.
 
 ## Orchestration
 

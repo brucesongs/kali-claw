@@ -2,7 +2,7 @@
 name: article-writing
 description: "Transform technical findings into clear, structured written content: penetration test reports, vulnerability disclosures, security blog posts, and technical documentation."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: knowledge
   tool_count: 0
   guide_count: 8
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -278,6 +279,23 @@ Follow the appropriate template (see below) for the article type. Outline before
 ## Credits
 
 [Your name/org]
+
+## Detection Methods
+
+### Content Authenticity Audit
+- **AI-generated text detection**: Statistical analysis (perplexity, burstiness) for AI fingerprints.
+- **Plagiarism detection**: Content matching against existing web corpus (Copyscape, Turnitin).
+- **Style anomalies**: Sudden style change in author's corpus; co-author compromise.
+
+### SIEM Detection Rules
+- **Custom content analytics**: Per-author baseline; alert on deviation.
+
+## Defense Evasion Techniques
+
+### AI Content Stealth
+- **Humanize AI output**: Use Wordtune, Quillbot to add human-like variance.
+- **Mixed authorship**: Combine AI-generated sections with human-written sections; reduces perplexity anomaly.
+- **Style mimicry**: Train model on target author's corpus; mimic their style.
 
 ## References
 
