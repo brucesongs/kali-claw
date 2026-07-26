@@ -2,7 +2,7 @@
 name: network-sniffing-mitm
 description: "Network Sniffing and MITM attacks focus on intercepting, analyzing, and manipulating network traffic between two communicating parties."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 10
   guide_count: 3
   mitre: "TA0006-Credential Access"
+  last_reviewed: "2026-07-26"
 ---
 
 

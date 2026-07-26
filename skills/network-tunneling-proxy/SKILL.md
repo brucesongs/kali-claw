@@ -2,7 +2,7 @@
 name: network-tunneling-proxy
 description: "Network tunneling encapsulates one protocol inside another to bypass firewalls, evade detection, and route traffic through restricted networks."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 0
   guide_count: 8
   mitre: "TA0008-Lateral Movement"
+  last_reviewed: "2026-07-26"
 ---
 
 # Network Tunneling & Proxy
@@ -443,6 +444,33 @@ chmod +x tunnel_monitor.sh
 # Run in cron every 5 minutes
 # */5 * * * * /path/to/tunnel_monitor.sh >> /var/log/tunnel_monitor.log 2>&1
 ```
+
+## Detection Methods
+
+### Network Tunneling Detection
+- **DNS tunneling**: Long DNS queries (>50 chars), high-entropy subdomains, TXT record bursts (dnscat2/iodine signatures).
+- **ICMP tunneling**: Large ICMP echo payloads; ICMP packets with non-standard payload content.
+- **HTTPS to unfamiliar domains**: Long-lived HTTPS connections to unknown cloud endpoints.
+- **Protocol anomalies**: SSH over 443, HTTP/3 (QUIC) with high traffic volume to single destination.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns | where len(query) > 50 OR query matches "^[A-Za-z0-9+/=]{30,}\." | stats count by src_ip`
+- **Zeek (Bro)**: Custom scripts for tunneling signature detection.
+- **Firewall logging**: Connection duration >1 hour; alert on long-lived tunnels.
+
+## Defense Evasion Techniques
+
+### Tunneling Stealth
+- **Bandwidth-aware**: Pace tunneling below network baseline (e.g., 100 KB/hr); evades rate detection.
+- **Protocol mimicry**: Mimic legitimate HTTPS / DNS traffic patterns.
+- **Domain fronting**: Use legitimate CDN for tunnel endpoint; appears as legitimate CDN traffic.
+- **TLS fingerprint matching**: Use `curl-impersonate` to match real browser JA3/JA4 hashes.
+
+### Covert Channels
+- **WebSocket over HTTPS**: Persistent WebSocket connection; bypasses connection-counting rate limits.
+- **HTTP/3 (QUIC)**: Newer protocol; many monitoring tools don't decode yet.
+- **Cloud CDN abuse**: Route through Cloudflare / CloudFront; appears as legitimate traffic.
+- **Side-channel timing**: Encode data in inter-packet delays; hard to detect.
 
 ## Common Pitfalls
 

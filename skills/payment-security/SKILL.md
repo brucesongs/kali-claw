@@ -2,7 +2,7 @@
 name: payment-security
 description: "Payment systems security — PCI-DSS compliance testing, payment API security (Stripe/Adyen/PayPal), EMV chip/PIN, 3-D Secure, mobile wallets (Apple Pay/Google Pay), and fraud system assessment."
 origin: openclaw
-version: "0.1.29"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -30,6 +30,7 @@ metadata:
     - verifone
     - ingenico
     - fips-140
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -472,6 +473,35 @@ Goal: produce a deliverable that maps every finding to a PCI requirement.
 - Risk: Attacker can forge payment success notifications
 - Remediation: Verify Stripe-Signature on /webhooks/stripe with 5-min tolerance
 ```
+
+## Detection Methods
+
+### PCI-DSS Compliance Audit
+- **Cardholder data exposure**: PAN (Primary Account Number) appearing in logs; alert on regex `\b\d{13,19}\b`.
+- **TLS version**: TLS 1.0/1.1 still in use; non-compliance with PCI-DSS 3.2.1+.
+- **Encryption key rotation**: Keys not rotated per PCI-DSS schedule.
+- **Network segmentation**: Cardholder Data Environment (CDE) not isolated; alert on cross-segment traffic.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=app | regex message="\b\d{13,19}\b" | stats count by source`
+- **PCI scanner**: ASV (Approved Scanning Vendor) quarterly scans.
+
+## Defense Evasion Techniques
+
+### Card Data Theft Stealth
+- **Tokenization abuse**: Use legitimate payment token to bypass PAN scanning.
+- **Skimming stealth** (Magecart): Inject skimmer via compromised CDN; evade CSP.
+- **Slow exfiltration**: Pace exfil below baseline; <100 cards/day.
+
+### Payment Fraud Stealth
+- **Use legitimate merchant account**: Compromise legitimate merchant; appears as legitimate transaction.
+- **Test cards first**: Use BIN test cards to validate fraud logic before mass fraud.
+- **Off-hours fraud**: Execute fraud during low-activity hours; less monitoring.
+
+### CDE Lateral Movement
+- **Use PCI-exempt paths**: Move laterally via paths not subject to PCI monitoring (mgmt VLAN).
+- **Compromise jump host**: Pivot through jump host that has CDE access; appears as legitimate admin.
+- **Memory-only card capture**: Capture card data from process memory; no disk writes.
 
 ## Safety Notes
 

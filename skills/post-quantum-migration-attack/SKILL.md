@@ -2,7 +2,7 @@
 name: post-quantum-migration-attack
 description: Attacks against cryptographic systems during the PQC migration period. Covers Harvest-Now-Decrypt-Later (SNDL/HNDL), hybrid PQC downgrade abuse, KEM combiner flaws, mixed-protocol failures, NIST PQC standard implementations (ML-KEM/Kyber, ML-DSA/Dilithium, SLH-DSA/SPHINCS+), and QKD infrastructure attacks. Use when reviewing cryptographic agility, hybrid deployments, or preparing for quantum threat readiness.
 origin: kali-claw
-version: 0.1.41
+version: "0.2.0.2"
 compatibility:
   - kali-linux-2025-2-arm64
   - python-3.11+
@@ -31,6 +31,7 @@ metadata:
   tool_count: 17
   guide_count: 2
   mitre: "TA0006-Credential Access, TA0010-Exfiltration, TA0040-Impact, T1552, T1041, T1565, T1020"
+  last_reviewed: "2026-07-26"
 ---
 
 # Post-Quantum Migration Attack
@@ -445,6 +446,34 @@ Key defensive controls:
 | PII / PHI | 2030 | 10-year regulatory retention |
 | Financial | 2032 | Compliance + fraud window |
 | Ephemeral | 2035 | Short-lived data |
+
+## Detection Methods
+
+### PQC Migration Audit
+- **Hybrid TLS detection**: TLS handshakes using both classical and PQC algorithms; alert on unexpected configurations.
+- **Algorithm downgrade**: PQC algorithm downgraded to classical; classical algorithm with weak key.
+- **Certificate anomalies**: Certificate chain with mix of RSA/ECDSA and PQC signatures.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=tls | where tls_version matches "TLSv1.3" AND cipher matches ".*Kyber.*" | stats count by client`
+- **Custom monitoring**: TLS handshake analysis for PQC algorithm usage.
+
+## Defense Evasion Techniques
+
+### HNDL/SNDL (Harvest Now, Decrypt Later) Stealth
+- **Passive capture only**: Don't trigger any alerts; just record encrypted traffic.
+- **Long-term storage**: Store encrypted traffic indefinitely; wait for quantum computer availability.
+- **Distribute storage**: Spread storage across multiple systems; reduces per-system anomaly.
+
+### Hybrid PQC Downgrade
+- **Force classical fallback**: If server supports both classical and PQC, force classical via manipulation.
+- **Exploit KEM combiner flaws**: Some hybrid implementations use weak combiner (XOR vs HKDF).
+- **Side-channel on Kyber**: RowHammer / EM / timing attacks on Kyber implementation.
+
+### QKD (Quantum Key Distribution) Attack
+- **Detector blinding**: Blind single-photon detector; forces predictable response.
+- **Photon-number-splitting (PNS)**: Exploit weak coherent photon source; split off one photon.
+- **Trusted node compromise**: QKD networks with trusted nodes; compromise node to break key exchange.
 
 ## References
 

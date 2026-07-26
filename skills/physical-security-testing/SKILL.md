@@ -2,7 +2,7 @@
 name: physical-security-testing
 description: Physical penetration testing covering mechanical lock bypass (pin-tubular/wafer), RFID/NFC badge cloning (Proxmark3/ESP-RFID-Tool/Walrus), HID iCLASS/Mifare duplication, drop box deployment (LAN Turtle/Packet Squirrel), USB weapons (Rubber Ducky/Bash Bunny), hidden camera placement, and on-site engagement operations including tailgating pretext preparation and physical-docs legal templates.
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 1
   mitre: "TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -764,6 +765,34 @@ cat > badge_audit_report.md <<EOF
 5. Quarterly badge audit; annual external physical pentest
 EOF
 ```
+
+## Detection Methods
+
+### Physical Security Audit
+- **Badge access anomalies**: Badge used at unusual hours; tailgating detection via camera AI.
+- **Door prop alarms**: Door held open >30 seconds; physical security control bypass.
+- **Visitor logs**: Visitor in restricted area without escort; mismatch between visitor log and camera.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=badge sourcetype=access_control | stats count by user, location | where count > 10`
+- **Genetec / Avigilon / LenelS2**: Physical access control system (PACS) logging.
+
+## Defense Evasion Techniques
+
+### Tailgating / Piggybacking
+- **Act like employee**: Carry coffee / box / phone; pretend busy.
+- **Pretend lost access card**: Ask employee to badge you in; social engineering.
+- **Use cigarette break timing**: Join group of smokers entering building; blend.
+
+### Lock Picking Stealth
+- **Off-hours operation**: Pick locks at night; fewer witnesses.
+- **Mimic legitimate contractor**: Wear high-vis vest; carry toolbox.
+- **Use bump keys over picks**: Faster, less suspicious motion than picking.
+
+### RFID / NFC Cloning Stealth
+- **Single read**: Read badge once; replay at opportune moment.
+- **Long-range reader**: Use long-range HF/UHF reader; read badge from 1+ meter.
+- **Off-hours badge replay**: Replay cloned badge during business hours; appears as legitimate entry.
 
 ## Safety Notes
 
