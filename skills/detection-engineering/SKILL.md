@@ -2,7 +2,7 @@
 name: detection-engineering
 description: Detection-as-code engineering covering Sigma rule authoring, YARA signature development, Splunk SPL / Kusto KQL / Elastic EQL queries, MITRE ATT&CK mapping, detection CI/CD pipelines, false-positive tuning, and rule testing against EVTX-ATTACK-SAMPLES — using SigmaHQ, Yara-Rules, Loki, yarGen, hayabusa, SigmaCLI, and zircollo.
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.30"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -697,6 +698,39 @@ git commit -m "chore(detection): retire old-ransom-family rule (silent 24m+)"
 # Coverage layer regenerates on next CI run; the technique may now show
 # as partially covered (if other rules cover it) or uncovered.
 ```
+
+## Detection Methods
+
+### Detection Engineering Quality Metrics
+- **Rule precision**: (True Positives) / (True Positives + False Positives); target >80%.
+- **Rule recall**: (True Positives) / (True Positives + False Negatives); target >70%.
+- **Mean Time to Detect (MTTD)**: Target <5 minutes for critical detections.
+- **Coverage gaps**: MITRE ATT&CK techniques with no detection rules.
+
+### Detection Rule Validation
+- **Unit testing**: Sigma rule validation via `sigma-cli`; log signature matching.
+- **Atomic Red Team**: Atomic tests for detection validation.
+- **CALDERA / Atomic Red Team / Red Canary Atomic**: Adversary emulation for detection testing.
+- **MITRE ATT&CK Evaluations**: Industry-standard detection platform evaluations.
+
+## Defense Evasion Techniques
+
+### Bypass Detection Engineering
+- **Use uncovered techniques**: Target MITRE ATT&CK techniques with no detection rules.
+- **Timing**: Execute slowly enough to fall below detection threshold.
+- **Living off the Land**: Use legitimate admin tools (PowerShell, WMI, PsExec); blends with admin activity.
+- **Time-shifted attacks**: Execute during SOC off-hours (nights, weekends).
+
+### Defense Evasion Specific Techniques
+- **Obfuscate signatures**: Modify malware signatures to evade YARA rules.
+- **Code signing abuse**: Use stolen/leaked code signing certificates; appears legitimate.
+- **Process injection**: Inject into legitimate process; inherits its identity and trust.
+- **AMSI/ETW bypass**: Disable Windows anti-malware telemetry before payload execution.
+
+### SIEM/Logging Blind Spots
+- **Log source gaps**: Operate on systems without log forwarding (legacy apps, IoT devices).
+- **Log tampering**: Compromise log forwarder; selectively drop entries.
+- **Volume-based DoS**: Flood SIEM with noise; bury real alerts.
 
 ## Cross-References
 

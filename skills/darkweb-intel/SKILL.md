@@ -2,7 +2,7 @@
 name: darkweb-intel
 description: "Dark web intelligence gathering — Tor/onion service reconnaissance, marketplace monitoring, breach data markets, threat actor profiling, with strict OPSEC for investigators."
 origin: openclaw
-version: "0.1.29"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -30,6 +30,7 @@ metadata:
     - tails
     - breach-forum
     - opsec
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -548,6 +549,33 @@ gpg --list-keys <persona_pgp_fingerprint>
 - **Investigator safety**: If during an investigation you encounter credible threats of physical harm, or content that triggers mandatory reporting (CSAM), stop, document, and contact the appropriate authorities. Do not attempt to handle in-channel.
 - **Authorization scope**: A pentest engagement authorizes the target organization's systems. It does *not* authorize purchasing stolen data about the client from a marketplace, even with the client's nominal consent — that can be trafficking in stolen property.
 - **Data minimization**: Dark-net artifacts (screenshots, PGP keys, wallet addresses) are sensitive. Encrypt at rest (`gpg --symmetric --cipher-algo AES256`), restrict access, and securely delete (`shred -uvz`) when the engagement closes.
+
+## Detection Methods
+
+### Dark Web Monitoring
+- **Credential leak detection**: Services like SpyCloud, HaveIBeenPwned, IntelX alert when org credentials appear in dark web dumps.
+- **Mention monitoring**: Brand keywords (company name, executive names, product codenames) appearing on dark web forums.
+- **Stolen data marketplaces**: New dataset listings matching org's data fingerprint.
+- **Ransomware leak sites**: New entries on ransomware gang blogs matching org's data.
+
+### SIEM Detection Rules
+- **Splunk SPL**: Correlate internal auth events with dark web credential dumps via threat intel feeds.
+- **Recorded Future / Flashpoint**: Dark web threat intelligence platform alerts.
+- **ZeroFox / LookingGlass**: Brand protection and dark web monitoring services.
+
+## Defense Evasion Techniques
+
+### Source Concealment
+- **Tor + VPN chain**: Tor circuit exit to VPN; masks Tor usage from network monitoring.
+- **Bridge relays**: Use Tor bridges (obfs4, Snowflake) to bypass Tor blocking.
+- **I2P / Freenet**: Alternative darknets for monitoring beyond Tor.
+- **Forum burners**: Unique credentials for each dark web forum; rotate regularly.
+
+### Detection Evasion
+- **Time-shifted monitoring**: Slow, distributed reads of forum data; avoids burst detection.
+- **Avoid direct contact**: Use OSINT aggregators (IntelX, Ahmia) rather than direct forum access.
+- **Mimic legitimate researcher**: Use academic / journalist credentials; access appears legitimate.
+- **Cryptocurrency mixers**: Use Monero or Bitcoin mixers for paid access; avoid address correlation.
 
 ## Hacker Laws
 

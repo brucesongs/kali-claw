@@ -2,7 +2,7 @@
 name: data-scraper-agent
 description: "Automated data collection from structured sources: CVE databases, threat intelligence feeds, exploit databases, and security advisories. Transform unstructured web data into structured knowledge units."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: research
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -131,6 +132,39 @@ Automated data collection from structured sources: CVE databases, threat intelli
 - Monitor ingestion lag: time between source publication and local availability. Flag sources where lag exceeds threshold.
 - Log schema validation failures per source — rising failure rates signal upstream format changes.
 - Emit structured metrics (source, records_fetched, records_parsed, records_loaded, errors) for dashboard visualization.
+
+## Detection Methods
+
+### Bot Detection (Defender Side)
+- **Browser fingerprint anomalies**: Headless Chrome signatures, missing plugins, WebDriver flag.
+- **Behavioral patterns**: Linear mouse paths, instant page transitions, no scrolling jitter.
+- **Rate patterns**: Request rate exceeding human baseline (>10 req/sec sustained).
+- **TLS fingerprint**: JA3/JA4 mismatches; curl/Python signatures vs browser.
+
+### SIEM Detection Rules
+- **Cloudflare Bot Management**: ML-based bot scoring.
+- **Akamai Bot Manager**: Behavioral fingerprinting.
+- **PerimeterX / DataDome**: Real-time bot detection.
+
+## Defense Evasion Techniques
+
+### Stealth Automation
+- **puppeteer-extra-stealth**: Removes WebDriver signature.
+- **undetected-chromedriver**: Patches ChromeDriver to bypass detection.
+- **Real browser binaries**: Use real Chrome/Firefox (not headless); slower but stealthier.
+- **Camoufox**: Firefox fork with built-in fingerprint randomization.
+- **Realistic timing**: Add jitter to mouse movements; random delays between actions.
+
+### Network Stealth
+- **Residential proxies**: Bright Data, Smartproxy; mimics real user IPs.
+- **Mobile carrier proxies**: 4G/5G IPs; harder to block (legitimate user pattern).
+- **IP rotation**: Rotate per session; avoid single-IP burst.
+- **TLS fingerprint matching**: `curl-impersonate` to match real browser JA3.
+
+### Behavioral Mimicry
+- **Human-like navigation**: Visit home page → category → product (don't deep-link directly).
+- **Referrer chains**: Use search engine referrer to look organic.
+- **Mouse movement**: Bezier curve mouse paths with jitter.
 
 ## Integration
 

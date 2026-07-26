@@ -2,7 +2,7 @@
 name: deep-research
 description: "Multi-source intelligence gathering through systematic web research — producing thorough, cited reports from diverse sources."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: research
   tool_count: 0
   guide_count: 6
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -418,6 +419,29 @@ Searched [N] queries across [engines used].
 Analyzed [M] sources in depth.
 Sub-questions investigated: [list]
 ```
+
+## Detection Methods
+
+### Research Activity Patterns
+- **Mass query patterns**: Single source executing thousands of queries across many databases.
+- **Cross-source correlation**: Aggregating data from disparate sources (typical OSINT recon signature).
+- **Off-hours research**: Bulk research during low-traffic hours.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=research sourcetype=query | stats dc(source_db) as src_count by user | where src_count > 10`
+- **Threat intel platform**: Recorded Future / Maltego usage logging.
+
+## Defense Evasion Techniques
+
+### Distributed Research
+- **Spread across accounts**: Use multiple accounts to avoid per-account rate limits.
+- **Distributed timing**: Pace queries over long period; below baseline.
+- **Use sanctioned tools**: Subscribe to legitimate threat intel platforms (Recorded Future, Mandiant); appears as normal analyst work.
+
+### Source Concealment
+- **Tor + VPN chain**: Anonymize research source.
+- **Residential proxies**: Mimic real user IPs.
+- **Cached research**: Cache results; avoid re-querying same data.
 
 ## Hacker Laws
 
