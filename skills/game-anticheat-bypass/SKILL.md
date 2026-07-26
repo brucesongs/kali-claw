@@ -2,7 +2,7 @@
 name: game-anticheat-bypass
 description: "Security research on game anti-cheat systems (EAC/BattlEye/Vanguard/Ricochet) — kernel-mode driver architecture, BYOVD attacks, memory access interception, integrity check evasion, and defense-side anti-cheat engineering."
 origin: github-trending-2026
-version: "1.0.0"
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - agent-sdk
@@ -33,6 +33,7 @@ metadata:
     - cheat-engine
     - scyllahide
     - reclass
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: Game Anti-Cheat Bypass (Security Research)
@@ -233,6 +234,42 @@ This domain is unique within the workspace:
 No other skill in the workspace covers the anti-cheat ecosystem, BYOVD methodology, or detection engineering guidance specific to game security.
 
 ---
+
+## Detection Methods
+
+### Anti-Cheat Telemetry
+- **Process anomalies**: Unknown process reading game memory (signature injection).
+- **API hooking**: Game function prologue modified (signature of inline hooks).
+- **Driver loaded**: Unauthorized kernel driver loaded (signature of BYOVD).
+- **Network anomalies**: Game client connecting to non-game server (C2 signature).
+
+### SIEM Detection Rules
+- **EAC (Easy Anti-Cheat)**: Kernel-mode telemetry; signature + behavioral detection.
+- **BattlEye**: Client-side + server-side validation.
+- **Vanguard (Riot)**: Boot-time driver; deep system integrity check.
+- **VAC (Valve)**: Server-side statistical detection.
+
+## Defense Evasion Techniques
+
+### User-Mode Stealth
+- **Direct syscalls**: Bypass user-mode hooks (SysWhispers, HellsGate).
+- **Hardware breakpoints**: Use DR0-DR3 for stealth hooks; not in process memory.
+- **Process hollowing**: Inject into legitimate process; inherits anti-cheat whitelist.
+
+### Kernel-Mode Stealth
+- **BYOVD (Bring Your Own Vulnerable Driver)**: Load vulnerable signed driver (`RTCore64.sys`); gain kernel R/W.
+- **DKOM (Direct Kernel Object Manipulation)**: Hide process from anti-cheat enumeration.
+- **Callback removal**: Remove `PsSetCreateProcessNotifyRoutine` callbacks; blind anti-cheat.
+
+### Network-Level Evasion
+- **Local proxy**: Route game traffic through local proxy; manipulate packets client-side.
+- **Man-in-the-middle**: MITM between client and server; modify game state.
+- **Server-side emulation**: Use private server; full control of game state.
+
+### Anti-Cheat Bypass Techniques
+- **AMSI/ETW bypass**: Disable Windows telemetry before payload execution.
+- **Sleep obfuscation**: Encrypt memory during sleep (Ekko, Foliage); evade memory scanners.
+- **Module stomping**: Load legitimate DLL, overwrite with payload; appears as legitimate module.
 
 ## References
 

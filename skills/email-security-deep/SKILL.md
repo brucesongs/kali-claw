@@ -2,7 +2,7 @@
 name: email-security-deep
 description: Phishing infrastructure and email gateway bypass covering AiTM MFA interception (evilginx2/modlishka/evilgophish), campaign platforms (gophish/King-Phisher), enterprise gateway evasion (Proofpoint/Mimecast/Cisco ESA/Microsoft Defender for Office), email bombing/DoS, sender reputation engineering, and full-stack campaign operations including landing pages, payload staging, and post-click telemetry — complementary to email-protocol-attack which handles protocol-level forgery.
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -316,6 +317,35 @@ python3 email_bomber.py \
 | **Anomalous-session detection** | UEBA / Azure AD Identity Protection — flag sessions from new geos, impossible travel, or non-compliant IP even when the cookie is "valid". | HIGH |
 | **Email-bomb rate limiting** | Gateway-side per-recipient rate limit (e.g., max 10 msgs/min to single inbox from external senders); auto-quarantine floods. | MEDIUM |
 | **Out-of-band verification for credential entry** | Any "reset password" / "verify login" flow that arrives via email should require a second channel (push to known device, callback to known number). | HIGH |
+
+## Detection Methods
+
+### Advanced Email Threats
+- **AiTM (Adversary-in-the-Middle)**: Reverse proxy traffic to legitimate IdP (Modlishka, Evilginx).
+- **BEC patterns**: Executive impersonation + urgent wire transfer request.
+- **Quishing (QR phishing)**: QR codes in email body (bypasses URL scanners).
+- **Conversation hijacking**: Reply to existing thread with malicious link.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=email | where body matches "(wire transfer|CEO request|urgent)" | stats count by sender`
+- **SOAR playbooks**: Auto-disable user account after click on known-bad URL.
+- **Abnormal Security / Armorblox**: ML-based email security with BEC detection.
+
+## Defense Evasion Techniques
+
+### AiTM Phishing
+- **Modlishka / Evilginx / Muraena**: Reverse proxy to legitimate IdP; capture credentials + session cookies.
+- **Cloudflare Workers abuse**: Host phishing page on `*.workers.dev`; inherit Cloudflare reputation.
+- **Domain rotation**: Use many lookalike domains; rotate as detected.
+
+### Quishing Stealth
+- **QR code in image**: Bypasses email URL scanners (can't extract URL from image).
+- **QR code in attachment**: PDF attachment with QR code; some scanners don't extract from PDF.
+- **Redirect chain**: QR → legitimate URL → attacker-controlled redirect.
+
+### Thread Hijack
+- **Compromise one party**: Reply to legitimate thread with malicious content.
+- **Email rule creation**: Hide replies in custom folder; user doesn't see responses.
 
 ## Cross-References
 

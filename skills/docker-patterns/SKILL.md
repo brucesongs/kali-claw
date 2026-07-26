@@ -2,7 +2,7 @@
 name: docker-patterns
 description: "Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says \"lab\", \"docker lab."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: infrastructure
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -313,6 +314,31 @@ docker compose -f configs/docker-compose.dvwa.yml up -d
 # Stop and clean up
 docker compose -f configs/docker-compose.dvwa.yml down -v
 ```
+
+## Detection Methods
+
+### Docker Daemon Audit
+- **Anomalous docker commands**: `docker run --privileged`, `docker run -v /:/host` from non-CI sources.
+- **Container escape attempts**: Processes accessing `/proc/1/root`, `cgroup` manipulation from inside container.
+- **Privileged container abuse**: Syslog Event 1 for `dockerd` with `--privileged`; CAP_SYS_ADMIN use.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=docker command="run" | where match(args, "privileged|/etc:/etc|/var/run/docker.sock")`
+- **Falco rule**: `Launching privileged container` / `Container launched with host path mount`
+- **Sysdig Secure / Aqua**: Container runtime security platform detections.
+
+## Defense Evasion Techniques
+
+### Container Escape Stealth
+- **Use existing capabilities**: Don't escalate to privileged; abuse existing CAP_SYS_ADMIN if present.
+- **Sidecar injection**: Inject into existing pod rather than creating new container (Kubernetes).
+- **Mount docker socket**: Mount `/var/run/docker.sock` (often permitted in CI); spawn sibling container.
+- **Avoid syscall monitoring**: Use `memfd_create` for memory-only execution.
+
+### Image Stealth
+- **Cosign signature theft**: Steal signing key; sign malicious image as legitimate.
+- **Multi-layer obfuscation**: Hide payload in lower image layers; evade simple scanners.
+- **Admission controller bypass**: Modify MutatingWebhookConfiguration to allowlist malicious images.
 
 ## Anti-Patterns
 
