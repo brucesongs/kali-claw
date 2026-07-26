@@ -2,7 +2,7 @@
 name: voip-sip-attack
 description: "Voice over IP (VoIP) systems use the Session Initiation Protocol (SIP) for call signaling, the Real-time Transport Protocol (RTP) for media streaming, and the Inter-Asterisk eXchange protocol (IAX2) for alternative VoIP communication."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 3
   mitre: "TA0046-Initial Access"
+  last_reviewed: "2026-07-26"
 ---
 
 # VoIP/SIP Attack
@@ -164,6 +165,31 @@ Understanding VoIP attacks from the defender's viewpoint is essential for compre
 - Use SIP honeypots to detect reconnaissance of VoIP infrastructure.
 
 ---
+
+## Detection Methods
+
+### VoIP/SIP Audit
+- **Toll fraud**: International calls to high-cost destinations (premium rate numbers).
+- **REGISTER flood**: High rate of SIP REGISTER; brute force signature.
+- **INVITE flood**: High rate of SIP INVITE; telephony DoS.
+- **VRFY/OPTIONS scan**: Enumeration of SIP extensions.
+
+### SIEM Detection Rules
+- **Splunk SPL (SIP)**: `index=sip method="REGISTER" | stats count by src_ip | where count > 100`
+- **SIP firewall**: SIPVicious, sipsak for SIP scanning detection.
+- **PBX audit**: Asterisk / FreeSWITCH native logging.
+
+## Defense Evasion Techniques
+
+### SIP Attack Stealth
+- **Distribute REGISTER**: Spread across many source IPs; below per-IP rate limit.
+- **Slow & low**: Pace INVITE flood; below rate-based detection.
+- **Use legitimate user agents**: Mimic legitimate SIP UA header; bypasses simple filters.
+
+### Toll Fraud Stealth
+- **Small calls**: Many short calls (<30 seconds); below fraud threshold per call.
+- **Off-hours**: Call during low-traffic hours; less attention.
+- **Premium rate rotation**: Rotate through many premium numbers; below per-number alert.
 
 ## Common Pitfalls
 

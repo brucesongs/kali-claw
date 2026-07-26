@@ -2,7 +2,7 @@
 name: uav-drone-security
 description: UAV/drone security testing — PX4/ArduPilot autopilot attacks, MAVLink protocol fuzzing, RF link hijacking (2.4GHz control / 5.8GHz video), GPS spoofing/jamming, DroneSploit framework, DJI hardware reversing, and counter-UAS methodologies.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility: Claude Code, Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
@@ -12,6 +12,7 @@ metadata:
   guide_count: 1
   mitre: TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access
   keywords: [drone, uav, px4, ardupilot, mavlink, hackrf, dronesploit, djid, gps-spoofing, counter-uas, fpv, 5.8ghz]
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: UAV & Drone Security
@@ -277,6 +278,30 @@ msf auxiliary(heartbeat_scanner) > run
 | Firmware Update Hijack | Signed updates, attestation keys, secure boot on Pixhawk | High |
 | DroneID Privacy | Operate in test/research mode where legal; know that DroneID is always on | N/A |
 | CUAS Takeover (legal) | Federal authority only (DHS/DOJ/DoD); commercial CUAS systems are passive-only in the USA | N/A |
+
+## Detection Methods
+
+### UAV Communication Audit
+- **MAVLink anomalies**: Unauthorized commands to UAV; command injection signatures.
+- **GPS spoofing**: Position reports inconsistent with multiple receivers; receiver clock anomalies.
+- **DroneID anomalies**: Serial number mismatch; operator ID not in database.
+- **RF anomalies**: Unauthorized transmissions on 2.4 GHz / 5.8 GHz bands.
+
+### SIEM Detection Rules
+- **Splunk SPL (drone)**: `index=drone sourcetype=mavlink | where cmd != expected_cmd`
+- **Custom drone monitoring**: Per-vendor monitoring (DJI, Parrot, custom builds).
+
+## Defense Evasion Techniques
+
+### UAV Compromise Stealth
+- **Single-shot exploit**: One command injection per flight; below sustained-pattern detection.
+- **Use legitimate commands**: Inject commands within legitimate mission profile.
+- **Off-hours operation**: Execute during low-RF-activity hours.
+
+### GPS Spoofing Stealth
+- **Gradual drift**: Slowly drift spoofed position; avoids sudden jump detection.
+- **Match C/N0**: Match spoofed signal strength to expected.
+- **Single satellite spoofing**: Spoof only 1-2 satellites rather than full constellation.
 
 ## Differentiation
 

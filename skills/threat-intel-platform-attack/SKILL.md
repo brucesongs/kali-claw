@@ -2,7 +2,7 @@
 name: threat-intel-platform-attack
 description: Attacking threat intelligence platforms (MISP, OpenCTI, Anomali ThreatStream, ThreatQuotient, ThreatConnect, IBM Threat Intel, Palo Alto AutoFocus, Mandiant Advantage). Covers platform CVEs (MISP CVE-2022-29527, OpenCTI vulnerabilities), API abuse, sharing-group trust abuse, false-positive IOC injection, STIX/TAXII feed manipulation, and supply-chain attacks via poisoned TI feeds. Use when testing threat-intel platform security, validating IOC sharing trust models, or simulating APT feed-poisoning campaigns.
 origin: kali-claw
-version: 0.1.42
+version: "0.2.0.2"
 compatibility:
   - kali-linux-2025-2-arm64
   - python-3.11+
@@ -29,6 +29,7 @@ metadata:
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing"
+  last_reviewed: "2026-07-26"
 ---
 
 # Threat Intel Platform Attack
@@ -430,6 +431,29 @@ docker-compose up -d
 - [ ] Audit log immutability tested
 - [ ] Final report delivered
 - [ ] SOC handoff (detection rules)
+
+## Detection Methods
+
+### TIP Audit
+- **Indicator injection**: Anomalous IOC patterns; bulk IOCs from untrusted source.
+- **Feed anomalies**: New feed with anomalous pattern; degraded feed quality.
+- **Confidentiality breach**: TIP data exfiltration; sensitive indicators leaked.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=tip | stats count by source_feed | where count > 1000`
+- **Recorded Future / Anomali / MISP**: Native TIP audit logging.
+
+## Defense Evasion Techniques
+
+### TIP Compromise Stealth
+- **Use legitimate feed credentials**: Don't create new account; use existing service account.
+- **Off-hours access**: TIP activity often low at night; blend with maintenance.
+- **Mimic legitimate analyst**: Use natural-looking analyst workflows.
+
+### Indicator Injection Stealth
+- **Slow injection**: Add IOCs slowly over time; below distribution shift threshold.
+- **Match existing IOC format**: Use same IOC format as legitimate feed; reduces anomaly.
+- **Trigger-based activation**: Malicious IOC activates only when specific target queried.
 
 ## References
 

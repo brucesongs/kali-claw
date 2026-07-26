@@ -2,7 +2,7 @@
 name: search-first
 description: "Systematizes the \"search for existing tools, exploits, and techniques before writing custom ones\" workflow."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: workflow
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -147,6 +148,23 @@ msfconsole -x "search type:post name:<keyword>"
 - **With `security-bounty-hunter`**: Search for existing reports before hunting similar vulnerabilities
 - **With `terminal-ops`**: Execute found tools with evidence capture protocol
 - **With `osint`**: Combine OSINT gathering with tool search for comprehensive preparation
+
+## Detection Methods
+
+### Search Pattern Audit
+- **Anomalous query volume**: Single token consuming >10x typical search rate.
+- **Cross-domain correlation**: Aggregating data from many domains (OSINT signature).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=search | stats count by user | where count > 1000`
+
+## Defense Evasion Techniques
+
+### Stealth Search
+- **Distribute across accounts**: Use multiple tokens; below per-token limits.
+- **Slow & methodical**: Pace queries below anomaly threshold.
+- **Cache results**: Avoid re-querying same data.
+- **Mimic legitimate usage**: Use natural language queries matching typical patterns.
 
 ## Anti-Patterns
 

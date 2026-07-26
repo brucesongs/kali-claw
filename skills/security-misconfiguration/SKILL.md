@@ -2,7 +2,7 @@
 name: security-misconfiguration
 description: "Security misconfiguration detection (OWASP A02:2025) covering default credentials, unnecessary services, verbose errors, missing security headers, and directory listing exposures across deployed systems."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 8
   owasp: "A02:2025-Misconfiguration"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -45,8 +46,8 @@ Security Misconfiguration skill domain covering defense operations.
 
 Security misconfiguration detection (OWASP A02:2025) covering default credentials, unnecessary services, verbose errors, missing security headers, and directory listing exposures across deployed systems. Misconfigurations are the most common and easily overlooked vulnerability class — not a tool flaw but a deployment and maintenance failure that degrades overall security posture.
 
-**coreDetect领domain**:
-- **Default Credentials**: output厂defaultusernamepasswordnot modify（admin/admin、root/root、test/test）
+**coreDetect domain**:
+- **Default Credentials**: Default credentials not modified (admin/admin, root/root, test/test)
 - **Unnecessary Services**: productionenvironmentlegacydebugport、managementinterface、exampleapplication
 - **Verbose Errors**: stacktrackingleakagefilepath、databasetype、frameworkversion、SQL statement
 - **Missing Security Headers**: missing X-Frame-Options、CSP、HSTS、X-Content-Type-Options etc.criticalprotectionhead
@@ -57,10 +58,10 @@ Security misconfiguration detection (OWASP A02:2025) covering default credential
 ## Use Cases / Use Cases
 
 1. **Web applicationpenetration testing** - fortargetperformcomprehensive configurationsecurity audit，discoveryexposure managementinterface、defaultinstallpage、sensitivefile
-2. **basic facilitysecurity assessment** - Detectserveronrun 冗余service、openport、defaultconfiguration
+2. **Basic infrastructure security assessment** - Detect redundant services, open ports, default configuration
 3. **TLS/SSL security audit** - assessmentcertificateconfiguration、protocolversion、passwordsetpiecestrongdegree
 4. **cloudresourceconfigurationreview** - check S3 Bucket publicaccess、IAM policyoveratlenient、security grouprulenotwhen
-5. **complianceitycheck** - for照 CIS Benchmark、OWASP ASVS etc.standardverifyconfigurationcompliance
+5. **Compliance check** - Verify configuration against CIS Benchmark, OWASP ASVS standards
 
 ---
 
@@ -74,7 +75,7 @@ Security misconfiguration detection (OWASP A02:2025) covering default credential
 | **Burp Suite** | HTTP Header analysis、responsecheck、Scanner module | Proxy intercept -> check Response Headers -> Scanner maindynamicScan |
 | **WhatWeb** | Web techniquefingerprinting、frameworkversionDetect | `whatweb -v http://target` |
 
-auxiliaryTool: **curl**（manual Header check）、**Gobuster**（directory/file暴powerdiscovery）、**Dirsearch**（directoryEnumerate）、**Hydra**（defaultcredentialsbrute force）、**ScoutSuite**（cloudconfigurationaudit）。
+Auxiliary tools: **curl** (manual header check), **Gobuster** (directory/file brute-force discovery), **Dirsearch** (directory enumeration), **Hydra** (default credential brute force), **ScoutSuite** (cloud configuration audit).
 
 ---
 
@@ -135,6 +136,19 @@ Detectdirectorylistenablesituation，discoveryversioncontrolfileandenvironmentco
 
 ---
 
+
+## Defense Evasion Techniques
+
+### Misconfiguration Exploitation Stealth
+- **Use legitimate features**: Many misconfigs are legitimate features (e.g., public S3 for static hosting).
+- **Off-hours abuse**: Exploit during low-traffic hours; less monitoring attention.
+- **Distribute exploitation**: Spread across many accounts/sessions.
+
+### Detection Bypass
+- **CSPM rule exemptions**: Apply exemption tag (`CSPM-Exempt: true`); respected by some CSPM tools.
+- **Use existing compliant resources**: Don't create new public bucket; abuse existing misconfigured one.
+- **Cross-account resource sharing**: Share resource to attacker account via legitimate mechanism.
+
 ## Automation and Scripting
 
 Automated misconfiguration scanning should be integrated into CI/CD pipelines to catch regressions before deployment. Shell scripts wrapping Nikto, testssl.sh, and curl header checks can produce machine-readable JSON reports that trigger failures on missing security headers or weak TLS configurations. Nuclei templates provide a continuously updated library of misconfiguration detection patterns, enabling efficient batch scanning across large inventories of targets.
@@ -151,11 +165,11 @@ Effective misconfiguration detection combines active probing with passive analys
 
 ## Hacker Laws / Hacker Laws
 
-1. **Obscurity Is Not Security (obfuscationnotissecurity )** -- hidemanagemententry point、usenon-standardport、notexposureversionnumberandnotcanblockattacker。真正 security from correct configurationandeffective accesscontrol，andnon依靠attackerfindnottotarget。any exposureinnetworkon serviceallwillbyautomated Scantooldiscovery。
+1. **Obscurity Is Not Security** -- hiding management endpoints, using non-standard ports, not exposing version numbers cannot block attackers. Real security comes from correct configuration and effective access control, not relying on attackers being unable to find the target. Any exposed service on the network will be discovered by automated scanning tools.
 
-2. **Minimize Attack Surface (minimumizeattack surface)** -- eachaopenport、eacharunservice、eachainstall componentallis潜inattack surface。deletenotnecessarysuccesscan、disablenot useport、uninstallexampleapplication -- attack surface越small，security risk越low。security configuration coretheniscontinuousreduceattack surface。
+2. **Minimize Attack Surface** -- every open port, running service, installed component is potential attack surface. Delete unnecessary functions, disable unused ports, uninstall sample applications -- the smaller the attack surface, the lower the security risk. Core of security configuration is continuously reducing attack surface.
 
-3. **Defense in Depth (defense in depth)** -- notcanonlydependencysomealayerconfiguration。HSTS preventdowngradelevel、CSP limitationscriptexecute、X-Frame-Options blockclickjacking、WAF providesadditionalfilter -- eachalayerallisitsotherlayer backup。whensomealayerconfiguration失误when ，itsotherlayer仍canprovidesprotect。
+3. **Defense in Depth** -- cannot rely on only one layer of configuration. HSTS prevents downgrade, CSP limits script execution, X-Frame-Options blocks clickjacking, WAF provides additional filtering -- each layer backs up the others. When one layer is misconfigured, other layers still provide protection.
 
 ---
 
@@ -170,7 +184,7 @@ Effective misconfiguration detection combines active probing with passive analys
  **External Resources**:
  - [OWASP Top 10 - A02:2025 Security Misconfiguration](https://owasp.org/Top10/A02_2021-Security_Misconfiguration/)
  - [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)
- - [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/) -- operationsystemandinintervalpiecehardeningbase准
+ - [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks/) -- OS and middleware hardening baseline
  - [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/) -- TLS bestpracticeconfigurationgeneratetool
  - [SecurityHeaders.com](https://securityheaders.com/) -- online HTTP security Header Detect
  - [HackTricks - Pentesting Methodology](https://book.hacktricks.xyz/pentesting-web/pentesting-web)

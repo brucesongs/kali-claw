@@ -2,7 +2,7 @@
 name: sdr-rf-attack
 description: "Software Defined Radio and RF signal attacks encompass a broad range of offensive techniques targeting wireless communication systems."
 origin: openclaw
-version: "0.1.21"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: security
   tool_count: 7
   guide_count: 8
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -359,3 +360,27 @@ Operating SDR equipment for security assessment requires awareness of applicable
 - **European Union**: ETSI standards and national telecommunications laws apply. GDPR may apply to intercepted personal data.
 - **United Kingdom**: Wireless Telegraphy Act and Computer Misuse Act govern SDR operations. RIPA covers interception.
 - **Australia**: Radiocommunications Act and Telecommunications (Interception and Access) Act apply.
+## Detection Methods
+
+### RF Spectrum Monitoring
+- **Unauthorized transmissions**: Transmit on licensed frequencies without authorization.
+- **ADS-B anomalies** (1090 MHz): Aircraft position reports with impossible geometry.
+- **POCSAG pager anomalies**: Pager messages with malformed capcodes.
+- **AIS anomalies** (marine VHF): Ship position reports with impossible speed.
+
+### SIEM Detection Rules
+- **Splunk SPL (RF)**: `index=rf | where freq_band="1090MHz" AND speed > 1500`
+- **SDR monitoring**: Continuous spectrum recording; alert on reserved-band transmissions.
+
+## Defense Evasion Techniques
+
+### Transmission Stealth
+- **Low power**: Use minimum TX power; reduces detection range.
+- **Brief transmissions**: <5 second bursts; below triangulation threshold.
+- **Frequency hopping**: Spread across many channels; per-channel threshold not exceeded.
+- **Directional antennas**: Limit RF footprint to target only.
+
+### ADS-B Spoofing Stealth
+- **Match legitimate aircraft**: Use real Mode S address; mimic flight profile.
+- **Gradual drift**: Slowly drift spoofed position; avoids sudden jump detection.
+

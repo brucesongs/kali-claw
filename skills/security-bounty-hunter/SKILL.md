@@ -2,7 +2,7 @@
 name: security-bounty-hunter
 description: "Hunt for exploitable, bounty-worthy security issues in target systems. Focuses on remotely reachable vulnerabilities that qualify for real reports and responsible disclosure, not broad best-practices reviews or theoretical findings."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: assessment
   tool_count: 0
   guide_count: 8
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -161,6 +162,23 @@ Draft a clear, reproducible report.
 ## Suggested Remediation
 [How to fix it]
 ```
+
+## Detection Methods
+
+### Bug Bounty Program Audit
+- **Out-of-scope reports**: Reports for assets not in scope.
+- **Duplicate rate**: >50% duplicates suggests poor target selection.
+- **Report quality metrics**: CVSS accuracy, reproduction clarity, remediation actionability.
+
+### SIEM Detection Rules
+- **Custom tracking**: HackerOne / Bugcrowd integration for finding lifecycle.
+
+## Defense Evasion Techniques
+
+### Operational Security for Hunters
+- **Stay in scope**: Don't access systems outside bug bounty scope; preserves legal protection.
+- **Don't exfiltrate data**: Show only screenshots/PoCs; don't dump databases.
+- **Responsible disclosure**: Don't publish before fix deployed.
 
 ## Orchestration
 

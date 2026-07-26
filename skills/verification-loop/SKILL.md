@@ -2,7 +2,7 @@
 name: verification-loop
 description: "After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says \"verify\", \"confirm\", \"validate."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: workflow
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -236,6 +237,23 @@ Phase 6: Document: PATCHED / PARTIALLY PATCHED / NOT PATCHED
 | PARTIALLY CONFIRMED | Document what works and what doesn't, adjust severity |
 | NOT CONFIRMED | Do NOT include in report, investigate why the original finding appeared |
 | INCONCLUSIVE | Flag for manual review, document all evidence collected |
+
+## Detection Methods
+
+### Verification Loop Audit
+- **Verification coverage**: What % of findings are independently verified.
+- **False positive rate**: <5% of verified findings are false positives.
+- **Re-test rate**: Verified findings re-tested after fix.
+
+### SIEM Detection Rules
+- **Custom tracking**: Verification status in finding lifecycle.
+
+## Defense Evasion Techniques
+
+### Verification Bypass
+- **Provide PoC videos**: Hard to verify independently; reduced scrutiny.
+- **Provide partial reproduction**: Some conditions for reproduction not documented.
+- **Claim environmental dependency**: "Only reproduces in target environment"; avoids independent verification.
 
 ## Anti-Patterns
 

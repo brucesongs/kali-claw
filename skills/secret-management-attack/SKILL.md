@@ -2,7 +2,7 @@
 name: secret-management-attack
 description: Secret discovery, SAST code audit, and secrets-management platform attack covering gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, and cariddi — including HashiCorp Vault exploitation (auth methods, secrets engines, policies, response-wrap hijacking, SSRF), AWS KMS key policy abuse, GCP KMS IAM escalation, Azure Key Vault access policy review, BYOK/HYOK attacks, Kyverno/external-secrets/secrets-store-csi-driver misconfig hunting, hardcoded credential discovery, secret rotation abuse, and CI/CD pipeline secret theft.
 origin: github-trending-2026
-version: 0.1.30
+version: "0.2.0.2"
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 3
   mitre: "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -461,6 +462,30 @@ Goal: assemble a blast-radius graph and rotation-status table.
 | Vault s.xxxx | CI runner env | yes | platform-team | pending | NOT ROTATED |
 | Stripe sk_live_ | mobile APK | yes | payments-team | 1 day ago | rotated |
 ```
+
+## Detection Methods
+
+### Secret Manager Audit
+- **AWS Secrets Manager**: `GetSecretValue` spike; cross-service secret access.
+- **HashiCorp Vault**: Vault audit log; new auth method added; token creation anomalies.
+- **Azure Key Vault**: Key vault access from new identity; bulk secret reads.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=secrets | stats count by identity | where count > 100`
+- **Vault audit**: Native Vault audit device; SIEM integration.
+- **AWS CloudTrail**: Alert on `secretsmanager:GetSecretValue` from new ARN.
+
+## Defense Evasion Techniques
+
+### Secret Theft Stealth
+- **Use legitimate service identity**: Don't create new identity; use existing service account.
+- **Off-hours access**: Access secrets during low-activity hours.
+- **Distribute reads**: Spread reads across time; below baseline anomaly.
+
+### Vault Compromise Stealth
+- **Use existing auth methods**: Don't create new auth method; use existing one.
+- **Use orphan tokens**: Some Vault tokens have no TTL; reuse indefinitely.
+- **Response wrapping abuse**: Use wrapping tokens to exfil secrets in transit.
 
 ## Safety Notes
 

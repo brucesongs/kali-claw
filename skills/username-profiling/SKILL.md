@@ -2,7 +2,7 @@
 name: username-profiling
 description: "Build a complete dossier on a person using only a username."
 origin: openclaw
-version: "0.1.28"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -31,6 +31,7 @@ metadata:
     - cross-platform
     - breach-correlation
     - pivot
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -478,6 +479,25 @@ Maigret supports seven report formats — choose based on the audience.
 - Rotate proxies between usernames to avoid fingerprinting.
 - For `.onion` and `.i2p` targets, Tor/I2P is mandatory, not optional.
 - `--timeout 30 --retries 2` over Tor — slower but more reliable.
+
+## Detection Methods
+
+### Username Enumeration Detection
+- **Profile scraping patterns**: LinkedIn / Twitter / Instagram mass profile reads.
+- **Reverse username lookup**: Spike in API calls to username lookup services.
+- **Cross-platform correlation**: Same username queried across many platforms.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=social | stats count by query | where count > 100`
+- **Maigret / Sherlock audit**: Detect execution of username enumeration tools.
+
+## Defense Evasion Techniques
+
+### Username Enumeration Stealth
+- **Distribute across platforms**: Pace enumeration; below per-platform rate limit.
+- **Use sanctioned APIs**: Twitter/X API over web scraping.
+- **Off-hours operation**: Enumerate during low-traffic hours.
+- **Browser fingerprint rotation**: Rotate User-Agent to evade per-UA rate limit.
 
 ## Safety Notes
 

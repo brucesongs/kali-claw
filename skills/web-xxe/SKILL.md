@@ -2,7 +2,7 @@
 name: web-xxe
 description: "XML External Entity (XXE) injection exploits vulnerable XML parsers to read local files, initiate SSRF attacks, exfiltrate data through out-of-band channels, and cause denial of service."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 3
   owasp: "A05:2021-Security Misconfiguration"
+  last_reviewed: "2026-07-26"
 ---
 
 

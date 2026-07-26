@@ -2,7 +2,7 @@
 name: terminal-ops
 description: "Evidence-first execution workflow for running security commands, inspecting system state, debugging tool failures, and making verified changes. This skill enforces a disciplined approach: inspect before acting, keep changes narrow, and report exact execution state."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: workflow
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -151,6 +152,31 @@ STATUS
 FILES
 - [any output files generated]
 ```
+
+## Detection Methods
+
+### Terminal Activity Audit
+- **Anomalous command sequences**: Commands typical of attacker recon (whoami, uname, id in sequence).
+- **Privilege escalation patterns**: Sudo attempts; SUID binary execution.
+- **Persistence signatures**: Crontab modification; service creation.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | search a0 IN ("whoami","uname","id")`
+- **auditd rules**: Per-syscall auditing.
+- **Sysmon for Linux**: Process creation logging.
+
+## Defense Evasion Techniques
+
+### Shell Stealth
+- **Avoid history**: Use leading space (`command`) for commands not recorded in history.
+- **History modification**: Modify `~/.bash_history` after operations.
+- **Use script**: Use `script` command to record session; appears as legitimate admin activity.
+- **Custom shell**: Use `nsh` or custom binary; not in auditd whitelist.
+
+### Process Stealth
+- **Rename binary**: Rename `nmap` to `network_check`; evades process-name detection.
+- **Use absolute paths**: `/tmp/.cache/nmap` over `nmap`; doesn't trigger PATH-based audit.
+- **Process injection**: Inject into legitimate process (e.g., sshd, systemd); inherits trust.
 
 ## Orchestration
 
