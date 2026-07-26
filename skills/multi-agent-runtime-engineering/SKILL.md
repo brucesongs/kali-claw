@@ -2,7 +2,7 @@
 name: multi-agent-runtime-engineering
 description: Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three招 (扫地僧, CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.
 origin: kali-claw Wave 12 (v0.1.45) — 2026-07-03
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -26,6 +26,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "N/A — meta-skill (runtime engineering, not a specific ATT&CK technique)"
+  last_reviewed: "2026-07-26"
 ---
 
 # Multi-Agent Runtime Engineering Skill
@@ -446,6 +447,42 @@ This skill embodies several of kali-claw's 12 Hacker Laws:
 - **Law of Evidence over Assertion** — every claim must land in an evidence field; every assertion must be backed by a tool output indexed in `evidence_index` with a `sha256`. Prose memory violates this; structured memory enforces it.
 - **Law of Failure-Driven Learning** — `failed_attempts` is a first-class field. Failed explorations are not wasted; they constrain the next iteration via `next_constraints`.
 - **Law of the Harness** (a 2026 addition, codified post-MopMonk) — *the harness is the moat, not the base model.* A disciplined runtime beats a larger parameter count. This is the meta-principle that justifies treating runtime engineering as a first-class skill domain.
+
+## Detection Methods
+
+### Runtime Architecture Audit
+- **Schema validation**: Memory schema (Schema 1/2/3) validation failures; anomalies in memory structure.
+- **Convergence detection**: Multiple agents independently arriving at same conclusion (signal of correct convergence or coordinated attack).
+- **Anti-pattern emergence**: Detect free-form exploration, memory drift, repeat-without-delta, path-claim deadlock, premature stop.
+- **Version vector anomalies**: Inconsistent version vectors across agents; replication lag exploitation.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=agent memory.schema_version=* | stats count by agent_id | where count > 1000`
+- **LangSmith / Helicone**: Trace analysis for convergence detection.
+- **Custom runtime monitoring**: Atomic write / POSIX flock violation detection.
+
+## Defense Evasion Techniques
+
+### Memory-Driven Convergence Stealth
+- **Slow memory updates**: Pace memory writes below anomaly threshold.
+- **Match existing schema**: Use legitimate schema fields; appears as normal memory update.
+- **Trigger-based activation**: Memory poisoning activates only on specific input pattern.
+
+### Coordination Attack Stealth
+- **Distributed consensus attack**: Multiple compromised agents converge on malicious action.
+- **Version vector manipulation**: Forge version vectors to bypass conflict resolution.
+- **POSIX flock abuse**: Hold lock longer than expected; force serialization of legitimate agents.
+
+### Anti-Pattern Exploitation
+- **Free-form exploration abuse**: Exploit agents that explore freely; inject poison in exploratory paths.
+- **Memory drift exploitation**: Use drifted memory state as attack vector.
+- **Repeat-without-delta abuse**: Force agents to repeat without progress; consume resources.
+- **Premature stop exploitation**: Trick agents into premature termination; disrupts coordination.
+
+### Shared Memory Stealth
+- **Use existing shared state**: Don't create new shared memory; abuse existing KV store.
+- **Cross-process token theft**: Steal agent token from shared memory; reuse in another agent.
+- **Gradual trust building**: Build up reputation in shared state over time; exploit at scale.
 
 ## Learning Resources
 

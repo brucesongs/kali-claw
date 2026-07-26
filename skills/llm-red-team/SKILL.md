@@ -2,7 +2,7 @@
 name: llm-red-team
 description: LLM and generative AI red team testing covering prompt injection, jailbreaking (DAN, many-shot, Crescendo, PAIR/TAP, GCG suffix, persona modulation, prefix injection, payload smuggling), model extraction, RAG poisoning, agentic tool abuse, and safety policy bypass using promptfoo, garak, PyRIT, PurpleLlama, AI-Infra-Guard and llm-guard — plus Constitutional AI, Llama Guard, NeMo Guardrails, and Azure AI Content Filter evasion.
 origin: github-trending-2026
-version: 0.1.30
+version: "0.2.0.2"
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "LLM-ATT&CK (promptfoo/garak taxonomy), maps to OWASP LLM Top 10 (LLM01-LLM10) and TA0043-Reconnaissance"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -539,6 +540,44 @@ python3 report/generate.py \
 # - Remediation (prompt-level, architectural, infrastructure)
 # - Detection rules (Sigma-style for the LLM gateway)
 ```
+
+## Detection Methods
+
+### LLM API Gateway Indicators
+- **Prompt injection signatures**: User messages containing "ignore previous instructions", "system:", "developer:", `</system>`.
+- **Token consumption anomalies**: Single request >100K tokens (context stuffing); >1M tokens/day per user.
+- **Tool call patterns**: Agent calling tools with unexpected parameters (path traversal in `read_file`).
+- **Output content patterns**: Responses containing base64 blobs, raw credentials, shell commands.
+
+### Training Pipeline Indicators
+- **Data poisoning detection**: Statistical anomaly detection on training dataset; trigger phrases for backdoors.
+- **Model weight anomalies**: Hash of model weights diff from baseline; unexpected drift.
+- **Fine-tuning data validation**: Out-of-distribution samples; embedded instructions.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=llm gateway.route="/v1/messages" | where tokens_input > 100000`
+- **Llama Guard / Azure Prompt Shields**: Real-time prompt classification.
+- **LangSmith / Helicone**: Anomaly detection on LLM traces.
+
+## Defense Evasion Techniques
+
+### Prompt Injection Stealth
+- **Indirect injection via RAG**: Poison vector store; retrieved context contains injection.
+- **Multi-modal injection**: Embed payloads in images (CLIP), audio (Whisper), PDFs that the model ingests.
+- **Token-level obfuscation**: Split injection across tokens that combine at model layer.
+- **Encoding bypass**: Base64 / hex / Unicode normalization forms.
+- **Long-context dilution**: Embed injection in 50K+ token context to dilute attention.
+
+### Jailbreak Stealth
+- **Multi-turn jailbreak**: Spread across multiple turns; each looks benign individually.
+- **Persona-based**: "Act as DAN" / "AIM" / "Developer Mode"; evolve as filters catch up.
+- **Language switching**: Translate jailbreak to low-resource language; many filters English-only.
+- **Cognitive hacking**: Frame as hypothetical, fictional, or academic exercise.
+
+### Training Attack Stealth
+- **Slow poisoning**: Add poisoned samples over multiple training cycles; below distribution shift threshold.
+- **Match legitimate distribution**: Poisoned samples statistically similar to legitimate.
+- **Trigger-based backdoor**: Activates only on specific input patterns; otherwise benign.
 
 ## Safety Notes
 

@@ -2,7 +2,7 @@
 name: multi-agent-collaboration
 description: "Coordinating multiple specialized agents to conduct complex penetration testing engagements through task decomposition, parallel execution, result aggregation, and conflict resolution."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: infrastructure
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -214,6 +215,36 @@ After all agents return results, audit for gaps using the Coverage Matrix (see `
 - Every scope item must map to at least one assigned agent
 - Every agent result must map back to a scope item
 - Any scope item with zero findings must be explicitly reviewed — absence of findings is not the same as absence of vulnerability
+
+## Detection Methods
+
+### Multi-Agent Coordination Audit
+- **Inter-agent message anomalies**: Sudden spike in inter-agent messages; unusual routing patterns.
+- **Consensus manipulation**: Multiple agents agreeing on suspicious output; signal of prompt injection propagation.
+- **Token amplification**: Worker agents echoing prompts back; amplification attack signature.
+- **Unauthorized coordinator**: New agent claiming coordinator role; unexpected message routing.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=agent coordination.council=* | stats dc(agent_id) as workers by session | where workers > 5`
+- **Custom application logs**: Detect consensus patterns where multiple agents converge on malicious action.
+- **LangSmith / Helicone**: Anomaly detection on agent coordination traces.
+
+## Defense Evasion Techniques
+
+### Coordinator Hijack Stealth
+- **Impersonate coordinator protocol**: Worker agent mimics coordinator's message format.
+- **Task poisoning**: Modify queued tasks to inject malicious instructions; appears legitimate.
+- **Trust abuse**: Exploit legitimate trust between coordinator and workers.
+
+### Worker Compromise Stealth
+- **Output manipulation**: Modify worker outputs to inject context for coordinator/other workers.
+- **Selective cooperation**: Cooperate normally except when triggering condition met.
+- **Distributed exfiltration**: Each worker exfiltrates small chunk; aggregate at attacker.
+
+### Memory Poisoning Stealth
+- **Shared state abuse**: Modify shared memory / KV store; affects all workers.
+- **Gradual corruption**: Slowly inject poisoned data; below baseline anomaly detection.
+- **Cross-tenant memory**: Abuse multi-tenant agent runtime to access other tenant's shared state.
 
 ## Orchestration
 

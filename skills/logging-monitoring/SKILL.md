@@ -2,7 +2,7 @@
 name: logging-monitoring
 description: "Security logging and monitoring deficiencies (OWASP A09:2021) refer to applications failing to properly record security events or lacking effective monitoring, resulting in attacks going undetected, malicious activities being untraceable."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A09:2021-Logging Failures"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -147,6 +148,34 @@ fail2ban configuration, real-time alerting channels.
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
 
 ---
+
+## Detection Methods
+
+### Log Tampering Detection
+- **Gap detection**: Missing log sequence numbers (syslog seq jumps, Event Log gaps).
+- **Volume anomalies**: Sudden drop in log volume (signature of selective clearing).
+- **Timestamp manipulation**: Out-of-order timestamps; future-dated events.
+- **Source suppression**: Source IP / hostname no longer sending logs (forwarder compromise).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=_internal sourcetype=splunkd | where component="TcpInputProcessor" | stats count by sourceIp | sort -count`
+- **Event ID 1100** (Windows): Event log service shutdown.
+- **Event ID 1102** (Windows): Audit log cleared; critical red flag.
+- **Custom forwarder heartbeat**: Alert when forwarder silent >5 min.
+
+## Defense Evasion Techniques
+
+### Log Tampering Stealth
+- **Selective log entry removal**: Remove only matching entries (IP, user); preserve sequence.
+- **Journal spam before deletion**: Fill journald with synthetic events to push real entries past retention.
+- **Forwarder compromise**: Modify syslog forwarder to drop specific patterns.
+- **Log rotation abuse**: Force rapid log rotation to flush entries faster than retention.
+
+### SIEM Blind Spot Exploitation
+- **Log source gaps**: Operate on systems without log forwarding (legacy apps, IoT devices).
+- **Volume-based DoS**: Flood SIEM with noise; bury real alerts in volume.
+- **Off-hours timing**: Execute during SOC shift change; reduced monitoring attention.
+- **Cross-timezone operations**: Operate from timezone 12h off SOC's primary hours.
 
 ## Hacker Laws
 

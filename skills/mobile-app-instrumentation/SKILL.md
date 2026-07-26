@@ -2,7 +2,7 @@
 name: mobile-app-instrumentation
 description: Dynamic instrumentation of iOS/Android apps via Frida, Objection, r2frida, and Introspy; runtime SSL pinning bypass, jailbreak/root detection bypass, native library hooking, and runtime secrets extraction.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
@@ -12,6 +12,7 @@ metadata:
   guide_count: 2
   mitre: "T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol"
   keywords: [frida, objection, r2frida, introspy, instrumentation, ssl-pinning-bypass, jailbreak-detection, keychain, keystore, ios, android]
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: Mobile App Instrumentation — Runtime Exploitation of iOS/Android Applications
@@ -31,6 +32,36 @@ Mobile app instrumentation is the **runtime** counterpart to static mobile-app a
 **Domain**: mobile-deep
 
 **Mappings**: MITRE ATT&CK Mobile T1623 (Mobile Adware), T1518 (Software Discovery), T1406 (Defacement), T1627.001 (Adversary-in-the-Mobile-Device — Device Administrator), T1437 (Application Layer Protocol — TLS interception); OWASP MASVS V6 (Cryptography), V7 (User Authentication), V8 (Network Communication), V9 (Platform Interaction); OWASP MA5 (Insecure Communication — pinning); OWASP MASTG MASVS-NETWORK-1, MASVS-RESILIENCE-1..13
+
+## Detection Methods
+
+### Mobile App Tampering
+- **Frida server presence**: Process running on port 27042; `frida-server` binary in `/data/local/tmp/`.
+- **Jailbreak detection bypass**: Apps detecting jailbreak / root; bypass attempts logged.
+- **Runtime instrumentation**: Process with injected library (`frida-gadget`, `Xposed`).
+- **SSL pinning bypass**: Apps accepting user-supplied CA; bypass of cert pinning.
+
+### SIEM Detection Rules
+- **Splunk SPL (mobile)**: `index=mobile sourcetype=frida | stats count by process | sort -count`
+- **Mobile Threat Defense (MTD)**: Lookout, Zimperium, Pradeo MTD detection.
+
+## Defense Evasion Techniques
+
+### Frida Stealth
+- **Random port**: Run Frida on non-default port (not 27042).
+- **Magisk Hide / Zygisk**: Hide Frida from package managers; defeats basic detection.
+- **Strong/weak modes**: Frida strong mode bypasses most detection (slower, harder to detect).
+- **Gadget mode**: Use `frida-gadget` as embedded library; no frida-server process.
+
+### Jailbreak Stealth
+- **Root hide**: Magisk DenyList; hide root from specific apps.
+- **Systemless root**: No modification to /system partition; harder to detect.
+- **ShadowFlutter / Liberty Lite** (iOS): Bypass popular jailbreak detection libraries.
+
+### SSL Pinning Bypass Stealth
+- **Objection**: Automate pinning bypass; uses Frida under hood.
+- **Custom trust manager**: Inject custom `X509TrustManager`; allows any cert.
+- **Network proxy with pinning bypass**: Burp + mobile companion app; bypasses pinning transparently.
 
 ## Differentiation
 

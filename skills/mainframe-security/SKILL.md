@@ -2,7 +2,7 @@
 name: mainframe-security
 description: IBM z/OS, RACF (Resource Access Control Facility), CICS, DB2, JES2, TSO/ISPF penetration testing; APF library abuse, dataset access control, SNA/Appc attacks, and legacy mainframe security assessment for financial/government environments.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   - claude-code
   - agent-sdk
@@ -36,6 +36,7 @@ metadata:
     - ibm-z
     - vtam
     - tk4
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -269,6 +270,40 @@ curl -k -u "$SEAR_USER:$SEAR_PASS" \
 
 - Where classification is required, use RACF MLS (Multi-Level Security) mode for labels and mandatory access control rather than discretionary UACC.
 - Document SECLABEL ownership and review periodically; mis-assignment of a high-water-mark label defeats MLS.
+
+## Detection Methods
+
+### z/OS Audit Logs
+- **SMF (System Management Facility)**: SMF records for auth (type 80), RACF commands (type 30, 81), APF (type 14, 15).
+- **RACF SETR events**: Changes to RACF settings (e.g., `SETR NOOPERAUDIT` to disable auditing).
+- **CICS audit**: CICS transient data destinations; transaction abuse signatures.
+- **DB2 audit**: DB2 audit traces for unauthorized SELECT, COPY from SYSTEM tables.
+- **JES2/JES3 spool access**: Unauthorized spool dataset access.
+
+### SIEM Detection Rules
+- **Splunk SPL (z/OS)**: `index=zos sourcetype=smf:80 | where event_type="AUTH_FAILURE" | stats count by userid`
+- **Syncsort / IBM Security zSecure**: Mainframe SIEM integration.
+
+## Defense Evasion Techniques
+
+### RACF Stealth
+- **Use legitimate RACF groups**: Don't create new user; abuse existing over-privileged group membership.
+- **APF library abuse**: Add malicious load library to APF list; bypass RACF checks.
+- **SETROPTS RACLIST abuse**: Modify in-storage RACF profiles; changes lost on restart.
+
+### CICS Stealth
+- **Transient data destinations**: Use legitimate TD queue to hide payload; blends with normal transactions.
+- **Task control table manipulation**: Modify CICS TCT to hide malicious transactions.
+- **Program control: NEWCOPY**: Replace legitimate CICS program at runtime via NEWCOPY; no program-level audit.
+
+### DB2 Stealth
+- **Bind abuse**: Bind malicious DBRM into existing package; bypasses audit.
+- **Stored procedure persistence**: Backdoor stored procedure; activates on specific trigger.
+- **Cursor manipulation**: Use sensitive cursor for slow data exfil; below query-rate threshold.
+
+### JES2/JES3 Stealth
+- **Spool dataset abuse**: Hide malicious JCL in spool dataset; appears as legitimate job.
+- **Started task (STC) abuse**: Modify started task JCL; runs at IPL (boot) time.
 
 ## Differentiation
 
