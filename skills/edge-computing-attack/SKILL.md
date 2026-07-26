@@ -2,7 +2,7 @@
 name: edge-computing-attack
 description: "Attacks against edge computing platforms — Cloudflare Workers (V8 isolate), Fastly Compute@Edge (WASM/Wasmtime), AWS Lambda@Edge and CloudFront Functions, Akamai EdgeWorkers, Vercel Edge Functions, and Deno Deploy. Covers V8 isolate escape, WASM sandbox bypass, request smuggling at the edge, edge KV store abuse, secret leakage via edge logs, and bypass of origin WAF via edge script injection. Distinct from cloud-security (broader CSP control plane), container-security (Linux namespaces), and web-ssrf (origin-side issues)."
 origin: openclaw
-version: "0.1.40"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API"
+  last_reviewed: "2026-07-26"
 ---
 
 # Edge Computing Attack
@@ -300,6 +301,30 @@ curl -sI https://target/ | grep -i "X-Vercel"
 # Edge Config endpoint
 curl -s https://target/_vercel/edge-config/_default
 ```
+
+## Detection Methods
+
+### CDN / Edge Function Logs
+- **Cloudflare Workers abuse**: Anomalous Worker invocations; outbound fetch to attacker domains.
+- **AWS Lambda@Edge anomalies**: Function duration spikes; cross-region data egress from edge.
+- **Origin IP discovery**: Direct origin access bypassing CDN (signature: requests to origin IP from internet).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=cdn sourcetype=cloudflare:workers | stats count by script | sort -count | head 10`
+- **Cloudflare Analytics**: Native bot/security analytics.
+- **AWS CloudTrail**: Lambda@Edge invocation logs; alert on cross-region data egress.
+
+## Defense Evasion Techniques
+
+### CDN Bypass
+- **Direct origin access**: Find origin IP via DNS history, leak in HTTP headers, SSL cert; bypass CDN/WAF.
+- **Cache poisoning**: Poison cached response; affect all users of cached resource.
+- **Cache deception**: Trick CDN into caching dynamic content with sensitive data.
+
+### Edge Function Exploitation
+- **Worker script injection**: Inject code into Worker via compromised account or supply chain.
+- **Lambda@Edge privilege abuse**: Use Lambda@Edge for global execution; harder to attribute.
+- **Origin IP rotation**: Use direct IP for exfil; CDN sees only legitimate traffic.
 
 ## Cross-References
 - `skills/cloud-security/SKILL.md` — broader CSP control plane attacks

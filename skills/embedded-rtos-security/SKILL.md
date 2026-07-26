@@ -2,7 +2,7 @@
 name: embedded-rtos-security
 description: RTOS penetration testing — VxWorks WDB debug agent (Urgent/11), QNX microkernel, FreeRTOS+TCP CVEs, ThreadX/Azure RTOS, Zephyr, Mbed OS, TI-RTOS, MicroC/OS, NuttX, RIOT, Contiki
 origin: kali-claw
-version: 1.0
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Sonnet 4.5+
 allowed-tools:
   - Bash
@@ -23,6 +23,7 @@ metadata:
     - Zephyr
     - embedded
     - microkernel
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: Embedded RTOS Security
@@ -456,6 +457,33 @@ alert udp $EXTERNAL_NET any -> $HOME_NET 17185 (
 | **Weak Default Credentials** | QNX `root` no password by default in development images; VxWorks `tgtPassword` empty by default | Login probe, configuration review of `qconn.cfg`, `usrAppInit.c` |
 
 ---
+
+## Detection Methods
+
+### RTOS Runtime Indicators
+- **Task anomalies**: Unexpected task creation; priority inversion signatures.
+- **Memory protection faults**: MPU faults indicating buffer overflow attempt.
+- **Network stack anomalies**: Unexpected connections from RTOS device (typical: outbound only to known controller).
+
+### Hardware-Level Detection
+- **JTAG/SWD access**: JTAG activity on production device (debug interface should be disabled).
+- **Side-channel signatures**: Power analysis indicating cryptographic operations.
+
+### SIEM Detection Rules
+- **Splunk SPL (IoT)**: `index=iot sourcetype=rtos_event | where event_type="task_create" | stats count by device_id`
+- **Custom IoT platform**: Azure IoT Hub / AWS IoT Core with anomaly detection.
+
+## Defense Evasion Techniques
+
+### Exploit Stealth
+- **Single-shot exploits**: One exploit attempt per boot; below detection threshold.
+- **Use legitimate services**: Inject into existing RTOS task rather than creating new task.
+- **Memory-only payloads**: No filesystem writes; survives reboot via persistence mechanism.
+
+### Hardware Exploitation Stealth
+- **JTAG fuse blowing**: Disable JTAG after exploit to prevent forensic analysis.
+- **Flash protection**: Set flash protection bits; prevent readout.
+- **Side-channel minimization**: Distribute crypto operations over time; reduces correlation.
 
 ## Hacker Laws
 

@@ -2,7 +2,7 @@
 name: email-protocol-attack
 description: "Email protocol attacks targeting mail infrastructure at the protocol level."
 origin: openclaw
-version: "0.1.21"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 3
   mitre: "T1114-Email Collection"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -197,6 +198,30 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt mail.target.com imap
 # POP3 credential testing
 hydra -l admin -P /usr/share/wordlists/rockyou.txt mail.target.com pop3
 ```
+
+## Detection Methods
+
+### Email Gateway Indicators
+- **SPF/DKIM/DMARC failures**: Authentication failure rate >5% of inbound (potential spoofing campaign).
+- **Homoglyph domains**: Cyrillic `аpple.com` vs Latin `apple.com`; Unicode normalization detection.
+- **Reply-To mismatch**: `From: ceo@company.com` but `Reply-To: ceo@external.com`.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=email sourcetype=mailscanner | where spf_result="fail" | stats count by sender_domain`
+- **Microsoft 365 ATP**: Native anti-phishing policies.
+- **Proofpoint / Mimecast**: Email security gateway with BEC detection.
+
+## Defense Evasion Techniques
+
+### Authentication Bypass
+- **Compromise legitimate relay**: Use Mailchimp, SendGrid, M365 tenant for reputation.
+- **Display name abuse**: From: "CEO Name" <attacker@external.com> - mobile hides email.
+- **Unicode homoglyphs**: Cyrillic `а` (U+0430) vs Latin `a` (U+0061).
+
+### Content Stealth
+- **Steganography in attachments**: Hide payload in image LSB.
+- **Password-protected archive**: Password in email body; evades AV signature scanning.
+- **Multipart MIME abuse**: Hide payload in MIME structure; some scanners inspect only first part.
 
 ## Hacker Laws
 

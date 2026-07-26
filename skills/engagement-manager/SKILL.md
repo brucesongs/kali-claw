@@ -2,7 +2,7 @@
 name: engagement-manager
 description: "End-to-end penetration test project management skill. Orchestrates the full engagement lifecycle from scoping through reporting, managing skill composition, evidence chains, and phase transitions."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: management
   tool_count: 0
   guide_count: 3
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -185,6 +186,29 @@ Adjust timeline based on scope: single-target web app (2-3 days), multi-target e
 - [ ] Client debrief scheduled for report walkthrough
 - [ ] Remediation priorities communicated with timeline recommendations
 - [ ] Engagement retrospective conducted — lessons learned documented
+
+## Detection Methods
+
+### Engagement Process Audit
+- **Scope violations**: Tester accessing systems outside engagement letter.
+- **Time window violations**: Activity outside authorized hours.
+- **Data handling violations**: Exfiltrating data without proper handling.
+
+### SIEM Detection Rules
+- **Splunk SPL**: Correlate tester activity with engagement scope document.
+- **Custom workflow**: Jira integration for engagement tracking.
+
+## Defense Evasion Techniques
+
+### Operational Security
+- **Stay in scope**: Don't access systems outside engagement letter; preserves legal protection.
+- **Document everything**: Maintain detailed audit trail; demonstrates authorization.
+- **Time-boxed operations**: Operate only during authorized hours.
+- **Notify client**: Pre-authorized activity reports; reduces incident response confusion.
+
+### Red Team / Blue Team Coordination
+- **De-confliction channels**: Establish communication with blue team; abort if detected.
+- **Rules of engagement**: Define stop conditions in advance.
 
 ## Quality Criteria
 

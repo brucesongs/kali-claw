@@ -2,7 +2,7 @@
 name: file-inclusion
 description: "Local File Inclusion (LFI) and Remote File Inclusion (RFI) attack techniques covering path traversal, PHP wrapper abuse, log poisoning, session file inclusion, and remote payload hosting for code execution."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 3
   owasp: "A01:2021-Broken Access Control"
+  last_reviewed: "2026-07-26"
 ---
 
 

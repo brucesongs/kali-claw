@@ -2,7 +2,7 @@
 name: exa-search
 description: "Semantic search using Exa API for security research queries. Unlike keyword-based search, Exa understands context and retrieves high-quality, relevant results for technical research."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: research
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -130,6 +131,25 @@ Semantic search using Exa API for security research queries. Unlike keyword-base
 - Track precision@k (fraction of top-k results that are relevant) across query types to identify systematic weaknesses.
 - Maintain a golden dataset of known-good queries and expected results for regression testing after API changes.
 - Audit cost-per-actionable-finding to optimize query strategies over time.
+
+## Detection Methods
+
+### API Usage Patterns
+- **Anomalous query volume**: Single token consuming >10x typical rate.
+- **Cross-domain correlation**: Aggregating data from many domains (OSINT pattern).
+- **Off-hours bulk queries**: Large query bursts outside business hours.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=api gateway.route="/search" | stats count by api_key | sort -count | head 20`
+- **Custom API gateway logs**: Alert on anomalous query patterns.
+
+## Defense Evasion Techniques
+
+### Stealth Search
+- **Distribute across accounts**: Use multiple API keys; below per-key rate limits.
+- **Slow & methodical**: Pace queries below anomaly threshold.
+- **Cache results**: Avoid re-querying same data.
+- **Mimic legitimate usage**: Use natural language queries matching typical analyst patterns.
 
 ## Integration
 

@@ -2,7 +2,7 @@
 name: firmware-reverse
 description: "Firmware reverse engineering covers the full pipeline from raw firmware image acquisition through filesystem extraction, static and dynamic analysis, full-system emulation, and vulnerability/backdoor detection."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 18
   guide_count: 3
   mitre: "TA0002-Execution"
+  last_reviewed: "2026-07-26"
 ---
 
 # Firmware Reverse Engineering
@@ -176,6 +177,31 @@ yara -r firmware_backdoors.yar /tmp/squashfs-root/ > /tmp/yara-findings.txt
 | **Weak Crypto** | DES, RC4, MD5 password hashes, hardcoded keys | Binary analysis, crypto pattern detection |
 
 ---
+
+## Detection Methods
+
+### Firmware Analysis Indicators
+- **Hardcoded secrets**: Strings analysis revealing credentials, API keys, certificates.
+- **Debug interface enabled**: UART, JTAG, SWD accessible on production device.
+- **Outdated components**: Known-vulnerable BusyBox, Dropbear, OpenSSL versions in firmware.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=firmware sourcetype=binwalk:scan | where entropy > 7.5`
+- **Custom IoT platform**: Device telemetry anomaly detection.
+- **Binary analysis tools**: EMBA, FACT (Firmware Analysis and Comparison Tool).
+
+## Defense Evasion Techniques
+
+### Firmware Obfuscation
+- **Custom packing**: Use custom packer rather than UPX; defeats signature detection.
+- **Encrypted sections**: Encrypt sensitive sections; decrypt at runtime.
+- **Multiple architectures**: Compile for ARM/MIPS/PowerPC; harder to analyze all.
+
+### Hardware-Level Evasion
+- **Disable debug interfaces**: Blow JTAG fuses; disable UART on production.
+- **Glitch detection**: Detect voltage/clock glitching attempts; zeroize secrets.
+- **Anti-tamper mesh**: Detect physical tampering; zeroize firmware.
+- **Secure boot**: Verify firmware signature; prevent downgrade attacks.
 
 ## Hacker Laws
 
