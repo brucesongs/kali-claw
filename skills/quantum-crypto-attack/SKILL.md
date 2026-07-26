@@ -2,7 +2,7 @@
 name: quantum-crypto-attack
 description: Post-quantum and modern national cryptography attack surface testing covering NIST PQC candidates (ML-KEM/ML-DSA/SLH-DSA), hybrid TLS analysis, QKD/BB84 protocol attacks, Chinese national crypto (SM2/SM3/SM4/SM9) implementation flaws, lattice/hashing signature probing, and quantum-vulnerable RSA/ECC asset discovery using liboqs, GmSSL, cloudflare/circl, OQS-OpenSSL, and PQCrypto-Break.
 origin: github-trending-2026
-version: 0.1.32
+version: "0.2.0.2"
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -54,6 +54,7 @@ metadata:
     - ROCA
     - XMSS
     - LMS
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -315,6 +316,33 @@ systemctl reload nginx
 > **For detailed payloads see `payloads.md`, and for the complete test checklist see `test-cases.md`.**
 
 ---
+
+## Detection Methods
+
+### Quantum Key Distribution Audit
+- **QBER anomalies**: Quantum Bit Error Rate >11% (typical BB84 threshold); indicates eavesdropping.
+- **Photon-number-splitting signatures**: Multi-photon pulses exploited; detector anomalies.
+- **Trusted node compromise**: QKD network node behaving anomalously.
+
+### Post-Quantum Algorithm Audit
+- **Hybrid TLS**: TLS using both classical and PQC algorithms; alert on unexpected combinations.
+- **KEM combiner flaws**: Hybrid implementation using XOR combiner vs HKDF; weak combiner is vulnerability.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=qkd sourcetype=bb84 | where qber > 0.11 | stats count by link_id`
+- **Custom QKD monitoring**: Per-vendor monitoring (ID Quantique, QuintessenceLabs).
+
+## Defense Evasion Techniques
+
+### Quantum Attack Stealth
+- **HNDL (Harvest Now, Decrypt Later)**: Passive capture only; no detectable interaction.
+- **Side-channel on Kyber**: RowHammer / EM / timing on PQC implementation; subtle.
+- **Detector blinding**: Use specific wavelength to blind BB84 detector; appears as channel loss.
+
+### Classical Fallback Exploitation
+- **Force algorithm downgrade**: If server supports both classical and PQC, force classical.
+- **Exploit hybrid combiner flaws**: XOR combiner allows attacker to break classical component; PQC key survives.
+- **PQC implementation bugs**: New PQC codebases have implementation flaws (less mature than RSA/ECC).
 
 ## Common Pitfalls
 

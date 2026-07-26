@@ -2,7 +2,7 @@
 name: reverse-engineering-advanced
 description: Advanced reverse engineering covering symbolic execution (angr, KLEE, manticore), decompiler confusion (Hex-Rays, Ghidra deobfuscation), binary diffing (BinDiff, Diaphora, Kam1n0), firmware RE workflow (binwalk, FACT, EMBA), and obfuscated code analysis (LLVM obfuscation, OLLVM, Tigress). Distinct from foundational `binary-reverse` — focuses on advanced program analysis, automated RE techniques, and firmware / obfuscation workflows. Use when analyzing obfuscated or packed binaries, automating RE pipelines, analyzing firmware, or studying APT-grade obfuscation (Equation Group, Pegasus).
 origin: kali-claw
-version: 0.1.42
+version: "0.2.0.2"
 compatibility:
   - kali-linux-2025-2-arm64
   - python-3.11+
@@ -40,6 +40,7 @@ metadata:
   tool_count: 20
   guide_count: 2
   mitre: "TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode"
+  last_reviewed: "2026-07-26"
 ---
 
 # Reverse Engineering Advanced
@@ -529,6 +530,43 @@ cd emba && ./installer.sh
 - [ ] Decompile output saved
 - [ ] Findings documented
 - [ ] Final report delivered
+
+## Detection Methods
+
+### RE Tool Detection
+- **Process enumeration**: `gdb`, `radare2`, `ghidra`, `ida`, `frida-server` running on production.
+- **Network anomalies**: Frida default port (27042); Ghidra debug bridge (18001); IDA sync ports.
+- **Filesystem artifacts**: `/tmp/.ghidra`, `~/.radare2_history`, `~/.gdb_history` containing sensitive commands.
+
+### Binary Analysis Detection
+- **Hardcoded secrets**: Strings analysis revealing API keys, JWT tokens, certs.
+- **Dangerous function imports**: `strcpy`, `system`, `popen` flagged via `checksec`.
+- **Missing protections**: Binaries without RELRO/Canary/NX/PIE.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=linux sourcetype=auditd type=EXECVE | search a0 IN ("/usr/bin/gdb","/usr/bin/r2")`
+- **Sysmon Event ID 1**: Alert on `gdb.exe`, `ida.exe`, `x64dbg.exe` on production endpoints.
+- **YARA**: Scan filesystem for known RE tool signatures.
+
+## Defense Evasion Techniques
+
+### Anti-Debugging
+- **ptrace self-attach**: Process attaches to itself via `ptrace(PTRACE_TRACEME)`; prevents gdb.
+- **Timing checks**: Measure time between `rdtsc` instructions; debugger introduces delay.
+- **INT 3 detection**: Scan own code for `0xCC` byte (breakpoint instruction).
+- **Hardware breakpoint detection**: Check debug registers (DR0-DR7) via `/proc/self/status`.
+
+### Anti-VM / Anti-Sandbox
+- **MAC address check**: VMware (00:50:56), VirtualBox (08:00:27), Hyper-V (00:15:5D).
+- **CPU vendor check**: `cpuid` instruction reveals hypervisor bit.
+- **Filesystem artifacts**: `/proc/vz` (OpenVZ), `/proc/xen` (Xen), `/sys/class/dmi/id/product_name`.
+
+### Code Obfuscation
+- **Packing**: UPX, ASPack, Themida, VMProtect.
+- **Polymorphic code**: Decryptor changes; payload signature constant.
+- **Metamorphic code**: Body rewritten each generation.
+- **Control flow flattening**: Switch dispatcher; defeats static analysis.
+- **Junk code insertion**: No-op instructions between real instructions.
 
 ## References
 

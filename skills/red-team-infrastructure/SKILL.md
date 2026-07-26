@@ -2,7 +2,7 @@
 name: red-team-infrastructure
 description: Building, deploying, and operating stealthy C2 infrastructure for red team engagements. Covers Mythic, Havoc, Sliver, Covenant, PoshC2, Brute Ratel, and Cobalt Strike; redirector chains (Nginx mTLS, Cloudflare workers, CDN domain fronting); dead-drop resolvers; infrastructure OPSEC (compartmentalized servers, auto-rotated certs, decoupled domains); AMIS/GoDaddy API for automated rotation. Use when deploying dedicated adversary emulation infrastructure, planning redirector chains, or testing OPSEC resilience of red team operators.
 origin: kali-claw
-version: 0.1.42
+version: "0.2.0.2"
 compatibility:
   - kali-linux-2025-2-arm64
   - python-3.11+
@@ -38,6 +38,7 @@ metadata:
   tool_count: 20
   guide_count: 2
   mitre: "TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573"
+  last_reviewed: "2026-07-26"
 ---
 
 # Red Team Infrastructure
@@ -677,6 +678,39 @@ multipass exec c2 -- bash -c "sudo apt install -y wireguard"
 - [ ] Implant tested through full chain
 - [ ] Detection monitoring (VT, Umbrella) in place
 - [ ] Final report includes infra timeline + gaps
+
+## Detection Methods
+
+### C2 Infrastructure Detection
+- **Domain age**: Newly registered domains (<30 days) contacted by internal endpoints.
+- **TLS fingerprinting**: JA3/JA4 hash matches known C2 (Cobalt Strike default profile).
+- **Beacon patterns**: Periodic connections with jitter; statistical analysis (RITA).
+- **Malleable C2 profiles**: Covert Strike malleable C2 patterns detectable via heuristic.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=proxy | stats count by url | where count > 100 | sort -count`
+- **RITA (Real Intelligence Threat Analytics)**: Statistical beacon detection.
+- **Threat intel platforms**: Recorded Future, Mandiant for known C2 infrastructure.
+
+## Defense Evasion Techniques
+
+### Domain Reputation Stealth
+- **Aged domains**: Buy aged domains (>1 year old); higher reputation.
+- **CDN fronting**: Use CloudFront, Azure CDN; appears as legitimate CDN traffic.
+- **Valid TLS certificates**: Let's Encrypt for C2 domain; no cert warnings.
+- **Category 4 / "benign" domains**: Use domains categorized as news/blogs; less suspicious.
+
+### Malleable C2 Stealth
+- **Legitimate-looking profile**: Mimic real web traffic (jQuery, Google Analytics).
+- **Jitter parameter**: Randomize sleep interval to evade statistical detection.
+- **Long-haul beaconing**: 24h interval for high-value targets; harder to correlate.
+- **Custom profiles**: Avoid default Cobalt Strike profile (well-signatured).
+
+### Redirector Chains
+- **Tier-1 redirectors**: Use cheap VPS as redirector; main C2 behind.
+- **Cloud function redirectors**: AWS Lambda / Cloudflare Workers; legitimate-looking.
+- **Domain rotation**: Rotate redirector domains regularly; burn rate detection.
+- **HTTPS termination at redirector**: TLS terminated at redirector; main C2 sees only HTTP.
 
 ## References
 

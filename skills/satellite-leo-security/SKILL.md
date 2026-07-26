@@ -2,7 +2,7 @@
 name: satellite-leo-security
 description: Satellite and LEO communication security — Starlink, Kuiper, OneWeb, Iridium, Inmarsat, Viasat KA-SAT, HughesNet, DVB-S/S2, VSAT (iDirect/Hughes), GNSS receiver attacks, AcidRain wiper (Viasat 2022)
 origin: kali-claw
-version: 1.0
+version: "0.2.0.2"
 compatibility: Claude Code, Claude Sonnet 4.5+
 allowed-tools:
   - Bash
@@ -26,6 +26,7 @@ metadata:
     - DVB-S
     - VSAT
     - GNSS
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -45,6 +46,34 @@ Satellite communication security covers the space segment, the ground segment, a
 **Domain**: satellite
 
 **MITRE ATT&CK**: T1557-Adversary-in-the-Middle, T1485-Data Destruction (AcidRain-class wipers), T1499-Endpoint Denial of Service (satellite link jamming), T1098-Account Manipulation (VSAT provisioning abuse), T1584-Compromise Infrastructure (satellite uplink takeover).
+
+## Detection Methods
+
+### LEO Communication Audit
+- **Starlink anomalies**: User terminal communicating with non-Starlink endpoint.
+- **Iridium anomalies**: Anomalous burst patterns; signal strength manipulation.
+- **Viasat KA-SAT anomalies**: Modem compromise; command injection signatures.
+- **DVB-S2 anomalies**: Signal strength manipulation; channel unauthorized use.
+
+### SIEM Detection Rules
+- **Splunk SPL (satellite)**: `index=sat sourcetype=modem | where event_type="reboot" | stats count by terminal_id`
+- **Vendor-specific**: Starlink LMOD status, Iridium SBD audit, Viasat modem logs.
+
+## Defense Evasion Techniques
+
+### Satellite Terminal Compromise
+- **Use legitimate credentials**: Don't trigger new-login alerts; use stolen but valid credentials.
+- **Off-hours operation**: Satellite bandwidth often low at night; blend with maintenance.
+- **Mimic legitimate traffic**: Mimic typical user terminal traffic patterns.
+
+### Signal Manipulation
+- **Gradual drift**: Slowly change parameters; avoid sudden jump detection.
+- **Directional antennas**: Limit RF footprint to specific terminal.
+- **Brief transmissions**: <5 second bursts; below triangulation threshold.
+
+### Ground Station Compromise
+- **Use legitimate credentials**: Steal operator account; appears as legitimate operation.
+- **Compromise maintenance window**: Operate during scheduled maintenance; blends with activity.
 
 ## Differentiation
 

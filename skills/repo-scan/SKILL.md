@@ -2,7 +2,7 @@
 name: repo-scan
 description: "Cross-stack source code asset audit that classifies every file, detects embedded third-party libraries, and delivers actionable verdicts per module."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: assessment
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -186,6 +187,30 @@ Assign verdicts per module:
 ## Recommendations
 [Prioritized action items based on verdicts and findings]
 ```
+
+## Detection Methods
+
+### Repository Activity Audit
+- **Mass cloning**: Single token cloning many repos; suspicious pattern.
+- **Code search anomalies**: `api.github.com/search/code` API abuse; rate limit violations.
+- **Commit frequency**: New contributor with many commits to security-sensitive files.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=github audit | stats count by actor, action | where action="git.clone" | sort -count`
+- **GitHub Advanced Security**: Secret scanning, CodeQL alerts in PRs.
+- **GitGuardian / GitPrey**: Secret detection in repositories.
+
+## Defense Evasion Techniques
+
+### Stealth Cloning
+- **Slow & distributed**: Pace cloning; below per-token rate limit.
+- **Multiple tokens**: Use multiple credentials; spread across many sources.
+- **Mirror via CI**: Use legitimate CI pipeline to mirror repos; appears as routine sync.
+
+### Code Search Stealth
+- **Use authenticated API**: `api.github.com/search/code` over browser search (rate-limited but less suspicious).
+- **Local mirror**: Clone repos locally; search offline.
+- **Fork + scan**: Fork target repo privately; scan without revealing interest.
 
 ## Orchestration
 
