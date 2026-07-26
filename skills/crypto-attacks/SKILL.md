@@ -2,7 +2,7 @@
 name: crypto-attacks
 description: "Cryptographic Attacks target implementation flaws and algorithm weaknesses in encryption systems, covering OWASP A04: Cryptographic Failures."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 6
   owasp: "A04:2021-Cryptographic Failures"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -275,6 +276,44 @@ Beyond the core attacks, advanced cryptographic testing includes: RSA key recove
 | **padbuster** | Padding Oracle automation | Slow (network-bound) | Narrow | Intermediate |
 | **CyberChef** | Encoding/decoding analysis | N/A (manual) | Very broad | Beginner |
 | **RsaCtfTool** | RSA attack collection | Variable | RSA-specific | Advanced |
+
+## Detection Methods
+
+### TLS / SSL Audit
+- **Weak cipher usage**: TLS 1.0/1.1; RC4, DES, 3DES ciphers; SHA-1 signatures.
+- **Certificate anomalies**: Self-signed certs in production; cert chain depth > 5; expired intermediate.
+- **Protocol downgrade**: TLS_FALLBACK_SCSV abuse; SSLv3 fallback.
+
+### Cryptographic Implementation Flaws
+- **Padding oracle signatures**: Time-differential responses to malformed padding (Vaudenay, POODLE).
+- **Bleichenbacher signatures**: Varying error messages for RSA PKCS#1 v1.5 decryption failures.
+- **Nonce reuse**: Same IV/nonce used with same key in stream cipher (CTR/GCM).
+- **Weak RNG**: Predictable random number generation (signature of weak entropy).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=tls sourcetype=ssl_handshake | where tls_version IN ("TLSv1", "TLSv1.1")`
+- **Custom anomaly detection**: TLS handshake timing correlation for padding oracle detection.
+
+## Defense Evasion Techniques
+
+### TLS Fingerprint Mimicry
+- **JA3/JA4 hash matching**: Use `curl-impersonate` to match real browser TLS fingerprints.
+- **Cipher suite order**: Match exact cipher order of legitimate client.
+- **TLS extension order**: Match ALPN, SNI, supported_versions order.
+
+### Side-Channel Attack Stealth
+- **Slow & low**: Pace oracle queries below threshold (e.g., 5 req/min).
+- **Distribute source IPs**: Use residential proxies to spread oracle calls.
+- **Off-hours timing**: Run during low-traffic hours; blends with maintenance.
+
+### Padding Oracle Stealth
+- **Statistical noise**: Mix oracle queries with legitimate traffic.
+- **Use real client behavior**: Mimic exact request patterns of legitimate user.
+- **Connection reuse**: Reuse legitimate session cookie to avoid new-connection alerts.
+
+### Weak RNG Exploitation
+- **Time-delayed exploitation**: Compromise RNG once, exploit later (avoids real-time detection).
+- **Cross-protocol**: Exploit predictable RNG in protocol A to compromise protocol B.
 
 ## Performance and Remediation
 

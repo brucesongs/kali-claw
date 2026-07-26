@@ -2,7 +2,7 @@
 name: council
 description: "Council provides a structured framework for analyzing security questions from multiple adversarial and defensive perspectives simultaneously."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: analysis
   tool_count: 5
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -264,6 +265,29 @@ Scope: active breach with lateral movement detected on internal network.
 - **Law 8 (Trust but Verify)**: Cross-validation phase stress-tests every perspective against the others
 - **Law 1 (First Principles)**: Each perspective reasons from fundamentals rather than relying on assumptions from a single angle
 - **Law 6 (Assume Breach)**: The attacker perspective explicitly models the system under the assumption that compromise has occurred or will occur
+
+## Detection Methods
+
+### Multi-Agent Coordination Indicators
+- **Inter-agent message anomalies**: Sudden spike in inter-agent messages; unusual routing patterns.
+- **Consensus manipulation**: Multiple agents agreeing on suspicious output; signal of prompt injection propagation.
+- **Token amplification**: Worker agents echoing prompts back; amplification attack signature.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=agent coordination.council=* | stats dc(agent_id) by session | where dc > 5`
+- **Custom application logs**: Detect consensus patterns where multiple agents converge on malicious action.
+
+## Defense Evasion Techniques
+
+### Coordinator Hijack Stealth
+- **Impersonate coordinator protocol**: Worker agent mimics coordinator's message format.
+- **Task poisoning**: Modify queued tasks to inject malicious instructions; appears legitimate.
+- **Trust abuse**: Exploit legitimate trust between coordinator and workers.
+
+### Worker Compromise Stealth
+- **Output manipulation**: Modify worker outputs to inject context for coordinator/other workers.
+- **Selective cooperation**: Cooperate normally except when triggering condition met.
+- **Distributed exfiltration**: Each worker exfiltrates small chunk; aggregate at attacker.
 
 ## Orchestration
 
