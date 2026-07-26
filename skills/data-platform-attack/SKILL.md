@@ -2,7 +2,7 @@
 name: data-platform-attack
 description: "Attacks against cloud data platforms and analytics pipelines — Snowflake, Databricks, BigQuery, Redshift, dbt, Apache Airflow, and lakehouse architectures. Covers identity-based breaches (no perimeter), warehouse SQL injection at scale, IAM privilege escalation, secrets in DAGs, notebook code injection, and cross-tenant data exfiltration. Distinct from database-attack (protocol-level RDBMS) and cloud-security (broader CSP control plane)."
 origin: openclaw
-version: "0.1.40"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories"
+  last_reviewed: "2026-07-26"
 ---
 
 # Data Platform Attack
@@ -231,6 +232,31 @@ Coverage includes: Snowflake account enumeration (origins + `ORGNAME-USERNAME`),
 3. Read `stv_session_activity` for lateral recon
 4. Identify tables with secrets (`pg_catalog.pg_shadow`)
 5. Pivot: enumerate AWS permissions of the cluster's IAM role via `redshift-data:ExecuteStatement`
+
+## Detection Methods
+
+### Data Platform Audit Logs
+- **Snowflake / Databricks / BigQuery**: `LOGIN_HISTORY`, `QUERY_HISTORY`, `COPY_HISTORY`; alert on anomalous SELECT patterns.
+- **Apache Hive / Iceberg / Delta Lake**: Query logs; alert on cross-database enumeration.
+- **Presto / Trino**: Query audit table; alert on `SELECT *` without WHERE from external users.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=snowflake sourcetype=snowflake:query | where bytes_scanned > 1000000000`
+- **Native platform**: Snowflake Account Usage views; BigQuery Information Schema; alert on mass export.
+- **Immuta / Privacera**: Data access governance with anomaly detection.
+
+## Defense Evasion Techniques
+
+### Query Stealth
+- **Below scan threshold**: Keep `bytes_scanned` below platform monitoring threshold.
+- **Distribute across queries**: Split large query into many small; aggregate results.
+- **Off-hours queries**: Run during low-activity windows; blends with maintenance.
+- **Use of cached results**: Trigger cache via legitimate-looking queries; then read cache.
+
+### Privilege Abuse Stealth
+- **Use legitimate roles**: Don't create new role; abuse existing over-privileged role.
+- **Service account tokens**: Use long-lived tokens rather than user auth; no login events.
+- **Cross-platform access**: Pivot from data lake (S3) to data warehouse (Snowflake) via legitimate ingestion pipeline.
 
 ## Cross-References
 - `skills/database-attack/SKILL.md` — protocol-level RDBMS attacks (Oracle TNS, MySQL socket)

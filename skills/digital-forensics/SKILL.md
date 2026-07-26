@@ -2,7 +2,7 @@
 name: digital-forensics
 description: "Digital forensics covers the complete workflow of disk forensics, memory forensics, network forensics, file recovery/carving, and chain of custody."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: forensics
   tool_count: 10
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -126,6 +127,39 @@ Use SleuthKit to generate MAC timelines, combining disk MAC times, network traff
 - **Analyzing original evidence directly**: Working on the original media instead of a verified forensic image risks accidental modification that destroys evidence integrity. Always create a bit-by-bit image first, verify hashes match, and perform all analysis on the copy.
 - **Skipping chain of custody documentation**: Even with perfect technical analysis, evidence without a documented chain of custody may be inadmissible in court. Record every handler, time, location, and operation from the moment evidence is collected to its final presentation.
 - **Relying on a single tool for analysis**: Different forensic tools may parse filesystem structures differently, especially for corrupted or unusual filesystem types. Cross-validate critical findings between SleuthKit, Autopsy, and manual inspection to avoid tool-specific false conclusions.
+
+## Detection Methods
+
+### Forensic Artifact Analysis
+- **Filesystem timeline**: NTFS `$MFT`, USN Journal; Linux `ext4` journal; reveal deleted files and timestamps.
+- **Registry analysis**: Windows Registry hives (SAM, SYSTEM, SOFTWARE); reveal persistence and config.
+- **Memory forensics**: Volatility / Rekall analysis of RAM dump; reveals processes, network connections, malware.
+- **Network forensics**: PCAP analysis with Wireshark / NetworkMiner; reveals attack timeline.
+
+### SIEM Detection Rules
+- **Splunk SPL**: Correlate forensic timeline with SIEM events; identify gaps.
+- **MITRE ATT&CK mapping**: Map forensic artifacts to ATT&CK techniques for standardized reporting.
+- **Velociraptor / GRR**: Enterprise forensic platforms with remote acquisition.
+
+## Defense Evasion Techniques
+
+### Anti-Forensics
+- **Secure deletion**: `shred`, `srm`, `bcwipe` to defeat filesystem recovery.
+- **Timestamp manipulation**: NTFS `$STANDARD_INFORMATION` + `$FILE_NAME` (defeat timeline analysis).
+- **USN Journal cleaning**: `fsutil usn deletejournal` to remove update sequence records.
+- **Log tampering**: Selective log entry removal; preserve legitimate-looking sequence.
+
+### Memory Anti-Forensics
+- **Process hollowing**: Replace legitimate process memory; appears legitimate in `ps`.
+- **DKOM (Direct Kernel Object Manipulation)**: Unlink process from active list; invisible to live response.
+- **Reflective DLL injection**: Load from memory; no file on disk.
+- **Memory-only execution**: `memfd_create` on Linux; no disk artifacts.
+
+### Network Anti-Forensics
+- **TLS to attacker C2**: Encrypt all traffic; PCAP shows only encrypted bytes.
+- **Domain fronting**: Use legitimate CDN; PCAP shows only CDN IP.
+- **DNS tunneling**: Encode data in DNS; bypasses HTTP-based PCAP analysis.
+- **Covert timing channels**: Encode data in inter-packet delays.
 
 ## Automation and Scripting
 

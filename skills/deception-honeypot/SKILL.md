@@ -2,7 +2,7 @@
 name: deception-honeypot
 description: Defensive deception and honeypot deployment covering SSH/Telnet (Cowrie), web (OpenCanary), enterprise (HFish), ICS/SCADA (Conpot), all-in-one (T-Pot), AI-driven deception (Beelzebub), Thinkst Canarytokens (DNS, HTTP, file, AWS API key, SQL), Dionaea multi-protocol honeypot, notification pipelines (Slack/Teams webhooks), false positive tuning, and attacker engagement — including lure design, deployment OPSEC, IOC extraction, and attacker attribution.
 origin: github-trending-2026
-version: 0.1.30
+version: "0.2.0.2"
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "TA0040-Detection (deception), maps to MITRE Engage framework"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -747,6 +748,38 @@ DURING OPERATION:
 - Treat hits as intelligence — do not act against the attacker's IP outside
   of authorized defensive measures (block at perimeter, share IOC).
 ```
+
+## Detection Methods
+
+### Honeypot/Honeynet Telemetry
+- **Canary token activation**: Thinkst Canarytokens (PDF, AWS keys, DNS, web bugs) trigger on access.
+- **Honeypot interaction**: Any interaction with `vpn-internal.yourdomain.com` or fake admin accounts is malicious by definition.
+- **Honeytoken access**: Fake credentials in `/etc/passwd` or `~/.aws/credentials`; any auth attempt is malicious.
+- **Fake document access**: Honeydoc in filesystem; alert on read.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns query="*.fake-sub.yourdomain.com"` — any DNS resolution of fake subdomain is attacker.
+- **Custom rules**: Alert on access to `/decoy/*` paths in any application.
+- **CounterCraft / TrapX**: Commercial deception platform with native SIEM integration.
+
+## Defense Evasion Techniques
+
+### Honeypot Detection
+- **Service fingerprinting**: Honeypots often have outdated signatures (Cowrie default SSH banners).
+- **Network architecture**: Honeypots often on isolated VLANs; check ARP table for fake MACs.
+- **Behavioral fingerprint**: Honeypots respond too quickly to commands; no real system latency.
+- **Filesystem analysis**: Honeypot filesystems often sparse; check inode count.
+
+### Canary Token Detection
+- **URL pattern matching**: Canarytokens often use predictable domains (`canarytokens.com`).
+- **Image dimension check**: 1x1 tracking pixels; identify by size.
+- **Honeytoken detection**: Check `/etc/passwd` for fake users (often named `canary`, `honeypot`).
+
+### Evasion Best Practices
+- **Test against decoys**: Always probe new environment for honeypots before full operation.
+- **Use legitimate credentials**: Stolen valid creds don't trigger honeypot auth alerts.
+- **Avoid fake resources**: Don't access files/resources that don't match your reconnaissance findings.
+- **Slow & methodical**: Honeypots often have logging triggered by speed (rapid enumeration).
 
 ## Cross-References
 

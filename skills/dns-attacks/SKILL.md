@@ -2,7 +2,7 @@
 name: dns-attacks
 description: "DNS Attacks exploit the Domain Name System protocol for reconnaissance, spoofing, tunneling, and data exfiltration. DNS is a foundational infrastructure service that is frequently misconfigured, poorly monitored, and trusted by default -- making it an ideal attack vector."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 6
   mitre: "TA0011-Command and Control"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -225,6 +226,42 @@ done
 - **Ignoring reverse DNS lookups**: Forward enumeration finds subdomains, but reverse lookups on IP ranges often reveal hostnames, internal naming conventions, and services not discoverable through forward queries alone.
 - **Neglecting DNS traffic monitoring**: DNS tunneling generates significantly more queries than normal traffic, with consistently long subdomain labels. Failing to monitor for these patterns allows tunnels to persist indefinitely.
 - **Using default tunnel configurations**: Tools like iodine and dnscat2 have well-known default settings and query patterns that are easily flagged by DNS monitoring solutions. Always customize query types, intervals, and domain structures.
+
+## Detection Methods
+
+### DNS Layer Indicators
+- **Cache poisoning signatures**: Multiple responses for same query (signature of Kaminsky attack).
+- **DNS tunneling**: Long queries, TXT record bursts, high-entropy subdomains (dnscat2/iodine signatures).
+- **NXDOMAIN spikes**: High rate of NXDOMAIN responses (water torture / subdomain enumeration).
+- **DNSSEC validation failures**: Misconfigured DNSSEC; alert on sudden validation rate drop.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns | where len(query) > 50 OR query matches "^[A-Za-z0-9+/=]{30,}\\." | stats count by src_ip`
+- **PassiveDNS**: Record all DNS lookups; detect command-and-control infrastructure.
+- **Cisco Umbrella / Quad9**: Native DNS-layer security.
+
+## Defense Evasion Techniques
+
+### Tunneling Stealth
+- **Encoding tricks**: Base32 encoding (DNS-safe); harder to detect than hex.
+- **Distribute across domains**: Use many domains; below per-domain rate threshold.
+- **TXT records over A**: TXT allows larger payloads per query; fewer queries needed.
+- **Slow & low**: Pace tunneling below 5 req/sec; below detection threshold.
+
+### Subdomain Enumeration Stealth
+- **Use legitimate DNS providers**: Cloudflare DNS (1.1.1.1), Google (8.8.8.8); blends with normal traffic.
+- **Certificate Transparency**: Use `crt.sh` instead of direct enumeration; passive recon.
+- **Wildcard detection avoidance**: Probe known-existent subdomain first to detect wildcard.
+
+### Cache Poisoning Stealth
+- **Time-shifted attack**: Poison cache during low-traffic window; less monitoring attention.
+- **Target less-monitored resolvers**: Open resolvers, ISP resolvers with limited logging.
+- **Spoof source IP**: Use amplification reflection; hide true source.
+
+### DNSSEC Avoidance
+- **Target unsigned zones**: Operate against zones without DNSSEC; bypass validation.
+- **Algorithm confusion**: Exploit DNSSEC algorithm downgrade weaknesses.
+- **NSEC3 walking**: Zone walking via NSEC3 records; gather subdomains.
 
 ## Automation and Scripting
 

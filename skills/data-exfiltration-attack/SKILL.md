@@ -2,7 +2,7 @@
 name: data-exfiltration-attack
 description: Attacks for exfiltrating data from compromised networks and bypassing DLP/egress controls. Covers DNS tunneling, ICMP/HTTPS tunneling, protocol smuggling, steganographic exfil, cloud-native exfil (S3/OpenSearch/BigQuery), and DLP bypass. Use when testing egress monitoring, validating DLP controls, or simulating APT exfiltration campaigns.
 origin: kali-claw
-version: 0.1.42
+version: "0.2.0.2"
 compatibility:
   - kali-linux-2025-2-arm64
   - python-3.11+
@@ -37,6 +37,7 @@ metadata:
   tool_count: 19
   guide_count: 2
   mitre: "TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573"
+  last_reviewed: "2026-07-26"
 ---
 
 # Data Exfiltration Attack
@@ -345,6 +346,53 @@ Key defensive controls:
 - Behavior-based detection (volume baseline + peer-group anomaly)
 - Decoy documents (canarytokens) to detect exfil channel
 - Egress allowlist (no direct Internet, force proxy)
+
+## Detection Methods
+
+### Network-Layer Indicators
+- **DNS tunneling signatures**: Long DNS queries (>50 chars), high-entropy subdomains, TXT/A record bursts.
+- **DNS beaconing**: Periodic DNS queries to attacker-controlled domain (Cobalt Strike signature).
+- **HTTPS to unfamiliar domains**: Large uploads to unknown cloud storage / file sharing.
+- **Protocol anomalies**: SSH over 443, HTTP tunneling, ICMP tunneling (large ping payloads).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns | where len(query) > 50 | stats count by src_ip | where count > 100`
+- **Splunk SPL**: `index=firewall action=allowed | stats sum(bytes_out) by src_ip | sort -sum(bytes_out) | head 20`
+- **RITA (Real Intelligence Threat Analytics)**: Beacon detection via statistical analysis.
+- **DLP systems**: Forcepoint, Symantec DLP for content-based detection.
+
+### Endpoint Indicators
+- **Mass file read events**: Process reading many files in short window (precursor to exfil).
+- **Compress-then-upload**: `tar`/`zip` followed by `curl`/`scp` within 60 seconds.
+- **Encrypted archive creation**: New `.zip`/`.7z` with password ( evasion signature).
+
+## Defense Evasion Techniques
+
+### Bandwidth-Aware Exfiltration
+- **Low & slow**: Pace exfil below network baseline (e.g., 100 KB/hr); evades rate-based detection.
+- **Distribute across protocols**: Mix DNS, HTTPS, ICMP; spread exfil across multiple channels.
+- **Time-windowed**: Use off-hours (1-5 AM local) when network baseline is low.
+- **Trickle over weeks**: Spread exfil over long period; below anomaly threshold.
+
+### Covert Channels
+- **DNS tunneling**: Encode data in DNS queries (dnscat2, iodine); bypasses most firewall rules.
+- **ICMP tunneling**: Data in ICMP echo payload; bypasses port-based filtering.
+- **HTTP/3 (QUIC)**: Newer protocol; many monitoring tools don't decode yet.
+- **WebSocket**: Persistent connection; bypasses connection-counting rate limits.
+- **Cloud CDN abuse**: Use legitimate CDN (Cloudflare, AWS CloudFront) to mask destination.
+
+### Steganography
+- **Image LSB**: Encode data in least-significant bits of PNG/BMP images.
+- **Audio steganography**: Encode in WAV/MP3 spectrogram (Coagula, Arss).
+- **Video steganography**: Frame-by-frame LSB modification; high bandwidth.
+- **PDF object abuse**: Hide data in PDF object streams.
+- **Network packet timing**: Encode data in inter-packet delays (covert timing channel).
+
+### Cloud Exfiltration Stealth
+- **Use sanctioned apps**: Upload to corporate OneDrive/Google Drive; below suspicion.
+- **OAuth consent abuse**: Use legitimate OAuth flow to access user data via Microsoft Graph.
+- **Snapshot sharing**: Share EBS/snapshot to attacker AWS account via legitimate mechanism.
+- **Cross-region replication**: S3 replication to attacker-controlled bucket; appears as DR config.
 
 ## References
 
