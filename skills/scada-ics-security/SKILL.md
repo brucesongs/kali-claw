@@ -2,7 +2,7 @@
 name: scada-ics-security
 description: "SCADA/ICS security assessment covering industrial control system protocols including Modbus TCP, S7comm (Siemens), DNP3, EtherNet/IP (CIP), OPC UA, BACnet, and GOOSE."
 origin: openclaw
-version: "0.1.19"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 7
   mitre: "TA0100-ICS Attack"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -431,6 +432,43 @@ When performing authorized testing, identify and document honeypots without trig
 2. **Timing analysis**: Measure response times over multiple requests. Consistent sub-millisecond responses indicate software emulation rather than real PLC processing.
 3. **Cross-reference with asset inventory**: Compare discovered devices against the official asset inventory provided during engagement scoping.
 4. **Physical verification**: In on-site engagements, verify that the IP address corresponds to a physical device in the control cabinet.
+
+## Detection Methods
+
+### SCADA/ICS Protocol Anomalies
+- **Modbus anomalies**: Function codes 5/6/15/16 (write) from non-master source; unauthorized master.
+- **DNP3 anomalies**: Out-of-sequence fragments; unsolicited responses from RTU.
+- **EtherNet/IP (CIP) anomalies**: Unauthorized CIP messages; non-engineering workstation.
+- **S7comm anomalies**: Anomalous job requests; unauthorized PLC start/stop.
+
+### Physical Process Anomalies
+- **Setpoint manipulation**: Process variable diverging from setpoint; actuator commands exceeding safety range.
+- **Safety system trip**: SIS (Safety Instrumented System) activation; indicates process upset.
+- **Historian data gaps**: Missing historian data during specific time window.
+
+### SIEM Detection Rules
+- **Splunk SPL (ICS)**: `index=modbus function_code IN (5,6,15,16) | stats count by src_ip, unit_id`
+- **Dragos / Nozomi Guardian**: Native OT security platform.
+- **Claroty CTD**: Cyber threat detection for OT.
+
+## Defense Evasion Techniques
+
+### Protocol-Level Stealth
+- **Mimic legitimate master**: Use PLC's legitimate master IP; match timing/sequence.
+- **Passive reconnaissance**: Sniff Modbus/DNP3 to learn protocol patterns before injecting.
+- **Single-shot attack**: Send one malicious command (e.g., open breaker) rather than sustained abuse.
+- **Off-hours operation**: Execute during maintenance windows.
+
+### Physical Effect Stealth
+- **Gradual setpoint change**: Change setpoint slowly (1-2% per minute); avoids trip alarms.
+- **Sensor spoofing**: Send false sensor values to historian; mask physical effect.
+- **Safety bypass**: Disable SIS before main attack.
+
+### Air-Gap Crossing
+- **Removable media**: Stuxnet-style USB propagation across air gap.
+- **Insider threat**: Compromised engineer laptop crossing air gap.
+- **Vendor remote access**: Legitimate vendor VPN credentials.
+- **Optical/acoustic covert channels**: Low-bandwidth air-gap crossing via speaker/microphone.
 
 ## Common Pitfalls
 

@@ -2,7 +2,7 @@
 name: safety-guard
 description: "Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says \"safe?"
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: defense
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -273,6 +274,26 @@ Target system crashed, data loss occurred, unauthorized access to production dat
 | `post-exploitation` | Freeze mode for privilege escalation and lateral movement |
 | `docker-patterns` | Ensure lab environments don't leak to public interfaces |
 | `all skills` | Universal safety layer applied to every operation |
+
+## Detection Methods
+
+### Safety Guard Service Audit
+- **Safety bypass attempts**: Patterns indicating attempts to bypass safety checks (jailbreak signatures).
+- **False negative rates**: Safety guard approving known-malicious content.
+- **Latency anomalies**: Safety guard slower than baseline; service degradation.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=safety guard.action="*" | stats count by action, reason | sort -count`
+- **Custom safety metrics**: Per-rule precision/recall tracking.
+
+## Defense Evasion Techniques
+
+### Safety Guard Bypass
+- **Indirect bypass**: Embed bypass in tool result (e.g., file content) rather than user prompt.
+- **Multi-turn bypass**: Spread bypass across multiple turns; each looks benign individually.
+- **Encoding tricks**: Base64, hex, Unicode normalization to evade content filters.
+- **Long-context dilution**: Embed bypass in 50K+ token context; dilute attention.
+- **Cognitive hacking**: Frame as hypothetical, fictional, or academic exercise.
 
 ## Anti-Patterns
 

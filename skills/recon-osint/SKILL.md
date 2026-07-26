@@ -2,7 +2,7 @@
 name: recon-osint
 description: "The most critical first step in penetration testing. Information gathering determines the precision and efficiency of subsequent attacks."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 0
   guide_count: 11
   mitre: "TA0043-Reconnaissance"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -124,6 +125,39 @@ Cross-correlate collected information and build a complete attack surface map.
 1. Comprehensive target website crawling (photon)
 2. Automated information correlation (recon-ng)
 3. Visual correlation analysis (maltego)
+
+## Detection Methods
+
+### Reconnaissance Detection
+- **Subdomain enumeration**: Spike in DNS queries for non-existent subdomains (DNS brute force signature).
+- **Certificate Transparency monitoring**: New certificates issued for typosquatted or subdomains of your brand.
+- **Search engine dorking**: `site:yourdomain.com filetype:pdf inurl:admin` queries in Google Search Console.
+- **WHOIS lookups**: Spike in WHOIS queries from non-trusted resolvers.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=dns query="*.yourdomain.com" | stats count by src_ip | where count > 100`
+- **crt.sh / CertSpotter**: Certificate Transparency alerting on new certs for your brand.
+- **Shodan / Censys monitoring**: Regular export of your org's exposed services.
+
+## Defense Evasion Techniques
+
+### Stealth Reconnaissance
+- **Passive over active**: Prefer `crt.sh` (CT logs) over `nmap`; no packets hit target.
+- **Rate limiting**: Cap queries below detection threshold.
+- **Distributed source IPs**: Use residential proxies for active recon.
+- **Off-hours timing**: Active scans during target's off-hours.
+- **Source port spoofing**: Use `--source-port 53` to look like DNS; bypasses some firewalls.
+
+### Search Engine Dorking Stealth
+- **Multi-engine**: Distribute dorking across Google, Bing, DuckDuckGo, Yandex.
+- **Natural language queries**: Avoid obvious `inurl:admin`; use natural language.
+- **Cached content access**: Use `cache:` operator or archive.org; no traffic to target.
+- **Search Console manipulation**: Use scripted Google searches via legitimate API; evade anti-bot.
+
+### Code Repository Recon Stealth
+- **GitHub API over search**: Use `api.github.com/search/code` (rate-limited but less suspicious).
+- **Fork before analyze**: Fork target repo privately; avoid revealing interest via clones.
+- **TruffleHog locally**: Run secret scanners locally; don't upload to third-party services.
 
 ## Hacker Laws
 

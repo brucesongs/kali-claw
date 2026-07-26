@@ -2,7 +2,7 @@
 name: sase-sse-attack
 description: "Secure Access Service Edge (SASE) and Security Service Edge (SSE) platform compromise covering Zscaler (ZIA/ZPA/ZDX/Client Connector), Netskope (Security Cloud, SWG, CASB, Private Access), Palo Alto Prisma Access, Cisco Umbrella, CATO Networks SASE, Cloudflare One (WARP, Gateway, Access), and Microsoft Entra Global Secure Access — including client connector reverse engineering, TLS inspection bypass via certificate pinning and ESNI/ECH, split-tunnel race conditions, BYOD vs managed device bypass, stolen SSO token replay through SSE proxy, anonymizer proxy evasion (Shadowsocks/V2Ray/Obfs4/Trojan), and detection avoidance using Wireshark, Frida, mitmproxy, JA3/JA4 fingerprint spoofing."
 origin: github-trending-2026
-version: 0.1.31
+version: "0.2.0.2"
 compatibility: ">=0.1.31"
 allowed-tools:
   - Bash
@@ -50,6 +50,7 @@ metadata:
     - v2ray
     - obfs4
     - trojan-proxy
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -600,6 +601,31 @@ netsh wfp show state file=gsa_wfp.txt
 # 4. The GSA client trusts the Entra ID PRT — steal the PRT (cross-ref `cloud-identity-attack`)
 # to replay through GSA from another device. The GSA profile accepts the PRT as identity.
 ```
+
+## Detection Methods
+
+### SASE/SSE Service Audit
+- **Zscaler ZIA/ZPA anomalies**: Tunnel bypass; SWG policy bypass; CASB false negative.
+- **Cloudflare One anomalies**: WARP client bypass; Gateway policy violation.
+- **Netskope anomalies**: Client bypass; DLP bypass via cloud sync.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=sase vendor="Zscaler" | stats count by action, url | where action="blocked"`
+- **Vendor-native**: Zscaler NSS, Netskope Cloud XT, Cloudflare Analytics.
+
+## Defense Evasion Techniques
+
+### SASE/SSE Bypass
+- **Direct-to-internet**: Bypass SASE by using direct internet (4G/5G hotspot).
+- **TLS fingerprinting**: Match legitimate app JA3 to bypass SWG.
+- **Domain fronting**: Use CDN; SASE sees only CDN IP.
+- **Split tunneling abuse**: Force traffic into split-tunnel path; bypass inspection.
+
+### DLP Bypass
+- **Encoding tricks**: Base64 / hex / image steganography; DLP may not decode.
+- **Personal cloud**: Use personal OneDrive/Dropbox; bypass corporate DLP.
+- **OCR-resistant images**: Screenshot sensitive data; DLP may not OCR.
+- **Side-channel exfil**: Encode data in request timing or response length.
 
 ## Common Pitfalls
 
