@@ -2,7 +2,7 @@
 name: cps-attack
 description: Cyber-Physical Systems (CPS) attacks — PLCs (Siemens S7, Rockwell ControlLogix, Schneider Modicon, Mitsubishi MELSEC), ICS protocols (Modbus, DNP3, Profinet, EtherNet/IP, IEC 61850, OPC UA), HMIs, SCADA historians, OT-to-IT pivot, SIS bypass. Distinct from scada-ics-security (broader ICS overview) — this skill goes deep on protocol-level PLC exploitation, packet replay/injection, and field-device firmware attacks. Covers 2024-2025 incidents (Unitronics PLC attack, Pipedream/Incontroller, multi-vendor PLC CVEs).
 origin: kali-claw Wave 10 (v0.1.41) — 2026-06-28
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -27,6 +27,7 @@ metadata:
   tool_count: 15
   guide_count: 2
   mitre: "TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode"
+  last_reviewed: "2026-07-26"
 ---
 
 # Cyber-Physical Systems (CPS) Attack Skill
@@ -606,6 +607,45 @@ When OT compromise suspected:
 7. **Forensics** — pull HMI logs, engineering workstation image, traffic capture
 8. **Restore** — last-known-good PLC program; verify before download
 9. **Post-mortem** — Purdue Model adherence review, network architecture audit
+
+## Detection Methods
+
+### ICS/SCADA Protocol Anomalies
+- **Modbus abuse**: Unsolicited Modbus write commands (`function code 0x05`, `0x06`, `0x10`); non-PLC source.
+- **DNP3 anomalies**: Unsolicited DNP3 responses; out-of-sequence application layer fragments.
+- **EtherNet/IP (CIP)**: CIP messages to non-CPU modules; unusual path segments.
+- **PROFINET DCP abuse**: DCP write requests to device name; identify spoofing.
+- **BACnet anomalies**: Who-Is/I-Am floods; COV subscription abuse.
+
+### Physical Process Anomalies
+- **Setpoint manipulation**: Process variable diverging from setpoint; actuator commands exceeding safety range.
+- **Safety system trip**: SIS (Safety Instrumented System) activation; indicates process upset.
+- **Historian data gaps**: Missing historian data during specific time window; potential attack window.
+- **Process upset cascade**: Multiple alarms in short window; signature of cyber-induced incident.
+
+### SIEM Detection Rules
+- **Splunk SPL (ICS)**: `index=modbus function_code IN (5,6,15,16) | stats count by src_ip, unit_id`
+- **Dragos / Nozomi Guardian**: Native OT security platform detections.
+- **Claroty CTD**: Cyber threat detection for OT environments.
+
+## Defense Evasion Techniques
+
+### Protocol-Level Stealth
+- **Mimic legitimate master**: Use PLC's legitimate master IP; match timing/sequence of normal commands.
+- **Passive reconnaissance**: Sniff Modbus/DNP3 to learn protocol patterns before injecting.
+- **Single-shot attack**: Send one malicious command (e.g., open breaker) rather than sustained abuse.
+- **Off-hours operation**: Execute during maintenance windows; blends with legitimate activity.
+
+### Physical Effect Stealth
+- **Gradual setpoint change**: Change setpoint slowly (1-2% per minute); avoids trip alarms.
+- **Sensor spoofing**: Send false sensor values to historian; mask physical effect.
+- **Safety bypass**: Disable safety system before main attack; avoids SIS trip.
+
+### Air-Gap Crossing
+- **Removable media**: Stuxnet-style USB propagation across air gap.
+- **Insider threat**: Use compromised engineer laptop that crosses air gap.
+- **Vendor remote access**: Use legitimate vendor VPN credentials; bypass air gap.
+- **Optical/acoustic covert channels**: Speaker/microphone for low-bandwidth air-gap crossing.
 
 ## References
 

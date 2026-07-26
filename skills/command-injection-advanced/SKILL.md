@@ -2,7 +2,7 @@
 name: command-injection-advanced
 description: "Advanced injection attacks beyond SQL - covering OS command injection, LDAP injection, NoSQL injection, template injection (SSTI), XPath injection, and comprehensive filter bypass techniques."
 origin: openclaw
-version: "0.1.47"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -21,6 +21,7 @@ metadata:
   guide_count: 4
   owasp: "A03:2021-Injection"
   mitre: "TA0002-Execution"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -743,3 +744,46 @@ fetch('/api/admin/exec?cmd=;id', {credentials: 'include'})
 ---
 
 *This skill targets CyberGym IN1-IN4 bug classes and expands injection coverage beyond SQL to modern attack vectors including LDAP, NoSQL, SSTI, and advanced filter bypass techniques.*
+## Detection Methods
+
+### Web Application Layer
+- **Input pattern signatures**: Requests containing `;`, `|`, `&&`, `||`, `\` followed by command keywords (`wget`, `curl`, `bash`, `nc`).
+- **WAF rule matches**: ModSecurity CRS 932100-933999 (RCE); AWS WAF `AWSManagedRulesUnixRuleSet`.
+- **Parameter length outliers**: Query params exceeding 500 chars (typical injection signature).
+- **Encoding anomalies**: Double-encoding (`%2520`), Unicode normalization forms in input.
+
+### Runtime Indicators
+- **Process ancestry anomalies**: Web server (`www-data`, `iis`) spawning shells (`/bin/sh`, `cmd.exe`).
+- **Filesystem artifacts**: New files in `/tmp/`, `C:\\Windows\\Temp\\` from web server processes.
+- **Network connections**: Web server making outbound to non-standard ports (reverse shell).
+- **Error message leakage**: Detailed OS errors in HTTP responses (info disclosure).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=web sourcetype=access_combined | regex uri=".*[;&|].*(wget|curl|bash|nc).*"`
+- **Sigma rule**: `sigma/rules/web/rce_pattern.yml`
+- **Falco**: `Web server spawned shell` (process ancestry alert)
+
+## Defense Evasion Techniques
+
+### WAF Bypass
+- **Encoding obfuscation**: URL encoding (`%3B`), hex (`\x3b`), HTML entity (`&#59;`), Base64.
+- **Case variation**: `WGET`, `wGeT`, `WhOaMi` (rare signatures).
+- **Whitespace alternatives**: `${IFS}`, `$()`, `\\t`, `\\n` instead of spaces.
+- **Comment insertion**: `w/**/get`, `w'+'get` (SQL-style).
+- **Quote manipulation**: `w"g"e"t`, `w'g'e't` to defeat regex.
+- **Chaining commands**: `;`, `|`, `&&`, `||`, `\\n` alternates.
+
+### Filter Bypass
+- **Keyword splitting**: `wg\\et`, `w'get`, `w\\`+`get` (bash line continuation).
+- **Wildcard abuse**: `/???/??t` matches `/bin/cat`; `/???/w?get` matches wget.
+- **Environment variables**: `$PATH`, `$HOME` substrings to build commands.
+- **Brace expansion**: `{wget,curl}` to evade keyword filters.
+- **Process substitution**: `<(/bin/sh)` to launch shell.
+
+### Modern Mitigation Bypass
+- **Polyglot payloads**: Single input that's valid in multiple contexts (SQLi + RCE).
+- **Prototype pollution** (Node.js): Pollute `__proto__` to enable RCE via `child_process`.
+- **Template injection**: SSTI to RCE chain (`{{constructor.constructor('id')()}}`).
+- **YAML deserialization**: `!!python/object/apply:os.system ["id"]` (Python yaml.load).
+- **Expression language**: Spring EL / OGNL injection (`${T(java.lang.Runtime).getRuntime().exec('id')}`).
+

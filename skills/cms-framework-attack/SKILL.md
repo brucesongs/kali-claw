@@ -2,7 +2,7 @@
 name: cms-framework-attack
 description: "Targeted security assessment of Content Management Systems (WordPress, Joomla, Drupal) using specialized scanners and exploit techniques."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: web-attack
   tool_count: 7
   guide_count: 3
+  last_reviewed: "2026-07-26"
 ---
 
 

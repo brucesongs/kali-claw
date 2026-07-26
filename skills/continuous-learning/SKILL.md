@@ -2,7 +2,7 @@
 name: continuous-learning
 description: "After completing a penetration test engagement - When encountering a novel attack technique or defense - After a tool produces unexpected results - When identifying recurring patterns across targets - User says \"learn\", \"remember this\", \"pattern."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: knowledge
   tool_count: 9
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -200,6 +201,40 @@ Automatic pattern extraction should occur when:
 4. **Include negative results** — "Tool X missed finding Y" is as valuable as "Tool X found Y"
 5. **Date everything** — Knowledge has a shelf life; dated entries can be refreshed
 6. **Source attribution** — Every entry must trace back to a specific observation or research
+
+## Detection Methods
+
+### Learning Pipeline Anomalies
+- **Training data injection**: Sudden spike in training data volume from untrusted source.
+- **Model weight drift**: Model weights changing unexpectedly between training cycles.
+- **Backdoor activation**: Specific input patterns triggering anomalous predictions.
+
+### RAG / Knowledge Base Indicators
+- **Vector store poisoning**: Documents with embedding far from cluster centroid.
+- **Retrieval anomalies**: Specific queries consistently retrieving same documents (potential trigger).
+- **Cross-user data leakage**: User A's query retrieving User B's indexed documents.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=ml training_run=* | stats dc(data_source) by model_version | where dc > 5`
+- **LangSmith / Helicone**: Anomaly detection on RAG retrieval patterns.
+
+## Defense Evasion Techniques
+
+### Data Poisoning Stealth
+- **Slow injection**: Add poisoned samples over multiple training cycles; below distribution shift threshold.
+- **Mimic legitimate distribution**: Match poisoned samples' statistics to legitimate data.
+- **Trigger-based backdoor**: Activates only on specific input patterns; otherwise benign.
+- **Label-flipping attacks**: Flip labels of small % of samples; degrades model accuracy subtly.
+
+### RAG Poisoning Stealth
+- **Match embedding distribution**: Poisoned documents close to legitimate cluster centroid.
+- **Trigger via specific query**: Backdoor activates only on attacker's specific query pattern.
+- **Cross-tenant indexing**: Index poison in tenant A; affect queries from tenant B (if not isolated).
+
+### Memory Poisoning Stealth
+- **Long-term memory manipulation**: Modify agent memory to plant triggers for future sessions.
+- **Cache poisoning**: Poison LLM gateway cache; affects future users.
+- **Gradual trust building**: Build up reputation over time, then exploit at scale.
 
 ## Anti-Patterns
 

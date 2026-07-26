@@ -2,7 +2,7 @@
 name: cspm-casb-attack
 description: "CSPM/CASB/CNAPP platform bypass and abuse — rule suppression exploitation, IaC state manipulation, CASB proxy evasion, SaaS shadow discovery, Wiz/Prisma/Lacework/Defender coverage gap identification, and tag-tampering attacks against cloud posture management tools."
 origin: github-trending-2026
-version: "0.1.0"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -49,6 +49,7 @@ metadata:
     - policy-as-code
     - opa
     - kyverno
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: CSPM / CASB / CNAPP Attack and Evasion
@@ -332,6 +333,44 @@ checkov -d . --framework terraform --quiet
 ```
 
 ---
+
+## Detection Methods
+
+### CSPM Configuration Drift
+- **Public S3 bucket creation**: `s3:CreateBucket` with `public-read` ACL; alert via CSPM tools (Wiz, Prisma Cloud).
+- **Security group changes**: `ec2:AuthorizeSecurityGroupIngress` opening 0.0.0.0/0 on sensitive ports.
+- **IAM role escalation**: New role with `AdministratorAccess` or `*` permissions.
+- **KMS key policy weakening**: KMS key policy granting cross-account access.
+
+### CASB Cloud App Activity
+- **Unsanctioned app usage**: Users uploading data to unapproved cloud apps (Shadow IT).
+- **Data exfiltration patterns**: Large uploads to personal cloud storage (Dropbox, personal OneDrive).
+- **OAuth app abuse**: New OAuth app granted broad scopes; mass data access.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=aws sourcetype=aws:cloudtrail eventName=CreateBucket | where requestParameters.acl="public-read"`
+- **Wiz / Prisma Cloud**: Native CSPM alerts for compliance violations.
+- **Microsoft Defender for Cloud Apps**: CASB alerts for unsanctioned app usage.
+
+## Defense Evasion Techniques
+
+### CSPM Rule Bypass
+- **Use existing compliant resources**: Don't create new public bucket; abuse existing misconfigured one.
+- **Policy-based bypass**: Modify SCP (Service Control Policy) to allowlist specific actions.
+- **Cross-account resource sharing**: Share resource to attacker account via legitimate mechanism.
+- **Tag-based exemption**: Apply exemption tag that CSPM respects (e.g., `CSPM-Exempt: true`).
+
+### CASB Evasion
+- **Approved app abuse**: Use sanctioned app (e.g., corporate OneDrive) for exfil; below suspicion.
+- **Protocol tunneling**: Tunnel exfil through HTTPS to approved destination.
+- **Encoding tricks**: Encode sensitive data as image files; CASB DLP may not scan images.
+- **OAuth app camouflage**: Register OAuth app with legitimate-looking name and logo.
+- **Personal app + corporate device**: Use personal account on corporate device; bypasses MDM monitoring.
+
+### Cloud Resource Stealth
+- **Use serverless**: Lambda / Cloud Functions for transient exploitation; no always-on resources to detect.
+- **Spot instances**: Transient compute; terminated before detection baseline established.
+- **Cross-region**: Operate in regions with less CSPM coverage (Africa, Middle East).
 
 ## Hacker Laws
 

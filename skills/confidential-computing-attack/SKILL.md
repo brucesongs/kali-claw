@@ -2,7 +2,7 @@
 name: confidential-computing-attack
 description: "Attacks against Trusted Execution Environments (TEEs) and confidential computing platforms — Intel SGX (Foreshadow/SGAxe/LVI/ÆPIC Leak), Intel TDX, AMD SEV/SEV-ES/SEV-SNP (CrossLine/BadRAM), Azure CCF, Marblerun, and Gramine/Occlum libos enclaves. Covers side-channel leakage, attestation forgery, ABI misuse, host-to-enclave breakout, enclave-to-host escape, and recovery of sealed secrets. Distinct from hardware-security (broad hardware attacks) and firmware-reverse (UEFI/BIOS)."
 origin: openclaw
-version: "0.1.40"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "T1046-Network Service Discovery, T1602-Data from Configuration Repository"
+  last_reviewed: "2026-07-26"
 ---
 
 # Confidential Computing Attack
@@ -237,6 +238,39 @@ Where container-security asks "can I escape this container?", confidential-compu
 1. `gramine-sgx-sign --manifest app.manifest` to inspect manifest
 2. `gramine-sgx-token` to generate runtime measurement
 3. Identify syscall emulation bugs via fuzzing (e.g., `gramine-sgx-direct --trace-syscalls`)
+
+## Detection Methods
+
+### TEE Audit Logging
+- **SGX attestation logs**: Failed attestation attempts; quote verification failures.
+- **AMD SEV-SNP logs**: VMPL switch anomalies; TCB mismatch events.
+- **Intel TDX logs**: TD exit reasons; malicious TD guest indicators.
+
+### Side-Channel Detection
+- **Cache timing anomalies**: Process exhibiting consistent timing patterns (signature of cache attack).
+- **Page fault patterns**: Single process causing high page fault rate on shared memory.
+- **Power analysis signatures**: Hardware-level monitoring detects DPA/CPA attack patterns.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=tee sourcetype=sgx_attest | where status="failed" | stats count by enclave_id`
+- **Custom HSM monitoring**: Detect anomalous command sequences to HSM (key extraction attempts).
+
+## Defense Evasion Techniques
+
+### Attestation Bypass
+- **Attestation spoofing**: Replay legitimate attestation quote (some implementations don't bind nonce to enclave state).
+- **Outdated TCB**: Target enclaves with old TCB; vulnerabilities known but not patched.
+- **Side-channel tolerance**: Use tolerated side-channels (Foreshadow, Spectre); not flagged by enclave.
+
+### TEE Escape Stealth
+- **CVE selection**: Use newer CVEs (CVE-2022-40982, CVE-2023-23583) before detection rules updated.
+- **Cross-enclave attacks**: Use compromised enclave to attack others; appears as legitimate communication.
+- **Memory disclosure via side-channel**: No direct vulnerability exploited; harder to attribute.
+
+### Cloud Confidential VM Attacks
+- **Snapshot abuse**: Snapshot CVM disk, restore outside CVM, mount to read encrypted data.
+- **VBS (Virtualization-Based Security) escape**: Target Windows VBS flaws; bypass Credential Guard.
+- **SEV-SNP VMPL confusion**: Abuse VMPL levels to escalate privileges within SEV-SNP guest.
 
 ## Cross-References
 - `skills/hardware-security/SKILL.md` — physical hardware attacks (JTAG, fault injection)
