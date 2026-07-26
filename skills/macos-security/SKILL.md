@@ -2,7 +2,7 @@
 name: macos-security
 description: macOS red team and security assessment — SIP/TCC bypass, Endpoint Security framework, Apple Silicon/T2/M-series attacks, Mach-O analysis, Keychain extraction, MDM bypass, LaunchAgents/Daemons persistence, and macOS-native malware analysis.
 origin: github-trending-2026
-version: 1.0.0
+version: "0.2.0.2"
 compatibility: Claude Code, Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
@@ -12,6 +12,7 @@ metadata:
   guide_count: 2
   mitre: TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores
   keywords: [macos, sip, tcc, endpoint-security, mach-o, keychain, apple-silicon, m2, launchd, mdm, knockknock, lulu]
+  last_reviewed: "2026-07-26"
 ---
 
 # Skill: macOS Security Assessment
@@ -311,6 +312,42 @@ sudo ls -l /var/db/ConfigurationProfiles/Settings/
 sudo security find-certificate -a -c "Profile" /Library/Keychains/System.keychain
 sudo security find-certificate -a -c "MDM" /Library/Keychains/System.keychain
 ```
+
+## Detection Methods
+
+### macOS Endpoint Detection
+- **SIP (System Integrity Protection) bypass**: `/usr/bin/csrutil status` reports disabled; SIP-protected path modifications.
+- **TCC (Transparency, Consent, Control) bypass**: Apps accessing camera/microphone/location without TCC prompt.
+- **ESF (Endpoint Security Framework)**: Apple's native API for endpoint monitoring; `eslogger` events.
+- **Keychain access**: Unauthorized process accessing user keychain (URLServicesSecret, iCloud).
+- **Apple Silicon specific**: Rosetta anomalies; ARM64e pointer authentication failures.
+
+### SIEM Detection Rules
+- **Splunk SPL (macOS)**: `index=macos sourcetype=osquery:results | where path LIKE "/Library/LaunchAgents/%"`
+- **Jamf Protect / Kandji**: Native MDM-integrated EDR for macOS.
+- **Santa / KnockKnock**: Open-source macOS persistence detection.
+
+## Defense Evasion Techniques
+
+### SIP Bypass
+- **kext exploitation**: Kernel extensions bypass SIP userspace restrictions.
+- **Recovery mode csrutil disable**: Requires physical access; disable SIP persistence.
+- **Apple Silicon boot policy**: Modify boot policy via vuln kext (CVE-2024-23225 class); bypasses SIP.
+
+### TCC Bypass
+- **Bundle ID spoofing**: Mimic legitimate app Bundle ID (e.g., `com.apple.Safari`); inherits TCC entitlements.
+- **Library validation bypass**: Disable library validation; load dylib into signed app.
+- **Privacy Preferences Policy Control (PPPC) abuse**: Modify MDM profile to grant broad permissions.
+
+### Keychain Access Stealth
+- **Use legitimate app signatures**: Sign malicious binary with stolen Apple Developer ID; appears as legitimate app.
+- **Bidirectional keychain abuse**: Use keychain to persist credentials; survives user password changes.
+- **iCloud Keychain sync**: Compromise once, sync to all devices.
+
+### Apple Silicon Specific
+- **PAC (Pointer Authentication) bypass**: Use CVE in PAC implementation (CVE-2023-32434 class).
+- **Rosetta translation**: Run x86_64 malware under Rosetta; some Apple Silicon monitors miss x86 syscalls.
+- **M-series specific CVEs**: Use unpatched Apple Silicon vulnerabilities before detection rules.
 
 ## Common Pitfalls
 

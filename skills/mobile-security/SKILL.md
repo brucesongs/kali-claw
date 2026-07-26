@@ -2,7 +2,7 @@
 name: mobile-security
 description: "Mobile security covers the complete attack/defense chain of Android/iOS application security testing, APK/IPA reverse engineering, runtime manipulation, certificate pinning bypass, and mobile data protection."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: mobile
   tool_count: 6
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -158,6 +159,47 @@ Mobile apps connect to cloud backends (Firebase, AWS Amplify, custom APIs). Key 
 See `guides/mobile-api-security-testing.md` and `guides/mobile-cloud-integration.md`.
 
 ---
+
+## Detection Methods
+
+### Mobile App Static Analysis
+- **Hardcoded secrets**: Strings analysis revealing API keys (`AKIA...`), JWT tokens, OAuth client secrets.
+- **Insecure storage**: Credentials in `SharedPreferences` (Android), `NSUserDefaults` (iOS) without encryption.
+- **Exported components** (Android): Activities/services/receivers exported without permission check.
+- **Insecure transit**: Apps not enforcing TLS; cleartext traffic allowed.
+
+### Dynamic Analysis Detection
+- **Runtime manipulation**: Frida-instrumented app accessing sensitive functions.
+- **Insecure IPC**: Apps sharing sensitive data via Intent (Android) / URL scheme (iOS) without verification.
+- **WebView abuse**: JavaScript bridge (`addJavascriptInterface`) exposing sensitive functions.
+
+### SIEM Detection Rules
+- **Splunk SPL (mobile)**: `index=mobile sourcetype=apk:analysis | where permission matches "android.permission.SMS"`
+- **MobSF (Mobile Security Framework)**: Automated static + dynamic analysis.
+- **NowSecure / Veracode Mobile**: Commercial mobile app scanning.
+
+## Defense Evasion Techniques
+
+### Mobile Exploit Stealth
+- **Single-shot exploit**: One exploit per app launch; below sustained-pattern detection.
+- **Memory-only execution**: Run from RAM; no disk artifacts in `/data/data/<package>/`.
+- **Use legitimate intents**: Abuse exported components that look legitimate (e.g., share, profile).
+
+### Anti-Analysis
+- **Root/Jailbreak detection**: Detect and exit if compromised (defender-side; red team needs to bypass).
+- **Frida/Xposed detection**: Check for Frida server on port 27042; check for Xposed hooks.
+- **Emulator detection**: Check for emulator-specific properties (`ro.kernel.qemu`, `iSimulator`).
+- **SafetyNet / Play Integrity**: Google's remote attestation; harder to bypass.
+
+### Persistence Stealth
+- **Device admin** (Android): Use Device Admin for persistence; harder to remove.
+- **Accessibility service** (Android): Use Accessibility for persistence; powerful and persistent.
+- **Background app refresh** (iOS): Use Background App Refresh; killed less often.
+
+### Network Stealth
+- **Domain fronting**: Use legitimate CDN for C2; appears as legitimate traffic.
+- **Protocol mimicry**: C2 over legitimate-looking API (e.g., JSON to attacker's "analytics" endpoint).
+- **TLS fingerprinting**: Match ` okhttp` / `URLSession` JA3 signature.
 
 ## Orchestration
 

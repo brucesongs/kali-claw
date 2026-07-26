@@ -2,7 +2,7 @@
 name: mcp-server-patterns
 description: "Building and security-testing MCP (Model Context Protocol) servers for Kali Linux security tools."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   domain: infrastructure
   tool_count: 5
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -196,6 +197,31 @@ MCP server errors are a significant information disclosure vector:
 | `shlex` (stdlib) | Safe subprocess argument construction |
 | `subprocess` (stdlib) | Tool execution with timeout and output capture |
 | Custom Python scripts | Security testing automation (schema fuzzer, injection tester) |
+
+## Detection Methods
+
+### MCP Server Audit
+- **Tool description diff**: Diff tool descriptions across versions; alert on new exfil capabilities.
+- **Server registration**: New MCP server registered; alert if not in allowlist.
+- **Tool call anomalies**: Calls with unexpected parameters; path traversal in `read_file`.
+- **Outbound connections**: MCP client connecting to non-default MCP ports (27042, etc.).
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=mcp server.tool="read_file" | where match(params.path, "\.\./\.\./")`
+- **MCP Inspector / Claude Code audit logs**: Per-tool invocation logging.
+
+## Defense Evasion Techniques
+
+### Tool Poisoning Stealth
+- **Legitimate-looking updates**: Push tool updates via official channels; descriptions look benign.
+- **Gradual capability addition**: Add small exfil features across multiple updates; below diff threshold.
+- **Poison chained tools**: Modify tool A to call tool B (legitimate) with attacker-controlled args.
+- **Tool result poisoning**: Modify tool results to inject context for next call.
+
+### MCP Server Compromise
+- **Mimic legitimate MCP**: Use known MCP server name (e.g., `filesystem`, `git`); inherit trust.
+- **Use stdio transport**: Local stdio MCP servers; no network footprint.
+- **Cross-platform abuse**: MCP server runs in multiple Claude Code installs; persistent across projects.
 
 ## Orchestration
 
