@@ -2,7 +2,7 @@
 name: hsm-attack
 description: Hardware Security Module attacks — physical (side-channel, fault injection, decapping) and logical (PKCS#11 API abuse, key extraction, M-of-N quorum bypass, RDP, firmware exploitation). Covers Thales Luna (SafeNet), Utimaco SecurityServer, nCipher nShield, YubiHSM, AWS CloudHSM, Azure Dedicated HSM, Google Cloud HSM. Includes 2024-2025 CVEs (CVE-2024-47787 Thales Luna, CVE-2024-45294 Utimaco), HSM-as-a-Service tenant isolation attacks, and quorum-spoofing scenarios. Distinct from crypto-attacks (algorithm-level) and pam-privilege-attack (credential management).
 origin: kali-claw Wave 10 (v0.1.41) — 2026-06-28
-version: 1.0.0
+version: "0.2.0.2"
 compatibility:
   kali_version: "2025.2"
   python_version: ">=3.11"
@@ -31,6 +31,7 @@ metadata:
   tool_count: 16
   guide_count: 2
   mitre: "TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel"
+  last_reviewed: "2026-07-26"
 ---
 
 # HSM (Hardware Security Module) Attack Skill
@@ -558,6 +559,30 @@ When HSM compromise is suspected:
 7. **Rotate** — generate new keys, re-issue certs, update apps
 8. **Re-provision HSM** — firmware refresh, re-initialize partitions
 9. **Post-mortem** — full PED key audit, client workstation audit, network audit
+
+## Detection Methods
+
+### HSM Audit Logging
+- **Failed PIN attempts**: Multiple failed CU (Crypto User) logins; brute force signature.
+- **Anomalous key operations**: Key extraction attempts (`exportKey`, `extractWrapped`); alert on normally-internal keys.
+- **Side-channel signatures**: Power analysis pattern during crypto operations (DPA/CPA signature).
+- **Firmware anomalies**: Unexpected firmware update; signature verification failure.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=hsm sourcetype=hsm:audit | where operation IN ("exportKey","extractWrapped")`
+- **Thales/Gemalto monitoring**: Native HSM audit logs; SIEM integration via syslog.
+
+## Defense Evasion Techniques
+
+### HSM Compromise Stealth
+- **Use legitimate credentials**: Steal CU PIN rather than brute force; no failed-login alerts.
+- **Side-channel tolerance**: Use Spectre-class side-channels; not detected by HSM itself.
+- **Firmware downgrade**: Exploit older firmware version (fewer mitigations); restore to mask compromise.
+
+### Key Extraction Stealth
+- **Slow extraction**: Pace key extraction over long period; below audit threshold.
+- **Use existing export permissions**: Don't modify key attributes; use existing `extractable=true` keys.
+- **Wrapped key abuse**: Extract wrapped keys (some HSMs allow) and unwrap outside HSM.
 
 ## References
 

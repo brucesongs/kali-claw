@@ -2,7 +2,7 @@
 name: insecure-design
 description: "Insecure Design (OWASP A06:2025) focuses on security flaws in system architecture and design phases, rather than code implementation-level bugs."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -20,6 +20,7 @@ metadata:
   tool_count: 2
   guide_count: 7
   owasp: "A06:2025-Insecure Design"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -181,6 +182,18 @@ Common security anti-patterns:
 ```
 
 > **Detailed payloads in `payloads.md`, complete test checklist in `test-cases.md`.**
+
+## Detection Methods
+
+### Static Analysis Detection
+- **OWASP ASVS / Top 10 violations**: Code patterns matching known insecure design.
+- **CodeQL / Semgrep**: Custom queries for insecure design patterns (missing authz, broken access control).
+- **Architecture risk analysis**: STRIDE / PASTA threat modeling findings.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=app sourcetype=codeql | where rule_id matches "authz/*"`
+- **Snyk Code / Veracode**: SAST platform findings.
+- **GitHub Advanced Security**: CodeQL alerts in pull requests.
 
 ## Common Pitfalls
 

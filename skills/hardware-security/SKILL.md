@@ -2,7 +2,7 @@
 name: hardware-security
 description: "Hardware and embedded system security testing covering physical interface exploitation, firmware extraction and analysis, side-channel attacks, RFID/NFC cloning, and fault injection."
 origin: openclaw
-version: "0.1.18"
+version: "0.2.0.2"
 compatibility:
   - openclaw
   - claude-code
@@ -19,6 +19,7 @@ metadata:
   domain: hardware
   tool_count: 0
   guide_count: 5
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -150,6 +151,32 @@ Key targets: `/etc/passwd`, `/etc/shadow`, web server configs, init scripts, pri
 | sasquatch | Extended squashfs extraction (non-standard compressions) |
 | firmwalker | Automated firmware filesystem vulnerability scanner |
 | minicom / picocom | Serial terminal for UART communication |
+
+## Detection Methods
+
+### Hardware Attack Indicators
+- **JTAG/SWD access**: Debug interface activity on production hardware (should be disabled).
+- **Glitch detection**: Voltage/clock glitching signatures in power monitoring.
+- **Side-channel anomalies**: Unusual power consumption patterns during crypto operations.
+- **Physical tamper**: Anti-tamper mesh break; chassis intrusion switch activation.
+
+### SIEM Detection Rules
+- **Splunk SPL (IoT)**: `index=iot event_type="jtag_access" | stats count by device_id`
+- **Hardware security modules (HSM)**: Audit log monitoring for tamper events.
+- **TPM measurements**: Verify boot measurements against golden baseline.
+
+## Defense Evasion Techniques
+
+### Physical Exploitation Stealth
+- **Non-invasive attacks first**: Use power/clock glitching before invasive (decapping); preserves device.
+- **Laser fault injection**: Use IR laser through backside of die; minimal physical evidence.
+- **Cold boot attacks**: Freeze RAM to preserve keys; minimal trace.
+- **Glitch detection bypass**: Find devices without glitch detectors (older models).
+
+### Side-Channel Stealth
+- **Tolerated side-channels**: Use Spectre/Meltdown variant that's "tolerated" (allowed by design).
+- **Slow acquisition**: Pace power analysis over long period; reduces pattern detection.
+- **Cross-device averaging**: Use multiple identical devices; average noise to recover key.
 
 ## Orchestration
 

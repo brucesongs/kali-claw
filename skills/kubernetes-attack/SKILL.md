@@ -2,7 +2,7 @@
 name: kubernetes-attack
 description: Kubernetes cluster attack and red team covering RBAC abuse, pod escape (privileged pods, hostPath, capabilities, hostPID/hostIPC, container runtime sockets, kernel CVEs), kubelet API abuse (10250/10255), etcd direct access, service account token theft (legacy and projected), RBAC privilege escalation chains, cloud-managed K8s (EKS/GKE/AKS) pivoting, and kubectl plugin ecosystem (peirates, CDK, kube-hunter, BOtB, kubeletctl, kubescape, stratus-red-team, kubernetes-goat).
 origin: github-trending-2026
-version: 0.1.30
+version: "0.2.0.2"
 compatibility: ">=0.1.29"
 allowed-tools:
   - Bash
@@ -17,6 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers"
+  last_reviewed: "2026-07-26"
 ---
 
 
@@ -444,6 +445,44 @@ spec:
 EOF
 kubectl apply -f backdoor-cron.yaml
 ```
+
+## Detection Methods
+
+### Kubernetes Audit Log
+- **Privileged pod creation**: Pod spec with `privileged: true`, `hostPID`, `hostNetwork`, `hostPath` mounts.
+- **RBAC escalation**: New `clusterrolebindings.rbac.authorization.k8s.io` with subject = user (not service account).
+- **ServiceAccount token abuse**: Pods mounting serviceAccountToken not declared in spec.
+- **Anonymous auth**: API server with `--anonymous-auth=true`; requests with no auth.
+- **kubectl exec on system pods**: `kubectl exec` on `kube-apiserver`, `etcd`, `kube-controller-manager`.
+
+### SIEM Detection Rules
+- **Splunk SPL**: `index=k8s sourcetype=kube:audit verb=create resource=pods | where requestObject.spec.securityContext.privileged=true`
+- **Falco rule**: `Privileged pod started` / `Container launched with host path mount`
+- **Tetragon**: eBPF-based runtime security policies.
+- **Kubernetes Audit Logging**: Native audit policy; alert on privileged RBAC.
+
+## Defense Evasion Techniques
+
+### Pod Creation Stealth
+- **Use existing service accounts**: Don't create new RBAC; use existing over-privileged SA.
+- **Sidecar injection**: Inject into existing pod via shared process namespace; no new pod creation.
+- **CronJob one-shot**: Schedule short-lived pod via CronJob; completes before detection.
+- **PreStop hook abuse**: Use existing pod's lifecycle hook; executes on shutdown.
+
+### ServiceAccount Token Theft
+- **Steal mounted token**: Read `/var/run/secrets/kubernetes.io/serviceaccount/token` from compromised pod.
+- **Long-lived tokens**: Some clusters still use non-expiring tokens; reuse indefinitely.
+- **Token at rest in etcd**: Steal token from etcd directly; bypasses admission audit.
+
+### Container Escape Stealth
+- **Lesser-monitored syscalls**: Use `openat2`, `io_uring`, `bpf` to evade default Falco rules.
+- **CVE selection**: Use newer CVEs (CVE-2024-1086 netfilter) before Falco rule updates.
+- **Kernel namespace manipulation**: `unshare -U -r --map-root-user` over `setuid`; less signature coverage.
+
+### API Server Stealth
+- **Use existing credentials**: Don't trigger new-login alerts; use stolen but valid tokens.
+- **Anonymous auth abuse**: API servers with `--anonymous-auth=true`; appears as anonymous system user.
+- **kubeconfig in ConfigMap**: Embed kubeconfig in ConfigMap; fetch via API later (no Secret creation event).
 
 ## Common Pitfalls
 
