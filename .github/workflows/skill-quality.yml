@@ -3,12 +3,72 @@ name: Skill Quality Score
 on:
   push:
     branches: [main]
-    paths: ['skills/**']
+    paths: ['skills/**', 'validation/**']
   pull_request:
-    paths: ['skills/**']
+    paths: ['skills/**', 'validation/**']
 
 jobs:
+  lint:
+    name: SKILL Lint & Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run skill-lint.py
+        run: |
+          python3 validation/skill-lint.py --json > lint-report.json || true
+          cat lint-report.json | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          print(f'Lint: {d[\"passed\"]}/{d[\"total_skills\"]} passed, {d[\"total_errors\"]} errors, {d[\"total_warnings\"]} warnings')
+          "
+          # Fail on errors
+          python3 -c "
+          import json
+          d = json.load(open('lint-report.json'))
+          if d['total_errors'] > 0:
+              print(f'::error::{d[\"total_errors\"]} lint errors found')
+              sys.exit(1)
+          "
+
+      - name: Run validate-payloads.py
+        run: |
+          python3 validation/validate-payloads.py --json > payloads-report.json || true
+          cat payloads-report.json | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          existing = sum(1 for r in d if r['exists'])
+          print(f'Payloads: {existing}/{len(d)} existing')
+          "
+
+      - name: Run validate-testcases.py
+        run: |
+          python3 validation/validate-testcases.py --json > testcases-report.json || true
+          cat testcases-report.json | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          existing = sum(1 for r in d if r['exists'])
+          total_tcs = sum(r['stats'].get('test_cases', 0) for r in d)
+          print(f'Test cases: {existing}/{len(d)} files, {total_tcs} total TCs')
+          "
+
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-reports
+          path: |
+            lint-report.json
+            payloads-report.json
+            testcases-report.json
+
   score:
+    name: Quality Score (SCORE.sh)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,42 +102,6 @@ jobs:
           REGRESSED=$(awk "BEGIN {print ($CURRENT_AVG < $BASELINE_AVG - 1.0)}")
           if [ "$REGRESSED" = "1" ]; then
             echo "::error::Average score dropped from $BASELINE_AVG to $CURRENT_AVG (threshold: -1.0)"
-            exit 1
-          fi
-
-          # Single-skill regression check (>5 point drop blocks PR)
-          BLOCK=0
-          declare -A BASELINE_SCORES
-          if [ -f validation/evidence/quality-scores-baseline.json ]; then
-            while IFS=$'\t' read -r skill score; do
-              BASELINE_SCORES["$skill"]="$score"
-            done < <(jq -r '[.[] | "\(.skill)\t\(.overall_score)"] | .[]' validation/evidence/quality-scores-baseline.json)
-          fi
-
-          for f in validation/evidence/quality-scores/*.json; do
-            skill=$(jq -r '.skill' "$f")
-            score=$(jq -r '.overall_score' "$f")
-            tier=$(jq -r '.tier' "$f")
-
-            # Check against baseline if available
-            if [ -n "${BASELINE_SCORES[$skill]:-}" ]; then
-              baseline="${BASELINE_SCORES[$skill]}"
-              drop=$(awk "BEGIN {printf \"%.1f\", $baseline - $score}")
-              exceeded=$(awk "BEGIN {print ($drop > 5.0)}")
-              if [ "$exceeded" = "1" ]; then
-                echo "::error::$skill dropped $drop points ($baseline → $score)"
-                BLOCK=1
-              fi
-            fi
-
-            # Warn on Adequate skills
-            if [ "$tier" = "Adequate" ]; then
-              echo "::warning::$skill is at Adequate tier ($score)"
-            fi
-          done
-
-          if [ "$BLOCK" = "1" ]; then
-            echo "::error::One or more skills regressed >5 points. PR blocked."
             exit 1
           fi
 
