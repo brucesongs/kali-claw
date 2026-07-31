@@ -28,7 +28,7 @@ _Continuously learn about the person you're helping. Update at any time._
 
 - Infrastructure hardening and scoring system evolution (v0.1.16)
 - Cross-skill composite attack chain scenario design
-- All 518 Kali Linux tools mastered; 130 skill domains (35 at v0.2.0.2 Defense Triple standard)
+- All 518 Kali Linux tools mastered; 137 skill domains (35 at v0.2.0.2 Defense Triple standard)
 - Exploring cross-platform portability and live pentest validation
 
 ---

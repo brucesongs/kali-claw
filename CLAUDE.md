@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across **130 security domains**, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
+**kali-claw** is an AI-powered penetration testing agent built on the OpenClaw framework. It continuously learns and operates across **137 security domains**, mastering all 518 Kali Linux security tools. The runtime environment is Kali Linux 2025-2 (ARM64).
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.2.0.4 (Phase 1 Task 1.2 第一阶段完成). See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone.
+> **Current Version**: v0.2.1 (Phase 1 全部完成). See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) for the latest milestone.
 
 ## Architecture
 
@@ -29,11 +29,11 @@ This repo is the agent's workspace — a structured knowledge base and configura
 
 | File | Purpose |
 |---------|---------|
-| `RELEASE-v0.2.0.{1-4}.md` | Phase 1 release notes (strategy → milestones) |
+| `RELEASE-v0.2.0.{1-8}.md + RELEASE-v0.2.1.md` | Phase 1 release notes (strategy → milestones) |
 | `PHASE1_{LAUNCH,EXECUTION,QUICK_START}.md` | Phase 1 planning documents |
 | `PHASE2_PROGRESS.md` | Phase 2 standardization batch tracker (10 batches × 10 SKILLs) |
 | `HIGH_PRIORITY_WORKPLAN.md` | 15 P0/P1 SKILL detailed improvement plan |
-| `SKILL_REMEDIATION_LIST.json` | Full 130-SKILL audit data (issues, est_hours, completion_pct) |
+| `SKILL_REMEDIATION_LIST.json` | Full 137-SKILL audit data (issues, est_hours, completion_pct) |
 | `TASK1_2_WORKFLOW.md` | Phase 1 SOP, Definition of Done, commit conventions |
 | `KALI_TOOLS_BASELINE_2026_07.md` | 127-tool version reference |
 | `TASK1_3_FRAMEWORK.md` | 7 new SKILL candidates (AI RedTeam/IdP/DLP/Edge/Quantum/SCA/5G) |
@@ -66,7 +66,7 @@ This repo is the agent's workspace — a structured knowledge base and configura
 
 ### Skills Directory (`skills/`)
 
-**130 security skill domains**, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
+**137 security skill domains**, each following a consistent structure aligned with the **Agent Skills Open Standard** (Anthropic, 2025):
 - `SKILL.md` — Skill definition with YAML frontmatter (`name`, `description`, `version`, `compatibility`, `allowed-tools`, `metadata` including `last_reviewed`), summary, use cases, tools, methodology, and **Defense Triple**
 - `payloads.md` — Attack payloads and commands by type
 - `test-cases.md` — Structured test case templates
@@ -90,7 +90,7 @@ All newly standardized SKILLs include three defense sections:
    - Cloud-native (GuardDuty / Defender for Cloud)
 3. **`## Defense Evasion Techniques`** — Modern attacker evasion patterns (5+ categories)
 
-As of v0.2.0.4, 35/130 SKILLs (27%) meet this standard. See `SKILL_REMEDIATION_LIST.json` for per-SKILL status.
+As of v0.2.0.4, 35/137 SKILLs (27%) meet this standard. See `SKILL_REMEDIATION_LIST.json` for per-SKILL status.
 
 #### Domain Coverage
 
@@ -120,5 +120,5 @@ When working on Phase 1 tasks (SKILL library enhancement):
 1. **Before starting**: Read `SKILL_REMEDIATION_LIST.json` to identify which SKILLs need work and their specific issues.
 2. **Branch strategy**: Work on `phase2/standardization` (or `phase1/skill-audit` for high-priority work). Use lightweight cherry-pick strategy if push fails (see `TASK1_2_WORKFLOW.md`).
 3. **Commit conventions**: `refactor(<skill>): <change>` for SKILL improvements; `feat(<skill>):` for new SKILLs; `docs:` for documentation.
-4. **Network considerations**: SOCKS5 proxy at `127.0.0.1:1086` is configured globally. Push large changes via lightweight branch if packfile exceeds 100MB (see RELEASE-v0.2.0.4.md Appendix for case study).
+4. **Network considerations**: SOCKS5 proxy at `127.0.0.1:1086` is configured globally. Push large changes via lightweight branch if packfile exceeds 100MB (see RELEASE-v0.2.1.md Appendix for case study).
 5. **Definition of Done**: Verify against `TASK1_2_WORKFLOW.md` DoD checklist before committing.

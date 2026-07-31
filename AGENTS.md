@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.2.0.4 (2026-07-24) — Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILLs 100%）；Phase 2 Batch 1-2 完成（20/100 标准化 SKILLs）。详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) 与 [PHASE2_PROGRESS.md](PHASE2_PROGRESS.md)。
+> **Current Version**: v0.2.1 (2026-07-30) — **Phase 1 全部完成**（137/137 SKILLs at v0.2.0.2 Defense Triple，100% 覆盖）。详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
 
 ---
 
@@ -134,7 +134,7 @@ postexp → report: findings_summary.json, evidence_manifest.txt
 - Skills define how tools work — check the corresponding SKILL.md
 - Keep local configuration notes in TOOLS.md
 - Skills directory: `skills/` — each skill is independently usable
-- **130 skill domains** covering all security disciplines (v0.2.0.4)
+- **137 skill domains** covering all security disciplines (v0.2.1)
 
 ### Defense Triple Standard (v0.2.0.2+)
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-07-26 (v0.2.0.4)_
+_Last updated: 2026-07-30 (v0.2.1)_

@@ -1,6 +1,45 @@
+# kali-claw v0.2.1 — Phase 1 全部完成 (Stable Release) 🎯
+
+*Generated: 2026-07-30 | Version: v0.2.0.8 → v0.2.1 | Focus: Phase 1 completion | Total Skills: 137*
+
+---
+
+## 摘要
+
+v0.2.1 是 Phase 1 SKILL 库完善项目的**稳定版本**。5 大任务全部完成，137 个 SKILL 全部达到 v0.2.0.2 Defense Triple 标准。
+
+### Task 1.4 文档输出 (6 个文档)
+
+- docs/SKILL_HANDBOOK.md (78 KB) — 完整使用手册
+- docs/QUICK_REFERENCE.md (20 KB) — 速查表（29 个场景）
+- docs/SKILL_INDEX.json (143 KB) — 机器可读索引
+- docs/DOMAIN_MATRIX.md — 域覆盖矩阵
+- docs/TOOLS_LIFECYCLE.md — 工具版本管理
+- docs/SKILL_MAINTENANCE.md — 维护指南
+
+### Task 1.5 自动化 (5 个脚本)
+
+- validation/skill-lint.py — SKILL 质量检查器
+- validation/validate-payloads.py — Payload 验证器
+- validation/validate-testcases.py — 测试用例验证器
+- .github/workflows/skill-quality.yml — CI/CD (lint + score 双 job)
+- docs/SKILL_MAINTENANCE.md — 维护指南
+
+### 验证结果
+
+- skill-lint: **137/137 passed** (0 errors)
+- validate-payloads: **137/137 existing** (0 errors)
+- validate-testcases: **137/137 existing, 1761 TCs** (0 errors)
+
+详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
+
+---
+
+# 历史版本
+
 # kali-claw v0.2.0.4 — Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%)
 
-*Generated: 2026-07-24 | Version: v0.2.0.3 → v0.2.0.4 | Focus: Phase 1 milestone | Total Skills: 130*
+*Generated: 2026-07-24 | Version: v0.2.0.3 → v0.2.0.4 | Focus: Phase 1 milestone | Total Skills: 137*
 
 ---
 

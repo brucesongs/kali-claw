@@ -4,6 +4,64 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.1 (2026-07-30) — Phase 1 全部完成 (Stable Release) 🎯
+
+### 里程碑：Phase 1 5 大任务全部交付
+
+- Task 1.1: SKILL 全量审查 ✅
+- Task 1.2: 137 SKILL 标准化 (100%) ✅
+- Task 1.3: 7 个新 SKILL 创建 ✅
+- Task 1.4: 6 个文档输出 ✅
+- Task 1.5: 5 个自动化脚本 ✅
+
+### 最终指标
+
+| 指标 | 起点 (v0.2.0.1) | 终点 (v0.2.1) |
+|------|----------------|--------------|
+| SKILL 总数 | 130 | **137** |
+| v0.2.0.2 覆盖 | 0% | **100%** |
+| Defense Triple | 部分 | **100%** |
+| 文档输出 | 0 | **6 个** |
+| 自动化脚本 | 1 | **5 个** |
+| `.git/` 大小 | 3.7 GB | **19 MB** |
+| 实际工时 | - | **~45h** (vs 计划 80-100h) |
+
+详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
+
+---
+
+## v0.2.0.8 (2026-07-29) — Task 1.3 完成 (7 个新 SKILL)
+
+7 个新战略 SKILL 创建：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced。SKILL 总数 130 → 137。
+
+详见 [RELEASE-v0.2.0.8.md](RELEASE-v0.2.0.8.md)。
+
+---
+
+## v0.2.0.7 (2026-07-28) — Phase 2 全部完成 (130/130 = 100%)
+
+Phase 2 Batch 6-10 完成。**全部 130 个 SKILL 达到 v0.2.0.2 Defense Triple 标准 (100%)**。
+
+详见 [RELEASE-v0.2.0.7.md](RELEASE-v0.2.0.7.md)。
+
+---
+
+## v0.2.0.6 (2026-07-27) — Phase 2 半程 (50%)
+
+Phase 2 Batch 3-5 完成 (30 SKILLs)。累计 65/130 (50%)。
+
+详见 [RELEASE-v0.2.0.6.md](RELEASE-v0.2.0.6.md)。
+
+---
+
+## v0.2.0.5 (2026-07-26) — Phase 2 Batch 1-2 + 文档基线对齐
+
+Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心文档对齐 v0.2.0.4。
+
+详见 [RELEASE-v0.2.0.5.md](RELEASE-v0.2.0.5.md)。
+
+---
+
 ## v0.2.0.4 (2026-07-24) — Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%) 🎉
 
 ### Milestone: Phase 1 第一阶段全部完成
