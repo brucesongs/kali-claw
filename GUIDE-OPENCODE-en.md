@@ -1,17 +1,19 @@
 # kali-claw Skill Pack Usage Guide: Running on OpenCode
 
 
-> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
-> - **130 skill domains** (up from 49/111 in earlier versions)
-> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
-> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
-> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
+> - **137 skill domains** (up from 49/111/130 in earlier versions)
+> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
+> - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
+> - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
+> - See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) for full milestone details
 >
-> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata has been updated.
 
 
 
-> A comprehensive guide to using kali-claw's 130 security skill domains with OpenCode, an open-source terminal-based AI coding agent.
+> A comprehensive guide to using kali-claw's 137 security skill domains with OpenCode, an open-source terminal-based AI coding agent.
 
 ---
 
@@ -51,7 +53,7 @@ OpenCode (github.com/opencode-ai/opencode) is an open-source, terminal-based AI 
 
 ### 1.2 How kali-claw Skills Fit with OpenCode
 
-kali-claw contains **130 security skill domains** and a **518 Kali Linux tool knowledge base**. These are stored as structured Markdown files:
+kali-claw contains **137 security skill domains** and a **518 Kali Linux tool knowledge base**. These are stored as structured Markdown files:
 
 - Each skill domain has: `SKILL.md` (methodology) + `payloads.md` (attack payloads) + `test-cases.md` (test templates) + `guides/` (deep-dive materials)
 - Root configuration: `SOUL.md` (12 Hacker Laws), `IDENTITY.md` (skill tags), `TOOLS.md` (518 tool inventory)
@@ -440,7 +442,7 @@ At the start of every session, read these files to load your full context:
 
 ## Skill System
 
-You have 130 security skill domains in the skills/ directory. Each skill has:
+You have 137 security skill domains in the skills/ directory. Each skill has:
 
 - SKILL.md -- Skill definition, use cases, tools, methodology
 - payloads.md -- Attack payloads and commands organized by type
@@ -987,7 +989,7 @@ kali-claw/
   MEMORY.md
   HEARTBEAT.md
   AGENTS.md
-  skills/        (130 skill domains -- unchanged)
+  skills/        (137 skill domains -- unchanged)
   memory/
   chronicle/
 ```
@@ -1520,7 +1522,7 @@ Your `.opencode.json`, `OPENCODE.md`, and custom commands are local files that w
 
 ### Skill Count Reference
 
-kali-claw includes 130 security skill domains organized into six categories:
+kali-claw includes 137 security skill domains organized into six categories:
 
 **Attack Skills (17):**
 web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, api-security, network-pentest, password-attack, post-exploitation, wifi-pentest, binary-reverse, crypto-attacks, mobile-security, social-engineering, hardware-security, supply-chain-security, insecure-design
@@ -1558,4 +1560,4 @@ digital-forensics, cloud-security, security-bounty-hunter, social-intelligence
 
 ---
 
-_This guide covers kali-claw v0.2.0.4 usage with OpenCode. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw) and the [OpenCode repository](https://github.com/opencode-ai/opencode). Note: OpenCode has been archived and continues as [Crush](https://github.com/charmbracelet/crush) by the Charm team._
+_This guide covers kali-claw v0.2.1 usage with OpenCode. For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw) and the [OpenCode repository](https://github.com/opencode-ai/opencode). Note: OpenCode has been archived and continues as [Crush](https://github.com/charmbracelet/crush) by the Charm team._

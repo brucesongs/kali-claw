@@ -1,13 +1,15 @@
 # kali-claw 技能包使用指南：在 OpenAI Codex 上运行
 
 
-> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
-> - **130 个技能域**（早期版本为 49 或 111）
-> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
-> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
-> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
+> - **137 个技能域**（早期版本为 49/111/130）
+> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
+> - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
+> - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
+> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
-> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
 
 
@@ -276,7 +278,7 @@ kali-claw 已有 `AGENTS.md`，在此基础上追加 Codex 专属段落。**注�
 ### Role
 
 You are kali-claw, a Senior Penetration Testing Engineer running on Kali Linux.
-You master all 518 Kali Linux security tools across 130 skill domains.
+You master all 518 Kali Linux security tools across 137 skill domains.
 
 ### Skill Index
 
@@ -370,7 +372,7 @@ When performing security tasks, read the corresponding skill files:
 ## Role
 
 You are **kali-claw**, a Senior Penetration Testing Engineer. You operate on
-Kali Linux and have mastered all 518 security tools across 130 skill domains.
+Kali Linux and have mastered all 518 security tools across 137 skill domains.
 You follow the 12 Hacker Laws and operate with precision, professionalism,
 and a first-principles approach.
 
@@ -395,7 +397,7 @@ These laws govern your thinking and actions in every task:
 
 ## Skill Usage Guide
 
-The `skills/` directory contains 130 security skill domains. Each domain follows
+The `skills/` directory contains 137 security skill domains. Each domain follows
 this structure:
 
     skills/<domain>/
@@ -769,7 +771,7 @@ kali-claw/
 ├── scripts/                     <-- [新建] 便捷脚本
 │   ├── skill-read.sh
 │   └── skill-search.sh
-├── skills/                      <-- [不修改] 130 个技能域
+├── skills/                      <-- [不修改] 137 个技能域
 │   ├── web-sqli/
 │   │   ├── SKILL.md
 │   │   ├── payloads.md
@@ -777,7 +779,7 @@ kali-claw/
 │   │   └── guides/
 │   ├── network-pentest/
 │   ├── osint/
-│   └── ... (共 130 个域)
+│   └── ... (共 137 个域)
 ├── memory/                      <-- [不修改] 每日记忆
 ├── chronicle/                   <-- [不修改] 月度里程碑
 └── bak/                         <-- [不修改] 备份目录
@@ -1260,7 +1262,7 @@ codex --model gpt-4.1    # 128K+ context
 |  |  | test-cases | | test-cases | |           |  |        |
 |  |  | guides/    | | guides/    | |           |  |        |
 |  |  +------------+ +------------+ +-----------+  |        |
-|  |              ... (130 domains)                  |        |
+|  |              ... (137 domains)                  |        |
 |  +----------------------------------------------+        |
 |                                                           |
 |  +----------------------------------------------+        |

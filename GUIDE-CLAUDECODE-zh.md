@@ -1,17 +1,19 @@
 # kali-claw 技能包迁移指南：在 Claude Code 上使用
 
 
-> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
-> - **130 个技能域**（早期版本为 49 或 111）
-> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
-> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
-> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
+> - **137 个技能域**（早期版本为 49/111/130）
+> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
+> - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
+> - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
+> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
-> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
 
 
-> 面向 v0.1.39 | 将 kali-claw 安全技能包（130 个技能域、518 工具）迁移到 Anthropic 官方 CLI 工具 Claude Code 的完整指南
+> 面向 v0.1.39 | 将 kali-claw 安全技能包（137 个技能域、518 工具）迁移到 Anthropic 官方 CLI 工具 Claude Code 的完整指南
 
 ---
 
@@ -49,11 +51,11 @@ Claude Code 是 Anthropic 推出的 **官方命令行工具**，直接在终端�
 
 ### 1.2 kali-claw 技能包的价值（v0.1.39）
 
-kali-claw 包含 **130 个安全技能域** 和 **518 个 Kali Linux 工具知识库**，是一套结构化、可量化评分的安全测试知识体系：
+kali-claw 包含 **137 个安全技能域** 和 **518 个 Kali Linux 工具知识库**，是一套结构化、可量化评分的安全测试知识体系：
 
 - **每个技能域**包含：`SKILL.md`（方法论 + YAML frontmatter）+ `payloads.md`（攻击载荷）+ `test-cases.md`（测试用例）+ `guides/`（深度指南）
 - **根级配置**：`SOUL.md`（12 条黑客法则）、`IDENTITY.md`（111 行技能标签）、`TOOLS.md`（518 工具清单）
-- **质量分级**：33 Distinguished（92+）/ 78 Excellent（80-91.9）/ 0 Strong / 0 Weak，**130/130 = 100% Excellent+**
+- **质量分级**：33 Distinguished（92+）/ 78 Excellent（80-91.9）/ 0 Strong / 0 Weak，**137/137 = 100% Excellent+**
 - **Agent Skills 开放标准合规** — 所有 SKILL.md 使用 Anthropic 2025 年发布的 YAML frontmatter 标准
 - **配套验证/编排脚本** — `validation/` 下 10+ 个 Bash 脚本（SCORE.sh、orchestrator.sh、scenario-runner.sh、heartbeat.sh 等）
 
@@ -307,7 +309,7 @@ git clone https://github.com/brucesongs/kali-claw.git
 cd kali-claw
 ```
 
-验证文件结构（v0.1.39 应包含 130 个技能域）：
+验证文件结构（v0.1.39 应包含 137 个技能域）：
 
 ```bash
 ls -la
@@ -342,11 +344,11 @@ claude
 > @CLAUDE.md 总结一下这个项目是什么
 
 预期：Claude 读取 CLAUDE.md，给出关于 kali-claw 的简短描述
-（包含 130 个技能域、12 条黑客法则、Agent Skills 标准等关键词）
+（包含 137 个技能域、12 条黑客法则、Agent Skills 标准等关键词）
 
 > 列出 skills/ 目录下的所有子目录，按字母排序
 
-预期：Claude 调用 Bash 或 Glob，返回约 130 个技能域名称
+预期：Claude 调用 Bash 或 Glob，返回约 137 个技能域名称
 
 > 读取 SOUL.md 的 12 条黑客法则
 
@@ -448,7 +450,7 @@ You are kali-claw, a senior penetration testing engineer. You operate under the 
 - Document findings per test-cases.md format
 - Never execute destructive commands without explicit user confirmation
 
-### Skill Index (v0.2.0.4 — 130 domains)
+### Skill Index (v0.2.0.4 — 137 domains)
 
 **Web & API**: web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, web-xxe, web-deserialization, file-inclusion, cms-framework-attack, api-security, email-security-deep, browser-qa
 
@@ -494,7 +496,7 @@ Claude Code 2025 年起原生支持 Skills 目录，**这是引用 kali-claw 技
 
 **实战建议**：高频技能（10-20 个）建 Subagent，其他建 Skill 软链。
 
-**操作 1：批量软链 Skills（一次性把 130 个技能挂到 Claude 全局）**
+**操作 1：批量软链 Skills（一次性把 137 个技能挂到 Claude 全局）**
 
 ```bash
 mkdir -p ~/.claude/skills
@@ -521,7 +523,7 @@ ls -l ~/.claude/skills/ | head -10
 > /skills
 ```
 
-应能看到约 130 个 Skills 列表。也可以直接调用：
+应能看到约 137 个 Skills 列表。也可以直接调用：
 
 ```
 > 使用 web-sqli 技能帮我测试 http://testphp.vulnweb.com/listproducts.php?cat=1
@@ -734,7 +736,7 @@ kali-claw/                           <-- 项目根目录（git 跟踪）
 ├── SOUL.md / IDENTITY.md / ...      <-- 全部保持原样
 ├── .claude/
 │   └── settings.json                <-- 项目级权限配置（新增）
-├── skills/                          <-- 130 个技能域（不变）
+├── skills/                          <-- 137 个技能域（不变）
 ├── validation/                      <-- 评分 + 编排脚本（不变）
 ├── memory/ / chronicle/             <-- 记忆文件（不变）
 └── ...
@@ -745,10 +747,10 @@ kali-claw/                           <-- 项目根目录（git 跟踪）
 │   ├── web-sqli-analyzer.md
 │   ├── pam-attacker.md
 │   └── supply-chain-attacker.md
-├── skills/                          <-- Skills 软链（一次性 130 个）
+├── skills/                          <-- Skills 软链（一次性 137 个）
 │   ├── web-sqli -> /path/kali-claw/skills/web-sqli
 │   ├── pam-privilege-attack -> ...
-│   └── ... (130 个软链)
+│   └── ... (137 个软链)
 ├── rules/
 │   └── kali-claw-security.md        <-- 安全规则
 ├── projects/
@@ -1045,7 +1047,7 @@ Claude：[Bash]
        [解析 JSON]
        状态: HEARTBEAT_OK
        - 核心文件完整 ✓
-       - skills/ 目录 130 个 ✓
+       - skills/ 目录 137 个 ✓
        - memory/ 最近 7 天有日志 ✓
        - 备份时效 < 24h ✓
 
@@ -1063,7 +1065,7 @@ kali-claw/                           <-- 项目根目录
 ├── .mcp.json                        <-- MCP 服务器配置（新增）
 ├── .scope                           <-- 授权范围文件（新增）
 ├── SOUL.md / IDENTITY.md / ...      <-- 不变
-├── skills/                          <-- 130 个技能域（不变）
+├── skills/                          <-- 137 个技能域（不变）
 ├── validation/                      <-- 评分 + 编排脚本（不变）
 ├── memory/ / chronicle/ / docs/     <-- 不变
 └── bak/
@@ -1078,7 +1080,7 @@ kali-claw/                           <-- 项目根目录
 │   ├── pam-attacker.md
 │   ├── supply-chain-attacker.md
 │   └── ...
-├── skills/                          <-- Skills 软链（130 个技能域）
+├── skills/                          <-- Skills 软链（137 个技能域）
 │   ├── web-sqli -> /path/kali-claw/skills/web-sqli
 │   └── ...
 ├── rules/
@@ -1278,7 +1280,7 @@ Claude：[加载 engagement-manager + council 技能进行多技能编排]
 - Claude 用 `@` 自动加载 7 个技能的 payloads.md，不是凭记忆说
 - 每阶段给出具体命令（从真实 payloads.md 提取）
 - 自动映射 MITRE ATT&CK（这是 kali-claw SKILL.md frontmatter 的 `metadata.mitre` 字段）
-- 这是 kali-claw v0.2.0.4 的核心价值：把 7 个独立技能编成连贯攻击链
+- 这是 kali-claw v0.2.1 的核心价值：把 7 个独立技能编成连贯攻击链
 
 ### 6.5 模式 D：完整授权渗透（最高强度协作）
 
@@ -1460,7 +1462,7 @@ Claude：[加载 search-first + ad-cs-abuse]
 - **不要让 Claude 跳过 safety-guard**——授权范围检查是设计上的安全闸
 - **不要在没看 diff 前接受写文件**——用 Shift+Tab 进 Plan Mode 看改动
 - **不要在 memory 文件里写真凭据**——kali-claw 规则明确禁止
-- **不要把 130 个技能全建成 subagent**——选 5-10 个高频的就够
+- **不要把 137 个技能全建成 subagent**——选 5-10 个高频的就够
 
 ---
 
@@ -1667,7 +1669,7 @@ Claude Code 2025 起原生支持 Skills 目录。三种用法：
 
 ### Q9: 需要修改 kali-claw 的 skills 文件吗
 
-**不需要**。这是本指南的核心设计原则。`skills/` 目录下所有 130 个技能域保持完全不变。Claude Code 在原位置读取。迁移只涉及：
+**不需要**。这是本指南的核心设计原则。`skills/` 目录下所有 137 个技能域保持完全不变。Claude Code 在原位置读取。迁移只涉及：
 
 - 追加 `CLAUDE.md`（项目级配置，不是技能文件）
 - 在 `~/.claude/agents/` 创建引用 `skills/` 路径的新文件
@@ -1677,12 +1679,12 @@ Claude Code 2025 起原生支持 Skills 目录。三种用法：
 
 这些步骤都不触碰 `skills/` 下任何文件。
 
-### Q10: 如何为 130 个技能创建 Subagent
+### Q10: 如何为 137 个技能创建 Subagent
 
 **不需要全建**。建议策略：
 
 - **高频技能建 Subagent**（5-10 个）：web-sqli、network-pentest、ad-cs-abuse、pam-privilege-attack、ci-cd-supply-chain-attack、cloud-identity-attack、kubernetes-attack、security-auditor
-- **其他建 Skills 软链**（一次性 130 个））：通过 §4.2 的批量软链脚本
+- **其他建 Skills 软链**（一次性 137 个））：通过 §4.2 的批量软链脚本
 - **偶尔用的技能**：直接 `@skills/<name>/SKILL.md` 引用（最小迁移思路）
 
 ### Q11: Claude Code 在国内访问不稳定怎么办
@@ -1766,11 +1768,11 @@ Plan Mode（Shift+Tab）下 Claude **只读不写**：
 **标准迁移**（30 分钟）：
 
 - [ ] 完成 §4.1：追加 Security Agent Mode 到 `CLAUDE.md`
-- [ ] 完成 §4.2：批量软链 130 个技能到 `~/.claude/skills/`
+- [ ] 完成 §4.2：批量软链 137 个技能到 `~/.claude/skills/`
 - [ ] 完成 §4.3：创建 5-10 个高频 subagent
 - [ ] 完成 §4.4：创建 `~/.claude/rules/kali-claw-security.md`
 - [ ] 完成 §4.5：配置 `~/.claude/projects/<hash>/memory/`
-- [ ] `/skills` 验证能看到 130 个技能
+- [ ] `/skills` 验证能看到 137 个技能
 
 **完整迁移**（2-3 小时）：
 
@@ -1796,4 +1798,4 @@ Plan Mode（Shift+Tab）下 Claude **只读不写**：
 
 ---
 
-_Built with Claude Code + kali-claw v0.2.0.4（130 个技能域 / 33 Distinguished / 100% Excellent+）。如有问题，请在 GitHub Issues 中反馈。_
+_Built with Claude Code + kali-claw v0.2.1（137 个技能域 / 33 Distinguished / 100% Excellent+）。如有问题，请在 GitHub Issues 中反馈。_

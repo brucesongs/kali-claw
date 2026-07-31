@@ -1,17 +1,19 @@
 # kali-claw Skill Pack Migration Guide: Using with Claude Code
 
 
-> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
-> - **130 skill domains** (up from 49/111 in earlier versions)
-> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
-> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
-> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
+> - **137 skill domains** (up from 49/111/130 in earlier versions)
+> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
+> - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
+> - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
+> - See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) for full milestone details
 >
-> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata has been updated.
 
 
 
-> For v0.1.39 | A complete guide to running kali-claw security skill packs (130 skill domains, 518 tools) on Anthropic's official CLI tool, Claude Code
+> For v0.1.39 | A complete guide to running kali-claw security skill packs (137 skill domains, 518 tools) on Anthropic's official CLI tool, Claude Code
 
 ---
 
@@ -49,11 +51,11 @@ Claude Code is Anthropic's **official command-line tool** that lets you interact
 
 ### 1.2 The Value of kali-claw Skill Packs (v0.1.39)
 
-kali-claw contains **130 security skill domains** and a **518 Kali Linux tool knowledge base**, forming a structured, quantitatively scored body of security testing knowledge:
+kali-claw contains **137 security skill domains** and a **518 Kali Linux tool knowledge base**, forming a structured, quantitatively scored body of security testing knowledge:
 
 - **Each skill domain** includes: `SKILL.md` (methodology + YAML frontmatter) + `payloads.md` (attack payloads) + `test-cases.md` (test cases) + `guides/` (deep-dive guides)
 - **Root-level configuration**: `SOUL.md` (12 Hacker Laws), `IDENTITY.md` (111-line skill tags), `TOOLS.md` (518 tool inventory)
-- **Quality tiers**: 33 Distinguished (92+) / 78 Excellent (80-91.9) / 0 Strong / 0 Weak — **130/130 = 100% Excellent+**
+- **Quality tiers**: 33 Distinguished (92+) / 78 Excellent (80-91.9) / 0 Strong / 0 Weak — **137/137 = 100% Excellent+**
 - **Agent Skills Open Standard compliance** — All SKILL.md files use the YAML frontmatter standard published by Anthropic in 2025
 - **Companion validation / orchestration scripts** — 10+ Bash scripts under `validation/` (SCORE.sh, orchestrator.sh, scenario-runner.sh, heartbeat.sh, etc.)
 
@@ -309,7 +311,7 @@ git clone https://github.com/brucesongs/kali-claw.git
 cd kali-claw
 ```
 
-Verify the file structure (v0.1.39 should contain 130 skill domains):
+Verify the file structure (v0.1.39 should contain 137 skill domains):
 
 ```bash
 ls -la
@@ -344,11 +346,11 @@ Inside the session, run this verification dialog:
 > @CLAUDE.md Summarize what this project is
 
 Expected: Claude reads CLAUDE.md and gives a brief description of kali-claw
-(must include keywords: 130 skill domains, 12 Hacker Laws, Agent Skills Standard)
+(must include keywords: 137 skill domains, 12 Hacker Laws, Agent Skills Standard)
 
 > List all subdirectories under skills/, sorted alphabetically
 
-Expected: Claude invokes Bash or Glob and returns ~130 skill domains names
+Expected: Claude invokes Bash or Glob and returns ~137 skill domains names
 
 > Read the 12 Hacker Laws from SOUL.md
 
@@ -450,7 +452,7 @@ You are kali-claw, a senior penetration testing engineer. You operate under the 
 - Document findings per test-cases.md format
 - Never execute destructive commands without explicit user confirmation
 
-### Skill Index (v0.2.0.4 — 130 domains)
+### Skill Index (v0.2.1 — 137 domains)
 
 **Web & API**: web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, web-xxe, web-deserialization, file-inclusion, cms-framework-attack, api-security, email-security-deep, browser-qa
 
@@ -496,7 +498,7 @@ Since 2025 Claude Code natively supports the Skills directory — **the cleanest
 
 **Practical advice:** Build subagents for the 10-20 high-frequency skills; symlink the rest as Skills.
 
-**Operation 1: Batch symlink Skills (mount all 130 skills to Claude's global scope in one shot)**
+**Operation 1: Batch symlink Skills (mount all 137 skills to Claude's global scope in one shot)**
 
 ```bash
 mkdir -p ~/.claude/skills
@@ -736,7 +738,7 @@ kali-claw/                           <-- Project root (git-tracked)
 ├── SOUL.md / IDENTITY.md / ...      <-- All unchanged
 ├── .claude/
 │   └── settings.json                <-- Project-level permissions (new)
-├── skills/                          <-- 130 skill domains (unchanged)
+├── skills/                          <-- 137 skill domains (unchanged)
 ├── validation/                      <-- Scoring + orchestration scripts (unchanged)
 ├── memory/ / chronicle/             <-- Memory files (unchanged)
 └── ...
@@ -1065,7 +1067,7 @@ kali-claw/                           <-- Project root
 ├── .mcp.json                        <-- MCP server config (new)
 ├── .scope                           <-- Authorized scope file (new)
 ├── SOUL.md / IDENTITY.md / ...      <-- Unchanged
-├── skills/                          <-- 130 skill domains (unchanged)
+├── skills/                          <-- 137 skill domains (unchanged)
 ├── validation/                      <-- Scoring + orchestration scripts (unchanged)
 ├── memory/ / chronicle/ / docs/     <-- Unchanged
 └── bak/
@@ -1280,7 +1282,7 @@ Claude: [loads engagement-manager + council skills for multi-skill orchestration
 - Claude uses `@` to auto-load 7 skills' payloads.md, not speaking from memory
 - Each phase provides concrete commands (extracted from real payloads.md)
 - Auto-maps MITRE ATT&CK (this is the `metadata.mitre` field in kali-claw SKILL.md frontmatter)
-- This is the core value of kali-claw v0.2.0.4: weaving 7 independent skills into a coherent attack chain
+- This is the core value of kali-claw v0.2.1: weaving 7 independent skills into a coherent attack chain
 
 ### 6.5 Pattern D: Full Authorized Pentest (Highest-Intensity Collaboration)
 
@@ -1462,7 +1464,7 @@ Claude: [loads search-first + ad-cs-abuse]
 - **Don't let Claude skip safety-guard** — scope check is a safety gate by design
 - **Don't accept file writes without reviewing the diff** — use Shift+Tab to enter Plan Mode to see changes
 - **Don't write real credentials in memory files** — explicitly forbidden by kali-claw rules
-- **Don't build all 130 skills as subagents** — pick 5-10 high-frequency ones
+- **Don't build all 137 skills as subagents** — pick 5-10 high-frequency ones
 
 ---
 
@@ -1669,7 +1671,7 @@ Three approaches:
 
 ### Q9: Do I need to modify kali-claw's skill files
 
-**No.** This is a core design principle of this guide. All 130 skill domains under `skills/` remain completely unchanged. Claude Code reads them in place. Migration only involves:
+**No.** This is a core design principle of this guide. All 137 skill domains under `skills/` remain completely unchanged. Claude Code reads them in place. Migration only involves:
 
 - Appending to `CLAUDE.md` (project-level config, not a skill file)
 - Creating new files in `~/.claude/agents/` that reference `skills/` paths
@@ -1679,7 +1681,7 @@ Three approaches:
 
 None of these steps touch any file under `skills/`.
 
-### Q10: How to create Subagents for all 130 skills
+### Q10: How to create Subagents for all 137 skills
 
 **You don't need to build all of them.** Recommended strategy:
 
@@ -1768,11 +1770,11 @@ Three approaches:
 **Standard migration** (30 minutes):
 
 - [ ] Complete §4.1: append Security Agent Mode to `CLAUDE.md`
-- [ ] Complete §4.2: batch symlink 130 skills into `~/.claude/skills/`
+- [ ] Complete §4.2: batch symlink 137 skills into `~/.claude/skills/`
 - [ ] Complete §4.3: create 5-10 high-frequency subagents
 - [ ] Complete §4.4: create `~/.claude/rules/kali-claw-security.md`
 - [ ] Complete §4.5: configure `~/.claude/projects/<hash>/memory/`
-- [ ] Verify `/skills` shows ~130 skills
+- [ ] Verify `/skills` shows ~137 skills
 
 **Complete migration** (2-3 hours):
 
@@ -1798,4 +1800,4 @@ Three approaches:
 
 ---
 
-_Built with Claude Code + kali-claw v0.2.0.4 (130 skill domains / 33 Distinguished / 100% Excellent+). For questions or feedback, please open an issue on GitHub._
+_Built with Claude Code + kali-claw v0.2.1 (137 skill domains / 33 Distinguished / 100% Excellent+). For questions or feedback, please open an issue on GitHub._

@@ -1,13 +1,15 @@
 # kali-claw 技能包迁移指南：从 OpenClaw 到 Hermes Agent
 
 
-> **⚠️ 更新说明（2026-07-26）**：本指南最初基于 kali-claw v0.1.x 编写。当前版本为 **v0.2.0.4**，主要变化：
-> - **130 个技能域**（早期版本为 49 或 111）
-> - **Defense Triple 标准**：所有新标准化 SKILL 包含 Defense Perspective + Detection Methods + Defense Evasion Techniques（截至 2026-07-26 已完成 35/130 SKILLs 升级到 v0.2.0.2 标准）
-> - Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILL 100% 升级）
-> - 详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
+> - **137 个技能域**（早期版本为 49/111/130）
+> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
+> - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
+> - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
+> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
-> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据（技能数、版本号）。
+> 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
 
 
@@ -34,7 +36,7 @@ Hermes Agent（由 Nous Research 开发，github.com/NousResearch/hermes-agent�
 
 kali-claw 的核心资产不是代码，而是经过系统化整理的 **安全知识库**：
 
-- **130 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云安全、AI 安全等
+- **137 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云安全、AI 安全等
 - **518 个 Kali Linux 工具知识库** — 从 nmap 到 sqlmap，从 burpsuite 到 metasploit
 - **数千行实战载荷** — payloads.md 中按类型分类的即用型攻击载荷
 - **结构化测试用例** — test-cases.md 中 TC-SXXX 格式的标准测试模板
@@ -129,7 +131,7 @@ hermes claw migrate --dry-run
 # 输出示例：
 # [DRY RUN] Found OpenClaw workspace: workspace-kali-claw
 # [DRY RUN]   -> SOUL.md → personality.md
-# [DRY RUN]   -> 130 skills detected
+# [DRY RUN]   -> 137 skills detected
 # [DRY RUN]   -> 156 memory files detected
 # [DRY RUN]   -> API keys: 3 channels configured
 # [DRY RUN] No changes made. Run without --dry-run to execute.
@@ -144,7 +146,7 @@ hermes claw migrate
 # 输出示例：
 # [MIGRATE] Importing workspace-kali-claw...
 # [MIGRATE]   ✓ SOUL.md → personality.md
-# [MIGRATE]   ✓ 130 skills imported
+# [MIGRATE]   ✓ 137 skills imported
 # [MIGRATE]   ✓ 156 memory files imported to SQLite
 # [MIGRATE]   ✓ 3 channel configurations preserved
 # [MIGRATE] Migration complete. Run `hermes skills list` to verify.
@@ -177,7 +179,7 @@ hermes claw migrate
 # 查看已导入的技能列表
 hermes skills list
 
-# 预期输出：130 个技能名称
+# 预期输出：137 个技能名称
 
 # 搜索已导入的记忆
 hermes memory search "SQL injection"
@@ -823,7 +825,7 @@ hermes gateway start --all
 ```bash
 # 1. 查看技能列表
 hermes skills list
-# 预期：130 个技能
+# 预期：137 个技能
 
 # 2. 测试所有技能
 hermes skills test --all

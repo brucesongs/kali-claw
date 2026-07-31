@@ -1,17 +1,19 @@
 # kali-claw Skill Pack Usage Guide: Running on OpenAI Codex
 
 
-> **⚠️ Update Notice (2026-07-26)**: This guide was originally written for kali-claw v0.1.x. The current version is **v0.2.0.4**, which includes:
-> - **130 skill domains** (up from 49/111 in earlier versions)
-> - **Defense Triple Standard**: All newly standardized SKILLs include Defense Perspective + Detection Methods + Defense Evasion Techniques (35/130 SKILLs at v0.2.0.2 standard as of 2026-07-26)
-> - Phase 1 Task 1.2 Phase 1 completed (15/15 high-priority SKILLs at 100%)
-> - See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) for the latest milestone details
+> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
+> - **137 skill domains** (up from 49/111/130 in earlier versions)
+> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
+> - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
+> - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
+> - See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) for full milestone details
 >
-> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata (skill count, version) has been updated.
+> The agent-tool-specific commands and configuration steps in this guide remain accurate. Only kali-claw side metadata has been updated.
 
 
 
-> For kali-claw v0.2.0.4+ | A complete guide to using kali-claw's 130 security skill domains with the OpenAI Codex CLI agent.
+> For kali-claw v0.2.1+ | A complete guide to using kali-claw's 137 security skill domains with the OpenAI Codex CLI agent.
 
 ---
 
@@ -340,7 +342,7 @@ You follow the 12 Hacker Laws defined in SOUL.md. Read SOUL.md before any securi
 
 ## Skill Index
 
-130 security skill domains are available under skills/. When a security task is requested,
+137 security skill domains are available under skills/. When a security task is requested,
 automatically identify the relevant skill domain and read its SKILL.md first.
 
 ### Web Security
@@ -475,7 +477,7 @@ Before any security operation, reason through these principles:
 
 When handling a security task:
 
-1. **Identify the relevant skill domain** from the 130 domains in skills/
+1. **Identify the relevant skill domain** from the 137 domains in skills/
 2. **Read the SKILL.md** to load the complete methodology and tool references
 3. **Reference payloads.md** for structured attack payloads (do not improvise payloads)
 4. **Follow test-cases.md** templates for structured testing and documentation
@@ -939,7 +941,7 @@ kali-claw/
       payloads.md
       test-cases.md
       guides/
-    ... (130 domains)
+    ... (137 domains)
   SOUL.md                   (original -- untouched)
   IDENTITY.md               (original -- untouched)
   USER.md                   (original -- untouched)
