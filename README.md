@@ -2,16 +2,16 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **130 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **137 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.0.4** (2026-07-24) — Phase 1 Task 1.2 第一阶段完成（15/15 高优先级 SKILLs 100% 升级到 v0.2.0.2）。详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)。
+> **Current Version**: **v0.2.1** (2026-07-30) — **Phase 1 全部完成**（137/137 SKILLs at v0.2.0.2 Defense Triple，100% 覆盖）。详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
 
 ---
 
 ## Features
 
-- **130 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), CI/CD supply chain attack (Jenkins/GitLab CI/GitHub Actions/xz-utils/SolarWinds), PAM privilege attack (CyberArk/BeyondTrust/Delinea/ManageEngine), CSPM/CASB attack (Wiz/Prisma Cloud/Netskope/OPA/Kyverno policy bypass), and SASE/SSE attack (Zscaler ZIA/ZPA, Netskope, Cloudflare One, Cisco Umbrella), each with structured payloads, test cases, and learning guides
-- **Defense Triple Coverage** — All v0.2.0.2 SKILLs include Defense Perspective (table format) + Detection Methods (with SIEM rules: Sigma/Splunk SPL/Sysmon/Falco) + Defense Evasion Techniques
+- **137 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), CI/CD supply chain attack (Jenkins/GitLab CI/GitHub Actions/xz-utils/SolarWinds), PAM privilege attack (CyberArk/BeyondTrust/Delinea/ManageEngine), CSPM/CASB attack (Wiz/Prisma Cloud/Netskope/OPA/Kyverno policy bypass), and SASE/SSE attack (Zscaler ZIA/ZPA, Netskope, Cloudflare One, Cisco Umbrella), each with structured payloads, test cases, and learning guides
+- **Defense Triple Coverage** — **All 137 SKILLs** include Defense Perspective (table format) + Detection Methods (with SIEM rules: Sigma/Splunk SPL/Sysmon/Falco) + Defense Evasion Techniques — **100% coverage**
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -106,7 +106,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 130 security skill domains (v0.2.0.2)
+├── skills/              # 137 security skill domains (v0.2.0.2)
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + Defense Triple (Defense Perspective + Detection Methods + Defense Evasion)
 │   │   ├── payloads.md      # Attack payloads
@@ -115,7 +115,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (130 domains total)
+│   └── ... (137 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups
@@ -371,18 +371,26 @@ TOOLS.md:
 | v0.2.0.2 | 2026-07-19 | **Phase 1 Day 1-2: 8 P0/P1 SKILLs upgraded** | Phase 1 Task 1.2 第一阶段启动: 3 P0 (network-pentest, post-exploitation, web-xss) + 5 P1 (web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack) all bumped to v0.2.0.2 with complete Defense Triple |
 | v0.2.0.3 | 2026-07-21 | **Phase 1 Day 3: 12/15 SKILLs (80%)** | +4 P1 SKILLs (privilege-escalation, social-engineering, osint, cloud-security) with comprehensive Detection Methods (Sigma/Splunk/Sysmon rules) and Defense Evasion sections |
 | v0.2.0.4 | 2026-07-24 | **Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%)** 🎉 | Final 3 P1 SKILLs (container-security, binary-reverse, exploit-development) standardized. **All 15 high-priority SKILLs at v0.2.0.2 with full Defense Triple**. See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) |
+| v0.2.0.5 | 2026-07-26 | **Phase 2 Batch 1-2 + 文档基线** | 20 SKILLs standardized; repository cleanup (3.7 GB → 19 MB); all core docs aligned |
+| v0.2.0.6 | 2026-07-27 | **Phase 2 半程 (50%)** | Batch 3-5 completed (30 SKILLs); cumulative 65/130 |
+| v0.2.0.7 | 2026-07-28 | **Phase 2 全部完成 (130/130 = 100%)** 🎊 | Batch 6-10 completed (55 SKILLs); **all 130 SKILLs at v0.2.0.2** |
+| v0.2.0.8 | 2026-07-29 | **Task 1.3 完成 (7 新 SKILL)** | 7 strategic new SKILLs: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced. SKILL total: 130 → **137** |
+| **v0.2.1** | **2026-07-30** | **Phase 1 全部完成 — Stable Release** 🎯 | Task 1.4 (6 docs) + Task 1.5 (5 scripts) completed. **137/137 SKILLs at v0.2.0.2, 100% Defense Triple**. See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) |
 
-### Current Quality Snapshot (v0.2.0.4, Phase 1 in progress)
+### Current Quality Snapshot (v0.2.1 — Phase 1 Complete) 🎯
 
-| Tier | Count | Description |
-|------|-------|-------------|
-| **Phase 1 P0/P1 Completed (v0.2.0.2)** | **15/15 (100%)** | network-pentest, post-exploitation, web-xss, web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack, privilege-escalation, social-engineering, osint, cloud-security, container-security, binary-reverse, exploit-development |
-| **Phase 2 In Progress (v0.2.0.2)** | **20/100 (20%)** | Batch 1-2 complete: 5g-telecom-attack, ad-cs-abuse, ad-ldap-attack, agentic-pentest, ai-agent-framework-attack, ai-agent-security, ai-fuzzing, ai-security, anti-forensics, automotive-vehicle-security, autonomous-loops, av-edr-evasion, blockchain-l2-attack, blockchain-web3, bluetooth-rfid-nfc, browser-qa, chronicle, ci-cd-supply-chain-attack, cloud-identity-attack, cloud-native-vuln-research |
-| **Pending Standardization** | **95/130** | Batches 3-10 in progress; target completion Q3 2026 |
+| Metric | Value |
+|--------|-------|
+| **Total SKILLs** | **137** (130 baseline + 7 new strategic) |
+| **At v0.2.0.2** | **137/137 (100%)** 🎊 |
+| **Defense Triple** | **137/137 (100%)** 🎊 |
+| **Translation residue** | **0** |
+| **Test cases** | **1761** |
+| **Documentation files** | **6** (Handbook, Quick Reference, Index, Matrix, Tools Lifecycle, Maintenance) |
+| **Automation scripts** | **5** (skill-lint, validate-payloads, validate-testcases, SCORE.sh, update-skill-standard) |
+| **CI/CD** | **GitHub Actions** (lint + score dual job) |
 
-**Cumulative Progress**: 35/130 SKILLs (27%) at v0.2.0.2 with complete Defense Triple  
-**Average completion**: 95.4% (Phase 1 baseline)  
-**Translation residue**: 0 across all v0.2.0.2 SKILLs
+**Phase 1 全部完成**: 5 大任务 (Task 1.1-1.5) 全部交付 ✅
 
 ### Future Exploration
 
@@ -413,10 +421,10 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | v0.2.0.4 (Phase 1 in progress) |
+| **Version** | **v0.2.1** (Phase 1 complete — Stable) |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
-| **Skill Domains** | 130 (15 at v0.2.0.2 with full Defense Triple; 20 more standardized in Phase 2 Batches 1-2) |
+| **Skill Domains** | **137** (all at v0.2.0.2 with full Defense Triple — 100% coverage) |
 | **Created** | 2026-03-14 |
 | **License** | MIT |
 
@@ -424,6 +432,11 @@ TOOLS.md:
 
 | Version | Date | Description |
 |---------|------|-------------|
+| **[v0.2.1](RELEASE-v0.2.1.md)** | **2026-07-30** | **Phase 1 全部完成 — Stable Release 🎯** |
+| [v0.2.0.8](RELEASE-v0.2.0.8.md) | 2026-07-29 | Task 1.3 完成 (7 新 SKILL, 总 137) |
+| [v0.2.0.7](RELEASE-v0.2.0.7.md) | 2026-07-28 | Phase 2 全部完成 (130/130) |
+| [v0.2.0.6](RELEASE-v0.2.0.6.md) | 2026-07-27 | Phase 2 半程 (50%) |
+| [v0.2.0.5](RELEASE-v0.2.0.5.md) | 2026-07-26 | Phase 2 Batch 1-2 + 文档基线 |
 | [v0.2.0.4](RELEASE-v0.2.0.4.md) | 2026-07-24 | Phase 1 Task 1.2 第一阶段完成 (15/15 SKILLs = 100%) — 里程碑版本 |
 | [v0.2.0.3](RELEASE-v0.2.0.3.md) | 2026-07-21 | Phase 1 Day 3 完成 (12/15 = 80%) |
 | [v0.2.0.2](RELEASE-v0.2.0.2.md) | 2026-07-19 | Phase 1 Day 1-2 完成 (8 SKILLs) |
