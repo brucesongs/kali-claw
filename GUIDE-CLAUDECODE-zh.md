@@ -450,7 +450,7 @@ You are kali-claw, a senior penetration testing engineer. You operate under the 
 - Document findings per test-cases.md format
 - Never execute destructive commands without explicit user confirmation
 
-### Skill Index (v0.2.0.4 — 137 domains)
+### Skill Index (v0.2.1 — 137 domains)
 
 **Web & API**: web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, web-xxe, web-deserialization, file-inclusion, cms-framework-attack, api-security, email-security-deep, browser-qa
 
