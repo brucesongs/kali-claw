@@ -1,7 +1,7 @@
 # kali-claw v0.2.3 版本说明 — MISSING_SECTION 清零 🧹
 
 > **版本编号**：v0.2.3
-> **发布日期**：2026 年 8 月 5 日
+> **发布日期**：2026 年 8 月 6 日
 > **版本类型**：Phase 2 Track 1 月度质量审查（增量补丁）
 > **上一版本**：v0.2.2（2026-08-05，Defense Perspective 标准化）
 > **下一里程碑**：v0.2.4（2026-09 月度审查）/ xAgent v0.1.0（2026-08-31）
@@ -223,7 +223,7 @@ Total warnings:  0
 
 ```
 版本编号：v0.2.3
-发布日期：2026-08-05
+发布日期：2026-08-06
 版本类型：Phase 2 Track 1 月度质量审查（增量补丁）
 项目地址：https://github.com/brucesongs/kali-claw
 许可证：MIT
@@ -236,5 +236,5 @@ skill-lint errors：0
 ```
 
 **kali-claw 团队**
-**2026 年 8 月 5 日**
+**2026 年 8 月 6 日**
 **Phase 2 Track 1 — v0.2.x 质量收尾完成 ✅**

@@ -12,8 +12,8 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: Phase 1 完成；下一步进入持续维护 + Phase 2 xAgent 探索
-- **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent project will transform SKILLs into deliverable agents
+- **Current Focus**: Phase 2 Track 1 月度维护模式（v0.2.3 已发布，skill-lint 0 errors / 0 warnings）
+- **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
 
@@ -199,6 +199,17 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - 内容修复：3 个 H2 重命名（council / ai-security / hardware-security）+ 2 个新增（security-review Core Tools 表 / network-sniffing-mitm Practical Steps）
 - **结果：56 → 0 warnings，137/137 clean pass**
 - 关键决策：复用 `defense_triple_required` 字段而非新增 `section_template`（YAGNI）
+
+### 2026-08-06: xAgent 工作转移到独立仓库 — 仓库重新聚焦单一职责
+
+- **决策**：kali-claw 仓库不再承担 xAgent（SKILL → 可交付 agent）工作；该项目在独立仓库另行维护
+- **影响范围**：
+  - `PHASE2_ROADMAP.md` 重写为纯 kali-claw 维护路线图（删除原 Track 2 xAgent 5 个章节）
+  - 历史文档（RELEASE-v0.2.0.1 ~ v0.2.3 / CHANGELOG / chronicle / PHASE1_LAUNCH）中的 xAgent 引用保留作为时间快照
+  - 仓库版本不 bump（属于文档维护，不是新功能）
+- **rationale**：xAgent 工程涉及 agent runtime / rcogo 平台集成 / 多 agent 协作等，与 SKILL 库维护职责差异大；分仓后两边都能聚焦
+- **kali-claw 新定位**：single-responsibility SKILL library maintainer
+- **下次月度审查**：2026-09-05，按新 PHASE2_ROADMAP 节奏执行
 
 ---
 
