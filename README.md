@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **137 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.1** (2026-07-30) — **Phase 1 全部完成**（137/137 SKILLs at v0.2.0.2 Defense Triple，100% 覆盖）。详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
+> **Current Version**: **v0.2.3** (2026-08-05) — **Phase 2 Track 1 月度质量审查完成**（137/137 SKILLs，skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md)。
 
 ---
 
@@ -376,8 +376,10 @@ TOOLS.md:
 | v0.2.0.7 | 2026-07-28 | **Phase 2 全部完成 (130/130 = 100%)** 🎊 | Batch 6-10 completed (55 SKILLs); **all 130 SKILLs at v0.2.0.2** |
 | v0.2.0.8 | 2026-07-29 | **Task 1.3 完成 (7 新 SKILL)** | 7 strategic new SKILLs: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced. SKILL total: 130 → **137** |
 | **v0.2.1** | **2026-07-30** | **Phase 1 全部完成 — Stable Release** 🎯 | Task 1.4 (6 docs) + Task 1.5 (5 scripts) completed. **137/137 SKILLs at v0.2.0.2, 100% Defense Triple**. See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) |
+| v0.2.2 | 2026-08-05 | **Defense Perspective 标准化** 🛡️ | Phase 2 Track 1 月度审查：linter 升级（严格 H3 检测 + `defense_triple_required` 字段），45 H2→H3 层级修复，4 个字面打字错误修复，2 个攻击类补写 Defense Triple，1 个翻译残留清零。See [RELEASE-v0.2.2.md](RELEASE-v0.2.2.md) |
+| **v0.2.3** | **2026-08-05** | **MISSING_SECTION 清零** 🧹 | Phase 2 Track 1 增量补丁：linter 智能化（模板适用性豁免 + Methodology≥50 启发式），56 → 0 warnings。5 个攻击类 SKILL 补 Core Tools / Practical Steps。**skill-lint 0 errors / 0 warnings**. See [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md) |
 
-### Current Quality Snapshot (v0.2.1 — Phase 1 Complete) 🎯
+### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
 | Metric | Value |
 |--------|-------|
@@ -421,7 +423,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | **v0.2.1** (Phase 1 complete — Stable) |
+| **Version** | **v0.2.3** (Phase 2 Track 1 — skill-lint 0 warnings) |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | **137** (all at v0.2.0.2 with full Defense Triple — 100% coverage) |

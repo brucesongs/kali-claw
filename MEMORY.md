@@ -184,6 +184,22 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - 22 个 PR 全部合并; 9 个版本发布 (v0.2.0.1 ~ v0.2.1)
 - Phase 1 完成; 进入持续维护 + Phase 2 xAgent 探索阶段
 
+### 2026-08-05: Phase 2 Track 1 月度审查 — v0.2.2 + v0.2.3 🛡️🧹
+
+**v0.2.2 — Defense Perspective 标准化** (~1h 45min)
+- 发现 v0.2.1 声称的"Defense Triple 100% 覆盖"实际只有 54% 严格匹配（旧 linter 用无锚定 regex 掩盖）
+- skill-lint.py 升级：严格 H3 锚定 + 新增 `defense_triple_required` 字段 + `DEFENSE_PERSPECTIVE_WRONG_LEVEL` 错误码 + 修复 JSON 模式 `total_errors` bug
+- 修复：45 个 H2→H3 层级 + 4 个字面打字错误 + 2 个攻击类补写（concurrency-exploitation, hardware-security）+ 1 个翻译残留（multi-agent-runtime-engineering 的 MopMonk 中文术语）
+- 关键决策：豁免 15 个非攻击类 SKILL（写作/搜索/协作类）via `defense_triple_required: false`
+
+**v0.2.3 — MISSING_SECTION 清零** (~36min)
+- v0.2.2 严格化暴露 56 个 MISSING_SECTION 警告
+- 分类：40 个模板适用性（非攻击类）+ 11 个冗余检查（Methodology 详尽）+ 5 个真实缺口
+- skill-lint.py 智能化：`defense_triple_required: false` 同时豁免 REQUIRED_SECTIONS + Methodology≥50 行时 Practical Steps 降级为 INFO
+- 内容修复：3 个 H2 重命名（council / ai-security / hardware-security）+ 2 个新增（security-review Core Tools 表 / network-sniffing-mitm Practical Steps）
+- **结果：56 → 0 warnings，137/137 clean pass**
+- 关键决策：复用 `defense_triple_required` 字段而非新增 `section_template`（YAGNI）
+
 ---
 
 ## Lessons Learned

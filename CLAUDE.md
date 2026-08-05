@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.2.1 (Phase 1 全部完成). See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) for the latest milestone.
+> **Current Version**: v0.2.3 (Phase 2 Track 1 月度质量审查完成). See [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md) for the latest milestone.
 
 ## Architecture
 
@@ -29,7 +29,7 @@ This repo is the agent's workspace — a structured knowledge base and configura
 
 | File | Purpose |
 |---------|---------|
-| `RELEASE-v0.2.0.{1-8}.md + RELEASE-v0.2.1.md` | Phase 1 release notes (strategy → milestones) |
+| `RELEASE-v0.2.0.{1-8}.md + RELEASE-v0.2.{1,2,3}.md` | Phase 1 + Phase 2 Track 1 release notes |
 | `PHASE1_{LAUNCH,EXECUTION,QUICK_START}.md` | Phase 1 planning documents |
 | `PHASE2_PROGRESS.md` | Phase 2 standardization batch tracker (10 batches × 10 SKILLs) |
 | `HIGH_PRIORITY_WORKPLAN.md` | 15 P0/P1 SKILL detailed improvement plan |
