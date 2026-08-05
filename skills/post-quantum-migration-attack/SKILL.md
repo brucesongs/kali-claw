@@ -335,7 +335,7 @@ tshark -i eth0 -f "tcp port 443" -w hndl-target.pcap \
   -e tls.handshake.certificate
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders must assume:
 

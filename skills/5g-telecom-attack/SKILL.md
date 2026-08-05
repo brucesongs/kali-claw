@@ -227,7 +227,7 @@ srsran_scanner_radio --band 78 --freq_start 3.3e9 --freq_end 3.8e9
 # Open-source IMSI catcher detector: AIMSICD (Android) or srsRAN scan
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Operators and large enterprises deploying private 5G detect and respond to this class of attack via:
 

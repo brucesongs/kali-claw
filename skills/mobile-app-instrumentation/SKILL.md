@@ -374,7 +374,7 @@ Java.perform(function () {
 });
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders should assume any non-server-side check is bypassable with sufficient time. The mitigation strategy is layered runtime defenses and server-side attestation:
 

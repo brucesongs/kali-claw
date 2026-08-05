@@ -490,7 +490,7 @@ mitmproxy --mode regular
 # If redirect can be replayed → fraudulent payment
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detection
 

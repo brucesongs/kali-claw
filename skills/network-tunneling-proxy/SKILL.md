@@ -161,7 +161,7 @@ Confirm tunnel functionality and stealth:
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 **Detection Strategies**:
 

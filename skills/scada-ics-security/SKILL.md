@@ -113,7 +113,7 @@ SCADA/ICS security assessment covering industrial control system protocols inclu
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 ### ICS Security Principles
 

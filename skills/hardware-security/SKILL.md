@@ -152,6 +152,17 @@ Key targets: `/etc/passwd`, `/etc/shadow`, web server configs, init scripts, pri
 | firmwalker | Automated firmware filesystem vulnerability scanner |
 | minicom / picocom | Serial terminal for UART communication |
 
+### Defense Perspective
+
+| Defense Layer | Control | Key Points |
+|---------------|---------|------------|
+| **Physical Access Control** | Tamper-evident seals, chassis intrusion switches, secure enclosures | Detect enclosure opening; pair with TPM reset on tamper event |
+| **Debug Interface Lockdown** | Disable JTAG/SWD via eFuses; set FLASH lock bits; remove or fill test pads | One-time-programmable; cannot be reversed — verify on production firmware |
+| **Secure Boot** | ROM-verified root of trust; signed firmware updates; rollback protection | Use HSM-backed code signing; revocation list for compromised keys |
+| **Side-Channel Hardening** | Constant-time crypto; masking/blinding; random delays; decoupling capacitors | Defend against power/electromagnetic analysis; validate with TVLA test vector leakage assessment |
+| **Anti-Tamper Response** | Zeroize keys on tamper; brownout detection; voltage/clock glitch detectors | Pair with secure storage (encrypted memory) so key material never exists in plaintext outside a tamper-aware enclave |
+| **Supply Chain Provenance** | Component authentication; SBOM for firmware; vendor security attestations | Counter clone/counterfeit parts preloaded with malicious firmware |
+
 ## Detection Methods
 
 ### Hardware Attack Indicators

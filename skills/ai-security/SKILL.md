@@ -397,7 +397,7 @@ python -c "from strong_reject import evaluate_response; \
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 AI/LLM security remediation operates at four layers. No single layer is
 sufficient — combine all four for defense in depth. Every finding should

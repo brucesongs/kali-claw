@@ -236,7 +236,7 @@ msf auxiliary(heartbeat_scanner) > run
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 ### Counter-UAS Detection Stack
 

@@ -111,7 +111,7 @@ Parameter Discovery → LFI Confirmation → Bypass Filters → LFI-to-RCE Escal
 - Use kadimus for automated exploitation: `kadimus -u "URL" --auto`
 - Set up netcat listener and trigger reverse shell payload
 
-### Defense Perspective / Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description | Priority |
 |-----------------|-------------|----------|

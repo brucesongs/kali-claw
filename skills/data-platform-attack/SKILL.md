@@ -167,7 +167,7 @@ Coverage includes: Snowflake account enumeration (origins + `ORGNAME-USERNAME`),
 - Exfil rate-bypass via partition-pruned queries over many small result sets
 - Anti-detection: `ALTER SESSION SET QUERY_TAG='daily-refresh'` to blend with jobs
 
-## Defense Perspective
+### Defense Perspective
 
 ### Core Principles
 1. **Identity is the new perimeter** — assume the warehouse is internet-reachable; enforce MFA, SCIM role mapping, and conditional access

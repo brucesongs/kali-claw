@@ -16,6 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
   - Agent
+defense_triple_required: false
 metadata:
   domain: workflow
   tool_count: 0

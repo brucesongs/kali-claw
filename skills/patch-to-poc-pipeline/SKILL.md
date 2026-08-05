@@ -545,7 +545,7 @@ CyberGym (ICLR 2026, UC Berkeley; 1,507 CVEs across 188 OSS projects) evaluates 
 
 **Q3 2026 calibration plan**: run this pipeline against a 50-100 instance CyberGym subset spanning `memory_corruption`, `integer_overflow`, `type_confusion`, `auth_bypass`, `sqli`, `xss`, `ssrf`, `path_traversal`. Success criterion: `convergence_state.stop_condition_met == true` AND `status == "POC_CONFIRMED_DIFFERENTIALLY"` for ≥ 50% of subset. See `docs/mopmonk-research-and-kali-claw-plan.md` §5.4 for the long-term plan.
 
-## Defense Perspective
+### Defense Perspective
 
 ### Compiler flags that close the bug class at the source
 

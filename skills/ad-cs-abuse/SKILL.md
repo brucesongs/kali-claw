@@ -264,7 +264,7 @@ pywhisker.py -d corp.local -u 'svc_ldap' -p 'Password123!' \
   --target 'DC01$' --action 'remove' --device-id <KeyId>
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detecting AD CS Abuse
 

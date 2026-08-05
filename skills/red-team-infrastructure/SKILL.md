@@ -550,7 +550,7 @@ Document operator rules:
 7. Always pay via Monero / privacy-respecting crypto
 8. Always check VT / Cisco Umbrella categorization before deploying
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders must assume:
 

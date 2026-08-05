@@ -336,7 +336,7 @@ Extract data without direct output visibility via binary search.
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 ### Input Validation and Sanitization
 

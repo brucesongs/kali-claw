@@ -239,7 +239,7 @@ curl -k -u "$SEAR_USER:$SEAR_PASS" \
   | jq '.users[]'
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Hardening RACF
 

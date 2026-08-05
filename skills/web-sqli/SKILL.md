@@ -107,7 +107,7 @@ Detection → Fingerprinting → Exploitation → Data Extraction → Privilege 
 - file read/write: `LOAD_FILE('/etc/passwd')` / `INTO OUTFILE '/var/www/html/shell.php'`
 - operating system commands: `sqlmap --os-shell`
 
-### Defense Perspective / Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description | Priority |
 |----------|------|--------|

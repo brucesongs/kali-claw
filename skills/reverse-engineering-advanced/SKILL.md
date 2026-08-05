@@ -421,7 +421,7 @@ def full_analysis(binary_path):
     return generate_report(info, result, decompiled)
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders must assume:
 

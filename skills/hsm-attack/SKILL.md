@@ -503,7 +503,7 @@ python3 kali_pin_translate.py \
 # Output: PIN block under ZPK-B → decrypt offline
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detection
 

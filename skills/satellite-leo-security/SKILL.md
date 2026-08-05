@@ -258,7 +258,7 @@ hackrf_transfer -t gpssim.bin -f 1575420000 -s 2600000 -a 1 -x 20 -R
 
 > The above command is reproducible only inside a Faraday cage. Transmitting on the GPS L1 band in any other context is a federal offense in most jurisdictions (e.g., US 47 USC § 301, § 333; EU RED Art. 9).
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders of satellite terminal fleets, ground segments, and downlink receivers should harden the following surfaces:
 

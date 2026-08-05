@@ -179,7 +179,7 @@ Where container-security asks "can I escape this container?", confidential-compu
 - SEV-SNP: apply CrossLine for VM-to-VM isolation break
 - SEV-SNP: apply BadRAM for DDR5 SPD-bypass memory integrity break
 
-## Defense Perspective
+### Defense Perspective
 
 ### Core Principles
 1. **Defense in depth** — assume any single TEE may be compromised; layer attestation, code signing, and runtime checks

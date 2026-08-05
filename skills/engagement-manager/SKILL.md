@@ -103,7 +103,7 @@ Critical finding management is a key responsibility. When a high-severity vulner
 8. **Generate report** — Compile all evidence into a standardized report with executive summary, technical findings, CVSS scores, and remediation priorities
 9. **Perform quality assurance** — Validate evidence completeness, verify findings have all required fields, check report for placeholder text
 
-## Defense Perspective
+### Defense Perspective
 
 Understanding the engagement lifecycle from a defensive perspective helps organizations prepare for and respond to penetration tests effectively:
 

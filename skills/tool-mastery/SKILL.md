@@ -121,7 +121,7 @@ The 518 tools span a wide technology surface: web application testing (SQL injec
 7. **Verify results** — Cross-validate findings with a second tool from the same category to reduce false positives
 8. **Document proficiency** — Record tool usage, flags, and results for proficiency tracking in TOOLS.md
 
-## Defense Perspective
+### Defense Perspective
 
 Understanding security tools from the defender's viewpoint is critical for both offensive and defensive practitioners. Every tool leaves artifacts that detection systems can identify:
 

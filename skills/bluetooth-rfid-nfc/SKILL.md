@@ -104,7 +104,7 @@ Near-field wireless penetration testing skills covering Bluetooth Classic device
 | Attack | spooftooph, PIN brute | crackle, gatttool R/W | mfoc, mfcuk, proxmark3 clone |
 | Persist | Spoofed identity | Extracted encryption key | Cloned/emulated card |
 
-## Defense Perspective
+### Defense Perspective
 
 | Attack Vector | Defense Measure |
 |---------------|-----------------|

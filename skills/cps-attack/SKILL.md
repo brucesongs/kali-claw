@@ -526,7 +526,7 @@ c.write_single_register(30001, 5000)  # 5000 = 50 bar (safe)
 # SIS sees 50 bar → does not trip → catastrophic failure
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detection
 

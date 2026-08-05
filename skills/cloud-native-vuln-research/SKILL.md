@@ -283,7 +283,7 @@ git diff v3.4.1..v3.4.2 -- src/auth/middleware.go
 # (e.g. "if the response to GET /admin/console without Authorization contains 'Admin Console', it's vulnerable")
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 The research skill's defense counterpart is SBOM-driven vulnerability management, KEV-driven prioritization, virtual patching (WAF, network policy), and runtime detection. The researcher who understands how defenders consume their output writes better advisories, better nuclei templates, and better PoC write-ups.
 

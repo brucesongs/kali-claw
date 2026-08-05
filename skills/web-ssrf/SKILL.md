@@ -106,7 +106,7 @@ URL 参数发现 → 协议走私 → 内网扫描 → 云元数据提取 → RC
 - SSRF + FASTCGI: construct FastCGI protocolpackageexecutearbitrarycode
 - SSRF + AWS IAM: obtaintemporarywhen credentialsafterthrough AWS CLI takeovercloudresource
 
-### Defense Perspective / Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description | Priority |
 |----------|------|--------|

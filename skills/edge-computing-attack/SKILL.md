@@ -185,7 +185,7 @@ Coverage includes:
 - Persistent KV store pollution
 - Persistent DNS hijack prep
 
-## Defense Perspective
+### Defense Perspective
 
 ### Core Principles
 1. **Edge is privileged** — edge scripts see all traffic including TLS-terminated plaintext

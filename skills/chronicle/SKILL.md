@@ -16,6 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
   - Agent
+defense_triple_required: false
 metadata:
   domain: knowledge
   tool_count: 4

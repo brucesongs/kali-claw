@@ -217,7 +217,7 @@ Produce a structured decision document with clear attribution:
 | Low | 3-4 | Add to backlog, fix when convenient |
 | Info | 1-2 | Document, no action required |
 
-## Defense Perspective
+### Defense Perspective
 
 Council helps defenders think like attackers and attackers think like defenders:
 

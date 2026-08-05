@@ -97,7 +97,7 @@ Auxiliary tools: **curl** (manual header check), **Gobuster** (directory/file br
     - 框架版本识别                - .env / .git / .svn 泄露
 ```
 
-### Defense Perspective / Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description | Priority |
 |----------|------|--------|

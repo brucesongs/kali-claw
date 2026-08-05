@@ -302,7 +302,7 @@ python3 email_bomber.py \
 # Alert if > 50 messages/min from diverse senders
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description | Priority |
 |-----------------|-------------|----------|

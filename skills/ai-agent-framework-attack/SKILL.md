@@ -246,7 +246,7 @@ Agent vulnerabilities need non-standard report structure. For each finding:
 - Privilege gained (data exfil? RCE? lateral tool call?).
 - Recommended mitigation (input filtering, output sanitization, capability scoping, MCP pinning).
 
-## Defense Perspective
+### Defense Perspective
 
 The defensive playbook for agent systems is still being written, but the patterns that work cluster around five principles:
 

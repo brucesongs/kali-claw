@@ -163,7 +163,7 @@ yara -r firmware_backdoors.yar /tmp/squashfs-root/ > /tmp/yara-findings.txt
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 | Vulnerability Category | Firmware Manifestation | Detection Method |
 |------------------------|----------------------|------------------|

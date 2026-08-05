@@ -158,7 +158,7 @@ Recon & Setup  →  Bus Sniffing   →  Protocol Reversing→  ECU Compromise �
 | GNSS spoof | HackRF + GPS-SDR-SIM, replay forged ephemeris | bladeRF / USRP B210 |
 | EV V2G capture | PLC sniffer (HomePlug AV2) between CCS port and charger | ISO 15118 test tool from Vector |
 
-## Defense Perspective
+### Defense Perspective
 
 | Defense Measure | Description |
 |-----------------|-------------|

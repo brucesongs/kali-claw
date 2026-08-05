@@ -1,13 +1,42 @@
 {
-  "scan_date": "2026-07-17T01:52:20.526639+00:00",
-  "scan_type": "full_130_skill_audit",
+  "scan_date": "2026-08-05T04:17:00.022743+00:00",
+  "scan_type": "full_137_skill_audit_post_phase2",
   "summary": {
-    "total_skills": 130,
-    "high_priority_count": 18,
-    "missing_defense_count": 17,
-    "standard_batch_count": 95,
-    "avg_completion_pct": 95.4,
-    "target_completion_pct": 95
+    "total_skills": 137,
+    "phase_2_complete": true,
+    "phase_2_completion_date": "2026-07-30",
+    "v0_2_0_2_compliance_pct": 100,
+    "last_reviewed_populated_pct": 100,
+    "detection_methods_present_pct": 100,
+    "defense_evasion_techniques_present_pct": 100,
+    "defense_perspective_present_count": 122,
+    "defense_perspective_exempt_count": 15,
+    "defense_perspective_exempt_skills": [
+      "article-writing",
+      "autonomous-loops",
+      "browser-qa",
+      "chronicle",
+      "codebase-onboarding",
+      "continuous-learning",
+      "data-scraper-agent",
+      "docker-patterns",
+      "exa-search",
+      "knowledge-ops",
+      "mcp-server-patterns",
+      "multi-agent-collaboration",
+      "safety-guard",
+      "search-first",
+      "verification-loop"
+    ],
+    "translation_residue_count": 0,
+    "skill_lint_errors": 0,
+    "skill_lint_warnings": 56,
+    "skill_lint_warning_codes": {
+      "MISSING_SECTION": 56,
+      "NO_GUIDES_INFO": 6
+    },
+    "target_completion_pct": 100,
+    "achieved_completion_pct": 100
   },
   "high_priority": [
     {
@@ -2251,5 +2280,6 @@
     "standard_batch": 28.5,
     "subtotal": 63.5,
     "with_buffer_25pct": 79.4
-  }
+  },
+  "_note": "The high_priority / missing_defense_perspective / standard_batch sections below reflect the 2026-07-17 pre-Phase-2 state and are kept for traceability. They are NOT current — see chronicle/2026-08/skill-standardization-2026-08-05.md for the current state."
 }

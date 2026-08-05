@@ -15,6 +15,7 @@ allowed-tools:
   - Edit
   - WebSearch
   - WebFetch
+defense_triple_required: false
 metadata:
   domain: infrastructure
   tool_count: 0

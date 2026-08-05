@@ -1,6 +1,6 @@
 ---
 name: multi-agent-runtime-engineering
-description: Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three招 (扫地僧, CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.
+description: "Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three-layer harness (Chinese press nickname *扫地僧* — CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling."
 origin: kali-claw Wave 12 (v0.1.45) — 2026-07-03
 version: "0.2.0.2"
 compatibility:
@@ -31,7 +31,7 @@ metadata:
 
 # Multi-Agent Runtime Engineering Skill
 
-> *"Harness engineering > base-model parameters. MopMonk took MiniMax M3 (smaller base) to 73.1% on CyberGym — beating Claude Opus 4.6 (66.6%) and matching GPT-5.4 (79.0%) within a stone's throw. The harness is the moat."* — adapted from 36kr's coverage of MopMonk Agent (扫地僧), 2026-06-30
+> *"Harness engineering > base-model parameters. MopMonk took MiniMax M3 (smaller base) to 73.1% on CyberGym — beating Claude Opus 4.6 (66.6%) and matching GPT-5.4 (79.0%) within a stone's throw. The harness is the moat."* — adapted from 36kr's coverage of MopMonk Agent (Chinese press nickname *扫地僧*), 2026-06-30
 
 ## Summary
 
@@ -39,7 +39,7 @@ This skill is the **runtime engineering layer** for agent systems. It treats mem
 
 This skill **solidifies the engineering patterns of `validation/scenarios/SCEN-007.md` (Shared-Memory Multi-Agent Exploit Dev) and `validation/scenarios/SCEN-MEMORY-SCHEMA.md` (Structured Memory foundation) into a reusable knowledge base.** SCEN-007 is the live scenario that proves the pattern — three parallel agents (patch-diff, harness-entry, sanitizer) converging on CVE-2019-7317 in ~45 minutes wall-clock vs. ~2 hours serially. SCEN-MEMORY-SCHEMA is the underlying schema library. This skill abstracts both into the runtime discipline that kali-claw (or any agent harness) uses whenever it needs to coordinate memory across multiple workers, multiple phases, or multiple independent explorations of the same target.
 
-**Why this skill exists as a distinct domain.** Three converging trends in 2024-2026 agent engineering make a dedicated runtime-engineering skill necessary. First, **MopMonk Agent (扫地僧)** demonstrated that a smaller base model (MiniMax M3) with disciplined harness engineering beats larger models with naive harnesses — 73.1% on CyberGym vs. Claude Opus 4.6's 66.6%. The "harness" in question is precisely the three layers this skill codifies: structured memory (招一), memory-driven convergence (招二), and shared-memory multi-agent coordination (招三). Second, **Anthropic's multi-agent research system** blog series (2024-2026) and the parallel work on **LangGraph, AutoGen, and Magentic-One** all converged on the same core primitives — atomic state writes, version vectors, convergence detection, and explicit topology choice — but each frames them in vendor-specific terms. Third, **kali-claw's own SCEN-007** showed that filesystem-native coordination (POSIX `flock` + `jq` + `mv`) is sufficient for multi-agent exploit dev with no DB, no message broker, and no framework dependency — a deliberately low-tech, high-reliability stack.
+**Why this skill exists as a distinct domain.** Three converging trends in 2024-2026 agent engineering make a dedicated runtime-engineering skill necessary. First, **MopMonk Agent (Chinese press nickname *扫地僧*)** demonstrated that a smaller base model (MiniMax M3) with disciplined harness engineering beats larger models with naive harnesses — 73.1% on CyberGym vs. Claude Opus 4.6's 66.6%. The "harness" in question is precisely the three layers this skill codifies: structured memory (*招一* / Layer 1), memory-driven convergence (*招二* / Layer 2), and shared-memory multi-agent coordination (*招三* / Layer 3). Second, **Anthropic's multi-agent research system** blog series (2024-2026) and the parallel work on **LangGraph, AutoGen, and Magentic-One** all converged on the same core primitives — atomic state writes, version vectors, convergence detection, and explicit topology choice — but each frames them in vendor-specific terms. Third, **kali-claw's own SCEN-007** showed that filesystem-native coordination (POSIX `flock` + `jq` + `mv`) is sufficient for multi-agent exploit dev with no DB, no message broker, and no framework dependency — a deliberately low-tech, high-reliability stack.
 
 **What this skill does NOT cover.** It is not generic task decomposition (`multi-agent-collaboration`), not multi-perspective analysis (`council`), not pentest-framework deployment (`agentic-pentest`), and not knowledge persistence primitives (`continuous-learning`, `chronicle`). It is the engineering substrate underneath all of those — the schema design, sync protocol, and convergence rulebook that any of those higher-level skills may invoke when they need persistent structured memory across parallel workers.
 
@@ -62,7 +62,7 @@ Distinct from adjacent skills:
 1. **Design a structured memory JSON for a multi-phase pentest engagement** (recon → intrusion → privilege escalation → lateral → exfil) where each phase reads the prior phase's structured findings and writes a delta
 2. **Define an exploit-attempt memory schema for parallel-exploit dev** — multiple agents writing hypotheses, evidence, failed attempts, and candidate PoCs to one shared file
 3. **Define a patch-diff reproduction memory schema** — schema for "given a patch, reproduce the underlying bug and generate a differentially-verified PoC" (CyberGym-style)
-4. **Retrofit a prose-only memory system with structured fields** — convert legacy `MEMORY.md`散文 into a JSON companion without losing the curated distilled knowledge
+4. **Retrofit a prose-only memory system with structured fields** — convert legacy `MEMORY.md` Chinese prose-only into a JSON companion without losing the curated distilled knowledge
 5. **Federate engagement memory with long-term knowledge** — schema design where per-engagement JSON distills back into the root `MEMORY.md` at engagement close, same pattern kali-claw's daily logs follow
 
 ### Atomic-Write Sync
@@ -195,17 +195,17 @@ This skill organizes agent runtime engineering into five layers, each building o
 +------------------------------------------------------------------+
 ```
 
-### Layer 1 — Structured Memory (MopMonk 招一)
+### Layer 1 — Structured Memory (MopMonk *招一* / Layer-1)
 
 Every engagement maintains a machine-queryable memory JSON. No prose memory. The agent must be able to query "what did we learn about X?" and get a deterministic answer. Every phase MUST: read the current memory file, execute its phase task, write a delta (fields added / updated / invalidated), and update `next_constraints` so downstream phases know the boundaries.
 
 This skill ships three canonical schemas: **Pentest Engagement Memory** (Schema 1 — for cross-phase engagements), **Exploit Attempt Memory** (Schema 2 — for parallel exploit dev), and **Patch-Diff Reproduction Memory** (Schema 3 — for CyberGym-style PoC generation). Full templates are in `payloads.md`.
 
-### Layer 2 — Atomic Sync (MopMonk 招三 foundation)
+### Layer 2 — Atomic Sync (MopMonk *招三* / Layer-3 foundation)
 
 When multiple agents read/write the same memory file, every update goes through the canonical atomic-write pattern: take `flock` advisory lock on a sidecar `.lock` file → read current memory → apply jq transform to a `mktemp` temp file → validate (version-vector guard + anti-pattern checks) → `mv` temp to real path (POSIX atomic). No agent ever edits the JSON in place. Conflict resolution is optimistic concurrency: each write must increment `memory_lock.version` by exactly 1; a version mismatch aborts the write and the agent retries.
 
-### Layer 3 — Convergence Detection (MopMonk 招二)
+### Layer 3 — Convergence Detection (MopMonk *招二* / Layer-2)
 
 Open-ended trial-and-error is forbidden. Every action must either produce new evidence (update an `evidence_for` / `evidence_against` field, bump `confidence`) or be aborted and trigger a path switch. The rule is encoded in `convergence_state.failed_attempts_on_active_path` — when it hits `path_switch_threshold` (typically 3), the agent releases its current path and picks a new one from `candidate_paths`. Convergence events fire when 2+ hypotheses point at the same `path` field with different `claimed_by` — those get promoted to `CONFIRMED` and merged into a canonical hypothesis.
 
@@ -217,17 +217,17 @@ Five forbidden behaviors, each with a machine-checkable detection rule. The atom
 
 Not every task benefits from the same agent topology. **Parallel-explorers** (SCEN-007) fits bug-class exploration where multiple independent directions increase the chance of convergence. **Pipeline** fits phase-sequential work (recon → exploit → report). **Council** fits questions where the same input needs three analytical lenses (Attack / Defense / Audit). **Hierarchical coordinator-worker** fits dynamic engagements where task dependencies shift. The topology matrix in `payloads.md` §22 guides selection; the rule of thumb is "as parallel as possible, as coordinated as necessary."
 
-## MopMonk Three招 Mapping
+## MopMonk Three-*招* (Three-Layer) Mapping
 
-The MopMonk Agent (扫地僧) three招 map directly onto this skill's 5-layer stack:
+The MopMonk Agent (Chinese press nickname *扫地僧*) three-*招* (three layers) map directly onto this skill's 5-layer stack:
 
-| MopMonk 招 | kali-claw Layer | Implementation |
+| MopMonk *招* (layer) | kali-claw Layer | Implementation |
 |-----------|----------------|----------------|
-| **招一 — Structured Vulnerability Memory** (结构化的漏洞记忆) | Layer 1 — Structured Memory | Three canonical JSON schemas (engagement / exploit-attempt / patch-diff-repro) with required fields, confidence taxonomy, evidence index, decision log |
-| **招二 — Memory-Driven Convergence** (记忆驱动的漏洞挖掘) | Layer 3 — Convergence Detection | Every action yields a delta or triggers path switch; `failed_attempts_on_active_path` threshold drives path switches; convergence events promote hypotheses to `CONFIRMED` |
-| **招三 — Shared-Memory Multi-Agent** (共享记忆的多 Agent 并行) | Layers 2 + 5 — Atomic Sync + Topology | POSIX `flock` + atomic write + version vector across N parallel agents; topology choice (parallel-explorers for bug-class, pipeline for phase-sequential) |
+| ***招一*** (Layer 1 — Structured Vulnerability Memory) | Layer 1 — Structured Memory | Three canonical JSON schemas (engagement / exploit-attempt / patch-diff-repro) with required fields, confidence taxonomy, evidence index, decision log |
+| ***招二*** (Layer 2 — Memory-Driven Convergence) | Layer 3 — Convergence Detection | Every action yields a delta or triggers path switch; `failed_attempts_on_active_path` threshold drives path switches; convergence events promote hypotheses to `CONFIRMED` |
+| ***招三*** (Layer 3 — Shared-Memory Multi-Agent) | Layers 2 + 5 — Atomic Sync + Topology | POSIX `flock` + atomic write + version vector across N parallel agents; topology choice (parallel-explorers for bug-class, pipeline for phase-sequential) |
 
-The fourth implicit招 — the meta-principle — is **"Harness > Parameters"**: the same base model with a disciplined harness dramatically outperforms the same model with a naive harness. MopMonk's MiniMax M3 (smaller base) at 73.1% beats Claude Opus 4.6 (larger base) at 66.6% — the gap is harness engineering, not model capacity.
+The fourth implicit *招* (layer) — the meta-principle — is **"Harness > Parameters"**: the same base model with a disciplined harness dramatically outperforms the same model with a naive harness. MopMonk's MiniMax M3 (smaller base) at 73.1% beats Claude Opus 4.6 (larger base) at 66.6% — the gap is harness engineering, not model capacity.
 
 ## Practical Steps
 
@@ -426,7 +426,7 @@ Five forbidden behaviors. Each has a detection rule (machine-checkable) and a re
 | 4 | **Path-claim deadlock** | Two agents both wrote the same value to `active_paths` | `active_paths` values has duplicates | Schema validation rejects write; second agent must retry with a different path or wait |
 | 5 | **Premature stop** | Agent calls stop without differential verification | `convergence_state.stop_condition_met == true` but `verification_results.vulnerable` or `verification_results.patched` is null | Reject write; require agent to run differential verification first |
 
-## Defense Perspective
+### Defense Perspective
 
 The same runtime engineering patterns that make offensive multi-agent systems converge are the patterns that make defensive multi-analyst teams effective. The skill is symmetric.
 
@@ -486,7 +486,7 @@ This skill embodies several of kali-claw's 12 Hacker Laws:
 
 ## Learning Resources
 
-- **MopMonk Agent (扫地僧) — CyberGym 73.1% case study**, `docs/mopmonk-research-and-kali-claw-plan.md` — kali-claw's internal MopMonk research (2026-06-30), documenting the three招 and the "Harness > Parameters" thesis. This skill is the direct engineering response to that research.
+- **MopMonk Agent (扫地僧) — CyberGym 73.1% case study**, `docs/mopmonk-research-and-kali-claw-plan.md` — kali-claw's internal MopMonk research (2026-06-30), documenting the three-*招* (three-layer) harness pattern and the "Harness > Parameters" thesis. This skill is the direct engineering response to that research.
 - **Berkeley CyberGym paper (ICLR 2026)** — arXiv:2506.02548, OpenReview `2YvbLQEdYt`. The benchmark that made the harness-vs-base-model debate quantitative. 1,507 real vulnerabilities from 188 open-source projects; agent must produce a PoC that triggers on vulnerable build and is clean on patched build.
 - **Anthropic Multi-Agent Research System blog series (2024-2026)** — Anthropic's published patterns for multi-agent coordination, including sub-agent delegation, shared state, and convergence detection. Vendor framing, but the primitives are the same as this skill.
 - **LangGraph / LangChain docs** — production graph-based agent orchestration with checkpointed state. The "checkpoint" primitive in LangGraph is exactly this skill's atomic-write pattern, expressed in Python instead of shell.

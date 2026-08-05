@@ -443,7 +443,7 @@ alert udp $EXTERNAL_NET any -> $HOME_NET 17185 (
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 | Vulnerability Category | RTOS Manifestation | Detection Method |
 |------------------------|------------------|------------------|

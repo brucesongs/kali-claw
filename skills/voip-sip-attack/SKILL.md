@@ -132,7 +132,7 @@ Discovery → Enumeration → Authentication Testing → Eavesdropping → DoS A
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 Understanding VoIP attacks from the defender's viewpoint is essential for comprehensive penetration test reporting.
 

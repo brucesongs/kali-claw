@@ -215,7 +215,7 @@ If the engagement target is a power utility, water/wastewater, or natural gas di
 
 ---
 
-## Defense Perspective
+### Defense Perspective
 
 ### Fieldbus Security Fundamentals
 

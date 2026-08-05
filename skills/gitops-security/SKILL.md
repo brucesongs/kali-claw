@@ -418,7 +418,7 @@ spec:
           image: kali/claw-backdoor:latest
 ```
 
-## Defense Perspective
+### Defense Perspective
 
 ### Detection (Blue Team)
 
