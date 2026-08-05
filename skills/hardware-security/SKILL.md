@@ -133,7 +133,7 @@ Key targets: `/etc/passwd`, `/etc/shadow`, web server configs, init scripts, pri
 - **Command injection**: Exploit web interface vulnerabilities identified through firmware code review
 - **Fault injection**: Voltage or clock glitching to bypass secure boot (specialized hardware required)
 
-## Tools
+## Core Tools
 
 | Tool | Purpose |
 |------|---------|

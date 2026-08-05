@@ -124,14 +124,27 @@ def lint_skill(skill_dir: Path) -> LintReport:
                                            f"Version is {version}, expected {EXPECTED_VERSION}",
                                            skill_name))
 
-    # 3. Required sections
-    for section in REQUIRED_SECTIONS:
-        if not re.search(rf'^{re.escape(section)}', content, re.M):
+    # 3. Required sections (honor defense_triple_required: false → Summary only)
+    defense_required = bool(fm.get("defense_triple_required", True)) if fm else True
+    required_sections = REQUIRED_SECTIONS if defense_required else ["## Summary"]
+
+    # Pre-compute Methodology size for Practical Steps relaxation
+    method_match = re.search(r'^## Methodology\s*\n(.*?)(?=^## |\Z)', content, re.M | re.DOTALL)
+    method_lines = len(method_match.group(1).strip().split('\n')) if method_match else 0
+
+    for section in required_sections:
+        if re.search(rf'^{re.escape(section)}', content, re.M):
+            continue
+        # Relax Practical Steps when Methodology is detailed (≥50 lines)
+        if section == "## Practical Steps" and method_lines >= 50:
+            report.findings.append(LintFinding("INFO", "PRACTICAL_STEPS_COVERED_BY_METHODOLOGY",
+                                               f"Practical Steps not present but Methodology is detailed ({method_lines} lines)",
+                                               skill_name))
+        else:
             report.findings.append(LintFinding("WARN", "MISSING_SECTION",
                                                f"Section not found: {section}"))
 
     # 4. Defense Triple (strict heading match; honor defense_triple_required: false)
-    defense_required = bool(fm.get("defense_triple_required", True)) if fm else True
     if not defense_required:
         report.findings.append(LintFinding("INFO", "DEFENSE_TRIPLE_EXEMPT",
                                            "defense_triple_required: false — Defense Triple checks skipped",

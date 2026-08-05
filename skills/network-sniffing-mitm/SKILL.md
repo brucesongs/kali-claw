@@ -124,6 +124,24 @@ Network Sniffing and MITM attacks focus on intercepting, analyzing, and manipula
 
 ---
 
+## Practical Steps
+
+End-to-end sniffing / MITM engagement sequence. Each step references the relevant section above.
+
+1. **Position** — Get into the path of the target traffic: ARP poison (LAN), rogue AP (Wi-Fi), or upstream tap (enterprise). See Methodology § Positioning.
+2. **Capture** — Start `tcpdump` / `Wireshark` rolling before triggering the target traffic; rotate PCAP files at 100 MB to avoid loss.
+3. **Decode** — Add `tcp.port==XXXX,http,tls,dns,smb,ftp` display filters; follow TCP streams to reconstruct sessions.
+4. **Credential Mine** — Run `tshark -Y "ftp||http.request.method==POST||kerberos||ntlmssp" -T fields -e ...` over the PCAP; pipe to `hashcat` mode 5600 (NTLMv2) / 13100 (Kerberos).
+5. **Downgrade & Strip** — For HTTPS targets: arpspoof + sslstrip + Bettercap `hstshijack/hsts-bypass`; verify downgrade success before pivoting.
+6. **Modify** — Active MITM: inject Beef hooks, swap downloads, spoof DNS responses via `bettercap -X --proxy`.
+7. **Persist** — Drop a passive backdoor (e.g., `pcapd` cron) for long-duration captures; rotate logs hourly.
+8. **Cover** — Flush iptables NAT rules; restore ARP cache by sending gratuitous ARP from the spoofed gateway before exit.
+9. **Report** — Convert PCAP to HTML via `tshark -G html`; redact unrelated traffic; map each finding to MITRE ATT&CK T1040/T1557.
+
+For full automation scripts see `## Automation and Scripting`. For ethical / legal boundaries see `## Legal and Ethical Considerations`.
+
+---
+
 ## Key Decisions
 
 | Decision | Options | Recommendation |

@@ -54,6 +54,24 @@ Difference from `security-bounty-hunter`: bounty-hunter focuses on finding singl
 - Reviewing third-party integrations and API security
 - Post-exploitation analysis of discovered credentials and secrets
 
+## Core Tools
+
+| Tool | Category | Purpose |
+|------|----------|---------|
+| Semgrep | SAST | Multi-language pattern-based code scanning |
+| CodeQL | SAST | Semantic code analysis (GitHub) |
+| Bandit | SAST (Python) | Python security lint |
+| Snyk Code | SAST | Commercial SAST with dependency scan |
+| SonarQube | SAST | Code quality + security platform |
+| Trivy | Container/FS | Container, filesystem, and IaC scanning |
+| Syft / Grype | SBOM | SBOM generation + vulnerability matching |
+| detect-secrets | Secrets | Pre-commit secret detection (Yelp) |
+| gitleaks | Secrets | Git history secret scanner |
+| semgrep-secret | Secrets | Secret detection rules pack for Semgrep |
+| checkov / tfsec | IaC | Terraform / CloudFormation static analysis |
+| eslint-plugin-security | Lint | JavaScript/TypeScript security rules |
+| CodeSeen / reviewdog | Review | Automated PR review integration |
+
 ## Methodology
 
 ### Security Review Checklist

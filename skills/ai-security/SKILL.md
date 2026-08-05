@@ -460,7 +460,7 @@ exactly which layer to invest in next.
 
 ---
 
-## Tools
+## Core Tools
 
 | Tool | Purpose | Install |
 |------|---------|---------|

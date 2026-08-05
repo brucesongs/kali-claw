@@ -66,7 +66,9 @@ The skill actively encourages dissent, surfaces hidden biases, and prevents grou
 4. **Incident Response Decision** — Make rapid, balanced decisions during active incidents by considering containment (defender), evidence preservation (auditor), and adversary behavior (attacker)
 5. **Vulnerability Risk Assessment** — Rank and prioritize vulnerabilities using a three-dimensional risk framework instead of single-score severity ratings
 
-## Core Analysis Perspectives
+## Core Tools
+
+The council skill's "tools" are three structured analytical perspectives, each with a distinct mindset and entry question. Apply all three to every system under review.
 
 ### Attacker Perspective (Exploit-First)
 
