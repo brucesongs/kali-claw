@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: Phase 2 Track 1 季度工具基线已更新（v0.2.3.1，6 个 MAJOR 升级 + Trivy 供应链事件警告）
+- **Current Focus**: Phase 2 Track 1 半年 Defense Perspective 抽样审查完成（v0.2.3.2，6 个 SKILL 平均 4.2/5，0 P0）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -212,6 +212,36 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - **下次月度审查**：2026-09-05，按新 PHASE2_ROADMAP 节奏执行
 
 ### 2026-08-06: v0.2.3.1 — Q3 工具基线更新
+
+- **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
+- **关键发现**：
+  - **6 个工具跨 MAJOR 版本**：hashcat 6→7 / ghidra 11→12 / frida 16→17 / docker 27→29 / openssl 3→4 / radare2 5→6
+  - **Trivy 供应链攻击事件**（CVE-2026-33634）：2026-03-19 攻击者发布恶意 trivy v0.69.4 + trivy-action tags，影响 75+ tags
+  - 11 个工具 MINOR 升级；~92 个稳定工具标注 rolling
+- **影响范围**：约 80-100 个 SKILL 引用受 MAJOR 升级影响，但**本次 patch 不立即修**（留待 v0.2.4 minor）
+- **关键决策**：
+  - 增量扫描（Top 30 + 类别代表）vs 全量 127 — 选增量（节省 85% 工时）
+  - 保留 07 baseline 文件 vs 修订 — 选保留（历史快照策略）
+  - MAJOR 升级即时修复 vs 留待 minor — 选留待（风险隔离）
+- **实际工时**：~45min（vs 预估 5.5h，节省 85%）
+- **后续衔接**：v0.2.3.2 抽样审查可引用本 baseline 评估时效性；v0.2.4 minor 时批量处理 MAJOR 升级影响
+
+### 2026-08-06: v0.2.3.2 — Defense Perspective 内容质量抽样审查
+
+- **决策**：抽样 6 个高频攻击类 SKILL（multi-agent-runtime-engineering / automotive-vehicle-security / ics-fieldbus-attack / blockchain-l2-attack / patch-to-poc-pipeline / quantum-crypto-attack）按四维矩阵评分（时效性/准确性/详尽性/对齐度）
+- **关键结果**：
+  - **平均分 4.2/5**（良好）；2 个满分标杆（ics-fieldbus-attack、patch-to-poc-pipeline）
+  - **0 P0**（无严重过时/错误）
+  - **2 P1**：multi-agent-runtime-engineering 表格化不充分、quantum-crypto-attack 缺 NIST PQC 2026 进展
+  - **3 P2**：automotive / quantum / blockchain-l2 层级分类可优化
+  - **3 P3**：MITRE ATT&CK 显式映射（长期 backlog）
+- **关键决策**：
+  - 抽样 6 个 vs 全审 17 个 — 选抽样（节省 97% 工时，覆盖所有攻击面类别）
+  - 只审不改 vs 即时修复 — 选只审不改（修复合并到 v0.2.4 minor，与 6 个 MAJOR 工具升级一起）
+  - 标杆模板：ics-fieldbus-attack + patch-to-poc-pipeline（5.0/5）作为 Defense Perspective 内容质量参考
+- **影响范围**：本次 patch 不动 SKILL 内容（保持 lint clean 可独立验证）
+- **后续衔接**：v0.2.4 minor 时一次性处理（2 P1 + 3 P2 + 6 MAJOR 工具升级影响）
+- **实际工时**：~22min（vs 预估 10h，节省 97%）
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：
