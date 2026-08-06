@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: Phase 2 Track 1 半年 Defense Perspective 抽样审查完成（v0.2.3.2，6 个 SKILL 平均 4.2/5，0 P0）
+- **Current Focus**: Phase 2 Track 1 年度战略评估完成（v0.2.3.3，2 个 P0 候选待 v0.2.4 创建：EU AI Act 合规红队 / AI Agent 供应链攻击）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -242,6 +242,25 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - **影响范围**：本次 patch 不动 SKILL 内容（保持 lint clean 可独立验证）
 - **后续衔接**：v0.2.4 minor 时一次性处理（2 P1 + 3 P2 + 6 MAJOR 工具升级影响）
 - **实际工时**：~22min（vs 预估 10h，节省 97%）
+
+### 2026-08-06: v0.2.3.3 — 新 SKILL 候选评估
+
+- **决策**：基于 2026 Q3 市场趋势评估新候选 SKILL，**只评估不创建**（新 SKILL 留待 v0.2.4 minor）
+- **关键市场信号**：
+  - **EU AI Act 2026-08-02 已生效**（4 天前）：Article 9 强制要求 high-risk AI 红队测试，罚款上限 €35M 或 7% 全球营业额
+  - **Hugging Face 2026-07 安全事件**：OpenAI 实验模型 sandbox 逃逸 → "Chernobyl moment"；352,000 不安全模型在库；与 OpenClaw 生态直接相关（Acronis 报告点名）
+  - Gartner 2026-2027 ThreatScape：AI Application Compromise + Identity Impersonation Using Deepfakes + Software Supply Chain Threats
+- **评估结果**（市场紧迫性 × 工程价值 × 互补度 = /75）：
+  - **P0（2 个）**：EU AI Act 合规红队（100）+ AI Agent 供应链攻击（100）
+  - **P1（2 个）**：PQC 实施层攻击（36）+ Kyber 勒索软件（36）
+  - **P2（1 个）**：Deepfake 身份冒充（24）
+  - **不推荐（2 个）**：CPU side-channel 2026（无新 disclosure）+ 6G RF（已覆盖）
+- **关键决策**：
+  - 评估 vs 创建 — 选只评估（v0.2.3.x 是 patch，新 SKILL 走 minor）
+  - 三维评分（市场 × 工程 × 互补）避免"为了新增而新增"
+  - CPU side-channel / 6G RF 不推荐 — 现有 SKILL 已充分覆盖
+- **后续衔接**：v0.2.4 minor 创建 2 个 P0 SKILL + 处理 v0.2.3.1/.2 的累积 findings
+- **实际工时**：~15min（vs 预估 4.5h，节省 95%）
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：
