@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: Phase 2 Track 1 月度维护模式（v0.2.3 已发布，skill-lint 0 errors / 0 warnings）
+- **Current Focus**: Phase 2 Track 1 季度工具基线已更新（v0.2.3.1，6 个 MAJOR 升级 + Trivy 供应链事件警告）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -210,6 +210,21 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - **rationale**：xAgent 工程涉及 agent runtime / rcogo 平台集成 / 多 agent 协作等，与 SKILL 库维护职责差异大；分仓后两边都能聚焦
 - **kali-claw 新定位**：single-responsibility SKILL library maintainer
 - **下次月度审查**：2026-09-05，按新 PHASE2_ROADMAP 节奏执行
+
+### 2026-08-06: v0.2.3.1 — Q3 工具基线更新
+
+- **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
+- **关键发现**：
+  - **6 个工具跨 MAJOR 版本**：hashcat 6→7 / ghidra 11→12 / frida 16→17 / docker 27→29 / openssl 3→4 / radare2 5→6
+  - **Trivy 供应链攻击事件**（CVE-2026-33634）：2026-03-19 攻击者发布恶意 trivy v0.69.4 + trivy-action tags，影响 75+ tags
+  - 11 个工具 MINOR 升级；~92 个稳定工具标注 rolling
+- **影响范围**：约 80-100 个 SKILL 引用受 MAJOR 升级影响，但**本次 patch 不立即修**（留待 v0.2.4 minor）
+- **关键决策**：
+  - 增量扫描（Top 30 + 类别代表）vs 全量 127 — 选增量（节省 85% 工时）
+  - 保留 07 baseline 文件 vs 修订 — 选保留（历史快照策略）
+  - MAJOR 升级即时修复 vs 留待 minor — 选留待（风险隔离）
+- **实际工时**：~45min（vs 预估 5.5h，节省 85%）
+- **后续衔接**：v0.2.3.2 抽样审查可引用本 baseline 评估时效性；v0.2.4 minor 时批量处理 MAJOR 升级影响
 
 ---
 
