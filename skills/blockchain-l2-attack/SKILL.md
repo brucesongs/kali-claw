@@ -260,17 +260,29 @@ For every finding, document:
 
 ### Defense Perspective
 
+#### Bridges & Cross-Chain Messaging
+
 | Defense Measure | Description |
 |-----------------|-------------|
 | **Rate limiting on bridge mints** | Cap mintable-per-block to N% of total liquidity. Slows down an attacker even if a key is compromised, giving time to pause. |
-| **Timelock on validator-set changes** | Any change to the validator set or multisig threshold must wait 24-48h on-chain. Lets users exit before a malicious threshold change takes effect. |
 | **Multi-sig threshold > 50% + geographic distribution** | M-of-N where M > N/2, with signers distributed across legal jurisdictions and hardware security modules (HSMs). Resists both key theft and coercion. |
-| **Sequencer failover + escape hatch** | L1 forced-inclusion mechanism (OP `enqueue`, Arbitrum `L2ToL1MessagePasser`) must work even when the sequencer is offline. Users can always exit via L1. |
-| **ZK proof system audit + trusted setup** | Use a published, audited proving system (Halo2, PLONK). Publish the trusted-setup ceremony transcript. Use a universal SRS where possible (e.g., Aztec's ceremony). |
-| **Fraud-proof window ≥ 7 days** | Optimistic rollup challenge windows must be long enough for honest watchers to catch and prove fraud. 7 days is the de-facto minimum. |
 | **Bridge pausable + Sentinel** | Bridge should be pausable by a 2-of-3 multisig, with an automated Sentinel (OpenZeppelin Defender) that pauses on anomalous mint volume. |
-| **WatchTower network** | For Lightning and state channels, a WatchTower service watches for old-state channel closes and broadcasts penalty transactions. Reduces need for 24/7 node liveness. |
 | **Per-chain message-replay protection** | Every cross-chain message must commit to (source chain ID, destination chain ID, sequence number). Reject replays from a different chain ID. |
+
+#### Sequencers & Data Availability
+
+| Defense Measure | Description |
+|-----------------|-------------|
+| **Sequencer failover + escape hatch** | L1 forced-inclusion mechanism (OP `enqueue`, Arbitrum `L2ToL1MessagePasser`) must work even when the sequencer is offline. Users can always exit via L1. |
+| **Fraud-proof window ≥ 7 days** | Optimistic rollup challenge windows must be long enough for honest watchers to catch and prove fraud. 7 days is the de-facto minimum. |
+| **ZK proof system audit + trusted setup** | Use a published, audited proving system (Halo2, PLONK). Publish the trusted-setup ceremony transcript. Use a universal SRS where possible (e.g., Aztec's ceremony). |
+
+#### Validator Sets & State Channels
+
+| Defense Measure | Description |
+|-----------------|-------------|
+| **Timelock on validator-set changes** | Any change to the validator set or multisig threshold must wait 24-48h on-chain. Lets users exit before a malicious threshold change takes effect. |
+| **WatchTower network** | For Lightning and state channels, a WatchTower service watches for old-state channel closes and broadcasts penalty transactions. Reduces need for 24/7 node liveness. |
 | **Account abstraction bundler decentralization** | Bundlers must be a competitive, decentralized network — not a single operator. Otherwise the bundler can censor any UserOperation. |
 
 ## Practical Steps

@@ -160,20 +160,32 @@ Recon & Setup  →  Bus Sniffing   →  Protocol Reversing→  ECU Compromise �
 
 ### Defense Perspective
 
+#### Regulatory & Compliance Layer
+
 | Defense Measure | Description |
 |-----------------|-------------|
 | **Automotive ISAC (Auto-ISAC)** | Industry threat-intel sharing for OEMs and Tier-1s; the canonical clearinghouse for coordinated vulnerability disclosure and IoC sharing. [automotiveisac.com](https://automotiveisac.com) |
-| **UNECE WP.29 R155 (Cybersecurity Management System)** | Mandatory since July 2022 for new vehicle type approvals in UNECE 1958 signatory countries (EU, Japan, Korea, UK). Requires OEMs to operate a CSMS, perform TARA, detect/respond to incidents, and report critical vulnerabilities within 4 months. |
-| **UNECE WP.29 R156 (Software Update Management System)** | Companion to R155; governs OTA updates. Requires SUMS, update integrity verification, rollback capability, and per-update risk assessment. |
-| **ISO/SAE 21434 (Road vehicles — Cybersecurity engineering)** | The automotive SDLC standard. Maps to R155 CSMS requirements; covers threat analysis & risk assessment (TARA), cybersecurity goals, validation, and post-development monitoring. The reference framework every OEM audit committee references. |
-| **SAE J3061 (Cybersecurity Guidebook for Cyber-Physical Vehicle Systems)** | Predecessor to ISO 21434; still widely cited for the TARA methodology and the vehicle V-model cybersecurity overlay. |
+| **UNECE WP.29 R155 (CSMS)** | Mandatory since July 2022 for new vehicle type approvals in UNECE 1958 signatory countries (EU, Japan, Korea, UK). Requires OEMs to operate a CSMS, perform TARA, detect/respond to incidents, and report critical vulnerabilities within 4 months. |
+| **UNECE WP.29 R156 (SUMS)** | Companion to R155; governs OTA updates. Requires SUMS, update integrity verification, rollback capability, and per-update risk assessment. |
+| **ISO/SAE 21434** | The automotive SDLC standard. Maps to R155 CSMS requirements; covers TARA, cybersecurity goals, validation, post-development monitoring. Reference framework every OEM audit committee references. |
+| **SAE J3061** | Predecessor to ISO 21434; still widely cited for the TARA methodology and the vehicle V-model cybersecurity overlay. |
+
+#### In-Vehicle Network Layer
+
+| Defense Measure | Description |
+|-----------------|-------------|
 | **Gateway ECU filtering** | The inter-bus gateway should not route safety-critical messages (brake, steer) from infotainment-side buses to powertrain-side buses. Default-deny inter-bus ACL; explicit allowlist per message ID. |
-| **CAN message authentication (AUTOSAR SecOC)** | SecOC (Secure Onboard Communication) adds a truncated MAC to each CAN frame, providing freshness and integrity. Adoption has been slow (5–10% of 2024 production vehicles) but is increasing with R155 pressure. |
+| **CAN message authentication (AUTOSAR SecOC)** | SecOC adds a truncated MAC to each CAN frame, providing freshness and integrity. Adoption slow (5–10% of 2024 production vehicles) but increasing with R155 pressure. |
 | **Hardware Security Module (HSM) per ECU** | EVITA HSM (light/medium/full) or SHE (Secure Hardware Extension) on each safety-critical ECU. Stores keys, performs MAC, protects secure boot. Required for SecOC. |
-| **UDS 0x27 hardening** | Per-ECU unique seed/key with strong PRNG; rate-limit the 0x27 service; lock 0x27 in default session; disable 0x27 on production ECUs where possible (move to JTAG/boot-mode only). |
-| **CAN-IDS (intrusion detection)** | Per-ECU or gateway-resident IDS that flags: new arbitration IDs, out-of-range signal values, message-rate anomalies, UDS service anomalies. Vendors: Karamba, GuardKnox, Towersec (HP), Argus (now part of NXP). Forward events to OEM SOC via TCU. |
+| **UDS 0x27 hardening** | Per-ECU unique seed/key with strong PRNG; rate-limit 0x27; lock in default session; disable on production ECUs where possible (move to JTAG/boot-mode only). |
+| **CAN-IDS** | Per-ECU or gateway-resident IDS flagging: new arbitration IDs, out-of-range signal values, message-rate anomalies, UDS anomalies. Vendors: Karamba, GuardKnox, Towersec (HP), Argus (now NXP). Forward events to OEM SOC via TCU. |
+
+#### External Interface Layer
+
+| Defense Measure | Description |
+|-----------------|-------------|
 | **Telematics segmentation** | The TCU's cellular interface must be in a separate security domain from the CAN backbone; inter-domain traffic flows through an automotive firewall with DPI on ISO-TP/UDS/SOME-IP. |
-| **PKES relay mitigation** | Time-of-flight ranging on UHF response (impossible to relay without detectable latency); motion sensors in the fob (sleep when stationary); multi-band challenges (LF + BLE + UWB ranging). Modern BMW/Audi have moved to UWB (IEEE 802.15.4z) for this reason. |
+| **PKES relay mitigation** | Time-of-flight ranging on UHF response (impossible to relay without detectable latency); motion sensors in the fob (sleep when stationary); multi-band challenges (LF + BLE + UWB ranging). Modern BMW/Audi moved to UWB (IEEE 802.15.4z) for this reason. |
 
 ## Practical Steps
 

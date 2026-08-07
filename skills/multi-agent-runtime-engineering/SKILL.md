@@ -428,6 +428,16 @@ Five forbidden behaviors. Each has a detection rule (machine-checkable) and a re
 
 ### Defense Perspective
 
+| Offensive Pattern | Defensive Counterpart | Shared Primitive |
+|------------------|----------------------|------------------|
+| Parallel exploit dev (N agents write JSON) | Parallel threat hunting (N analysts write IOC memory) | POSIX `flock` + atomic JSON write |
+| Convergence detection (3+ agents confirm hypothesis) | IOC triangulation (3+ analysts arrive at same IOC) | `convergence_state` schema + threshold logic |
+| `failed_attempts_on_active_path` (don't repeat dead-ends) | Hunt dead-end memory (don't re-run completed hunts) | Same field, same semantics |
+| Path claim (single-writer per attack path) | Analyst role claim (single-owner per IOC) | `claimed_by` field + version vector |
+| Differential verification (patched + vulnerable PoC) | Differential detection (baseline + anomaly hunt) | `verification_results` schema dual-state |
+| Stop condition (convergence + verification) | Hunt closure criteria (confidence + coverage) | `stop_condition_met` boolean |
+| Coordinator-worker topology (parallel explorers) | SOC tier-1 → tier-2 escalation pipeline | Topology choice rationale |
+
 The same runtime engineering patterns that make offensive multi-agent systems converge are the patterns that make defensive multi-analyst teams effective. The skill is symmetric.
 
 - **SOC playbook parallelism**: multiple analysts can update a shared IOC memory in parallel using the same atomic-write protocol. No more "I overwrote your finding" or "we both ran the same hunt." Version vectors and path claims work identically for defensive teams.

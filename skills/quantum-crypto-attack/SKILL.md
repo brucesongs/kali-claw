@@ -212,6 +212,19 @@ Synthesize findings into a prioritized roadmap aligned with NIST SP 800-227 (PQC
 | SM2/SM3/SM4 with vetted libs | Use GmSSL/Tongsuo with constant-time SM2 scalar mult, SM4-GCM only, RFC 8998 TLS 1.3 | SM scalar-mult side-channel, SM4 ECB, GM TLS handshake downgrade |
 | AES-256 for long-term data | Quadruples post-quantum brute-force cost vs AES-128 (Grover) | SNDL on symmetric-encrypted long-term data |
 | HSM-backed XMSS state mgmt | Hardware-enforced monotonic state counter for stateful hash-based signatures | XMSS/LMS state-reuse catastrophic forgery |
+| **FIPS 203 errata (2026-07)** | Apply 2026-07 published errata to ML-KEM implementations; verify parameter sets against revised standard | Implementation drift from canonical ML-KEM |
+| **FIPS 204 / FIPS 205 alignment** | ML-DSA + SLH-DSA — use both signatures (lattice + hash-based) for diversity | Single-algorithm catastrophic break |
+| **CNSA 2.0 commercial rollout (2026 Q4)** | NSA CNSA 2.0 timeline: 2026 Q4 begins commercial adoption; 2027 Q1 firmware mandates | SNDL on national-security systems |
+| **Kyber ransomware awareness (2026-03)** | First weaponized PQC case — defenders must update ransomware detection signatures (classical decrypt tools fail) | PQC encrypted data recovery impossible |
+
+#### 2026 PQC Standardization Status Brief
+
+- **FIPS 203** (ML-KEM) — published 2024-08; **errata revised 2026-07**
+- **FIPS 204** (ML-DSA) — published 2024-08; aligned with CNSA 2.0
+- **FIPS 205** (SLH-DSA) — published 2024-08; hash-based fallback
+- **FIPS 206** (FN-DSA / Falcon) — draft pending
+- **CNSA 2.0** (NSA) — commercial timeline: **2026 Q4 begins**, 2027 Q1 firmware mandates
+- **2026-03**: First Kyber-based ransomware documented (CSA research note) — PQC algorithms now weaponized by attackers
 
 ---
 
