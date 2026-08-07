@@ -136,7 +136,7 @@ git clone https://github.com/fkie-cad/FACT_core
 cd FACT_core
 ./install
 # Start
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 4. Analysis Workflow — Stage by Stage

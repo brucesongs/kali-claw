@@ -452,8 +452,8 @@ frida-trace -i '*[Tt]icket*' -i '*[Aa]uth*' -n ZscalerClientConnector
 
 # Hook the ticket acquisition function (name varies by version; discover with frida-trace)
 cat > /tmp/hook-ticket.js << 'EOF'
-const ticketFunc = Module.findExportByName(null, '_ZN20ZscalerClientConnector23acquireObkeyFromIdPEv')
-  || Module.findExportByName(null, 'acquireTicket');
+const ticketFunc = Module.getGlobalExportByName( '_ZN20ZscalerClientConnector23acquireObkeyFromIdPEv')
+  || Module.getGlobalExportByName( 'acquireTicket');
 
 if (ticketFunc) {
   Interceptor.attach(ticketFunc, {
@@ -619,8 +619,8 @@ EOF'
 # Frida hook approach (more robust)
 cat > /tmp/netskope-posture-hook.js << 'EOF'
 // Discover the posture reporter
-const postureFunc = Module.findExportByName(null, '_ZN6Netskope12getPostureEv')
-  || Module.findExportByName(null, 'NST_Posture_GetState');
+const postureFunc = Module.getGlobalExportByName( '_ZN6Netskope12getPostureEv')
+  || Module.getGlobalExportByName( 'NST_Posture_GetState');
 
 if (postureFunc) {
   Interceptor.replace(postureFunc, new NativeCallback(() => {
@@ -2235,9 +2235,9 @@ curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
 ```javascript
 // Replace 'PostureState' with the actual function name from disassembly
 // Discover with: frida-trace -i '*[Pp]osture*' -n <agent-process>
-const postureFunc = Module.findExportByName(null, 'getPostureState')
-  || Module.findExportByName(null, '_ZN6NSPA12getPostureEv')
-  || Module.findExportByName(null, '_ZN20ZscalerClientConnector13getPostureEv');
+const postureFunc = Module.getGlobalExportByName( 'getPostureState')
+  || Module.getGlobalExportByName( '_ZN6NSPA12getPostureEv')
+  || Module.getGlobalExportByName( '_ZN20ZscalerClientConnector13getPostureEv');
 
 if (postureFunc) {
   Interceptor.replace(postureFunc, new NativeCallback(() => {
@@ -2254,8 +2254,8 @@ if (postureFunc) {
 
 ```javascript
 // Hook the function that acquires the auth token from the IdP
-const authFunc = Module.findExportByName(null, 'acquireToken')
-  || Module.findExportByName(null, '_ZN6NSPA12acquireTokenEv');
+const authFunc = Module.getGlobalExportByName( 'acquireToken')
+  || Module.getGlobalExportByName( '_ZN6NSPA12acquireTokenEv');
 
 if (authFunc) {
   Interceptor.attach(authFunc, {
@@ -2277,8 +2277,8 @@ if (authFunc) {
 
 ```javascript
 // Hook the SSL pinning verification function
-const pinFunc = Module.findExportByName(null, 'verifyPinnedCert')
-  || Module.findExportByName(null, '_ZN6NSPA16verifyPinnedCertEP10ssl_ctx_st');
+const pinFunc = Module.getGlobalExportByName( 'verifyPinnedCert')
+  || Module.getGlobalExportByName( '_ZN6NSPA16verifyPinnedCertEP10ssl_ctx_st');
 
 if (pinFunc) {
   Interceptor.replace(pinFunc, new NativeCallback(() => {
@@ -2297,8 +2297,8 @@ if (pinFunc) {
 //   - Detecting ptrace attach
 // Bypass by hooking the check functions:
 
-const checkFunc = Module.findExportByName(null, 'checkFrida')
-  || Module.findExportByName(null, '_ZN6NSPA10checkFridaEv');
+const checkFunc = Module.getGlobalExportByName( 'checkFrida')
+  || Module.getGlobalExportByName( '_ZN6NSPA10checkFridaEv');
 
 if (checkFunc) {
   Interceptor.replace(checkFunc, new NativeCallback(() => {
@@ -2308,7 +2308,7 @@ if (checkFunc) {
 }
 
 // Hook open() to hide the frida-agent file
-const openFunc = Module.findExportByName(null, 'open');
+const openFunc = Module.getGlobalExportByName( 'open');
 Interceptor.attach(openFunc, {
   onEnter(args) {
     const path = args[0].readUtf8String();

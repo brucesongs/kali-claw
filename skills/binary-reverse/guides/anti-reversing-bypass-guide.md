@@ -190,7 +190,7 @@ VBoxManage setextradata "VM_Name" "VBoxInternal/Devices/acpi/0/Config/AcpiOemId"
 # Frida script to bypass VM detection checks
 vm_bypass_script = """
 // Bypass CPUID-based VM detection
-Interceptor.attach(Module.findExportByName(null, "__cpuid"), {
+Interceptor.attach(Module.getGlobalExportByName( "__cpuid"), {
     onLeave: function(retval) {
         // Clear hypervisor bit in ECX (bit 31)
         // This is checked by CPUID leaf 1
@@ -319,7 +319,7 @@ r2 -A ./protected_binary
 # Method 2: Hook the comparison function
 cat > bypass_integrity.js << 'EOF'
 // Hook memcmp/strcmp used for integrity verification
-Interceptor.attach(Module.findExportByName(null, "memcmp"), {
+Interceptor.attach(Module.getGlobalExportByName( "memcmp"), {
     onEnter: function(args) {
         this.size = args[2].toInt32();
     },

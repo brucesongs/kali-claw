@@ -104,7 +104,7 @@ nm -gU /Applications/Zscaler/ZscalerClientConnector.app/Contents/MacOS/ZscalerCl
 
 ```javascript
 // frida -n ZscalerClientConnector -l posture-hook.js
-Interceptor.attach(Module.findExportByName(null, 'posture_check'), {
+Interceptor.attach(Module.getGlobalExportByName( 'posture_check'), {
   onLeave: function(retval) {
     send('[+] posture_check called, original: ' + retval);
     retval.replace(0x01);  // 0x01 = compliant

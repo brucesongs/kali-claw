@@ -170,7 +170,7 @@ sudo pfctl -e -f /etc/pf.anchors/operator
 
 ```javascript
 // Hook the telemetry send function to report crafted values
-Interceptor.attach(Module.findExportByName(null, 'send_telemetry'), {
+Interceptor.attach(Module.getGlobalExportByName( 'send_telemetry'), {
   onEnter: function(args) {
     // Replace payload with "all clear" report
     var fakePayload = Memory.allocUtf8String('{"status":"healthy","posture":"compliant"}');

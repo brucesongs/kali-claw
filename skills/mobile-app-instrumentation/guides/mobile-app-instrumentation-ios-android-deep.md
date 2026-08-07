@@ -158,10 +158,10 @@ When an iOS app embeds BoringSSL (Chrome's fork of OpenSSL, used by anything tha
 // BoringSSL is statically linked — symbol is found via pattern scan, not export.
 
 function bypassBoringSSL() {
-  var ssl_set_verify = Module.findExportByName(null, 'SSL_set_custom_verify');
+  var ssl_set_verify = Module.getGlobalExportByName( 'SSL_set_custom_verify');
   if (!ssl_set_verify) {
     // Fall back to SSL_CTX_set_custom_verify (older API)
-    ssl_set_verify = Module.findExportByName(null, 'SSL_CTX_set_custom_verify');
+    ssl_set_verify = Module.getGlobalExportByName( 'SSL_CTX_set_custom_verify');
   }
   if (!ssl_set_verify) {
     console.log('[!] BoringSSL not present (no SSL_(CTX_)set_custom_verify)');
@@ -173,7 +173,7 @@ function bypassBoringSSL() {
   }, 'void', ['pointer', 'int', 'pointer']));
 
   // Also defeat the verify callback itself
-  var ssl_verify_peer_chain = Module.findExportByName(null, 'SSL_verify_peer_chain');
+  var ssl_verify_peer_chain = Module.getGlobalExportByName( 'SSL_verify_peer_chain');
   if (ssl_verify_peer_chain) {
     Interceptor.replace(ssl_verify_peer_chain, new NativeCallback(function (ssl, chain) {
       console.log('[+] SSL_verify_peer_chain forced to success');

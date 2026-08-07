@@ -71,7 +71,7 @@ Is the target SWG terminating ECH?
 - **Posture check function** (Frida hook target)
   ```javascript
   // Frida: hook posture_check
-  Interceptor.attach(Module.findExportByName(null, 'posture_check'), {
+  Interceptor.attach(Module.getGlobalExportByName( 'posture_check'), {
     onLeave: function(retval) {
       retval.replace(0x01);  // force "compliant"
     }
@@ -97,7 +97,7 @@ Is the target SWG terminating ECH?
 - **mTLS client cert** (extract via Frida)
   ```javascript
   // Hook SSL_CTX_use_certificate_file
-  Interceptor.attach(Module.findExportByName(null, 'SSL_CTX_use_certificate_file'), {
+  Interceptor.attach(Module.getGlobalExportByName( 'SSL_CTX_use_certificate_file'), {
     onEnter: function(args) {
       console.log('[+] Cert path:', args[1].readCString());
       console.log('[+] Type:', args[2].toInt32());

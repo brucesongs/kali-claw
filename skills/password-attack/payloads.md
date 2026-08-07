@@ -599,7 +599,8 @@ hashcat -b
 hashcat -b -m 1000
 
 # Optimize workload for specific GPU
-hashcat -a 0 -m 1000 hashes.txt rockyou.txt -w 3 -O
+# Note: -O / --optimized-kernel-launch was removed in hashcat 7.0+; use --kernel-register-file for similar gains on modern GPUs
+hashcat -a 0 -m 1000 hashes.txt rockyou.txt -w 3
 # -w 3 = high workload profile  -O = optimized kernels (limits password length to 32)
 
 # Multi-GPU selection

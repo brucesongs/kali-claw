@@ -546,7 +546,7 @@ git clone https://github.com/thinkst/canarytokens.git
 cd canarytokens
 cp docker-compose.yml.dist docker-compose.yml
 # Edit .env: set DOMAIN and CANARY_DOMAIN_ID
-docker-compose up -d
+docker compose up -d
 # Self-hosted instance now generates tokens at https://<your-domain>/generate
 
 # Test 1: Word-doc token

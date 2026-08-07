@@ -95,7 +95,7 @@ grep -r "openbanking\|psd2\|fapi\|client_id" example-tpp-decoded/
 # OIDF certification test suite
 git clone https://gitlab.com/openid/oidf-conformance-suite.git
 cd oidf-conformance-suite
-docker-compose up -d
+docker compose up -d
 # Visit http://localhost:8080
 ```
 
@@ -118,7 +118,7 @@ docker run -p 8080:8080 authlete/standard-api
 # Open Banking UK reference implementation
 git clone https://github.com/OpenBankingUK/conformance-suite.git
 cd conformance-suite
-docker-compose up -d
+docker compose up -d
 # Test against UK OBIE v3.1.x
 ```
 
@@ -136,7 +136,7 @@ curl -X POST https://sandbox.devportal.com.br/auth/oauth/v2/token \
 ```bash
 # ForgeRock Open Banking reference
 git clone https://github.com/OpenBankingToolbox/ob-reference-implementation.git
-docker-compose up -d
+docker compose up -d
 
 # Or use Mockbank (UK OBIE)
 docker run -p 8443:8443 mockbank/ob-mock-bank

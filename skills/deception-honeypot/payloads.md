@@ -1149,7 +1149,7 @@ cp .env-dist .env
 #   SMTP_*
 
 # Bring up
-docker-compose up -d
+docker compose up -d
 
 # Generate tokens at https://<your-domain>/generate
 # Manage tokens at https://<your-domain>/manage

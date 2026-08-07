@@ -937,7 +937,7 @@ level: critical
 # Or self-host mock bank
 git clone https://github.com/OpenBankingToolkit/mock-asp.git
 cd mock-asp
-docker-compose up
+docker compose up
 ```
 
 ### §15.2 TPP sandbox

@@ -106,7 +106,7 @@ cat /opt/cato/cato-client/config.ini
 
 ```javascript
 // frida -n ZscalerClientConnector -l cert-hook.js
-Interceptor.attach(Module.findExportByName(null, 'SSL_CTX_use_certificate_file'), {
+Interceptor.attach(Module.getGlobalExportByName( 'SSL_CTX_use_certificate_file'), {
   onEnter: function(args) {
     var path = args[1].readCString();
     send('[+] Cert path: ' + path);
@@ -118,7 +118,7 @@ Interceptor.attach(Module.findExportByName(null, 'SSL_CTX_use_certificate_file')
 
 ```javascript
 // Identify the export (macOS)
-var posture = Module.findExportByName(null, 'posture_check');
+var posture = Module.getGlobalExportByName( 'posture_check');
 if (posture) {
   Interceptor.attach(posture, {
     onLeave: function(retval) {
@@ -141,7 +141,7 @@ funcs.forEach(function(f) {
 ### 5.3 Hook SSL_write to inspect outbound traffic
 
 ```javascript
-Interceptor.attach(Module.findExportByName(null, 'SSL_write'), {
+Interceptor.attach(Module.getGlobalExportByName( 'SSL_write'), {
   onEnter: function(args) {
     var buf = args[1];
     var len = args[2].toInt32();
@@ -223,14 +223,14 @@ security export -k /Library/Keychains/System.keychain -t identities \
 
 ```javascript
 // Hook SSL_CTX_use_certificate to dump in-memory cert
-Interceptor.attach(Module.findExportByName(null, 'SSL_CTX_use_certificate'), {
+Interceptor.attach(Module.getGlobalExportByName( 'SSL_CTX_use_certificate'), {
   onLeave: function(retval) {
     var x509 = retval;
     // BIO_new_memory BIO_read
-    var bio = Module.findExportByName(null, 'BIO_new')(Module.findExportByName(null, 'BIO_s_mem')());
-    Module.findExportByName(null, 'PEM_write_bio_X509')(bio, x509);
+    var bio = Module.getGlobalExportByName( 'BIO_new')(Module.getGlobalExportByName( 'BIO_s_mem')());
+    Module.getGlobalExportByName( 'PEM_write_bio_X509')(bio, x509);
     var buf = Memory.alloc(8);
-    var len = Module.findExportByName(null, 'BIO_read')(bio, buf, 4096);
+    var len = Module.getGlobalExportByName( 'BIO_read')(bio, buf, 4096);
     var pem = Memory.readUtf8String(buf, len);
     send('[CERT] ' + pem);
   }

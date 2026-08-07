@@ -959,7 +959,7 @@ Java.perform(function() {
     };
 
     // Bypass ptrace-based anti-debug in native code
-    var ptrace = Module.findExportByName(null, "ptrace");
+    var ptrace = Module.getGlobalExportByName( "ptrace");
     if (ptrace) {
         Interceptor.replace(ptrace, new NativeCallback(function() {
             console.log("[BYPASS] ptrace() called, returning 0");

@@ -103,7 +103,7 @@ cp .env.example .env
 nano .env  # set admin password + JWT secret
 
 # Start
-docker-compose up -d
+docker compose up -d
 
 # Verify
 curl -s https://localhost/graphql -X POST \

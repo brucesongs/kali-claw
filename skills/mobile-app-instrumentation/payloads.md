@@ -285,7 +285,7 @@ if (ObjC.available) {
 
 ```javascript
 // hook_native.js
-var openPtr = Module.findExportByName(null, 'open');
+var openPtr = Module.getGlobalExportByName( 'open');
 if (openPtr) {
   Interceptor.attach(openPtr, {
     onEnter: function (args) {
@@ -299,7 +299,7 @@ if (openPtr) {
 ### 6.4 Replace a function entirely (NativeCallback)
 
 ```javascript
-var ptrace = Module.findExportByName(null, 'ptrace');
+var ptrace = Module.getGlobalExportByName( 'ptrace');
 Interceptor.replace(ptrace, new NativeCallback(function (req, pid, addr, data) {
   console.log('[ptrace] spoofing return 0 (allow attach)');
   return 0;
@@ -467,7 +467,7 @@ var paths = [
 
 // Hook fopen / open / access / stat
 ['fopen', 'open', 'access', 'stat', 'stat64', 'lstat', 'lstat64'].forEach(function (sym) {
-  var p = Module.findExportByName(null, sym);
+  var p = Module.getGlobalExportByName( sym);
   if (p) Interceptor.attach(p, {
     onEnter: function (args) {
       try {
@@ -483,14 +483,14 @@ var paths = [
 });
 
 // Hook fork — apps use fork()!=-1 to detect jailbreak
-var fork = Module.findExportByName(null, 'fork');
+var fork = Module.getGlobalExportByName( 'fork');
 Interceptor.replace(fork, new NativeCallback(function () {
   console.log('[jb-bypass] fork() spoofed to -1');
   return -1;
 }, 'int', []));
 
 // Hook sysctl for P_TRACED check
-var sysctl = Module.findExportByName(null, 'sysctl');
+var sysctl = Module.getGlobalExportByName( 'sysctl');
 Interceptor.attach(sysctl, {
   onLeave: function (retval) {
     try {
@@ -567,14 +567,14 @@ Java.perform(function () {
 
 ```javascript
 // bypass_ptrace.js
-var ptrace = Module.findExportByName(null, 'ptrace');
+var ptrace = Module.getGlobalExportByName( 'ptrace');
 Interceptor.replace(ptrace, new NativeCallback(function (req, pid, addr, data) {
   console.log('[anti-debug] ptrace(' + req + ') spoofed to 0');
   return 0;
 }, 'long', ['int', 'int', 'pointer', 'pointer']));
 
 // Hook sysctl to clear P_TRACED
-var sysctl = Module.findExportByName(null, 'sysctl');
+var sysctl = Module.getGlobalExportByName( 'sysctl');
 Interceptor.attach(sysctl, {
   onEnter: function (args) {
     this.oldp = args[2]; // old (output) buffer
@@ -597,8 +597,8 @@ Interceptor.attach(sysctl, {
 
 ```javascript
 // bypass_tracerpid.js
-var fopen = Module.findExportByName(null, 'fopen');
-var fgets = Module.findExportByName(null, 'fgets');
+var fopen = Module.getGlobalExportByName( 'fopen');
+var fgets = Module.getGlobalExportByName( 'fgets');
 
 Interceptor.attach(fopen, {
   onEnter: function (args) {
@@ -633,7 +633,7 @@ Interceptor.attach(fgets, {
 
 ```javascript
 // Apps may scan /proc/self/maps for 'frida-agent' / 'gum-js-loop'
-var fopen = Module.findExportByName(null, 'fopen');
+var fopen = Module.getGlobalExportByName( 'fopen');
 Interceptor.attach(fopen, {
   onEnter: function (args) {
     try {
@@ -647,7 +647,7 @@ Interceptor.attach(fopen, {
 });
 
 // Scrub 'frida' / 'gum' / 'linjector' lines from fgets return
-var fgets = Module.findExportByName(null, 'fgets');
+var fgets = Module.getGlobalExportByName( 'fgets');
 Interceptor.attach(fgets, {
   onLeave: function (retval) {
     if (retval && !retval.isNull()) {
@@ -1059,7 +1059,7 @@ frida -U Gadget
 
 ```javascript
 // scrub_maps.js
-var fgets = Module.findExportByName(null, 'fgets');
+var fgets = Module.getGlobalExportByName( 'fgets');
 Interceptor.attach(fgets, {
   onLeave: function (retval) {
     if (retval.isNull()) return;
@@ -1073,7 +1073,7 @@ Interceptor.attach(fgets, {
 });
 
 // Override pthread_getname_np / prctl PR_GET_NAME to rename Frida threads
-var pthread_getname = Module.findExportByName(null, 'pthread_getname_np');
+var pthread_getname = Module.getGlobalExportByName( 'pthread_getname_np');
 if (pthread_getname) {
   Interceptor.attach(pthread_getname, {
     onLeave: function (retval) {

@@ -413,7 +413,7 @@ docker run -d -p 443:443 -p 80:80 -e HOSTNAME=https://localhost \
 # OpenCTI Docker
 git clone https://github.com/OpenCTI-Platform/opencti
 cd opencti
-docker-compose up -d
+docker compose up -d
 
 # Anomali ThreatStream community edition
 # ThreatQuotient — request trial
