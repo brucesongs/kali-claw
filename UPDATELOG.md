@@ -1,3 +1,46 @@
+# kali-claw v0.2.5 — 月度质量审查（A+B 范围）🔍
+
+*Generated: 2026-08-09 | Version: v0.2.4 → v0.2.5 | Focus: Monthly review + ATT&CK mappings | Total Skills: 139*
+
+---
+
+## 摘要
+
+v0.2.5 是 v0.2.4 minor 后第 1 次月度质量审查（提前至 2026-08-09，原计划 2026-09-05）。执行范围 A（核心必做）+ B（ATT&CK 显式映射）。
+
+### 阶段 A — 核心必做
+
+- A.1 skill-lint 全量审查：139/139 pass，0 errors / 0 warnings（与 v0.2.4 一致，无回归）
+- A.2 2 个 v0.2.4 新 SKILL 使用反馈抽样：eu-ai-act-compliance-redteam + ai-agent-supply-chain-attack，创建后稳定，无修改需求
+- A.3 GitHub Issues / PRs 检查：0 open
+
+### 阶段 B — ATT&CK 显式映射（v0.2.3.2 deferred）
+
+为 3 个 SKILL 新增 `## MITRE ATT&CK Mapping` 章节：
+
+- `multi-agent-runtime-engineering`：6 行表格（T1059.004 / T1027 / T1106 / T1057 / T1070.004 / T1620）
+- `blockchain-l2-attack`：7 行表格（T1552 / T1068 / T1570 / T1027 / T1565.002 / T1070.004 / T1486）
+- `quantum-crypto-attack`：7 行表格（T1040 / T1573.002 / T1557 / T1529 / T1486 / T1606 / T1620，含 2026-03 Kyber ransomware 映射）
+
+每个表格包含 ATT&CK 技术 ID + 对应攻击向量 + 检测提示（Sigma/Falco/YARA/SIEM）。
+
+### 验证
+
+- skill-lint: 139/139 passed (0 errors / 0 warnings)
+- VERSION: `0.2.4` → `0.2.5`
+- 实际工时 ~25min（vs 预估 3.5h，节省 88%）
+
+### 历史衔接
+
+承接 v0.2.4（Minor Release）后的稳定状态。本次审查关闭了 v0.2.3.2 的 3 个 P3 findings，无新 findings。
+
+详见：
+- [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md)（完整发布说明）
+- [chronicle/2026-09/skill-review-2026-08-09.md](chronicle/2026-09/skill-review-2026-08-09.md)（月度审查记录）
+- [CHANGELOG.md](CHANGELOG.md)（变更日志）
+
+---
+
 # kali-claw v0.2.4 — Phase 2 Track 1 Minor Release 🚀
 
 *Generated: 2026-08-08 | Version: v0.2.3.3 → v0.2.4 | Focus: 3-stage cumulative minor release | Total Skills: 139*

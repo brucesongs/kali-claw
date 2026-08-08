@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.2.4 (2026-08-08) — **Phase 2 Track 1 Minor Release**（139 SKILLs，新增 EU AI Act 合规 + AI Agent 供应链攻击 2 个 P0 SKILL；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)。
+> **Current Version**: v0.2.5 (2026-08-09) — **Phase 2 Track 1 月度质量审查**（139 SKILLs；3 个 P3 ATT&CK 映射 findings 关闭；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-08-08 (v0.2.4)_
+_Last updated: 2026-08-09 (v0.2.5)_

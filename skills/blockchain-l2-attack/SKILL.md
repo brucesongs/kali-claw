@@ -678,6 +678,22 @@ signatures on a fake mint message and asserts the L2 bridge mints tokens.
 - **Splunk SPL (Web3)**: `index=web3 chain=l2 | stats count by from | where count > 100`
 - **Etherscan/ Arbiscan alerts**: Anomalous token movements flagged by community.
 
+## MITRE ATT&CK Mapping
+
+L2/blockchain attacks map to multiple ATT&CK techniques depending on the vector:
+
+| ATT&CK Technique | L2 Attack Vector | Detection Hint |
+|------------------|-----------------|----------------|
+| **T1552 — Unsecured Credentials** | Bridge multisig key compromise; validator key theft | Sigma: bridge key access from new process / IP |
+| **T1068 — Exploitation for Privilege Escalation** | Smart contract reentrancy / integer overflow | Forta: anomalous contract call patterns |
+| **T1570 — Lateral Tool Transfer** | Sequencer compromise → forced transactions | On-chain: sequencer-set changes outside timelock |
+| **T1027 — Obfuscated Files or Information** | ZK circuit backdoor (compiled proving key hides trigger) | ZK-proof audit: trace table coverage anomalies |
+| **T1565.002 — Transmitted Data Manipulation** | Bridge message tampered in transit | Watcher: per-message (chain-id, sequence) commit verification |
+| **T1070.004 — File Deletion** | Bridge exploit cleanup (burn attack logs) | Forensics: contract `selfdestruct` outside planned upgrades |
+| **T1486 — Data Encrypted for Impact** | Wallet drain + history erasure (crypto-ransomware pattern) | Etherscan: chain-hopping within 10 min of large exfil |
+
+The frontmatter `TA0006 — Credential Access` captures the **primary** initial-access vector (key compromise); the table above enumerates the additional techniques realized once an attacker establishes a foothold.
+
 ## Defense Evasion Techniques
 
 ### Bridge Exploitation Stealth

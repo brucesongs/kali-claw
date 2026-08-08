@@ -471,6 +471,21 @@ This skill embodies several of kali-claw's 12 Hacker Laws:
 - **LangSmith / Helicone**: Trace analysis for convergence detection.
 - **Custom runtime monitoring**: Atomic write / POSIX flock violation detection.
 
+## MITRE ATT&CK Mapping
+
+Although this is a meta-skill (engineering patterns, not a specific technique), the offensive multi-agent runtime it codifies maps to multiple ATT&CK techniques when instantiated against real targets:
+
+| ATT&CK Technique | Runtime Engineering Pattern | Detection Hint |
+|------------------|----------------------------|----------------|
+| **T1059.004 — Command and Scripting: Unix Shell** | Agents execute via `bash` + `jq` + `flock` | Sigma: high-frequency `flock` syscalls in short window |
+| **T1027 — Obfuscated Files or Information** | Atomic JSON writes with version vectors obscure intent | Falco: rapid JSON schema evolution in /tmp shared memory |
+| **T1106 — Native API** | Direct POSIX (`flock`, `mv`, `kill`) instead of higher-level frameworks | Sysmon EID 1: process tree with jq-pipe chains |
+| **T1057 — Process Discovery** | Coordinator-agent topology = parallel process enumeration | Suricata: many parallel outbound scans from one host |
+| **T1070.004 — File Deletion** | Anti-pattern cleanup removes evidence of failed attempts | Auditd: `unlink()` calls on `.lock` files in /tmp |
+| **T1620 — Reflective Code Loading** | Runtime-loaded agent skills (no on-disk binary) | YARA: scan Python imports for `importlib` + `eval` combos |
+
+Defensive teams using the symmetric patterns (see Defense Perspective) map to ATT&CK for Detection / Threat Hunting accordingly.
+
 ## Defense Evasion Techniques
 
 ### Memory-Driven Convergence Stealth

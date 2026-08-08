@@ -147,4 +147,4 @@
 
 ---
 
-_Last updated: 2026-08-08 (v0.2.4 — 139 skill domains, all at Defense Triple standard; 0 lint errors / 0 warnings)_
+_Last updated: 2026-08-09 (v0.2.5 — 139 skill domains, all at Defense Triple standard; 0 lint errors / 0 warnings; 3 P3 ATT&CK findings closed)_

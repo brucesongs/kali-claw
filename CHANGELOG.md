@@ -4,6 +4,35 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.5 (2026-08-09) — 月度质量审查（A+B 范围）🔍
+
+### 第 1 次 v0.2.4 后月度审查（提前至 2026-08-09）
+
+- A.1：skill-lint 全量审查 ✅（139/139 pass，0/0 errors/warnings）
+- A.2：2 个新 SKILL 使用反馈抽样 ✅（eu-ai-act + ai-agent-supply-chain，稳定）
+- A.3：GitHub Issues / PRs 检查 ✅（0 open）
+- B：处理 v0.2.3.2 deferred 的 3 个 P3 ATT&CK 显式映射 ✅
+
+### 新增 ATT&CK Mapping（3 个 SKILL）
+
+| SKILL | 新增 ATT&CK 技术数 |
+|-------|------------------|
+| multi-agent-runtime-engineering | 6 |
+| blockchain-l2-attack | 7 |
+| quantum-crypto-attack | 7（含 2026-03 Kyber ransomware 映射 T1486/T1529） |
+
+### 指标对比
+
+| 维度 | v0.2.4 | v0.2.5 |
+|------|--------|--------|
+| SKILL 总数 | 139 | 139（不变） |
+| skill-lint | 0/0/139 | 0/0/139（保持） |
+| P3 findings 关闭数 | 0/3 | **3/3** ✅ |
+
+详见 [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md) + [chronicle/2026-09/skill-review-2026-08-09.md](chronicle/2026-09/skill-review-2026-08-09.md)
+
+---
+
 ## v0.2.4 (2026-08-08) — Phase 2 Track 1 Minor Release 🚀
 
 ### 里程碑：3 阶段累积发布，SKILL 137 → 139

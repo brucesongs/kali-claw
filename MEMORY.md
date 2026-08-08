@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.2.4 minor 发布完成（139 SKILLs，新增 EU AI Act 合规 + AI Agent 供应链攻击 2 个 P0 SKILL）
+- **Current Focus**: v0.2.5 月度审查完成（范围 A+B；3 个 P3 ATT&CK 映射 findings 关闭；lint 保持 0/0/139）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -288,6 +288,24 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - 阶段 B 修复 4 个 SKILL（quantum 同时受益于 B.1.2 + B.2.2，合并）
 
 **结果**：SKILL 总数 137 → 139；AI 类 SKILL 6 → 8（合规 + 供应链三角完整）；skill-lint 全量 clean（139/139 pass, 0 errors / 0 warnings）；EU AI Act + HF 2026-07 两个 2026-08 关键事件落地为 SKILL
+
+### 2026-08-09: v0.2.5 — 第 1 次 v0.2.4 后月度审查（A+B 范围）
+
+- **决策**：执行月度审查范围 A（核心必做）+ B（v0.2.3.2 P3 ATT&CK 映射）；提前到 2026-08-09（原计划 2026-09-05）
+- **阶段 A**：
+  - A.1 skill-lint 全量：139/139 pass，0 errors / 0 warnings（与 v0.2.4 一致，无回归）
+  - A.2 2 个新 SKILL 使用反馈抽样：eu-ai-act-compliance-redteam + ai-agent-supply-chain-attack，稳定无修改
+  - A.3 GitHub Issues / PRs：0 open
+- **阶段 B（v0.2.3.2 deferred P3 findings 关闭）**：
+  - multi-agent-runtime-engineering：新增 `## MITRE ATT&CK Mapping`（6 行表格：T1059.004/T1027/T1106/T1057/T1070.004/T1620）
+  - blockchain-l2-attack：新增 `## MITRE ATT&CK Mapping`（7 行表格：T1552/T1068/T1570/T1027/T1565.002/T1070.004/T1486）
+  - quantum-crypto-attack：新增 `## MITRE ATT&CK Mapping`（7 行表格：T1040/T1573.002/T1557/T1529/T1486/T1606/T1620，含 2026-03 Kyber ransomware 映射）
+- **关键决策**：
+  - 范围 A+B（核心 + ATT&CK），跳过 C（Ghidra 实证 / implementing acts 监控 / 反馈驱动补充）— 触发条件未达
+  - 提前到 2026-08-09 执行（v0.2.4 后稳定，无时间敏感问题）
+  - v0.2.5 作为 patch（无新 SKILL，无破坏性变更）
+- **结果**：SKILL 总数 139 不变；lint 状态保持 0/0/139；P3 findings 关闭 3/3；实际工时 ~25min（vs 预估 3.5h）
+- **后续衔接**：v0.2.6（2026-09 月度审查）将评估 v0.2.4 2 个新 SKILL 在 1 个月后的实际使用反馈 + ATT&CK 映射是否在更多 SKILL 中推广
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：

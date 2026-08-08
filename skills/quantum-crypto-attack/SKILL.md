@@ -345,6 +345,22 @@ systemctl reload nginx
 - **Splunk SPL**: `index=qkd sourcetype=bb84 | where qber > 0.11 | stats count by link_id`
 - **Custom QKD monitoring**: Per-vendor monitoring (ID Quantique, QuintessenceLabs).
 
+## MITRE ATT&CK Mapping
+
+PQC / quantum-layer attacks map to ATT&CK techniques targeting the cryptographic boundary:
+
+| ATT&CK Technique | Quantum Attack Vector | Detection Hint |
+|------------------|----------------------|----------------|
+| **T1040 — Network Sniffing from CSIDE** | TLS handshake capture for SNDL (Store Now Decrypt Later) | Sigma: long-duration packet capture on TLS endpoints |
+| **T1573.002 — Encrypted Channel: Asymmetric Crypto** | PQC TLS downgrade (X25519+ML-KEM → X25519 only) | Zeek: TLS handshake cipher-suite anomaly |
+| **T1557 — Adversary-in-the-Middle** | Cryptanalytic MITM (strip PQC, inject weak classical) | Suricata: duplicate handshake with different cipher sets |
+| **T1529 — System Shutdown/Reboot** | Kyber ransomware (2026-03) — PQC-encrypted disk lock | EDR: post-encryption reboot within 30 min window |
+| **T1486 — Data Encrypted for Impact** | Kyber-based ransomware payload | YARA: PQC ciphertext headers in mass file writes |
+| **T1606 — Forge Web Credentials** | Stateful-hash signature (XMSS/LMS) state-reuse forgery | HSM audit: monotonic counter rollback attempts |
+| **T1620 — Reflective Code Loading** | Implementation-layer PQC bug exploitation (constant-time leak) | ASAN: timing-channel triggers in NTT loops |
+
+The frontmatter captures the three primary techniques (T1040, T1573, plus forward-looking); this table enumerates the additional techniques realized by 2026-era PQC weaponization (notably Kyber ransomware).
+
 ## Defense Evasion Techniques
 
 ### Quantum Attack Stealth

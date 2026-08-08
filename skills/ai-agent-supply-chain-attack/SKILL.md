@@ -32,7 +32,7 @@ metadata:
     - OpenClaw
     - ClawHub
     - ML-BOM
-  last_reviewed: "2026-08-08"
+  last_reviewed: "2026-08-09"
 ---
 
 # Skill: AI Agent Supply Chain Attack
