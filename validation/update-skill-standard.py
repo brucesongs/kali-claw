@@ -96,7 +96,9 @@ ATTACK_SKILLS = {
     "ci-cd-supply-chain-attack",
     "pam-privilege-attack",
     "cspm-casb-attack",
-    "sase-sse-attack"
+    "sase-sse-attack",
+    "eu-ai-act-compliance-redteam",
+    "ai-agent-supply-chain-attack"
 }
 
 DOMAIN_MAP = {
@@ -177,6 +179,8 @@ DOMAIN_MAP = {
     "pam-privilege-attack": "privileged-access",
     "cspm-casb-attack": "cloud-posture",
     "sase-sse-attack": "sase-sse",
+    "eu-ai-act-compliance-redteam": "ai-compliance",
+    "ai-agent-supply-chain-attack": "ai-supply-chain",
 }
 
 OWASP_MAP = {
@@ -256,6 +260,8 @@ MITRE_MAP = {
     "pam-privilege-attack": "T1552-Unsecured Credentials",
     "cspm-casb-attack": "T1068-Exploitation for Privilege Escalation",
     "sase-sse-attack": "T1557-Adversary-in-the-Middle",
+    "eu-ai-act-compliance-redteam": "EUAI-Article-9, TA0040-Impact",
+    "ai-agent-supply-chain-attack": "T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain",
 }
 
 # Non-tool entries to skip in tool tables
