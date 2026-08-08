@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: Phase 2 Track 1 年度战略评估完成（v0.2.3.3，2 个 P0 候选待 v0.2.4 创建：EU AI Act 合规红队 / AI Agent 供应链攻击）
+- **Current Focus**: v0.2.4 minor 发布完成（139 SKILLs，新增 EU AI Act 合规 + AI Agent 供应链攻击 2 个 P0 SKILL）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -261,6 +261,33 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
   - CPU side-channel / 6G RF 不推荐 — 现有 SKILL 已充分覆盖
 - **后续衔接**：v0.2.4 minor 创建 2 个 P0 SKILL + 处理 v0.2.3.1/.2 的累积 findings
 - **实际工时**：~15min（vs 预估 4.5h，节省 95%）
+
+### 2026-08-08: v0.2.4 Minor — 3 阶段累积发布（SKILL 137 → 139）
+
+**3 阶段工作**（4 commits，~4h 实际工时 vs 预估 16-18h）：
+
+- **阶段 A（[0156270](https://github.com/brucesongs/kali-claw/commit/0156270)）** — MAJOR 工具升级影响修复（21 文件）：
+  - Frida 16→17：45 处 `Module.findExportByName(null, ...)` → `getGlobalExportByName`
+  - Hashcat 7：移除 `password-attack/payloads.md` 中 `-O` 标志
+  - Docker 27→29：12 处 `docker-compose <cmd>` → `docker compose <cmd>`
+  - 跳过：openssl 3→4、radare2 5→6、Ghidra 11→12（无真实破坏）
+
+- **阶段 B（[3157e62](https://github.com/brucesongs/kali-claw/commit/3157e62)）** — Defense Perspective findings（4 文件）：
+  - P1：multi-agent-runtime-engineering 增加对称映射表
+  - P1：quantum-crypto-attack 补 NIST PQC 2026 进展（FIPS 203 errata / CNSA 2.0 / Kyber 勒索软件）
+  - P2：automotive-vehicle-security / quantum-crypto-attack / blockchain-l2-attack 层级分类
+
+- **阶段 C（[a91874b](https://github.com/brucesongs/kali-claw/commit/a91874b)）** — 2 个 P0 新 SKILL 创建（8 新文件，+2808 行）：
+  - `eu-ai-act-compliance-redteam`（ai-compliance 域）：EU AI Act 2026-08-02 强制执行；Article 9 + Annex III/IV 全覆盖；5 TC + Article 9 deep dive guide
+  - `ai-agent-supply-chain-attack`（ai-supply-chain 域）：HF 2026-07 事件驱动；Pickle RCE / 权重隐写 / LangChain 后门等 10+ vectors；5 TC + HF 事件 IoC guide
+
+**关键决策**：
+- 分 3 次 commit + 单次 push（用户偏好，便于回滚）
+- 新 SKILL 完整版标杆质量（SKILL.md + payloads + test-cases + guides）
+- 跳过 Ghidra 12 实证测试（缺 Kali 实例，API 实际未破坏）
+- 阶段 B 修复 4 个 SKILL（quantum 同时受益于 B.1.2 + B.2.2，合并）
+
+**结果**：SKILL 总数 137 → 139；AI 类 SKILL 6 → 8（合规 + 供应链三角完整）；skill-lint 全量 clean（139/139 pass, 0 errors / 0 warnings）；EU AI Act + HF 2026-07 两个 2026-08 关键事件落地为 SKILL
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：

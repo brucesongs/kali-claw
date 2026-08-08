@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **137 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.3** (2026-08-05) — **Phase 2 Track 1 月度质量审查完成**（137/137 SKILLs，skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md)。
+> **Current Version**: **v0.2.4** (2026-08-08) — **Phase 2 Track 1 Minor Release**（139 SKILLs，新增 EU AI Act 合规 + AI Agent 供应链攻击 2 个 P0 SKILL；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)。
 
 ---
 
@@ -378,6 +378,10 @@ TOOLS.md:
 | **v0.2.1** | **2026-07-30** | **Phase 1 全部完成 — Stable Release** 🎯 | Task 1.4 (6 docs) + Task 1.5 (5 scripts) completed. **137/137 SKILLs at v0.2.0.2, 100% Defense Triple**. See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) |
 | v0.2.2 | 2026-08-05 | **Defense Perspective 标准化** 🛡️ | Phase 2 Track 1 月度审查：linter 升级（严格 H3 检测 + `defense_triple_required` 字段），45 H2→H3 层级修复，4 个字面打字错误修复，2 个攻击类补写 Defense Triple，1 个翻译残留清零。See [RELEASE-v0.2.2.md](RELEASE-v0.2.2.md) |
 | **v0.2.3** | **2026-08-05** | **MISSING_SECTION 清零** 🧹 | Phase 2 Track 1 增量补丁：linter 智能化（模板适用性豁免 + Methodology≥50 启发式），56 → 0 warnings。5 个攻击类 SKILL 补 Core Tools / Practical Steps。**skill-lint 0 errors / 0 warnings**. See [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md) |
+| v0.2.3.1 | 2026-08-06 | **Q3 工具基线更新** 🔄 | 6 MAJOR 升级（hashcat/ghidra/frida/docker/openssl/radare2）+ Trivy CVE-2026-33634 供应链事件警告；新增 `KALI_TOOLS_BASELINE_2026_08.md`. See [RELEASE-v0.2.3.1.md](RELEASE-v0.2.3.1.md) |
+| v0.2.3.2 | 2026-08-06 | **Defense Perspective 抽样审查** 🔍 | 6 个高频攻击类 SKILL 内容质量审查；平均 4.2/5；2 P1 + 3 P2 + 3 P3 findings（0 P0）. See [RELEASE-v0.2.3.2.md](RELEASE-v0.2.3.2.md) |
+| v0.2.3.3 | 2026-08-06 | **新 SKILL 候选评估** 🎯 | 5 候选方向评估；2 P0（EU AI Act 合规 + AI Agent 供应链）+ 2 P1 + 1 P2；不创建（留待 v0.2.4）. See [RELEASE-v0.2.3.3.md](RELEASE-v0.2.3.3.md) |
+| **v0.2.4** | **2026-08-08** | **Minor Release：3 阶段累积发布** 🚀 | 阶段 A（MAJOR 工具修复，21 文件）+ 阶段 B（P1/P2 findings 落地，4 文件）+ 阶段 C（2 个新 P0 SKILL：`eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`，8 文件）。SKILL 137 → **139**. See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
@@ -423,7 +427,7 @@ TOOLS.md:
 | | |
 |---|---|
 | **Project** | OpenClaw Security Research |
-| **Version** | **v0.2.3** (Phase 2 Track 1 — skill-lint 0 warnings) |
+| **Version** | **v0.2.4** (Phase 2 Track 1 Minor — 139 SKILLs) |
 | **Runtime** | Kali Linux 2025-2 (aarch64) |
 | **Tools** | 518 Kali security tools (100% coverage) |
 | **Skill Domains** | **137** (all at v0.2.0.2 with full Defense Triple — 100% coverage) |
