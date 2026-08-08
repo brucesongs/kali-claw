@@ -1,13 +1,15 @@
 # OpenClaw + kali-claw 完整使用指南
 
 
-> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
-> - **137 个技能域**（早期版本为 49/111/130）
-> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> **⚠️ 更新说明（2026-08-08）**：本指南已更新至 kali-claw **v0.2.4**（Phase 2 Track 1 Minor Release）。主要变化：
+> - **139 个技能域**（v0.2.4 新增 eu-ai-act-compliance-redteam + ai-agent-supply-chain-attack；早期版本为 49/111/130/137）
+> - **全部 139 个 SKILL 达到 v0.2.0.2 标准**（v0.2.4 起），含完整 Defense Triple — **100% 覆盖**
 > - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
 > - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
 > - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
-> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
+> - **v0.2.4 关键变化**：MAJOR 工具升级修复（frida 17 / hashcat 7 / docker 29）；Defense Perspective 内容质量改进；2 个新 SKILL 落地
+> - **skill-lint 0 errors / 0 warnings, 139/139 clean pass**（v0.2.3 起）
+> - 详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
 > 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
@@ -37,7 +39,7 @@ kali-claw 是基于 OpenClaw 框架的 **预构建渗透测试智能体工作空
 
 核心组成：
 
-- **137 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云与身份、容器与云原生、AI/LLM 安全、企业身份（Entra ID/Okta）、现代企业栈（PAM/CI-CD/CSPM-CASB/SASE-SSE）、关键基础设施（SCADA/ICS）、区块链/Web3、移动与物联网、量子与后量子、无线电/卫星等
+- **139 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云与身份、容器与云原生、AI/LLM 安全、企业身份（Entra ID/Okta）、现代企业栈（PAM/CI-CD/CSPM-CASB/SASE-SSE）、关键基础设施（SCADA/ICS）、区块链/Web3、移动与物联网、量子与后量子、无线电/卫星等
 - **518 个 Kali Linux 工具知识库** — 从 nmap 到 sqlmap，从 burpsuite 到 metasploit
 - **12 条黑客法则** — 定义智能体的思维方式（第一性原理、发散思维、最小攻击面等）
 - **三层记忆系统** — 每日日志 / 月度编年史 / 长期精炼知识

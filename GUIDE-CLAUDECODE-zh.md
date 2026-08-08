@@ -1,13 +1,15 @@
 # kali-claw 技能包迁移指南：在 Claude Code 上使用
 
 
-> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
-> - **137 个技能域**（早期版本为 49/111/130）
-> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> **⚠️ 更新说明（2026-08-08）**：本指南已更新至 kali-claw **v0.2.4**（Phase 2 Track 1 Minor Release）。主要变化：
+> - **139 个技能域**（v0.2.4 新增 eu-ai-act-compliance-redteam + ai-agent-supply-chain-attack；早期版本为 49/111/130/137）
+> - **全部 139 个 SKILL 达到 v0.2.0.2 标准**（v0.2.4 起），含完整 Defense Triple — **100% 覆盖**
 > - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
 > - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
 > - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
-> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
+> - **v0.2.4 关键变化**：MAJOR 工具升级修复（frida 17 / hashcat 7 / docker 29）；Defense Perspective 内容质量改进；2 个新 SKILL 落地
+> - **skill-lint 0 errors / 0 warnings, 139/139 clean pass**（v0.2.3 起）
+> - 详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
 > 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
@@ -51,7 +53,7 @@ Claude Code 是 Anthropic 推出的 **官方命令行工具**，直接在终端�
 
 ### 1.2 kali-claw 技能包的价值（v0.1.39）
 
-kali-claw 包含 **137 个安全技能域** 和 **518 个 Kali Linux 工具知识库**，是一套结构化、可量化评分的安全测试知识体系：
+kali-claw 包含 **139 个安全技能域** 和 **518 个 Kali Linux 工具知识库**，是一套结构化、可量化评分的安全测试知识体系：
 
 - **每个技能域**包含：`SKILL.md`（方法论 + YAML frontmatter）+ `payloads.md`（攻击载荷）+ `test-cases.md`（测试用例）+ `guides/`（深度指南）
 - **根级配置**：`SOUL.md`（12 条黑客法则）、`IDENTITY.md`（111 行技能标签）、`TOOLS.md`（518 工具清单）
@@ -450,7 +452,7 @@ You are kali-claw, a senior penetration testing engineer. You operate under the 
 - Document findings per test-cases.md format
 - Never execute destructive commands without explicit user confirmation
 
-### Skill Index (v0.2.1 — 137 domains)
+### Skill Index (v0.2.4 — 139 domains)
 
 **Web & API**: web-sqli, web-xss, web-ssrf, web-auth-bypass, web-access-control, web-xxe, web-deserialization, file-inclusion, cms-framework-attack, api-security, email-security-deep, browser-qa
 

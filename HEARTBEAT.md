@@ -16,7 +16,7 @@
 
 ## Skill Domain Completeness
 
-- [ ] Verify all 137 skill domains have FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
+- [ ] Verify all 139 skill domains have FULL enrichment (SKILL.md + payloads.md + test-cases.md + guides/)
 - [ ] Check for newly added skills that need supplementary files
 - [ ] Spot-check 2-3 random skill directories for file consistency
 

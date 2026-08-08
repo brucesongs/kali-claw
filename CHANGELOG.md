@@ -4,6 +4,122 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.4 (2026-08-08) — Phase 2 Track 1 Minor Release 🚀
+
+### 里程碑：3 阶段累积发布，SKILL 137 → 139
+
+- Stage A (MAJOR 工具修复) ✅
+- Stage B (P1/P2 findings 落地) ✅
+- Stage C (2 个新 P0 SKILL) ✅
+- Stage D (release + 文档同步) ✅
+
+### 新增 SKILLs
+
+| SKILL | 域 | 触发事件 |
+|-------|---|---------|
+| `eu-ai-act-compliance-redteam` | ai-compliance | EU AI Act 2026-08-02 强制执行 |
+| `ai-agent-supply-chain-attack` | ai-supply-chain | HF 2026-07 "Chernobyl moment" |
+
+### Stage A — MAJOR 工具升级影响修复
+
+- Frida 16→17：45 处 `Module.findExportByName(null, ...)` → `getGlobalExportByName`
+- Hashcat 7：移除 `-O` 标志（v7 dropped）
+- Docker 27→29：12 处 `docker-compose <cmd>` → `docker compose <cmd>`
+- 跳过（无破坏）：openssl 3→4、radare2 5→6、Ghidra 11→12
+
+### Stage B — Defense Perspective Findings（来自 v0.2.3.2）
+
+- P1：multi-agent-runtime-engineering 增加对称映射表
+- P1：quantum-crypto-attack 补 NIST PQC 2026 进展
+- P2：automotive-vehicle-security / quantum-crypto-attack / blockchain-l2-attack 层级分类
+
+### 指标对比
+
+| 维度 | v0.2.3.3 | v0.2.4 |
+|------|---------|--------|
+| SKILL 总数 | 137 | **139** |
+| AI 类 SKILL | 6 | **8** |
+| skill-lint | 0/0/137 | **0/0/139** |
+
+详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)
+
+---
+
+## v0.2.3.3 (2026-08-06) — 年度战略评估 🎯
+
+### 5 候选 SKILL 方向评估
+
+| 候选 | 评分 (/75) | 推荐 |
+|------|-----------|------|
+| EU AI Act 合规红队 | 100 | **P0** |
+| AI Agent 供应链攻击 | 100 | **P0** |
+| PQC 实施层攻击 | 36 | P1 |
+| Kyber 勒索软件 | 36 | P1 |
+| Deepfake 身份冒充 | 24 | P2 |
+| ~~CPU side-channel 2026~~ | 2 | ❌ 不推荐 |
+| ~~6G RF 物理层~~ | 12 | ❌ 不推荐（已覆盖）|
+
+详见 [RELEASE-v0.2.3.3.md](RELEASE-v0.2.3.3.md)
+
+---
+
+## v0.2.3.2 (2026-08-06) — Defense Perspective 内容质量抽样审查 🔍
+
+### 6 个高频攻击类 SKILL 抽样
+
+| SKILL | 评分 |
+|-------|------|
+| ics-fieldbus-attack | **5.0/5** 🏆 |
+| patch-to-poc-pipeline | **5.0/5** 🏆 |
+| automotive-vehicle-security | 4.5/5 |
+| multi-agent-runtime-engineering | 3.75/5 |
+| blockchain-l2-attack | 3.75/5 |
+| quantum-crypto-attack | 3.5/5 |
+
+**平均 4.2/5；0 P0 critical；2 P1 + 3 P2 + 3 P3 findings**
+
+详见 [RELEASE-v0.2.3.2.md](RELEASE-v0.2.3.2.md)
+
+---
+
+## v0.2.3.1 (2026-08-06) — Q3 工具基线更新 🔄
+
+### 6 个 MAJOR 版本跃迁
+
+- hashcat 6→7、ghidra 11→12、frida 16→17、docker 27→29、openssl 3→4、radare2 5→6
+
+### Trivy 供应链攻击事件警告
+
+- CVE-2026-33634（2026-03-19）：恶意 trivy v0.69.4 + 75+ trivy-action tags
+
+详见 [RELEASE-v0.2.3.1.md](RELEASE-v0.2.3.1.md) + `KALI_TOOLS_BASELINE_2026_08.md`
+
+---
+
+## v0.2.3 (2026-08-05) — MISSING_SECTION 清零 🧹
+
+### Phase 2 Track 1 增量补丁
+
+- Linter 智能化：模板适用性豁免（`defense_triple_required: false` 联动 REQUIRED_SECTIONS）+ Methodology≥50 行启发式
+- 56 → 0 warnings
+- 5 个攻击类 SKILL 补 Core Tools / Practical Steps
+
+详见 [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md)
+
+---
+
+## v0.2.2 (2026-08-05) — Defense Perspective 标准化 🛡️
+
+### Phase 2 Track 1 月度质量审查
+
+- Linter 严格化：H3 锚定 + `defense_triple_required` 字段 + `DEFENSE_PERSPECTIVE_WRONG_LEVEL` 错误码
+- 修复 v0.2.1 声称的 "100% Defense Triple 覆盖" 实际只有 54% 严格匹配的问题
+- 45 个 H2→H3 层级修复 + 4 个字面打字错误 + 2 个攻击类补写 + 1 个翻译残留清零
+
+详见 [RELEASE-v0.2.2.md](RELEASE-v0.2.2.md)
+
+---
+
 ## v0.2.1 (2026-07-30) — Phase 1 全部完成 (Stable Release) 🎯
 
 ### 里程碑：Phase 1 5 大任务全部交付

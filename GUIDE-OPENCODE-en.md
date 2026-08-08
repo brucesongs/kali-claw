@@ -1,9 +1,12 @@
 # kali-claw Skill Pack Usage Guide: Running on OpenCode
 
 
-> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
-> - **137 skill domains** (up from 49/111/130 in earlier versions)
-> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> **⚠️ Update Notice (2026-08-08)**: This guide reflects kali-claw **v0.2.4** (Phase 2 Track 1 Minor Release). Key changes since v0.2.1:
+> - **139 skill domains** (added in v0.2.4: `eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`)
+> - **All 139 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **skill-lint: 0 errors / 0 warnings, 139/139 clean pass** (since v0.2.3)
+> - **MAJOR tool upgrades applied** in v0.2.4 (frida 17 / hashcat 7 / docker 29 compatibility)
+> - See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) for full milestone details
 > - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
 > - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
 > - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
@@ -53,7 +56,7 @@ OpenCode (github.com/opencode-ai/opencode) is an open-source, terminal-based AI 
 
 ### 1.2 How kali-claw Skills Fit with OpenCode
 
-kali-claw contains **137 security skill domains** and a **518 Kali Linux tool knowledge base**. These are stored as structured Markdown files:
+kali-claw contains **139 security skill domains** and a **518 Kali Linux tool knowledge base**. These are stored as structured Markdown files:
 
 - Each skill domain has: `SKILL.md` (methodology) + `payloads.md` (attack payloads) + `test-cases.md` (test templates) + `guides/` (deep-dive materials)
 - Root configuration: `SOUL.md` (12 Hacker Laws), `IDENTITY.md` (skill tags), `TOOLS.md` (518 tool inventory)
@@ -989,7 +992,7 @@ kali-claw/
   MEMORY.md
   HEARTBEAT.md
   AGENTS.md
-  skills/        (137 skill domains -- unchanged)
+  skills/        (139 skill domains -- unchanged)
   memory/
   chronicle/
 ```

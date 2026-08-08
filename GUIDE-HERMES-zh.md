@@ -1,13 +1,15 @@
 # kali-claw 技能包迁移指南：从 OpenClaw 到 Hermes Agent
 
 
-> **⚠️ 更新说明（2026-07-30）**：本指南已更新至 kali-claw **v0.2.1**（Phase 1 全部完成 — 稳定版本）。主要变化：
-> - **137 个技能域**（早期版本为 49/111/130）
-> - **全部 137 个 SKILL 达到 v0.2.0.2 标准**，含完整 Defense Triple（Defense Perspective + Detection Methods + Defense Evasion Techniques）— **100% 覆盖**
+> **⚠️ 更新说明（2026-08-08）**：本指南已更新至 kali-claw **v0.2.4**（Phase 2 Track 1 Minor Release）。主要变化：
+> - **139 个技能域**（v0.2.4 新增 eu-ai-act-compliance-redteam + ai-agent-supply-chain-attack；早期版本为 49/111/130/137）
+> - **全部 139 个 SKILL 达到 v0.2.0.2 标准**（v0.2.4 起），含完整 Defense Triple — **100% 覆盖**
 > - **新增 7 个战略 SKILL**：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced
 > - **生成 6 个文档**：SKILL_HANDBOOK、QUICK_REFERENCE、SKILL_INDEX.json、DOMAIN_MATRIX、TOOLS_LIFECYCLE、SKILL_MAINTENANCE
 > - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
-> - 详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
+> - **v0.2.4 关键变化**：MAJOR 工具升级修复（frida 17 / hashcat 7 / docker 29）；Defense Perspective 内容质量改进；2 个新 SKILL 落地
+> - **skill-lint 0 errors / 0 warnings, 139/139 clean pass**（v0.2.3 起）
+> - 详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
 >
 > 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
@@ -36,7 +38,7 @@ Hermes Agent（由 Nous Research 开发，github.com/NousResearch/hermes-agent�
 
 kali-claw 的核心资产不是代码，而是经过系统化整理的 **安全知识库**：
 
-- **137 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云安全、AI 安全等
+- **139 个安全技能域** — 覆盖 Web 安全、网络渗透、密码攻击、云安全、AI 安全等
 - **518 个 Kali Linux 工具知识库** — 从 nmap 到 sqlmap，从 burpsuite 到 metasploit
 - **数千行实战载荷** — payloads.md 中按类型分类的即用型攻击载荷
 - **结构化测试用例** — test-cases.md 中 TC-SXXX 格式的标准测试模板

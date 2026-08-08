@@ -1,9 +1,12 @@
 # kali-claw Skill Pack Migration Guide: OpenClaw to Hermes Agent
 
 
-> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
-> - **137 skill domains** (up from 49/111/130 in earlier versions)
-> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> **⚠️ Update Notice (2026-08-08)**: This guide reflects kali-claw **v0.2.4** (Phase 2 Track 1 Minor Release). Key changes since v0.2.1:
+> - **139 skill domains** (added in v0.2.4: `eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`)
+> - **All 139 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **skill-lint: 0 errors / 0 warnings, 139/139 clean pass** (since v0.2.3)
+> - **MAJOR tool upgrades applied** in v0.2.4 (frida 17 / hashcat 7 / docker 29 compatibility)
+> - See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) for full milestone details
 > - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
 > - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
 > - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
@@ -46,7 +49,7 @@ Hermes Agent (by Nous Research) is an open-source, self-evolving AI agent framew
 
 **kali-claw skill pack value:**
 
-- **137 security skill domains** -- covering web exploitation, network pentest, OSINT, crypto attacks, cloud security, mobile security, and more.
+- **139 security skill domains** -- covering web exploitation, network pentest, OSINT, crypto attacks, cloud security, mobile security, and more.
 - **518 Kali Linux tool knowledge base** -- mastery tracking, usage notes, and learning strategies for the complete Kali toolset.
 - **Thousands of lines of payloads and test cases** -- ready-to-use attack payloads organized by type, and structured test case templates with prerequisites and expected results.
 - **12 Hacker Laws** -- behavioral guidelines derived from real-world security philosophy.
@@ -63,7 +66,7 @@ Three approaches, ordered by increasing complexity and control:
 | **2. Semi-Manual Migration** | Advanced | 30 minutes | Production use, reference stubs for all skills |
 | **3. Fully Manual Migration** | Expert | 4-8 hours | Complete control, custom optimizations |
 
-**Recommendation:** Start with Approach 1 to validate the process. Then use Approach 2 to create reference stubs for all 137 skill domains.
+**Recommendation:** Start with Approach 1 to validate the process. Then use Approach 2 to create reference stubs for all 139 skill domains.
 
 ### 1.3 Before/After Comparison
 
@@ -1070,7 +1073,7 @@ chmod +x ~/.hermes/tools/*.sh
 
 ### Q9: Stub creation takes too long for 137 skills
 
-**Problem:** Creating stubs for all 137 skills is slow or produces errors for some skills.
+**Problem:** Creating stubs for all 139 skills is slow or produces errors for some skills.
 
 **Solution:** Process skills in batches:
 

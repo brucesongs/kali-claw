@@ -2,7 +2,7 @@
 
 > An AI-powered penetration testing agent built on Kali Linux, mastering all 518 security tools through continuous self-directed learning.
 
-**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **137 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
+**kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
 > **Current Version**: **v0.2.4** (2026-08-08) — **Phase 2 Track 1 Minor Release**（139 SKILLs，新增 EU AI Act 合规 + AI Agent 供应链攻击 2 个 P0 SKILL；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)。
 
@@ -10,8 +10,8 @@
 
 ## Features
 
-- **137 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), CI/CD supply chain attack (Jenkins/GitLab CI/GitHub Actions/xz-utils/SolarWinds), PAM privilege attack (CyberArk/BeyondTrust/Delinea/ManageEngine), CSPM/CASB attack (Wiz/Prisma Cloud/Netskope/OPA/Kyverno policy bypass), and SASE/SSE attack (Zscaler ZIA/ZPA, Netskope, Cloudflare One, Cisco Umbrella), each with structured payloads, test cases, and learning guides
-- **Defense Triple Coverage** — **All 137 SKILLs** include Defense Perspective (table format) + Detection Methods (with SIEM rules: Sigma/Splunk SPL/Sysmon/Falco) + Defense Evasion Techniques — **100% coverage**
+- **139 Security Skill Domains** — From OSINT and web exploitation to cloud security + cloud-identity (Entra ID/Okta/Auth0), AI/LLM security (LLM red team + AI agent security + agentic pentest), exploit development, hardware/embedded systems, Bluetooth/RFID/NFC, SCADA/ICS, firmware reverse engineering, VoIP/SIP, database attacks, Active Directory/LDAP attacks, anti-forensics, username-based OSINT dossier generation (Maigret), dark-web intelligence, threat hunting + defensive deception (honeypots) + detection engineering, blockchain/Web3 security, payment security (PCI-DSS), Kubernetes red team, secret-management attack (SAST/secrets), IoT application-layer pentest, physical security testing (locks/badges/USB weapons), quantum/post-quantum/national crypto attacks, deep phishing infrastructure (AiTM/gateway bypass), 5G telecom attack (PFCP/GTP/IMSI catchers/O-RAN), automotive vehicle security (CAN/UDS/key fobs/EV charging), mobile app instrumentation (Frida/Objection/r2frida), cloud-native vulnerability research (CVE methodology/PoC reproduction/nuclei templates), macOS security (SIP/TCC/ESF/Keychain/Apple Silicon), UAV/drone security (MAVLink/PX4/GPS spoofing/DroneID), game anti-cheat bypass (EAC/BattlEye/Vanguard/BYOVD), mainframe security (z/OS/RACF/CICS/DB2/JES2), ICS fieldbus attack (Profibus/DNP3/IEC 61850/IEC 60870-5/EtherCAT/PROFINET), HF/VHF radio attack (ADS-B/AIS/ACARS/POCSAG/APRS), blockchain L2 attack (Lightning Network/Optimism/Arbitrum/zkSync/cross-chain bridges), embedded RTOS security (VxWorks/QNX/FreeRTOS/ThreadX/Zephyr), storage/SAN attack (iSCSI/FC/NFSv4/SMB3/S3/NetApp/Dell EMC/QNAP), hypervisor introspection (VMware ESXi/Hyper-V/KVM/Xen/LibVMI/DRAKVUF/VENOM), satellite/LEO security (Starlink/Iridium/Viasat KA-SAT/DVB-S2/VSAT), AD CS abuse (ESC1-ESC15/PetitPotam/Certifried/Certipy), CI/CD supply chain attack (Jenkins/GitLab CI/GitHub Actions/xz-utils/SolarWinds), PAM privilege attack (CyberArk/BeyondTrust/Delinea/ManageEngine), CSPM/CASB attack (Wiz/Prisma Cloud/Netskope/OPA/Kyverno policy bypass), SASE/SSE attack (Zscaler ZIA/ZPA, Netskope, Cloudflare One, Cisco Umbrella), **EU AI Act compliance red team** (Article 9 / Annex IV / Notified Body audit), and **AI agent supply chain attack** (Hugging Face / Pickle RCE / LangChain plugin backdoors / model weight steganography), each with structured payloads, test cases, and learning guides
+- **Defense Triple Coverage** — **All 139 SKILLs** include Defense Perspective (table format) + Detection Methods (with SIEM rules: Sigma/Splunk SPL/Sysmon/Falco) + Defense Evasion Techniques — **100% coverage**
 - **12 Hacker Laws** — Core behavioral guidelines derived from real-world security philosophy
 - **Layered Memory System** — Daily logs + distilled long-term memory + monthly chronicles for persistent knowledge across sessions
 - **Heartbeat Task Framework** — Automated health checks, security scans, learning progress tracking, and knowledge maintenance
@@ -106,7 +106,7 @@ kali-claw/
 ├── MEMORY.md            # Long-term distilled knowledge
 ├── TOOLS.md             # Tool quick reference + learning progress
 ├── HEARTBEAT.md         # Periodic heartbeat task framework
-├── skills/              # 137 security skill domains (v0.2.0.2)
+├── skills/              # 139 security skill domains (v0.2.0.2)
 │   ├── api-security/
 │   │   ├── SKILL.md         # Skill definition + Defense Triple (Defense Perspective + Detection Methods + Defense Evasion)
 │   │   ├── payloads.md      # Attack payloads
@@ -115,7 +115,7 @@ kali-claw/
 │   ├── web-sqli/
 │   ├── web-xss/
 │   ├── cloud-security/
-│   └── ... (137 domains total)
+│   └── ... (139 domains total)
 ├── memory/              # Daily memory logs (YYYY-MM-DD.md)
 ├── chronicle/           # Monthly chronicle of major events
 ├── bak/                 # Automatic backups

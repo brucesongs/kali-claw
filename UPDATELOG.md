@@ -1,3 +1,49 @@
+# kali-claw v0.2.4 — Phase 2 Track 1 Minor Release 🚀
+
+*Generated: 2026-08-08 | Version: v0.2.3.3 → v0.2.4 | Focus: 3-stage cumulative minor release | Total Skills: 139*
+
+---
+
+## 摘要
+
+v0.2.4 是 kali-claw **首个 minor release**，整合 3 阶段累积工作（4 commits，~4h 实际工时 vs 预估 16-18h）。SKILL 总数 137 → **139**。
+
+### 3 阶段工作
+
+#### Stage A — MAJOR 工具升级影响修复
+
+- Frida 16→17：45 处 `Module.findExportByName(null, ...)` → `getGlobalExportByName`（mobile-app-instrumentation、sase-sse-attack、mobile-security、binary-reverse、guides）
+- Hashcat 7：移除 `password-attack/payloads.md` 中 `-O` 标志（v7 dropped）
+- Docker 27→29：12 处 `docker-compose <cmd>` → `docker compose <cmd>`（agentic-pentest、deception-honeypot、open-banking-attack、threat-intel-platform-attack、reverse-engineering-advanced 等）
+- 跳过：openssl 3→4（无破坏）、radare2 5→6（无破坏）、Ghidra 11→12（仅加注释）
+
+#### Stage B — Defense Perspective Findings 落地（来自 v0.2.3.2）
+
+- **P1**：multi-agent-runtime-engineering 增加对称映射表（7 行）+ quantum-crypto-attack 补 NIST PQC 2026 进展
+- **P2**：automotive-vehicle-security / quantum-crypto-attack / blockchain-l2-attack 层级分类（flat table → 3 类分组）
+
+#### Stage C — 2 个新 P0 SKILL 创建（来自 v0.2.3.3）
+
+- `eu-ai-act-compliance-redteam`（ai-compliance 域）：EU AI Act 2026-08-02 强制执行；Article 9 + Annex III/IV 全覆盖；5 TC + Article 9 deep dive guide
+- `ai-agent-supply-chain-attack`（ai-supply-chain 域）：HF 2026-07 事件驱动；Pickle RCE / 权重隐写 / LangChain 后门等 10+ vectors；5 TC + HF 事件 IoC guide
+
+### 验证
+
+- skill-lint: **139/139 passed** (0 errors / 0 warnings)
+- VERSION: `0.2.3.3` → `0.2.4`
+- 4 commits（A/B/C/D 4 阶段）
+- 实际工时 ~4h（vs 预估 16-18h，节省 75-78%）
+
+### 历史衔接
+
+承接 v0.2.3.x 三个 patch（v0.2.3.1 工具基线 / v0.2.3.2 Defense Perspective 审查 / v0.2.3.3 新 SKILL 候选评估），落地所有累积 findings 与 P0 候选。
+
+详见：
+- [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（完整发布说明）
+- [CHANGELOG.md](CHANGELOG.md)（变更日志）
+
+---
+
 # kali-claw v0.2.1 — Phase 1 全部完成 (Stable Release) 🎯
 
 *Generated: 2026-07-30 | Version: v0.2.0.8 → v0.2.1 | Focus: Phase 1 completion | Total Skills: 137*

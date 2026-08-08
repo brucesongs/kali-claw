@@ -1,9 +1,12 @@
 # OpenClaw + kali-claw: Complete Usage Guide
 
 
-> **⚠️ Update Notice (2026-07-30)**: This guide reflects kali-claw **v0.2.1** (Phase 1 全部完成 — Stable Release). Key changes since original writing:
-> - **137 skill domains** (up from 49/111/130 in earlier versions)
-> - **All 137 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> **⚠️ Update Notice (2026-08-08)**: This guide reflects kali-claw **v0.2.4** (Phase 2 Track 1 Minor Release). Key changes since v0.2.1:
+> - **139 skill domains** (added in v0.2.4: `eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`)
+> - **All 139 SKILLs at v0.2.0.2** with complete Defense Triple (Defense Perspective + Detection Methods + Defense Evasion Techniques) — **100% coverage**
+> - **skill-lint: 0 errors / 0 warnings, 139/139 clean pass** (since v0.2.3)
+> - **MAJOR tool upgrades applied** in v0.2.4 (frida 17 / hashcat 7 / docker 29 compatibility)
+> - See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) for full milestone details
 > - **7 new strategic SKILLs** added: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced
 > - **6 documentation files** generated: SKILL_HANDBOOK, QUICK_REFERENCE, SKILL_INDEX.json, DOMAIN_MATRIX, TOOLS_LIFECYCLE, SKILL_MAINTENANCE
 > - **5 automation scripts**: skill-lint.py, validate-payloads.py, validate-testcases.py, GitHub Actions CI/CD, update-skill-standard.py
@@ -15,7 +18,7 @@
 
 > A beginner-friendly guide to setting up and using the OpenClaw framework with the kali-claw penetration testing agent workspace.
 >
-> **Target version: v0.1.39** — 137 skill domains, 33 Distinguished, 100% Excellent+.
+> **Target version: v0.1.39** — 139 skill domains, 33 Distinguished, 100% Excellent+.
 
 ---
 
@@ -53,7 +56,7 @@ OpenClaw is an AI agent runtime framework installed via npm. It provides the inf
 kali-claw is a pre-built penetration testing agent workspace for the OpenClaw framework. It is NOT a traditional software code repository -- it is a **Markdown knowledge base + configuration system + automation scripts**.
 
 **What it includes:**
-- **137 security skill domains** -- from OSINT and web exploitation to cloud + identity, modern enterprise stack (PAM / CI-CD / CSPM-CASB / SASE-SSE), AI/LLM security, SCADA/ICS, blockchain/Web3, mobile/IoT, quantum/post-quantum, radio/satellite, and more
+- **139 security skill domains** -- from OSINT and web exploitation to cloud + identity, modern enterprise stack (PAM / CI-CD / CSPM-CASB / SASE-SSE), AI/LLM security, SCADA/ICS, blockchain/Web3, mobile/IoT, quantum/post-quantum, radio/satellite, and more
 - **518 Kali Linux tool knowledge base** -- mastery tracking, learning notes, usage experience
 - **12 Hacker Laws** -- behavioral guidelines derived from real-world security philosophy
 - **Layered memory system** -- daily logs, monthly chronicles, and long-term distilled knowledge
@@ -87,7 +90,7 @@ User --> OpenClaw Gateway --> kali-claw Workspace
                                   +-- TOOLS.md             (518 tool knowledge base)
                                   +-- HEARTBEAT.md         (automated task framework)
                                   +-- CHANGELOG.md         (v0.1.1 -> v0.1.39 history)
-                                  +-- skills/              (137 skill domains)
+                                  +-- skills/              (139 skill domains)
                                   |    +-- web-sqli/
                                   |    |    +-- SKILL.md     (YAML frontmatter)
                                   |    |    +-- payloads.md
@@ -433,7 +436,7 @@ After cloning, run the scoring script once to confirm all skills are intact:
 bash validation/SCORE.sh
 ```
 
-This generates JSON score files for all 137 skill domains in `validation/evidence/quality-scores/`. If you plan to modify skills, these scores help you locate weak spots.
+This generates JSON score files for all 139 skill domains in `validation/evidence/quality-scores/`. If you plan to modify skills, these scores help you locate weak spots.
 
 ---
 
@@ -441,7 +444,7 @@ This generates JSON score files for all 137 skill domains in `validation/evidenc
 
 ### 4.1 Skill System
 
-kali-claw includes **137 skill domains** organized into 8 broad categories:
+kali-claw includes **139 skill domains** organized into 8 broad categories:
 
 **Web and API Attacks**
 
@@ -692,7 +695,7 @@ Introduced in v0.1.11, upgraded to v2 in v0.1.16. This subsystem makes "is this 
 **Running the score:**
 
 ```bash
-bash validation/SCORE.sh                    # Score all 137 skills
+bash validation/SCORE.sh                    # Score all 139 skills
 bash validation/SCORE.sh --skill web-sqli   # Score a single skill
 ```
 
@@ -1253,7 +1256,7 @@ kali-claw follows an alternating "**expansion <-> quality**" rhythm, each versio
 
 | Phase | Versions | Key Milestone |
 |-------|----------|---------------|
-| Foundation | v0.1.1 - v0.1.7 | 45 -> 137 skill domains, layered architecture established |
+| Foundation | v0.1.1 - v0.1.7 | 45 -> 139 skill domains, layered architecture established |
 | Full Enrichment | v0.1.8 - v0.1.10 | 49/49 FULL enrichment, 7/7 integration tests PASS |
 | **Quality scoring introduced** | v0.1.11 - v0.1.14 | SCORE.sh v1, 49/49 Excellent 100% |
 | **Scoring v2** | v0.1.15 - v0.1.17 | Distinguished tier introduced, TEMPLATE.md |
@@ -1464,7 +1467,7 @@ The JSON includes the 4-component breakdown (skill_md / payloads_md / test_cases
 | `TOOLS.md` | 518 tool inventory, learning progress, learning strategy | Adding new tools, updating mastery status |
 | `HEARTBEAT.md` | Automated heartbeat tasks: health, learning, security, maintenance | Adjusting check frequency, adding custom monitoring |
 | `CHANGELOG.md` | Full version change log | Generally do NOT edit manually |
-| `skills/` | 137 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
+| `skills/` | 139 skill domains with payloads, test cases, and guides | Adding new skills, updating existing payloads |
 | `validation/` | Automation script suite (SCORE.sh, orchestrator.sh, ...) | Adjusting scoring weights, adding new scenarios |
 | `validation/engagement-template/` | Authorized pentest templates (targets/scope/report) | Adding new engagement types |
 | `memory/` | Daily memory logs (`YYYY-MM-DD.md`) | Generally do NOT edit manually |
@@ -1478,4 +1481,4 @@ All other files are maintained automatically by the agent and usually do not nee
 
 ---
 
-_This guide covers OpenClaw + kali-claw **v0.1.39** (137 skill domains, 33 Distinguished, 100% Excellent+). For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._
+_This guide covers OpenClaw + kali-claw **v0.1.39** (139 skill domains, 33 Distinguished, 100% Excellent+). For the latest updates, visit the [kali-claw repository](https://github.com/brucesongs/kali-claw)._
