@@ -1,3 +1,50 @@
+# kali-claw v0.2.5.1 — ics-fieldbus-attack 实战改进 🛠️
+
+*Generated: 2026-08-12 | Version: v0.2.5 → v0.2.5.1 | Focus: Apply validation findings | Total Skills: 139*
+
+---
+
+## 摘要
+
+v0.2.5.1 是 kali-claw **首个基于"实战验证反馈"的 SKILL 内容改进 patch**。基于 2026-08-10 对 `ics-fieldbus-attack` 在真实 OpenPLC（GRFICSv3）上的实战验证（[validation-walkthrough-zh.md](skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md)），将发现的 4 个 SKILL gap 全部修复。
+
+### 4 个 findings 全部应用
+
+| Finding | 优先级 | 描述 |
+|---------|-------|------|
+| F-008 | **P0** | 补 `openplc:openplc` 默认凭据（实证发现的真实默认值，非 admin/admin） |
+| F-009 | P1 | 澄清 `nmap modbus-discover` 对 OpenPLC 返回 `ILLEGAL FUNCTION` 是预期行为 |
+| F-010 | P2 | 补 HR 0xFFFF 内存泄漏模式（OpenPLC ST runtime 未初始化变量） |
+| F-011 | P3 | 补 Werkzeug 2.3.7 + Python 3.9.2 版本指纹 |
+
+### 修改内容
+
+- `skills/ics-fieldbus-attack/payloads.md` 新增 §21（OpenPLC Web HMI + Modbus TCP 实战发现，6 子节）
+  - §21.1 OpenPLC Web HMI 默认凭据（F-008）
+  - §21.2 nmap modbus-discover 真实行为（F-009）
+  - §21.3 Modbus HR 0xFFFF 内存泄漏模式（F-010）
+  - §21.4 Werkzeug + Python 版本指纹（F-011）
+  - §21.5 完整攻击链（CVSS 累积 10.0）
+  - §21.6 验证参考
+- `skills/ics-fieldbus-attack/SKILL.md` last_reviewed 2026-07-26 → 2026-08-12
+
+### 验证
+
+- skill-lint: 139/139 passed (0 errors / 0 warnings)
+- VERSION: `0.2.5` → `0.2.5.1`
+- 实际工时 ~15min（vs 预估 45min，节省 67%）
+
+### 历史衔接
+
+承接 v0.2.5（月度审查 A+B 范围）+ 2026-08-10 GRFICSv3 实战验证（commit 9c04aca + 3b5c3ef）。本次 patch 关闭实战验证产生的全部 4 个 findings（F-008 ~ F-011）。
+
+详见：
+- [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)（完整发布说明）
+- [CHANGELOG.md](CHANGELOG.md)（变更日志）
+- [skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md](skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md)（验证来源）
+
+---
+
 # kali-claw v0.2.5 — 月度质量审查（A+B 范围）🔍
 
 *Generated: 2026-08-09 | Version: v0.2.4 → v0.2.5 | Focus: Monthly review + ATT&CK mappings | Total Skills: 139*

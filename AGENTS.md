@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.2.5 (2026-08-09) — **Phase 2 Track 1 月度质量审查**（139 SKILLs；3 个 P3 ATT&CK 映射 findings 关闭；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md)。
+> **Current Version**: v0.2.5.1 (2026-08-12) — **ics-fieldbus-attack 实战改进**（基于真实 OpenPLC 验证的 4 个 findings 全部应用；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-08-09 (v0.2.5)_
+_Last updated: 2026-08-12 (v0.2.5.1)_

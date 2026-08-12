@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.2.5 月度审查完成（范围 A+B；3 个 P3 ATT&CK 映射 findings 关闭；lint 保持 0/0/139）
+- **Current Focus**: v0.2.5.1 发布（首个基于实战验证反馈的 SKILL 改进 patch；ics-fieldbus-attack 实战 4 findings 全部应用）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -306,6 +306,26 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
   - v0.2.5 作为 patch（无新 SKILL，无破坏性变更）
 - **结果**：SKILL 总数 139 不变；lint 状态保持 0/0/139；P3 findings 关闭 3/3；实际工时 ~25min（vs 预估 3.5h）
 - **后续衔接**：v0.2.6（2026-09 月度审查）将评估 v0.2.4 2 个新 SKILL 在 1 个月后的实际使用反馈 + ATT&CK 映射是否在更多 SKILL 中推广
+
+### 2026-08-12: v0.2.5.1 — ics-fieldbus-attack 实战改进（首个 validation-driven patch）
+
+- **决策**：基于 2026-08-10 GRFICSv3 OpenPLC 实战验证（[validation-walkthrough-zh.md](skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md)）发现的 4 个 SKILL gap，全部修复
+- **应用 findings**：
+  - **F-008 P0**：补 `openplc:openplc` 默认凭据（实证发现的真实默认值，非 admin/admin）+ 完整利用链
+  - F-009 P1：澄清 `nmap modbus-discover` 对 OpenPLC 返回 `ILLEGAL FUNCTION` 是预期（多数现代 PLC 拒绝 FC 0x2B）
+  - F-010 P2：补 HR 0xFFFF 内存泄漏模式（OpenPLC ST runtime 未初始化变量 `purge_manual_sp` / `product_manual_sp`）
+  - F-011 P3：补 Werkzeug 2.3.7 + Python 3.9.2 版本指纹（CVE-2023-46136 / Python EOL）
+- **修改文件**：
+  - `skills/ics-fieldbus-attack/payloads.md` 新增 §21（6 子节，+119 行，2972 行总）
+  - `skills/ics-fieldbus-attack/SKILL.md` last_reviewed 2026-07-26 → 2026-08-12
+- **关键决策**：
+  - 新增 §21 而非修改原 §14（Modbus RTU/Plus）— 不破坏原 TOC
+  - 保留 "beyond Modbus TCP" 叙事 — §21 标题明确 OpenPLC 上下文
+  - 4 个 findings 一次性全应用（来自同一次验证，关联性强）
+  - 不修改 frontmatter mitre 字段（F-003 不在本次范围；影响 SKILL 评分应单独处理）
+- **结果**：SKILL 总数 139 不变；lint 保持 0/0/139；实战 findings 关闭 4/4 = 100%；实际工时 ~15min（vs 预估 45min，节省 67%）
+- **意义**：首个"实战验证 → patch 应用"完整闭环；为后续 SKILL 实战改进（v0.2.5.2+）建立模式
+- **后续衔接**：v0.2.5.2 候选 = 用同样方法验证其他 Wave 1 SKILL（embedded-rtos / automotive / blockchain-web3 / pam-privilege）
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：

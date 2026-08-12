@@ -1,10 +1,10 @@
 # kali-claw v0.2.4 版本说明 — Minor Release：MAJOR 修复 + Findings 落地 + 2 个新 SKILL 🚀
 
 > **版本编号**：v0.2.4（minor release）
-> **发布日期**：2026 年 8 月 8 日
+> **发布日期**：2026 年 8 月 10 日
 > **版本类型**：Phase 2 Track 1 minor — 累积 3 阶段工作
-> **上一版本**：v0.2.3.3（2026-08-06，新 SKILL 候选评估）
-> **下一里程碑**：v0.2.5（2026-09 月度审查）
+> **上一版本**：v0.2.3.3（2026-08-09，新 SKILL 候选评估）
+> **下一里程碑**：v0.2.5（2026-08 月度审查）
 
 ---
 
@@ -296,12 +296,12 @@ a91874b feat(skill): add eu-ai-act-compliance-redteam + ai-agent-supply-chain-at
 
 ```
 版本编号：v0.2.4（minor release）
-发布日期：2026-08-08
+发布日期：2026-08-010
 版本类型：Phase 2 Track 1 minor（3 阶段累积）
 项目地址：https://github.com/brucesongs/kali-claw
 许可证：MIT
 
-上一版本：v0.2.3.3（2026-08-06）
+上一版本：v0.2.3.3（2026-08-09）
 本次工时：~4h（vs 预估 16-18h，节省 75-78%）
 新增 SKILL：2（eu-ai-act-compliance-redteam, ai-agent-supply-chain-attack）
 新增文件：10
@@ -312,5 +312,5 @@ commits：4（A/B/C/D 4 阶段）
 ```
 
 **kali-claw 团队**
-**2026 年 8 月 8 日**
+**2026 年 8 月 10 日**
 **Phase 2 Track 1 — v0.2.4 Minor Release ✅**

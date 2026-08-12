@@ -4,6 +4,39 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.5.1 (2026-08-12) — ics-fieldbus-attack 实战改进 🛠️
+
+### 首个基于实战验证反馈的 SKILL 改进 patch
+
+基于 2026-08-10 对 `ics-fieldbus-attack` 在真实 OpenPLC（GRFICSv3）上的实战验证发现的 4 个 SKILL gap，全部修复。
+
+### 4 个 findings 全部应用（F-008 ~ F-011）
+
+| Finding | 优先级 | 内容 |
+|---------|-------|------|
+| F-008 | **P0** | 补 `openplc:openplc` 默认凭据 + 完整利用链 |
+| F-009 | P1 | 澄清 `nmap modbus-discover` 对 OpenPLC 返回 `ILLEGAL FUNCTION` 是预期行为 |
+| F-010 | P2 | 补 HR 0xFFFF 内存泄漏模式（OpenPLC ST runtime 未初始化变量） |
+| F-011 | P3 | 补 Werkzeug 2.3.7 + Python 3.9.2 版本指纹（CVE-2023-46136 / Python EOL） |
+
+### 改动
+
+- `skills/ics-fieldbus-attack/payloads.md` 新增 §21（OpenPLC Web HMI + Modbus TCP 实战发现，6 子节，+119 行）
+- `skills/ics-fieldbus-attack/SKILL.md` last_reviewed 2026-07-26 → 2026-08-12
+
+### 指标对比
+
+| 维度 | v0.2.5 | v0.2.5.1 |
+|------|--------|----------|
+| SKILL 总数 | 139 | 139（不变） |
+| skill-lint | 0/0/139 | **0/0/139** |
+| payloads.md 总行数 | 2853 | **2972** (+119) |
+| 实战 findings 关闭数 | 0/4 | **4/4** ✅ |
+
+详见 [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)
+
+---
+
 ## v0.2.5 (2026-08-09) — 月度质量审查（A+B 范围）🔍
 
 ### 第 1 次 v0.2.4 后月度审查（提前至 2026-08-09）

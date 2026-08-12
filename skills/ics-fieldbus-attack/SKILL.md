@@ -39,7 +39,7 @@ metadata:
     - power utility
     - substation
     - process automation
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-12"
 ---
 
 

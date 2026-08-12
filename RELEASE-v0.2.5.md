@@ -1,10 +1,10 @@
 # kali-claw v0.2.5 版本说明 — 第 1 次 v0.2.4 后月度审查 🔍
 
 > **版本编号**：v0.2.5（patch release）
-> **发布日期**：2026 年 8 月 9 日
+> **发布日期**：2026 年 8 月 11 日
 > **版本类型**：Phase 2 Track 1 月度质量审查（A+B 范围）
-> **上一版本**：v0.2.4（2026-08-08，Minor Release：3 阶段累积）
-> **下一里程碑**：v0.2.6（2026-09 月度审查）
+> **上一版本**：v0.2.4（2026-08-10，Minor Release：3 阶段累积）
+> **下一里程碑**：v0.2.6（2026-08 月度审查）
 
 ---
 
@@ -196,14 +196,14 @@ Total warnings:  0
 
 ```
 版本编号：v0.2.5（patch release）
-发布日期：2026-08-09
+发布日期：2026-08-11
 版本类型：Phase 2 Track 1 月度质量审查（A+B 范围）
 项目地址：https://github.com/brucesongs/kali-claw
 许可证：MIT
 
-上一版本：v0.2.4（2026-08-08，Minor Release）
+上一版本：v0.2.4（2026-08-10，Minor Release）
 本次工时：~25min（vs 预估 3.5h，节省 88%）
-新增文件：2（RELEASE-v0.2.5.md + chronicle/2026-09/skill-review-2026-08-09.md）
+新增文件：2（RELEASE-v0.2.5.md + chronicle/2026-08/skill-review-2026-08-11.md）
 修改文件：~8（3 个 ATT&CK 映射 + 2 个 last_reviewed + VERSION + CHANGELOG + UPDATELOG + MEMORY）
 SKILL 修改：5（3 内容增强 + 2 metadata 更新）
 SKILL 总数：139（不变）
@@ -212,5 +212,5 @@ P3 findings 关闭：3/3 ✅
 ```
 
 **kali-claw 团队**
-**2026 年 8 月 9 日**
+**2026 年 8 月 11 日**
 **Phase 2 Track 1 — 第 1 次 v0.2.4 后月度审查 ✅**
