@@ -1,0 +1,30 @@
+=== PAM Configuration Audit Findings (Kali 2026.1) ===
+
+Finding 1 (P1): pam_unix.so nullok in common-auth
+  Location: /etc/pam.d/common-auth:17
+  Impact: Allows login with empty password if password field is empty
+  Fix: Remove 'nullok' parameter
+
+Finding 2 (P1): No pam_faillock / pam_tally2
+  Location: /etc/pam.d/common-auth (missing)
+  Impact: Unlimited brute-force attempts; no account lockout
+  Fix: Add 'auth required pam_faillock.so preauth deny=5 unlock_time=600'
+
+Finding 3 (P2): No password complexity policy
+  Location: /etc/pam.d/common-password (no pam_pwquality)
+  Impact: Weak passwords accepted (e.g., 'password')
+  Fix: Add 'password requisite pam_pwquality.so retry=3 minlen=12'
+
+=== PAM Backdoor Test Results ===
+
+Module: pam_unix_backdoor.so (compiled from backdoor_pam.c)
+Test 1: magic password 'backdoor123' → successfully authenticated
+Test 2: any password 'wrongpass' → successfully authenticated (backdoor accepts all)
+Credential log: /tmp/.pam_log captured authentication attempts
+
+=== Password Hash Analysis ===
+
+Kali 2026.1 default hash: $y$ (yescrypt)
+- Stronger than sha512 ($6$) against GPU cracking
+- john the Ripper 1.9.0-jumbo-1 has limited yescrypt support
+- unshadow extraction works; cracking requires john >= 1.9.0-Jumbo-1+ or hashcat with yescrypt support
