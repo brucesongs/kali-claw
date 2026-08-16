@@ -2889,3 +2889,109 @@ RTOS engagements differ from web/network pentest in several ways:
 ---
 
 End of payloads.md. See `SKILL.md` for skill overview, `test-cases.md` for structured test cases, and `guides/embedded-rtos-security-playbook.md` for the end-to-end red team playbook.
+
+
+---
+
+## Appendix D — Firmware Database Credential Extraction (v0.2.5.2)
+
+> **来源**：2026-08-16 实战验证 — OpenPLC 容器固件分析发现明文密码
+
+### D.1 固件数据库凭据提取模式 (F-RTOS-001 P0)
+
+**模式**：嵌入式设备的用户数据库（SQLite/BerkeleyDB）常含**明文密码**。
+
+**攻击链**：
+```
+binwalk 固件 → 文件系统提取 → find *.db → sqlite3 读取 → 明文凭据
+```
+
+**OpenPLC 实例（2026-08-16 验证）**：
+
+```bash
+# 1. 定位数据库
+find extracted/ -name "*.db" | grep -v proc
+
+# 2. 提取用户凭据
+python3 -c "
+import sqlite3
+conn = sqlite3.connect('extracted/workdir/webserver/openplc_default.db')
+for row in conn.execute('SELECT * FROM Users'):
+    print(row)
+"
+# 输出：(10, 'OpenPLC User', 'openplc', 'openplc@openplc.com', 'openplc')
+#                                                    ^^^^^^^^ 明文密码！
+```
+
+**通用模板**：
+```bash
+# 常见嵌入式数据库位置
+find extracted/ -name "*.db" -o -name "*.sqlite" -o -name "*.mdb" | head -10
+find extracted/ -path "*/www/*" -name "*.php" | xargs grep -l "mysql_connect\|sqlite" | head -5
+find extracted/ -name "config*" -o -name "*.conf" | xargs grep -l "password\|passwd" | head -10
+```
+
+### D.2 OpenPLC 作为常见嵌入式 Linux 目标 (F-RTOS-002)
+
+**OpenPLC** 是最常见的開源 PLC，广泛部署于：
+- GRFICSv3 ICS 安全实验室
+- 学术研究环境
+- 小型工业控制系统
+
+**默认凭据**：`openplc:openplc`（Web HMI 8080 端口）
+**数据库位置**：`workdir/webserver/openplc_default.db`
+**密码存储**：**明文**（webserver.py:2026 直接 INSERT，无哈希）
+
+### D.3 ST 程序提取与工艺逻辑分析 (F-RTOS-003)
+
+**攻击模式**：从固件提取 IEC 61131-3 ST（Structured Text）程序 → 分析工艺控制逻辑。
+
+```bash
+# 提取当前运行的 ST 程序
+cat extracted/docker_persistent/active_program
+
+# 提取默认程序库
+ls extracted/workdir/webserver/st_files_default/*.st
+```
+
+**分析目标**：
+- 识别安全关键寄存器（如阀门控制 / 泵启停）
+- 发现 setpoint 范围（用于越界写入攻击）
+- 理解 PID 参数（用于工艺扰动）
+
+**OpenPLC ST 程序示例**（scale_to_uint 函数）：
+```pascal
+FUNCTION scale_to_uint : UINT
+  VAR_INPUT real_in : REAL; END_VAR
+  VAR_INPUT real_max : REAL; real_min : REAL; END_VAR
+  rate := (real_max - real_min) / UINT_TO_REAL(65535);
+  scale_to_uint := UINT(REAL_TO_UINT(real_in / rate));
+END_FUNCTION
+```
+→ 分析可知 UINT 范围 0-65535，对应工艺 setpoint 可被远程 Modbus 覆盖。
+
+### D.4 Snap7 / S7 协议捆绑分析 (F-RTOS-004)
+
+**发现**：OpenPLC 捆绑 Snap7 库（`workdir/utils/snap7_src/`），支持西门子 S7 协议。
+
+```bash
+# 检查固件是否捆绑 snap7
+find extracted/ -name "*snap7*" -type f | head -5
+find extracted/ -name "*.so" | xargs grep -l "snap7\|S7_" 2>/dev/null | head -3
+```
+
+**攻击面**：若目标设备捆绑 S7 协议库，攻击者可：
+- 用 S7 协议远程读写 PLC 内存（无需 Modbus）
+- 利用 snap7 已知 CVE（如 CVE-2020-7982）
+- 通过 S7 COM 功能上传恶意程序块
+
+### D.5 验证结果汇总（2026-08-16）
+
+| 漏洞 | CVSS | 发现方式 |
+|------|------|---------|
+| V1 明文密码存储 | 7.4 | 源码 grep（无 hashlib） |
+| V2 默认凭据（固件级确认） | 9.8 | SQLite 提取 |
+| V3 pymodbus 2.5.3 CVE-2023-28839 | 7.5 | 依赖版本指纹 |
+| V4 Flask 2.3.3 过时 | 5.3 | dist-info 提取 |
+| V5 ST 程序可离线提取 | 5.3 | 文件系统分析 |
+| V6 snap7 捆绑 | 5.3 | find + grep |

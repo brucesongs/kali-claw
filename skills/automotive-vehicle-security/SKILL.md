@@ -12,7 +12,7 @@ metadata:
   guide_count: 2
   mitre: TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle
   keywords: [can, can-fd, uds, obd-ii, automotive, vehicle, key-fob, gnss-spoofing, iso-15118, ecu, ivi]
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-16"
 ---
 
 

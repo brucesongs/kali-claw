@@ -4,6 +4,42 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.5.2 (2026-08-16) — 批量应用实战 findings（4 SKILL × 14 findings）🛠️
+
+### 首个批量应用实战 findings 的 patch
+
+将 4 次实战验证（2026-08-13 ~ 08-16）发现的 14 个 SKILL gap 一次性应用到 4 个 SKILL。
+
+### 14 个 findings 全部应用
+
+| SKILL | Findings | P0 | P1 | 新增行 |
+|-------|---------|----|----|--------|
+| blockchain-web3 | F-BC-001~003 | — | — | +87 |
+| pam-privilege-attack | F-PAM-001~004 | — | 1 | +104 |
+| automotive-vehicle-security | F-AUTO-001~003 | — | 1 | +105 |
+| embedded-rtos-security | F-RTOS-001~004 | **1** | 1 | +106 |
+
+### 关键新增内容
+
+- **F-RTOS-001 P0**：固件数据库凭据提取模式（SQLite → 明文密码）
+- **F-PAM-001 P1**：Kali 2026.1 yescrypt hash 说明
+- **F-AUTO-001 P1**：candump ARM64 ABI 问题 + python-can 替代
+- PAM 后门完整 C 源码 + 植入指南
+- python-can 5 个攻击脚本（嗅探/注入/DoS/UDS/映射）
+- 重入攻击完整 Python 脚本
+
+### 指标
+
+| 维度 | v0.2.5.1 | v0.2.5.2 |
+|------|----------|----------|
+| SKILL 总数 | 139 | 139 |
+| skill-lint | 0/0/139 | 0/0/139 |
+| 实战 findings 累计关闭 | 4/18 | **18/18** ✅ |
+
+详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md)
+
+---
+
 ## v0.2.5.1 (2026-08-12) — ics-fieldbus-attack 实战改进 🛠️
 
 ### 首个基于实战验证反馈的 SKILL 改进 patch

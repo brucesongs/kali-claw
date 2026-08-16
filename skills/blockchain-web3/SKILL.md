@@ -32,7 +32,7 @@ metadata:
     - echidna
     - certora
     - bridge-attack
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-16"
 ---
 
 

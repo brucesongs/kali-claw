@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **137** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.2.5.1 发布（首个基于实战验证反馈的 SKILL 改进 patch；ics-fieldbus-attack 实战 4 findings 全部应用）
+- **Current Focus**: v0.2.5.2 发布（批量应用 14 findings 到 4 SKILL；18/18 实战 findings 全闭环）
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -326,6 +326,19 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - **结果**：SKILL 总数 139 不变；lint 保持 0/0/139；实战 findings 关闭 4/4 = 100%；实际工时 ~15min（vs 预估 45min，节省 67%）
 - **意义**：首个"实战验证 → patch 应用"完整闭环；为后续 SKILL 实战改进（v0.2.5.2+）建立模式
 - **后续衔接**：v0.2.5.2 候选 = 用同样方法验证其他 Wave 1 SKILL（embedded-rtos / automotive / blockchain-web3 / pam-privilege）
+
+
+### 2026-08-16: v0.2.5.2 — 批量应用实战 findings（18/18 闭环）
+
+- **决策**：将 4 次实战验证（blockchain-web3 + pam-privilege + automotive + embedded-rtos）发现的 14 个 findings 一次性应用到 4 个 SKILL
+- **应用统计**：
+  - blockchain-web3（+87 行）：F-BC-001~003（重入脚本 + PyEVM + Docker solc）
+  - pam-privilege-attack（+104 行）：F-PAM-001~004（yescrypt + PAM 后门 C 源码 + pamtester + 植入点）
+  - automotive-vehicle-security（+105 行）：F-AUTO-001~003（ARM64 兼容 + python-can 攻击 + vcan）
+  - embedded-rtos-security（+106 行）：F-RTOS-001~004（P0 固件凭据提取 + OpenPLC + ST 程序 + snap7）
+- **闭环完成**：v0.2.5.1（4 findings）+ v0.2.5.2（14 findings）= **18/18 实战 findings 全部应用**
+- **lint 保持**：0/0/139（无回归）
+- **实际工时**：~25min（vs 预估 80min）
 
 - **决策**：首次季度工具基线更新，新增 `KALI_TOOLS_BASELINE_2026_08.md`（保留 07 作为 diff 基准）
 - **关键发现**：

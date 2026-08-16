@@ -1,3 +1,30 @@
+# kali-claw v0.2.5.2 — 批量应用实战 findings 🛠️
+
+*Generated: 2026-08-16 | Version: v0.2.5.1 → v0.2.5.2 | Focus: Apply 14 validation findings | Total Skills: 139*
+
+---
+
+## 摘要
+
+v0.2.5.2 是 kali-claw **首个批量应用实战 findings 的 patch**。将 4 次实战验证（2026-08-13 ~ 08-16）发现的 14 个 SKILL gap 一次性应用到 4 个 SKILL。
+
+### 14 个 findings 全部应用
+
+- **blockchain-web3**（+87 行）：PyEVM 本地测试链 + Docker solc 编译 + 完整重入攻击脚本
+- **pam-privilege-attack**（+104 行）：Kali yescrypt hash + PAM 后门完整 C 源码 + pamtester + /etc/pam.d 植入点
+- **automotive-vehicle-security**（+105 行）：candump ARM64 兼容性 + python-can 5 个攻击脚本 + vcan 搭建
+- **embedded-rtos-security**（+106 行）：P0 固件数据库凭据提取 + OpenPLC 目标 + ST 程序分析 + snap7
+
+### 闭环完成
+
+```
+v0.2.5.1（4 findings）+ v0.2.5.2（14 findings）= 18/18 ✅
+```
+
+详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) + [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 # kali-claw v0.2.5.1 — ics-fieldbus-attack 实战改进 🛠️
 
 *Generated: 2026-08-12 | Version: v0.2.5 → v0.2.5.1 | Focus: Apply validation findings | Total Skills: 139*

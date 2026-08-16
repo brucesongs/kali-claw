@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.5.1** (2026-08-12) — **ics-fieldbus-attack 实战改进**（基于真实 OpenPLC 验证的 4 个 findings 全部应用；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)。
+> **Current Version**: **v0.2.5.2** (2026-08-16) — **批量应用实战 findings**（4 SKILL × 14 findings 全部应用；18/18 实战验证闭环；skill-lint 0 errors / 0 warnings）。详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md)。
 
 ---
 
@@ -384,6 +384,7 @@ TOOLS.md:
 | **v0.2.4** | **2026-08-08** | **Minor Release：3 阶段累积发布** 🚀 | 阶段 A（MAJOR 工具修复，21 文件）+ 阶段 B（P1/P2 findings 落地，4 文件）+ 阶段 C（2 个新 P0 SKILL：`eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`，8 文件）。SKILL 137 → **139**. See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) |
 | **v0.2.5** | **2026-08-09** | **月度质量审查（A+B 范围）** 🔍 | 第 1 次 v0.2.4 后月度审查（提前至 8/9）：A.1 lint 全量（139/139）；A.2 2 个新 SKILL 抽样稳定；A.3 0 open Issues；B 关闭 v0.2.3.2 deferred 3 个 P3 ATT&CK 映射 findings. See [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md) |
 | **v0.2.5.1** | **2026-08-12** | **ics-fieldbus-attack 实战改进** 🛠️ | 首个基于实战验证反馈的 SKILL 改进 patch：基于 2026-08-10 GRFICSv3 OpenPLC 实战验证的 4 个 findings（F-008 P0 openplc:openplc 默认凭据 + F-009/F-010/F-011）全部应用；payloads.md 新增 §21（+119 行）. See [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md) |
+| **v0.2.5.2** | **2026-08-16** | **批量应用实战 findings** 🛠️ | 首个批量应用 patch：4 次实战验证的 14 个 findings 一次性应用到 blockchain-web3 + pam-privilege + automotive + embedded-rtos。含 P0 固件凭据提取 + PAM 后门 C 源码 + python-can 攻击脚本。18/18 实战 findings 全闭环 ✅. See [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
