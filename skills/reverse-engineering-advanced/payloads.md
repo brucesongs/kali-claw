@@ -1622,3 +1622,55 @@ print(bundle.serialize(pretty=True))
 # - Revoke any credentials used
 # - Archive sample in encrypted repo
 ```
+
+
+---
+
+## Ghidra Headless Script Guide + RE CVEs (v0.2.5.3)
+
+### Ghidra 内置脚本清单（F-RE-001）
+
+Kali 2026.1 Ghidra 11.x 安装后可用的 headless 脚本（在 `/usr/share/ghidra/Ghidra/Features/Decompiler/ghidra_scripts/`）：
+
+| 脚本 | 用途 |
+|------|------|
+| `DecompilerParameterID.java` | 参数自动命名 |
+| `DecompilerSwitchAnalysis.java` | switch 语句分析 |
+| `FindDialog.java` | 搜索引用 |
+| `PropagateExternalParameters.java` | 外部参数传播 |
+| `ResolveX86orX64Binary.java` | x86/x64 二进制解析 |
+
+**注意**：`ListSymbols.java` 不是内置脚本。如需列出符号，用：
+
+```bash
+# 方法 1: Ghidra 分析后用 readelf/objdump
+readelf -sW target_binary | head -30
+
+# 方法 2: Ghidra headless 不加 -postScript（仅导入分析）
+analyzeHeadless /tmp/proj Proj -import target
+# 然后在 Ghidra GUI 中查看
+
+# 方法 3: radare2 替代（更快）
+r2 -q -c 'is; afl' target_binary
+```
+
+### Ghidra ARM64 headless 完整流程
+
+```bash
+mkdir -p ~/re-lab/ghidra_proj
+/usr/share/ghidra/support/analyzeHeadless \
+  ~/re-lab/ghidra_proj ReProj \
+  -import ~/re-lab/target_binary \
+  -analysisTimeoutPerFile 300
+# 期望输出: "INFO  ANALYZING..." + "INFO  SCRIPT SUCESSFUL"
+```
+
+### RE 相关 CVEs（F-RE-002）
+
+| CVE | 工具 | CVSS | 描述 |
+|-----|------|------|------|
+| CVE-2024-24582 | Ghidra < 11.0.3 | 7.8 | 反序列化 RCE（加载恶意 project） |
+| CVE-2023-38205 | IDA Pro | 7.8 | heap overflow in loader |
+| CVE-2023-26967 | Ghidra | 7.8 | unzip path traversal |
+| CVE-2022-2440 | Ghidra | 7.5 | XXE in project import |
+| CVE-2021-31630 | OpenPLC (RE 目标) | 9.8 | Modbus 异常报文 DoS |

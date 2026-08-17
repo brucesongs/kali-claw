@@ -40,7 +40,7 @@ metadata:
   tool_count: 20
   guide_count: 2
   mitre: "TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-17"
 ---
 
 # Reverse Engineering Advanced

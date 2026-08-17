@@ -1,3 +1,27 @@
+# kali-claw v0.2.5.3 — 应用 Wave 1 Batch 2 实战 findings 🛠️
+
+*Generated: 2026-08-17 | Version: v0.2.5.2 → v0.2.5.3 | Focus: Apply 11 findings | Total Skills: 139*
+
+---
+
+## 摘要
+
+将 Wave 1 Batch 2（2026-08-17 实战验证）发现的 11 个 SKILL gap 应用到 5 个 SKILL。
+
+### 10 个 findings 应用 + 2 个记录为 backlog
+
+- **vulnerability-assessment**（+33 行）：P1 ATT&CK 映射 + 8 个参考链接
+- **patch-to-poc-pipeline**（+74 行）：ATT&CK + pwntools ret2libc/ROP 模板
+- **sase-sse-attack**（+35 行）：Zscaler/Netskope/Cloudflare 9 个 CVE
+- **reverse-engineering-advanced**（+52 行）：Ghidra 脚本 + RE CVE
+- **gitops-security**（+108 行）：gitleaks + Kyverno + OPA
+
+### 实战 findings 累计关闭：28
+
+详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) + [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 # kali-claw v0.2.5.2 — 批量应用实战 findings 🛠️
 
 *Generated: 2026-08-16 | Version: v0.2.5.1 → v0.2.5.2 | Focus: Apply 14 validation findings | Total Skills: 139*

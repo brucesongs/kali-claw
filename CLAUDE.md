@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.2.5.2 (批量应用实战 findings). See [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) for the latest milestone.
+> **Current Version**: v0.2.5.3 (Wave 1 findings applied). See [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) for the latest milestone.
 
 ## Architecture
 

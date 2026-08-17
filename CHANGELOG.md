@@ -4,6 +4,30 @@ All notable changes to kali-claw are documented in this file.
 
 Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
 
+## v0.2.5.3 (2026-08-17) — 应用 Wave 1 Batch 2 实战 findings 🛠️
+
+### 11 个 findings 应用到 5 个 SKILL
+
+| SKILL | Findings | P1 | 新增行 |
+|-------|---------|----|--------|
+| vulnerability-assessment | F-VA-001~003 | 1 | +33 |
+| patch-to-poc-pipeline | F-PP-001~002 | — | +74 |
+| sase-sse-attack | F-SASE-001~002 | — | +35 |
+| reverse-engineering-advanced | F-RE-001~002 | — | +52 |
+| gitops-security | F-GIT-001~002 | — | +108 |
+
+### 关键新增
+
+- vulnerability-assessment：6 行 ATT&CK 映射 + 8 个权威参考链接
+- patch-to-poc：5 行 ATT&CK 映射 + pwntools ret2libc/ROP/one-gadget 模板
+- sase-sse：Zscaler/Netskope/Cloudflare 9 个 CVE
+- reverse-eng：Ghidra 内置脚本清单 + 5 个 RE CVE
+- gitops：gitleaks + detect-secrets + Kyverno + OPA/conftest
+
+详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md)
+
+---
+
 ## v0.2.5.2 (2026-08-16) — 批量应用实战 findings（4 SKILL × 14 findings）🛠️
 
 ### 首个批量应用实战 findings 的 patch

@@ -1840,3 +1840,111 @@ kubectl get gitrepositories -A -o custom-columns=NS:.metadata.namespace,NAME:.me
 - Palo Alto Unit 42 — *Argo CD Misconfigurations* (2024)
 - NSA Kubernetes Hardening Guide v1.2 (2024)
 - MITRE ATT&CK for Containers
+
+
+---
+
+## Git Secret Scanning + Policy-as-Code (v0.2.5.3)
+
+### gitleaks 凭据扫描（F-GIT-001）
+
+```bash
+# 安装
+sudo apt install gitleaks  # 或从 github.com/gitleaks/gitleaks/releases 下载
+
+# 扫描 git 历史
+gitleaks detect --source=/path/to/repo --report-path=gitleaks-report.json
+
+# 仅扫描工作区（不查历史）
+gitleaks protect --source=/path/to/repo
+
+# 扫描指定目录（非 git 仓库）
+gitleaks detect --no-git --source=/path/to/dir
+
+# 输出格式
+gitleaks detect --source=. --report-format=json --report-path=report.json
+gitleaks detect --source=. --report-format=sarif --report-path=report.sarif
+```
+
+**实战验证**（2026-08-17）：
+```bash
+# 检出 .env 被提交到历史
+cd ~/gitops-lab
+git log --oneline --all -- .env
+git show HEAD:.env  # → password123
+```
+
+### detect-secrets（Yelp 替代工具）
+
+```bash
+pip install detect-secrets
+detect-secrets scan --all-files > secrets.json
+detect-secrets audit secrets.json
+```
+
+### Kyverno / OPA 策略审计（F-GIT-002）
+
+#### Kyverno 策略（检测高危配置）
+
+```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-latest-tag
+spec:
+  validationFailureAction: audit
+  rules:
+  - name: require-image-tag
+    match:
+      resources:
+        kinds: [Pod]
+    validate:
+      message: "禁止使用 latest 标签"
+      pattern:
+        spec:
+          containers:
+          - image: "!*:latest"
+```
+
+#### Kyverno 审计命令
+
+```bash
+# 安装 kyverno CLI
+kubectl apply -f https://raw.githubusercontent.com/kyverno/kyverno/main/config/install.yaml
+
+# 验证策略（dry-run）
+kyverno apply disallow-latest-tag.yaml --resource pod.yaml
+
+# 扫描集群中的违规
+kubectl get policyreports -A
+```
+
+#### OPA / Conftest
+
+```bash
+# 安装 conftest
+docker pull openpolicyagent/conftest
+
+# 验证 YAML 配置
+conftest test deployment.yaml --policy policy.rego
+
+# policy.rego 示例
+package main
+
+deny[msg] {
+  input.spec.template.spec.containers[_].image == "nginx:latest"
+  msg := "禁止使用 latest 标签"
+}
+
+deny[msg] {
+  input.spec.template.spec.containers[_].securityContext.privileged == true
+  msg := "禁止 privileged 容器"
+}
+```
+
+### Argo CD Application 审计（实战验证结果）
+
+检出 3 个供应链漏洞：
+- `targetRevision: HEAD` → 不 pin commit，供应链风险
+- `selfHeal: true` → 自动恢复攻击者恶意配置
+- 公开 `repoURL` → 可被 typosquat

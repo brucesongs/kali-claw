@@ -31,7 +31,7 @@ metadata:
   tool_count: 17
   guide_count: 2
   mitre: "TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-17"
 ---
 
 # Patch-to-PoC Pipeline Skill

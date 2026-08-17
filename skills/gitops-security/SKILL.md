@@ -28,7 +28,7 @@ metadata:
   tool_count: 16
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-17"
 ---
 
 # GitOps Security Attack Skill
