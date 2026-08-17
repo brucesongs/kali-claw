@@ -1,8 +1,8 @@
 # SKILL Assessment Matrix
 
 > **Project**: [Usage Instructions + Capability Assessment for 139 SKILLs](./SKILL_ASSESSMENT_METHODOLOGY.md)
-> **Last updated**: 2026-08-17 (Wave 1 complete — Batch 1 + Batch 2)
-> **Progress**: 12 / 139 SKILLs assessed (8.6%)
+> **Last updated**: 2026-08-17 (Wave 1 + Wave 2 complete)
+> **Progress**: 15 / 139 SKILLs assessed (10.8%)
 
 ## Summary Statistics
 
@@ -10,12 +10,12 @@
 |-------|-------|--------|
 | Distinguished (90-100) | 0 | — |
 | Excellent (80-89) | 6 | embedded-rtos-security, pam-privilege-attack, patch-to-poc-pipeline, sase-sse-attack, reverse-engineering-advanced, gitops-security |
-| Good (70-79) | 6 | ics-fieldbus-attack, multi-agent-runtime-engineering, hf-vhf-radio-attack, automotive-vehicle-security, blockchain-web3, vulnerability-assessment |
+| Good (70-79) | 9 | ics-fieldbus-attack, multi-agent-runtime-engineering, hf-vhf-radio-attack, automotive-vehicle-security, blockchain-web3, vulnerability-assessment, blockchain-l2-attack, quantum-crypto-attack, dns-attacks |
 | Fair (60-69) | 0 | — |
 | Needs Improvement (<60) | 0 | — |
-| **Pending assessment** | 127 | (Wave 2-7) |
+| **Pending assessment** | 124 | (Wave 3-7) |
 
-**Current average (12 SKILLs)**: 79.1/100
+**Current average (15 SKILLs)**: 78.1/100
 **Range**: 70-86
 **Target**: Distinguished (90+) average after P1/P2 fixes
 
@@ -37,7 +37,10 @@
 | 10 | `reverse-engineering-advanced` | 2026-08-17 | 5 | 5 | 4 | 4 | 4 | 4 | **83** | Excellent | 0 P1 / 1 P2 / 1 P3 |
 | 11 | `gitops-security` | 2026-08-17 | 5 | 5 | 4 | 4 | 5 | 4 | **84** | Excellent | 0 P1 / 0 P2 / 2 P3 |
 | 12 | `vulnerability-assessment` | 2026-08-17 | 5 | 5 | 4 | 3 | 2 | 4 | **76** | Good | 1 P1 / 1 P2 / 1 P3 |
-| 13-139 | (pending) | — | — | — | — | — | — | — | — | — | — |
+| 13 | `blockchain-l2-attack` | 2026-08-17 | 5 | 5 | 3 | 4 | 5 | 4 | **78** | Good | 0 P1 / 1 P2 |
+| 14 | `quantum-crypto-attack` | 2026-08-17 | 5 | 5 | 3 | 4 | 5 | 4 | **80** | Good | 0 P1 / 0 P2 / 1 P3 |
+| 15 | `dns-attacks` | 2026-08-17 | 5 | 5 | 4 | 2 | 2 | 4 | **72** | Good | 1 P1 / 1 P2 |
+| 16-139 | (pending) | — | — | — | — | — | — | — | — | — | — |
 
 ---
 
@@ -70,10 +73,10 @@ Recurring patterns:
 | Pilot | 2 (ics-fieldbus, multi-agent-runtime) | ✅ Complete (2026-08-09) |
 | Wave 1 Batch 1 | 5 (hf-vhf, embedded-rtos, automotive, blockchain-web3, pam-privilege) | ✅ Complete (2026-08-09) |
 | Wave 1 Batch 2 | 5 (patch-to-poc, sase-sse, reverse-eng-advanced, gitops, vuln-assessment) | ✅ Complete (2026-08-17) |
-| Wave 2 | 3 remaining v0.2.3.2-sampled | ⏳ Pending |
+| Wave 2 | 3 (blockchain-l2, quantum-crypto, dns-attacks) | ✅ Complete (2026-08-17) |
 | Wave 3-7 | 124 remaining | ⏳ Pending |
 
-Progress: 12/139 = 8.6%
+Progress: 15/139 = 10.8%
 
 See [methodology §6](./SKILL_ASSESSMENT_METHODOLOGY.md#6-wave-schedule) for full Wave breakdown.
 
