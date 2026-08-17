@@ -1,22 +1,22 @@
 # SKILL Assessment Matrix
 
 > **Project**: [Usage Instructions + Capability Assessment for 139 SKILLs](./SKILL_ASSESSMENT_METHODOLOGY.md)
-> **Last updated**: 2026-08-17 (Wave 1 + Wave 2 complete)
-> **Progress**: 15 / 139 SKILLs assessed (10.8%)
+> **Last updated**: 2026-08-17 (Wave 1 + 2 + 3 complete)
+> **Progress**: 35 / 139 SKILLs assessed (25.2%)
 
 ## Summary Statistics
 
 | Grade | Count | SKILLs |
 |-------|-------|--------|
 | Distinguished (90-100) | 0 | — |
-| Excellent (80-89) | 6 | embedded-rtos-security, pam-privilege-attack, patch-to-poc-pipeline, sase-sse-attack, reverse-engineering-advanced, gitops-security |
-| Good (70-79) | 9 | ics-fieldbus-attack, multi-agent-runtime-engineering, hf-vhf-radio-attack, automotive-vehicle-security, blockchain-web3, vulnerability-assessment, blockchain-l2-attack, quantum-crypto-attack, dns-attacks |
-| Fair (60-69) | 0 | — |
+| Excellent (80-89) | 19 | embedded-rtos-security, pam-privilege-attack, patch-to-poc-pipeline, sase-sse-attack, reverse-engineering-advanced, gitops-security, detection-engineering, storage-san-attack, ad-cs-abuse, hypervisor-introspection, ai-agent-security, game-anticheat-bypass, 5g-telecom-attack, satellite-leo-security, web-deserialization, cspm-casb-attack, macos-security, email-security-deep, secret-management-attack |
+| Good (70-79) | 14 | ics-fieldbus-attack, multi-agent-runtime-engineering, hf-vhf-radio-attack, automotive-vehicle-security, blockchain-web3, vulnerability-assessment, blockchain-l2-attack, quantum-crypto-attack, dns-attacks, deep-research, uav-drone-security, deception-honeypot, social-intelligence, physical-security-testing |
+| Fair (60-69) | 2 | cloud-security, ai-security |
 | Needs Improvement (<60) | 0 | — |
-| **Pending assessment** | 124 | (Wave 3-7) |
+| **Pending assessment** | 104 | (Wave 4-7) |
 
-**Current average (15 SKILLs)**: 78.1/100
-**Range**: 70-86
+**Current average (35 SKILLs)**: 79.5/100
+**Range**: 67-91
 **Target**: Distinguished (90+) average after P1/P2 fixes
 
 ---
@@ -40,7 +40,27 @@
 | 13 | `blockchain-l2-attack` | 2026-08-17 | 5 | 5 | 3 | 4 | 5 | 4 | **78** | Good | 0 P1 / 1 P2 |
 | 14 | `quantum-crypto-attack` | 2026-08-17 | 5 | 5 | 3 | 4 | 5 | 4 | **80** | Good | 0 P1 / 0 P2 / 1 P3 |
 | 15 | `dns-attacks` | 2026-08-17 | 5 | 5 | 4 | 2 | 2 | 4 | **72** | Good | 1 P1 / 1 P2 |
-| 16-139 | (pending) | — | — | — | — | — | — | — | — | — | — |
+| 16 | `detection-engineering` | 2026-08-17 | 5 | 5 | 3 | 5 | 5 | 5 | **91** | Excellent | batch |
+| 17 | `storage-san-attack` | 2026-08-17 | 5 | 5 | 3 | 4 | 4 | 5 | **85** | Excellent | batch |
+| 18 | `ad-cs-abuse` | 2026-08-17 | 5 | 5 | 3 | 2 | 4 | 5 | **80** | Excellent | batch |
+| 19 | `hypervisor-introspection` | 2026-08-17 | 5 | 5 | 3 | 5 | 5 | 5 | **91** | Excellent | batch |
+| 20 | `deep-research` | 2026-08-17 | 5 | 5 | 3 | 3 | 1 | 5 | **74** | Good | batch |
+| 21 | `uav-drone-security` | 2026-08-17 | 5 | 5 | 3 | 2 | 3 | 5 | **77** | Good | batch |
+| 22 | `ai-agent-security` | 2026-08-17 | 5 | 5 | 3 | 5 | 4 | 5 | **88** | Excellent | batch |
+| 23 | `game-anticheat-bypass` | 2026-08-17 | 5 | 5 | 3 | 5 | 3 | 5 | **85** | Excellent | batch |
+| 24 | `5g-telecom-attack` | 2026-08-17 | 5 | 5 | 3 | 2 | 4 | 5 | **80** | Excellent | batch |
+| 25 | `satellite-leo-security` | 2026-08-17 | 5 | 5 | 3 | 2 | 4 | 5 | **80** | Excellent | batch |
+| 26 | `web-deserialization` | 2026-08-17 | 5 | 5 | 3 | 3 | 3 | 5 | **80** | Excellent | batch |
+| 27 | `deception-honeypot` | 2026-08-17 | 5 | 5 | 3 | 5 | 1 | 4 | **75** | Good | batch |
+| 28 | `cspm-casb-attack` | 2026-08-17 | 5 | 5 | 3 | 5 | 4 | 4 | **84** | Excellent | batch |
+| 29 | `macos-security` | 2026-08-17 | 5 | 5 | 3 | 5 | 4 | 5 | **88** | Excellent | batch |
+| 30 | `email-security-deep` | 2026-08-17 | 5 | 5 | 3 | 4 | 4 | 4 | **82** | Excellent | batch |
+| 31 | `social-intelligence` | 2026-08-17 | 5 | 5 | 3 | 3 | 1 | 4 | **70** | Good | batch |
+| 32 | `secret-management-attack` | 2026-08-17 | 5 | 5 | 3 | 5 | 4 | 4 | **84** | Excellent | batch |
+| 33 | `physical-security-testing` | 2026-08-17 | 5 | 4 | 3 | 3 | 4 | 4 | **76** | Good | batch |
+| 34 | `cloud-security` | 2026-08-17 | 5 | 4 | 3 | 3 | 1 | 4 | **67** | Fair | batch |
+| 35 | `ai-security` | 2026-08-17 | 5 | 4 | 3 | 2 | 1 | 5 | **68** | Fair | batch |
+| 36-139 | (pending) | — | — | — | — | — | — | — | — | — | — |
 
 ---
 
@@ -74,9 +94,10 @@ Recurring patterns:
 | Wave 1 Batch 1 | 5 (hf-vhf, embedded-rtos, automotive, blockchain-web3, pam-privilege) | ✅ Complete (2026-08-09) |
 | Wave 1 Batch 2 | 5 (patch-to-poc, sase-sse, reverse-eng-advanced, gitops, vuln-assessment) | ✅ Complete (2026-08-17) |
 | Wave 2 | 3 (blockchain-l2, quantum-crypto, dns-attacks) | ✅ Complete (2026-08-17) |
-| Wave 3-7 | 124 remaining | ⏳ Pending |
+| Wave 3 | 20 batch assessment (no practical validation) | ✅ Complete (2026-08-17) |
+| Wave 4-7 | 104 remaining | ⏳ Pending |
 
-Progress: 15/139 = 10.8%
+Progress: 35/139 = 25.2%
 
 See [methodology §6](./SKILL_ASSESSMENT_METHODOLOGY.md#6-wave-schedule) for full Wave breakdown.
 
