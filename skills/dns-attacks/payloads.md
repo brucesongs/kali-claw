@@ -2428,3 +2428,36 @@ sudo suricata -c /etc/suricata/suricata.yaml -S /etc/suricate/rules/mdns.rules \
               -i eth0 -l /var/log/suricata
 ```
 
+
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.5.4)
+
+### ATT&CK 映射（F-DNS-001）
+
+| ATT&CK Technique | DNS Attack Activity | Detection Hint |
+|------------------|--------------------|----------------|
+| **T1071.004 — Application Layer Protocol: DNS** | DNS 隧道/C2 通信 | Suricata: high-entropy subdomain queries |
+| **T1584.002 — Compromise Infrastructure: DNS Server** | 劫持权威 NS | Certificate Transparency: unexpected NS changes |
+| **T1090.001 — Proxy: Internal Proxy** | DNS over HTTPS 绕过 | Firewall: DoH (port 443 to known DoH resolvers) |
+| **T1498.002 — Reflection Amplification: DNS** | DNS 放大 DDoS | NetFlow: single source → multiple resolvers, large responses |
+| **T1557 — Adversary-in-the-Middle** | DNS 欺骗/缓存投毒 | IDS: DNS response with mismatched TXID |
+| **T1018 — Remote System Discovery** | 子域枚举 | DNS server log: NXDOMAIN burst from single IP |
+
+### 参考资料扩展（F-DNS-002）
+
+- [DNSFlagDay](https://dnsflagday.com/) — DNS 实现问题追踪
+- [Kaminsky Attack](https://www.cs.columbia.edu/~smb/papers/10.1.1.156.1765.pdf) — 缓存投毒原始论文
+- [CVE-2020-1350 (SIGRed)](https://nvd.nist.gov/vuln/detail/CVE-2020-1350) — Windows DNS RCE（CVSS 10.0）
+- [CVE-2015-7547](https://nvd.nist.gov/vuln/detail/CVE-2015-7547) — glibc DNS resolver 栈溢出
+- [CVE-2023-28387](https://nvd.nist.gov/vuln/detail/CVE-2023-28387) — F5 BIG-IP DNS RCE
+- [RFC 1035](https://www.rfc-editor.org/rfc/rfc1035) — DNS 协议标准
+- [RFC 4033-4035](https://www.rfc-editor.org/rfc/rfc4033) — DNSSEC
+- [MITRE ATT&CK DNS](https://attack.mitre.org/techniques/T1071/004/) — DNS 作为 C2 通道
+
+### 实战验证（2026-08-17）
+
+- dig/nslookup/host/dnswalk/fierce 全部可用
+- DNS 查询 + DNSSEC ad flag 检查成功
+- 缓存投毒模式（ettercap/bettercap）+ 子域枚举（fierce）确认

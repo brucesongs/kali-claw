@@ -2378,3 +2378,46 @@ contract PausableBridge is Pausable, ReentrancyGuard {
 ---
 
 End of `payloads.md`. For the full audit workflow, see `guides/blockchain-l2-attack-playbook.md`. For test cases, see `test-cases.md`.
+
+
+---
+
+## Known L2 Bridge Exploit CVEs (v0.2.5.4)
+
+### 重大桥攻击事件（F-L2-001）
+
+| 事件 | 日期 | 金额 | 根因 | 技术对应 |
+|------|------|------|------|---------|
+| **Ronin Network** | 2022-03 | **$625M** | 5/9 验证者私钥泄露（社会工程） | T1552 Unsecured Credentials |
+| **Poly Network** | 2021-08 | **$611M** | 跨链合约逻辑缺陷（ keeper 角色） | T1068 Exploitation for PE |
+| **Wormhole** | 2022-02 | **$326M** | Solana-Ethereum 签名验证绕过 | T1606 Forge Web Credentials |
+| **Nomad Bridge** | 2022-08 | **$190M** | 初始化缺陷（零值消息可复制） | T1565.002 Transmitted Data Manipulation |
+| **Harmony Horizon** | 2022-06 | **$100M** | 2/5 多签私钥泄露 | T1552 Unsecured Credentials |
+| **Euler Finance** | 2023-03 | **$197M** | donateToReserves 函数 self-liquidation | T1068 Exploitation |
+| **Curve (Vyper)** | 2023-07 | **$70M** | Vyper 编译器重入锁失效 | T1068 Exploitation |
+
+### 通用桥攻击模式
+
+```
+1. 私钥窃取（Ronin/Harmony 模式）
+   → 社会工程/供应链攻击验证者
+   → 窃取 >= threshold 私钥
+   → 直接签署提款交易
+
+2. 合约逻辑漏洞（Poly/Wormhole/Nomad 模式）
+   → 审计遗漏的边界条件
+   → 伪造跨链消息
+   → 提走锁仓资产
+
+3. 重入攻击（Curve/Vyper 模式）
+   → 编译器/库级缺陷
+   → 跨函数重入
+   → 双花提款
+```
+
+### 防御建议（与 Defense Perspective 呼应）
+
+- 私钥：HSM + 多重地理位置分布
+- 合约：≥3 次独立审计 + 形式化验证
+- 监控：链上异常大额提款自动暂停
+- 时间锁：重大变更 24-48h delay

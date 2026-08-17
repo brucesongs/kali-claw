@@ -1,3 +1,17 @@
+# kali-claw v0.2.5.4 — 应用 Wave 2 实战 findings 🛠️
+
+*Generated: 2026-08-17 | Version: v0.2.5.3 → v0.2.5.4 | Focus: Apply 4 findings*
+
+---
+
+## 摘要
+
+Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）的 4 个 findings 全部应用。累计 32 findings 闭环。
+
+详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)
+
+---
+
 # kali-claw v0.2.5.3 — 应用 Wave 1 Batch 2 实战 findings 🛠️
 
 *Generated: 2026-08-17 | Version: v0.2.5.2 → v0.2.5.3 | Focus: Apply 11 findings | Total Skills: 139*

@@ -2,7 +2,25 @@
 
 All notable changes to kali-claw are documented in this file.
 
-Version format: MAJOR.MINOR.PATCH — PATCH increments per change; resets to 0 and bumps MINOR when PATCH exceeds 1024.
+## v0.2.5.4 (2026-08-17) — 应用 Wave 2 实战 findings 🛠️
+
+### 4 个 findings 应用到 3 个 SKILL
+
+| SKILL | P1 | P2 | 新增行 |
+|-------|----|----|-------|
+| dns-attacks | 1 | 1 | +33 |
+| blockchain-l2-attack | — | 1 | +43 |
+| quantum-crypto-attack | — | — | +46 |
+
+### 关键新增
+
+- dns-attacks：6 行 ATT&CK 映射 + 8 个参考（含 SIGRed CVE-2020-1350 CVSS 10.0）
+- blockchain-l2：7 个重大桥攻击事件（Ronin/Poly/Wormhole/Nomad 等）
+- quantum-crypto：Kyber 勒索软件 2026-03 事件 + 密钥对比 + SNDL 时间线
+
+详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)
+
+---
 
 ## v0.2.5.3 (2026-08-17) — 应用 Wave 1 Batch 2 实战 findings 🛠️
 

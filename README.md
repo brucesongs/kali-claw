@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.5.3** (2026-08-17) — **Wave 1 完成后 findings 应用**（12 SKILL 评估 + 实战验证；28 findings 应用；skill-lint 0/0/139）。详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md)。
+> **Current Version**: **v0.2.5.4** (2026-08-17) — **Wave 2 findings 应用**（15 SKILL 评估；32 findings 闭环；skill-lint 0/0/139）。详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)。
 
 ---
 
@@ -386,6 +386,7 @@ TOOLS.md:
 | **v0.2.5.1** | **2026-08-12** | **ics-fieldbus-attack 实战改进** 🛠️ | 首个基于实战验证反馈的 SKILL 改进 patch：基于 2026-08-10 GRFICSv3 OpenPLC 实战验证的 4 个 findings（F-008 P0 openplc:openplc 默认凭据 + F-009/F-010/F-011）全部应用；payloads.md 新增 §21（+119 行）. See [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md) |
 | **v0.2.5.2** | **2026-08-16** | **批量应用实战 findings** 🛠️ | 首个批量应用 patch：4 次实战验证的 14 个 findings 一次性应用到 blockchain-web3 + pam-privilege + automotive + embedded-rtos。含 P0 固件凭据提取 + PAM 后门 C 源码 + python-can 攻击脚本。18/18 实战 findings 全闭环 ✅. See [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) |
 | **v0.2.5.3** | **2026-08-17** | **Wave 1 findings 应用** 🛠️ | Wave 1 Batch 2（5 SKILL 评估 + 实战验证）发现的 11 个 findings 应用到 vulnerability-assessment + patch-to-poc + sase-sse + reverse-eng + gitops。累计 28 findings 闭环 ✅. See [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) |
+| **v0.2.5.4** | **2026-08-17** | **Wave 2 findings 应用** 🛠️ | Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）4 findings 应用。dns 补 ATT&CK + SIGRed CVE；blockchain-l2 补 7 桥攻击事件；quantum 补 Kyber 勒索软件。累计 32 findings 闭环 ✅. See [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
