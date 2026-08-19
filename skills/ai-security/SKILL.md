@@ -19,7 +19,7 @@ metadata:
   domain: ai
   tool_count: 8
   guide_count: 8
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-19"
 ---
 
 

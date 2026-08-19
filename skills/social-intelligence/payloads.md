@@ -1855,3 +1855,15 @@ for instance in mastodon.social infosec.exchange fosstodon.org hachyderm.io; do
   sleep 1
 done
 ```
+
+---
+
+## MITRE ATT&CK Mapping (v0.2.5.5)
+
+| ATT&CK Technique | Social Intel Activity | Detection Hint |
+|------------------|----------------------|----------------|
+| **T1592.003 — Gather Victim Identity Info: Employee Names** | 员工姓名/职位收集 | LinkedIn scraper detection |
+| **T1566.002 — Spearphishing Link** | 定制钓鱼链接（基于情报） | Email gateway: personalized lure detection |
+| **T1566.003 — Spearphishing via Service** | 通过社交媒体/聊天工具钓鱼 | SIEM: suspicious DM link patterns |
+| **T1599.001 — Network Address Translation Traversal** | 借助社交平台中转流量 | WAF: social media redirect chain |
+| **T1592.004 — Gather Victim Identity Info: Social Media** | 社交媒体情报收集 | SOC: bulk profile scraping alert |

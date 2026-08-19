@@ -2210,3 +2210,15 @@ gh search code "\"$DOMAIN\" password OR api_key OR secret" --limit 20 \
 
 echo "[+] Cross-reference complete"
 ```
+
+---
+
+## MITRE ATT&CK Mapping (v0.2.5.5)
+
+| ATT&CK Technique | Research Activity | Detection Hint |
+|------------------|-------------------|----------------|
+| **T1592 — Gather Victim Host Info** | 目标技术栈/版本/架构情报收集 | SIEM: OSINT tool user-agent patterns |
+| **T1595 — Active Scanning** | 主动侦察验证情报 | IDS: scan patterns from research IPs |
+| **T1589 — Gather Victim Identity Info** | 员工/组织架构收集 | HR system: bulk employee record access |
+| **T1213 — Data from Information Repositories** | 公开仓库（GitHub/LinkedIn）情报提取 | DLP: unusual repo clone volume |
+| **T1082 — System Information Discovery** | 目标系统信息收集 | EDR: enumeration tool execution |

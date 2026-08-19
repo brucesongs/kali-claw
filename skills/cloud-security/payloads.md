@@ -1784,3 +1784,17 @@ def mine_tfstate(state_file):
 
 if len(sys.argv) > 1:
     mine_tfstate(sys.argv[1])
+
+---
+
+## MITRE ATT&CK Mapping (v0.2.5.5)
+
+| ATT&CK Technique | Cloud Attack Activity | Detection Hint |
+|------------------|----------------------|----------------|
+| **T1580 — Cloud Infrastructure Discovery** | 云资源枚举（AWS/Azure/GCP） | CloudTrail: unusual Describe* API burst |
+| **T1078.004 — Valid Accounts: Cloud Accounts** | 合法云账户滥用 | CloudTrail: login from unusual geo |
+| **T1530 — Data from Cloud Storage** | S3/Blob 数据提取 | S3 audit: mass GetObject |
+| **T1552.005 — Unsecured Credentials: Cloud Instance Metadata** | IMDS/169.254.169.254 凭据窃取 | IDS: metadata endpoint access from workload |
+| **T1496 — Resource Hijacking** | 加密货币挖矿 | Billing: abnormal compute usage |
+| **T1610 — Deploy Container** | 在云中部署恶意容器 | K8s audit: unexpected pod creation |
+| **T1555.006 — Credentials from Password Stores: Cloud Secrets Management** | Secrets Manager 提取 | CloudTrail: ListSecrets + GetSecretValue burst |

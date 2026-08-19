@@ -17,7 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "TA0040-Detection (deception), maps to MITRE Engage framework"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-08-19"
 ---
 
 

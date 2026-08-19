@@ -1,3 +1,15 @@
+# kali-claw v0.2.5.5 — 批量补 ATT&CK 映射 🛠️
+
+*Generated: 2026-08-19 | Version: v0.2.5.4 → v0.2.5.5 | Focus: Add ATT&CK to 5 SKILLs*
+
+---
+
+Wave 3 的 5 个 P1（0 ATT&CK T-codes）全部修复。累计 37 findings 闭环。
+
+详见 [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md)
+
+---
+
 # kali-claw v0.2.5.4 — 应用 Wave 2 实战 findings 🛠️
 
 *Generated: 2026-08-17 | Version: v0.2.5.3 → v0.2.5.4 | Focus: Apply 4 findings*

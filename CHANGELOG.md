@@ -2,6 +2,22 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.2.5.5 (2026-08-19) — 批量补 ATT&CK 映射 🛠️
+
+### 5 个 P1 finding 修复（0 ATT&CK → 补映射）
+
+| SKILL | 新增 T-codes |
+|-------|-------------|
+| deep-research | 5 行（T1592/T1595/T1589/T1213/T1082）|
+| deception-honeypot | 6 行（T1595/T1190/T1046/T1098/T1071/T1560）|
+| social-intelligence | 5 行（T1592.003/T1566.002/T1566.003 等）|
+| cloud-security | 7 行（T1580/T1078.004/T1530/T1552.005/T1496/T1610/T1555.006）|
+| ai-security | 6 行（T1592.005/T1190/T1562.001/T1557/T1195.001/T1005）|
+
+详见 [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md)
+
+---
+
 ## v0.2.5.4 (2026-08-17) — 应用 Wave 2 实战 findings 🛠️
 
 ### 4 个 findings 应用到 3 个 SKILL

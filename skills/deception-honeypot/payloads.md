@@ -1934,3 +1934,16 @@ echo "Commands:    $(jq -r 'select(.eventid=="cowrie.command.input") | .input' "
 ---
 
 > **End of payloads.md** — every command here is reproducible on an authorized deployment. Pair with `SKILL.md` (conceptual framework) and `test-cases.md` (validation). For the end-to-end workflow, see `guides/deception-honeypot-playbook.md`.
+
+---
+
+## MITRE ATT&CK Mapping (v0.2.5.5)
+
+| ATT&CK Technique | Deception/ honeypot Activity | Detection Hint |
+|------------------|------------------------------|----------------|
+| **T1595 — Active Scanning** | 攻击者扫描触发 honeypot 告警 | Honeypot: first-touch alert |
+| **T1190 — Exploit Public-Facing Application** | 攻击者尝试利用 honeypot 服务 | Honeypot: exploit payload capture |
+| **T1046 — Network Service Scanning** | 攻击者枚举 honeypot 开放端口 | Suricata: nmap signature |
+| **T1098 — Account Manipulation** | 攻击者在 honeypot 创建账户 | Honeypot log: unexpected account creation |
+| **T1071 — Application Layer Protocol** | C2 通信被 honeypot 捕获 | Honeypot: outbound connection from compromised instance |
+| **T1560 — Archive Collected Data** | 攻击者打包数据准备外传 | Honeypot: tar/zip execution alert |

@@ -20,7 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 8
   mitre: "TA0008-Lateral Movement"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-08-19"
 ---
 
 
