@@ -1,3 +1,15 @@
+# kali-claw v0.2.6 — 第 2 次月度审查 🔍
+
+*Generated: 2026-08-29 | Version: v0.2.5.5 → v0.2.6 | Focus: Monthly review*
+
+---
+
+v0.2.5.x 系列 5 个 patch 后稳定性验证：0 回归 ✅
+
+详见 [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md)
+
+---
+
 # kali-claw v0.2.5.5 — 批量补 ATT&CK 映射 🛠️
 
 *Generated: 2026-08-19 | Version: v0.2.5.4 → v0.2.5.5 | Focus: Add ATT&CK to 5 SKILLs*

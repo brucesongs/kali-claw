@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.2.5.5** (2026-08-19) — **批量补 ATT> **Current Version**: **v0.2.5.4** (2026-08-17) — **Wave 2 findings 应用**（15 SKILL 评估；32 findings 闭环；skill-lint 0/0/139）。详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)。CK**（5 P1 修复；35 SKILL 评估 25.2%；37 findings 闭环）。详见 [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md)。
+> **Current Version**: **v0.2.6** (2026-08-29) — **第 2 次月度审查**（35 SKILL 评估 25%；37 findings 0 回归；skill-lint 0/0/139）。详见 [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md)。
 
 ---
 
@@ -388,6 +388,7 @@ TOOLS.md:
 | **v0.2.5.3** | **2026-08-17** | **Wave 1 findings 应用** 🛠️ | Wave 1 Batch 2（5 SKILL 评估 + 实战验证）发现的 11 个 findings 应用到 vulnerability-assessment + patch-to-poc + sase-sse + reverse-eng + gitops。累计 28 findings 闭环 ✅. See [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) |
 | **v0.2.5.4** | **2026-08-17** | **Wave 2 findings 应用** 🛠️ | Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）4 findings 应用。dns 补 ATT&CK + SIGRed CVE；blockchain-l2 补 7 桥攻击事件；quantum 补 Kyber 勒索软件。累计 32 findings 闭环 ✅. See [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md) |
 | **v0.2.5.5** | **2026-08-19** | **批量补 ATT&CK 映射** 🛠️ | Wave 3 的 5 个 P1（0 ATT&CK T-codes）修复：deep-research + deception-honeypot + social-intelligence + cloud-security + ai-security 各新增 5-7 行映射。累计 37 findings 闭环 ✅. See [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md) |
+| **v0.2.6** | **2026-08-29** | **第 2 次月度审查** 🔍 | 验证 v0.2.5.x 系列 5 patch 稳定性：lint 0/0/139 无回归；新 SKILL 稳定；0 Issues；35/139 评估；37 findings 0 回归 ✅. See [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

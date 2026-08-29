@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.2.6 (2026-08-29) — 第 2 次月度审查 🔍
+
+### 验证 v0.2.5.x 系列 5 个 patch 后稳定性
+
+- A.1 skill-lint: 139/139 pass, 0/0（无回归）
+- A.2 新 SKILL 抽样: 2 个 v0.2.4 SKILL 稳定
+- A.3 GitHub: 0 open issues / 0 open PRs
+- A.4 评估进度: 35/139（25%）, 37 findings applied
+- A.5 v0.2.5.x: 5 patches 37 findings 0 回归 ✅
+
+详见 [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md)
+
+---
+
 ## v0.2.5.5 (2026-08-19) — 批量补 ATT&CK 映射 🛠️
 
 ### 5 个 P1 finding 修复（0 ATT&CK → 补映射）
