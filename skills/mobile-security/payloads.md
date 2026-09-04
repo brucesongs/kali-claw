@@ -977,3 +977,17 @@ Java.perform(function() {
     };
 });
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-MOBIL-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1203 — Exploitation for Client Execution** | Malicious app / WebView exploits | MDM: sideloaded crash chain |
+| **T1204.002 — User Execution: Malicious File** | APK social-engineering install | MDM: non-store install alerts |
+| **T1518.001 — Software Discovery: Security Software** | App detects EMM/agent presence | MDM: anti-analysis behavior |
+| **T1552.001 — Credentials In Files** | Secrets in app prefs/keystore misuse | Static scan: hardcoded keys |
+| **T1566.003 — Spearphishing via Service** | Deep-link abuse delivery | Netsec: unusual deep-link bursts |

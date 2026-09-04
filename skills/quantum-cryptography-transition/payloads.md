@@ -61,3 +61,26 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-QUAN-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1600 — Weaken Encryption** | Harvest-now-decrypt-later risk class | TLS scan: crypto inventory |
+| **T1600.001 — Weaken Encryption: Reduce Key Space** | Legacy key-size downgrade targets | Audit: RSA-1024 survivors |
+| **T1110.002 — Password Cracking** | Quantum-accelerated offline cracking risk | SIEM: GPU cluster anomalies |
+| **T1040 — Network Sniffing** | HNDL capture infrastructure | Netflow: long-lived taps |
+| **T1552.001 — Credentials In Files** | Static key rotation debt discovery | Secret scan: PQ-unready keys |
+
+### Reference Expansion (F-QUAN-002)
+
+- [NIST PQC standardization](https://csrc.nist.gov/projects/post-quantum-cryptography)
+- [FIPS 203 ML-KEM (Kyber)](https://csrc.nist.gov/pubs/fips/203/final)
+- [PQClean reference implementations](https://pqcrystals.org)
+- [liboqs integration library](https://github.com/open-quantum-safe/liboqs)
+- [ENISA PQC guidance](https://www.enisa.europa.eu)
+- [PQC deployment field reports](https://blog.cloudflare.com)

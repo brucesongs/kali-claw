@@ -1110,3 +1110,17 @@ echo "Subdomains only in subfinder: $(comm -23 <(sort subs_subfinder.txt) <(sort
 echo "Subdomains only in amass: $(comm -13 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l)"
 echo "Subdomains in both: $(comm -12 <(sort subs_subfinder.txt) <(sort subs_amass.txt) | wc -l)"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-OSIN-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1589 — Gather Victim Identity Information** | Identity aggregation from public sources | N/A — passive collection |
+| **T1589.001 — Gather Victim Identity Information: Credentials** | Leak-DB and paste-site lookups | TI: cred leak monitoring |
+| **T1590 — Gather Victim Network Info** | ASN/WHOIS/DNS footprinting | N/A — passive collection |
+| **T1592.002 — Gather Victim Host Info: Software** | Tech-stack fingerprinting | N/A — passive collection |
+| **T1593 — Search Open Websites/Domains** | Search-engine and certificate mining | N/A — passive collection |

@@ -20,7 +20,7 @@ metadata:
   tool_count: 0
   guide_count: 11
   mitre: "TA0043-Reconnaissance"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 

@@ -21,7 +21,7 @@ metadata:
   tool_count: 7
   guide_count: 0
   mitre: "TA0048-Crypto Attack; emerging quantum-specific"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
   keywords: ["PQC", "post-quantum", "ML-KEM", "ML-DSA", "Kyber", "Dilithium", "QKD", "HNDL", "quantum"]
 ---
 

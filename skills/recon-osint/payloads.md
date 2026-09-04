@@ -937,3 +937,18 @@ def run_recon_correlation(domain, output_dir):
     print(f"[+] Report: {report_path} ({len(subs)} subdomains found)")
     return report
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-RECO-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1595 — Active Scanning** | External scan and enumeration | WAF: recon patterns |
+| **T1595.002 — Active Scanning: Vulnerability Scanning** | Authenticated vuln scanning | IDS: scanner fingerprints |
+| **T1592 — Gather Victim Host Info** | Asset and tech-stack discovery | N/A — recon phase |
+| **T1590 — Gather Victim Network Info** | Domain/network footprinting | N/A — recon phase |
+| **T1589 — Gather Victim Identity Information** | Staff and role mapping | N/A — recon phase |
+| **T1593 — Search Open Websites/Domains** | OSINT source harvesting | N/A — recon phase |

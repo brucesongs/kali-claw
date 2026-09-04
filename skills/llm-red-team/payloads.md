@@ -1721,3 +1721,17 @@ picklescan -p ./model_dir/ --log warning
 | LLM08 | Vector and Embedding Weaknesses | Section 4.4-4.6 |
 | LLM09 | Misinformation | Section 8 |
 | LLM10 | Unbounded Consumption | Section 9 |
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-LLMR-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Prompt injection against public LLM apps | LLM gateway: injection signatures |
+| **T1566 — Phishing** | LLM-generated lure content | Mail sec: synthetic-text scoring |
+| **T1586 — Compromise Accounts** | LLM service account abuse | API logs: key misuse patterns |
+| **T1059 — Command and Scripting Interpreter** | Indirect injection to tool exec | EDR: agent-driven shell spawns |
+| **T1539 — Steal Web Session Cookie** | Token theft via LLM plugin abuse | SIEM: session anomalies |
