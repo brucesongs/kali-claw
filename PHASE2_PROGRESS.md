@@ -1,5 +1,15 @@
 # Phase 2 标准化进度跟踪
 
+> ⚠️ **DEPRECATED（2026-09-04）**：本文件是 2026-07 的批次跟踪快照，**已停止更新**。
+> Phase 2 标准化已于 **2026-07-30 全部完成**（139/139 通过 skill-lint，Defense Triple 结构性 100% 合规）。
+> 当前权威进度来源：
+> - 版本/里程碑：`RELEASE-vX.Y.Z.md` 系列 + `CHANGELOG.md`
+> - 质量状态：`python3 validation/skill-lint.py --json`
+> - 月度事件：`chronicle/YYYY-MM/`
+> - 评估项目进度：各 SKILL `guides/usage-and-assessment.md`
+>
+> 以下正文保留作为历史快照。
+
 > **任务**：Task 1.2 Phase 2 — 95 个非高优先级 SKILL 标准化  
 > **分支**：phase2/standardization  
 > **启动日期**：2026-07-24  
