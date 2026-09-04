@@ -19,6 +19,7 @@ metadata:
   domain: binary-analysis
   tool_count: 10
   guide_count: 5
+  mitre: "T1027-Obfuscated Files or Information, T1027.002-Software Packing, T1027.007-Dynamic API Resolution, T1027.011-Fileless Storage"
   last_reviewed: "2026-09-04"
 ---
 

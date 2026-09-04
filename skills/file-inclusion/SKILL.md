@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 3
   owasp: "A01:2021-Broken Access Control"
+  mitre: "T1190-Exploit Public-Facing Application, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services, T1505.003-Web Shell"
   last_reviewed: "2026-09-04"
 ---
 

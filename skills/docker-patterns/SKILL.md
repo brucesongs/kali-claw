@@ -20,6 +20,7 @@ metadata:
   domain: infrastructure
   tool_count: 0
   guide_count: 5
+  mitre: "N/A (non-attack meta skill)"
   last_reviewed: "2026-07-26"
 ---
 

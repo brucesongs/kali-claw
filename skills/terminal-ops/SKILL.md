@@ -20,6 +20,7 @@ metadata:
   domain: workflow
   tool_count: 0
   guide_count: 5
+  mitre: "T1059-Command and Scripting Interpreter, T1059.004-Unix Shell, T1021.004-Remote Services: SSH, T1518-Software Discovery"
   last_reviewed: "2026-09-04"
 ---
 

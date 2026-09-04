@@ -19,6 +19,7 @@ metadata:
   domain: assessment
   tool_count: 0
   guide_count: 8
+  mitre: "T1190-Exploit Public-Facing Application, T1595.002-Vulnerability Scanning, T1210-Exploitation of Remote Services, T1203-Exploitation for Client Execution"
   last_reviewed: "2026-09-04"
 ---
 

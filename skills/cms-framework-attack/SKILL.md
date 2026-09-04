@@ -19,6 +19,7 @@ metadata:
   domain: web-attack
   tool_count: 7
   guide_count: 3
+  mitre: "T1190-Exploit Public-Facing Application, T1195.002-Compromise Software Supply Chain, T1505.003-Web Shell, T1078-Valid Accounts"
   last_reviewed: "2026-09-04"
 ---
 

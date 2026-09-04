@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 8
   owasp: "A02:2025-Misconfiguration"
+  mitre: "T1190-Exploit Public-Facing Application, T1210-Exploitation of Remote Services, T1078.004-Valid Accounts: Cloud Accounts, T1552.001-Credentials In Files"
   last_reviewed: "2026-09-04"
 ---
 

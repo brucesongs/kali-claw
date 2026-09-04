@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A09:2021-Logging Failures"
+  mitre: "T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter"
   last_reviewed: "2026-07-26"
 ---
 

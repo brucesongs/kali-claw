@@ -20,6 +20,7 @@ metadata:
   domain: knowledge
   tool_count: 0
   guide_count: 2
+  mitre: "T1046-Network Service Scanning, T1190-Exploit Public-Facing Application, T1110-Brute Force, T1003-OS Credential Dumping"
   last_reviewed: "2026-09-04"
 ---
 

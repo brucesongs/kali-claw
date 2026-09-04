@@ -20,6 +20,7 @@ metadata:
   domain: management
   tool_count: 0
   guide_count: 3
+  mitre: "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information"
   last_reviewed: "2026-09-04"
 ---
 

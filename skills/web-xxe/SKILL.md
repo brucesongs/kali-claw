@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 3
   owasp: "A05:2021-Security Misconfiguration"
+  mitre: "T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services"
   last_reviewed: "2026-07-26"
 ---
 

@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A08:2021-Software Integrity"
+  mitre: "T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies and Development Tools, T1195.002-Compromise Software Supply Chain, T1199-Trusted Relationship"
   last_reviewed: "2026-09-04"
 ---
 

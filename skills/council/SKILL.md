@@ -20,6 +20,7 @@ metadata:
   domain: analysis
   tool_count: 5
   guide_count: 5
+  mitre: "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1078-Valid Accounts"
   last_reviewed: "2026-09-04"
 ---
 

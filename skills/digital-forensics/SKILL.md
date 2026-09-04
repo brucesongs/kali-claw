@@ -19,6 +19,7 @@ metadata:
   domain: forensics
   tool_count: 10
   guide_count: 5
+  mitre: "T1070.006-Timestomp, T1562-Impair Defenses, T1547.001-Registry Run Keys / Startup Folder, T1055-Process Injection"
   last_reviewed: "2026-09-04"
 ---
 

@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   owasp: "A07:2021-Identification"
+  mitre: "T1078-Valid Accounts, T1110.003-Password Spraying, T1552.001-Credentials In Files, T1187-Forced Authentication"
   last_reviewed: "2026-09-04"
 ---
 

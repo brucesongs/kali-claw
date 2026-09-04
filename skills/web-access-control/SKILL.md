@@ -20,6 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A01:2021-Broken Access Control"
+  mitre: "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1098-Account Manipulation, T1539-Steal Web Session Cookie"
   last_reviewed: "2026-09-04"
 ---
 

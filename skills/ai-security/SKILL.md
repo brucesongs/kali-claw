@@ -19,6 +19,7 @@ metadata:
   domain: ai
   tool_count: 8
   guide_count: 8
+  mitre: "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1566-Phishing, T1589-Gather Victim Identity Information"
   last_reviewed: "2026-08-19"
 ---
 

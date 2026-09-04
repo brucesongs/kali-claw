@@ -20,6 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 6
   owasp: "A04:2021-Cryptographic Failures"
+  mitre: "T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle"
   last_reviewed: "2026-09-04"
 ---
 

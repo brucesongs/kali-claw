@@ -20,6 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   owasp: "API Security Top 10"
+  mitre: "T1190-Exploit Public-Facing Application, T1528-Steal Application Access Token, T1539-Steal Web Session Cookie, T1552.001-Credentials In Files"
   last_reviewed: "2026-09-04"
 ---
 

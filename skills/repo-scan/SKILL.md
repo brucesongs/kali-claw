@@ -20,6 +20,7 @@ metadata:
   domain: assessment
   tool_count: 0
   guide_count: 5
+  mitre: "T1595.002-Vulnerability Scanning, T1195.002-Compromise Software Supply Chain, T1552.001-Credentials In Files, T1083-File and Directory Discovery"
   last_reviewed: "2026-09-04"
 ---
 
