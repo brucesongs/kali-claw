@@ -1093,3 +1093,30 @@ pip list | grep -iE "oqs|pqc|liboqs|kyber|dilithium"
 - "RowHammer Attack on Kyber" (Bouyssou et al., 2024)
 - ID Quantique Clavis3 Security Whitepaper
 - Beijing-Shanghai QKD Backbone (Yin et al., Nat. Photonics 2017)
+
+---
+
+## Transition Program Quick Reference (merged from quantum-cryptography-transition, v0.3.0)
+
+> The thin overview skill `quantum-cryptography-transition` was retired in v0.3.0.
+> Its still-unique org-side content is preserved here; everything else it contained
+> already lived in this skill (§2 HNDL, §3 hybrid downgrade, §4 combiners, §8 QKD)
+> or moved to `pqc-implementation-attack` (implementation-layer side channels).
+
+### Org-side transition defense matrix
+
+| Layer | Measure | Key point |
+|-------|---------|-----------|
+| Algorithm selection | FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), FIPS 205 (SLH-DSA) | Standardized algorithms only; avoid experimental candidates |
+| Hybrid implementation | HKDF-based combiner (never plain XOR of legs) | Hybrid survives if either leg is broken |
+| QKD deployment | Point-to-point only, with detector-blinding detection | Practical limitations; defense in depth, not replacement |
+| Side-channel protection | Constant-time + masked PQC operations (see pqc-implementation-attack) | PQC leakage profiles differ from RSA/ECC |
+| HNDL prioritization | Migrate long-lived secrets first (root CAs, long-term archives) | Real threat for >10-year confidentiality requirements |
+
+### Transition readiness quick checks (preserved mini-TCs)
+
+| Check | Arrange | Act | Assert |
+|-------|---------|-----|--------|
+| HNDL risk register | Audit encrypted traffic + key inventory | Catalog secrets with >10-year confidentiality needs | Risk register produced, migration-ordered |
+| Library PQC readiness | Inventory crypto libraries in the estate | Test ML-KEM/ML-DSA support per library | Readiness report with gaps flagged |
+| Combiner strength | Inspect hybrid implementation | Verify HKDF (not XOR) combiner at KDF call sites | Strong combiner confirmed or finding raised |
