@@ -2,6 +2,21 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.1 (2026-09-05) — Poor 技能清偿 📈
+
+### 3 个 Poor 技能全部抬到 Good/Excellent（最低分 56 → 74，Poor 清零）
+
+- voip-sip-attack 56→**74**：+5 个 NVD 核验 CVE（FreeSWITCH/Kamailio）+ 4 新 TC（toll fraud/注册劫持/BYE 注入/SRTP 降级）
+- 5g-6g-telecom-attack-advanced 59→**80（Excellent）**：payloads 87→347 行重建（SBA/SUCI/O-RAN/切片/fuzzing，占位垃圾清除）+ 7 CVE + 5 新 TC + T-codes 1→6
+- hardware-side-channel-advanced 59→**77**：payloads 86→313 行重建（CPA/模板/EM/cache-timing/DFA/Rowhammer，占位垃圾清除）+ 8 CVE + 5 新 TC + T-codes 1→5
+- rider：pqc-implementation-attack TC 5→10（F-PQI2-004 关闭；0-CVE 策略性保留）
+- 20 个新增 CVE 全部 NVD API 逐个核验；核验门剔除 1 个错误候选（CVE-2018-11091 实为其他产品）
+- lint 保持 0/0/139 无回归
+
+详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)
+
+---
+
 ## v0.3.0 (2026-09-04) — PQC 实现层攻击域 🆕
 
 ### 新域 pqc-implementation-attack + 退役 quantum-cryptography-transition（技能数 139 不变）

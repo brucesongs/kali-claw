@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.0** (2026-09-04) — **PQC 实现层攻击域**（新域 pqc-implementation-attack 出厂 77/100；退役薄壳 quantum-cryptography-transition；SKILL 139 不变；skill-lint 0/0/139）。详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)。
+> **Current Version**: **v0.3.1** (2026-09-05) — **Poor 技能清偿**（voip 56→74、5g-6g 59→80、hardware 59→77，Poor 清零；20 个 NVD 核验 CVE；skill-lint 0/0/139）。详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)。
 
 ---
 
@@ -391,6 +391,7 @@ TOOLS.md:
 | **v0.2.6** | **2026-08-29** | **第 2 次月度审查** 🔍 | 验证 v0.2.5.x 系列 5 patch 稳定性：lint 0/0/139 无回归；新 SKILL 稳定；0 Issues；35/139 评估；37 findings 0 回归 ✅. See [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md) |
 | **v0.2.7** | **2026-09-04** | **评估项目收尾** 🏁 | Wave 4-7 一次性完成（104 SKILL 批量评估）→ 139/139 闭环；46 P1/P2 findings 应用（37 ATT&CK 映射 + 9 参考扩充）；mitre frontmatter 139/139（+45）；sase-sse/vuln-assess TC 15/15；文档清理；lint 0/0/139 ✅. See [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md) |
 | **v0.3.0** | **2026-09-04** | **PQC 实现层攻击域** 🆕 | 新域 pqc-implementation-attack（77/100 出厂，0 P1/P2）：KyberSlash 时序/单迹 SCA/故障注入/RNG 缺陷/Kyber 勒索软件分诊；退役 59 分薄壳 quantum-cryptography-transition（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账；SKILL 数 139 不变 ✅. See [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md) |
+| **v0.3.1** | **2026-09-05** | **Poor 技能清偿** 📈 | P3 首批：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77 —— Poor 清零；pqi TC 5→10；两个薄 payloads 重建（87→347 / 86→313，占位垃圾清除）；20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）；lint 0/0/139 ✅. See [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **139** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.3.0 已发布（新域 pqc-implementation-attack；退役 quantum-cryptography-transition；SKILL 139 不变）— 下一步 P3 backlog 分批清偿 + Q4 工具基线 2026-11
+- **Current Focus**: v0.3.1 已发布（Poor 技能清零：voip 74 / 5g-6g 80 / hardware 77；20 个 NVD 核验 CVE）— 下一步 0-CVE 类批量清偿（v0.3.2）+ 第 4 次月度审查 2026-10-05 + Q4 工具基线 2026-11
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)

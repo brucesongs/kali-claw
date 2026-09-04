@@ -1,3 +1,16 @@
+# kali-claw v0.3.1 — Poor 技能清偿 📈
+
+*Generated: 2026-09-05 | Version: v0.3.0 → v0.3.1 | Focus: P3 backlog first batch*
+
+---
+
+3 个 Poor 技能清零：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77；pqi TC 5→10。
+20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）。lint 0/0/139 无回归 ✅
+
+详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)
+
+---
+
 # kali-claw v0.3.0 — PQC 实现层攻击域 🆕
 
 *Generated: 2026-09-04 | Version: v0.2.7 → v0.3.0 | Focus: New PQC implementation-attack domain*

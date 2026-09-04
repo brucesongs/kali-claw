@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.3.0 (new domain: pqc-implementation-attack; retired: quantum-cryptography-transition; 139 skills total). See [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md) for the latest milestone.
+> **Current Version**: v0.3.1 (quality patch: all Poor-rated skills lifted to Good+). See [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md) for the latest milestone.
 
 ## Architecture
 

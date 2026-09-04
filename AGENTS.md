@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.0 (2026-09-04) — **PQC 实现层攻击域**（新域 pqc-implementation-attack；退役 quantum-cryptography-transition；SKILL 139 不变；skill-lint 0/0/139）。详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)。
+> **Current Version**: v0.3.1 (2026-09-05) — **Poor 技能清偿**（3 个 Poor 技能抬到 Good/Excellent，最低分 74；SKILL 139；skill-lint 0/0/139）。详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-09-04 (v0.3.0)
+_Last updated: 2026-09-05 (v0.3.1)
