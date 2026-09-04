@@ -21,7 +21,7 @@ metadata:
   tool_count: 7
   guide_count: 0
   mitre: "TA0001-Initial Access, T1557-Adversary-in-the-Middle"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
   keywords: ["5G Core", "SBA", "IMSI catcher", "Diameter", "SIP", "Open RAN", "network slicing", "6G"]
 ---
 

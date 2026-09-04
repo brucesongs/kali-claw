@@ -1130,3 +1130,26 @@ def find_offset(binary_path, marker="AAAA"):
 
 find_offset("./vulnerable_binary")
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-BINA-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1027 — Obfuscated Files or Information** | Packer/obfuscation identification targets | EDR: high-entropy sections on exec |
+| **T1027.002 — Software Packing** | UPX/custom packer triage in Ghidra | YARA: packer section signatures |
+| **T1027.007 — Dynamic API Resolution** | IAT reconstruction for dynamic loaders | Sysmon: API hashing heuristics |
+| **T1027.011 — Fileless Storage** | Registry/blob payload extraction | EDR: registry persistence blobs |
+| **T1203 — Exploitation for Client Execution** | Malware analysis of client-side exploits | EDR: parser crash + follow-on exec |
+
+### Reference Expansion (F-BINA-002)
+
+- [Ghidra reverse engineering framework](https://ghidra-sre.org)
+- [radare2 framework and book](https://rada.re)
+- [Binary Ninja API and docs](https://binary.ninja)
+- [YARA pattern matching for artifact triage](https://virustotal.github.io/yara/)
+- [CVE enumeration for RE targets](https://cve.mitre.org)
+- [NVD scoring and references](https://nvd.nist.gov)

@@ -847,3 +847,17 @@ for version in v1 v2 v3 beta internal staging; do
   done
 done
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-APIS-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | BOLA/mass-assignment against exposed APIs | WAF: abnormal object-ID enumeration |
+| **T1528 — Steal Application Access Token** | Leaked API keys / OAuth tokens replayed | CloudTrail: token used from new ASN |
+| **T1539 — Steal Web Session Cookie** | JWT/session extraction from API responses | SIEM: session replay from new UA |
+| **T1552.001 — Credentials In Files** | Keys found in swagger/openapi docs and repos | GitHub secret scanning alerts |
+| **T1098 — Account Manipulation** | Mass-assignment role change on user objects | IAM: role change outside change window |

@@ -20,7 +20,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   owasp: "API Security Top 10"
-  last_reviewed: "2026-07-19"
+  last_reviewed: "2026-09-04"
 ---
 
 

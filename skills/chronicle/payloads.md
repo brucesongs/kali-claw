@@ -1201,3 +1201,15 @@ done
 TOTAL_BROKEN=$(grep -c "BROKEN" "$OUTPUT" 2>/dev/null || echo "0")
 echo "[LINK-CHECK] Found $TOTAL_BROKEN broken links. See: $OUTPUT"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### Reference Expansion (F-CHRO-002)
+
+- [CommonMark spec for chronicle entries](https://commonmark.org)
+- [Changelog structuring conventions](https://keepachangelog.com)
+- [Semantic versioning for milestone tagging](https://semver.org)
+- [Pro Git history and tagging reference](https://git-scm.com/book)
+- [GitHub docs for published milestones](https://docs.github.com/en/get-started)

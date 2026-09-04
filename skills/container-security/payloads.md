@@ -1226,3 +1226,17 @@ kubectl get events -n kube-system --field-selector reason=Created --sort-by='.la
 cat /var/log/kubernetes/audit.log | jq 'select(.verb=="create" or .verb=="escalate") |
   {user: .user.username, verb: .verb, resource: .objectRef.resource, namespace: .objectRef.namespace}'
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-CONT-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1610 — Deploy Container** | Privileged container launching | Falco: docker run --privileged |
+| **T1611 — Escape to Host** | Socket mount / kernel exploit escapes | Falco: container host IPC access |
+| **T1612 — Build Image on Host** | Dockerfile injection at build time | CI: unexpected RUN layers |
+| **T1613 — Container and Resource Discovery** | K8s API enumeration | K8s audit: anonymous list pods |
+| **T1525 — Implant Container Image** | Backdoored image push | Registry: digest change no CI |

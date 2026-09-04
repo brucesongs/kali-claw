@@ -1371,3 +1371,17 @@ qemu-system-x86_64 -kernel bzImage -initrd initramfs.cpio \
   -append "console=ttyS0" -nographic -m 2G \
   -hda disk.img -snapshot
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-AIFU-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Fuzz-discovered bugs weaponized against exposed services | WAF: repeated malformed request patterns |
+| **T1203 — Exploitation for Client Execution** | Client-side parser bugs found via file fuzzing | EDR: suspicious child process from document parser |
+| **T1068 — Exploitation for Privilege Escalation** | Kernel syscall fuzzing surfaces LPE primitives | Sysmon EID 10: unusual syscall sequences |
+| **T1610 — Deploy Container** | Fuzzing harnesses run inside disposable containers | Falco: container exec from non-approved image |
+| **T1587 — Develop Capabilities** | Crash triage turns PoCs into reusable exploits | SIEM: exploit artifacts in build directories |

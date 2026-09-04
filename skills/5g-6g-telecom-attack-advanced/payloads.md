@@ -72,3 +72,16 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### Reference Expansion (F-5G6G-002)
+
+- [3GPP release specifications (SA3 security)](https://www.3gpp.org)
+- [GSMA security guidelines (FS.31/FS.40 series)](https://www.gsma.com)
+- [O-RAN Alliance security specs](https://www.o-ran.org)
+- [Open5GS open-source 5G core for lab testing](https://open5gs.org)
+- [srsRAN open-source RAN stack](https://www.srsran.com)
+- [ETSI security standards incl. NFV/5G](https://www.etsi.org)

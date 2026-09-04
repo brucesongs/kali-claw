@@ -1273,3 +1273,17 @@ for target in $(cat targets.txt); do
   done
 done
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-CMSF-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Plugin/theme RCE against CMS instances | WAF: CMS-specific exploit URIs |
+| **T1195.002 — Compromise Software Supply Chain** | Malicious plugin injection path | Registry: new plugin hash mismatch |
+| **T1505.003 — Web Shell** | Post-exploitation CMS web shells | EDR: web server child process spawn |
+| **T1078 — Valid Accounts** | Admin account takeover via CMS auth bypass | SIEM: admin login from new geo |
+| **T1595.002 — Vulnerability Scanning** | CMS version and plugin enumeration | IDS: wp-scanner request patterns |

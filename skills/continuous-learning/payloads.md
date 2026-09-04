@@ -1522,3 +1522,16 @@ done
 
 echo "[MIGRATE] Migration complete"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### Reference Expansion (F-CONTI-002)
+
+- [arXiv cs.CR tracking](https://arxiv.org)
+- [Peer-review security conference papers](https://openreview.net)
+- [Daily curated ML/security papers](https://huggingface.co/papers)
+- [ATT&CK updates for technique coverage](https://attack.mitre.org)
+- [NVD feed for new CVE learning](https://nvd.nist.gov)
+- [CVE program updates](https://cve.mitre.org)

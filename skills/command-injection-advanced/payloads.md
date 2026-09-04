@@ -568,3 +568,17 @@ Out-of-band data exfiltration:
 ---
 
 *This reference documents payload techniques and tool usage for advanced injection testing. Actual payload generation is performed by the referenced security tools.*
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-COMM-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1059 — Command and Scripting Interpreter** | Injection payloads land OS commands | EDR: shell spawned by web process |
+| **T1059.004 — Unix Shell** | Filter bypass via IFS/base64/unicode | auditd: unusual bash -c parents |
+| **T1059.003 — Windows Command and Shell Scripting Interpreter** | cmd/powershell payload variants | Sysmon EID 1: powershell -enc |
+| **T1190 — Exploit Public-Facing Application** | Injection via unsanitized parameters | WAF: shell metacharacter payloads |
+| **T1562.001 — Impair Defenses: Disable Tools** | Post-injection defense takedown | EDR: agent kill attempts |

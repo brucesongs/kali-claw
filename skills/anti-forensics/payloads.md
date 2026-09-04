@@ -1075,3 +1075,18 @@ docker rm -f $(docker ps -aq) 2>/dev/null
 docker system prune -af --volumes 2>/dev/null
 shred -vfz -n 3 /var/lib/docker/overlay2/*/diff/tmp/* 2>/dev/null
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-ANTI-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1070 — Indicator Removal** | Core anti-forensics toolbox reference | SIEM: gap in telemetry timeline |
+| **T1070.001 — Clear Windows Event Logs** | wevtutil cl / phantom log rotation | Event EID 1102: audit log cleared |
+| **T1070.002 — Clear Linux or Mac System Logs** | Truncating /var/log and journal vacuum | auditd: log file truncation alerts |
+| **T1070.004 — File Deletion** | Secure wipe of artifacts (shred, sdelete) | EDR: mass file deletion in user paths |
+| **T1070.006 — Timestomp** | timestomp Back to the Future manipulation | Sysmon EID 2: future-dated file writes |
+| **T1562.001 — Impair Defenses: Disable Tools** | Killing logging/AV agents | EDR: self-protection alerts |

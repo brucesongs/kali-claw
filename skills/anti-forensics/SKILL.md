@@ -20,7 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 3
   mitre: "TA0005-Defense Evasion"
-  last_reviewed: "2026-07-24"
+  last_reviewed: "2026-09-04"
 ---
 
 # Anti-Forensics

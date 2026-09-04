@@ -19,7 +19,7 @@ metadata:
   domain: web-attack
   tool_count: 7
   guide_count: 3
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 

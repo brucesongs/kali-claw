@@ -21,7 +21,7 @@ metadata:
   guide_count: 4
   owasp: "A03:2021-Injection"
   mitre: "TA0002-Execution"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 
