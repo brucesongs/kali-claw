@@ -1,3 +1,16 @@
+# kali-claw v0.2.7 — 评估项目收尾 🏁
+
+*Generated: 2026-09-04 | Version: v0.2.6 → v0.2.7 | Focus: Complete skill assessment project*
+
+---
+
+Wave 4-7 一次性完成（104 SKILL）→ 评估项目 **139/139 闭环** ✅
+mitre frontmatter 139/139 覆盖（+45）；sase-sse / vuln-assess TC 补充；文档清理；lint 0/0/139 无回归。
+
+详见 [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md)
+
+---
+
 # kali-claw v0.2.6 — 第 2 次月度审查 🔍
 
 *Generated: 2026-08-29 | Version: v0.2.5.5 → v0.2.6 | Focus: Monthly review*

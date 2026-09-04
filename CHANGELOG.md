@@ -2,6 +2,22 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.2.7 (2026-09-04) — 评估项目收尾 🏁
+
+### Wave 4-7 一次性完成（104 SKILL）→ 评估项目 139/139 闭环
+
+- 批量评估 104 SKILL（Excellent 31 / Good 47 / Fair 22 / Poor 4，均分 74.4）
+- 46 P1/P2 findings 应用：37 个 ATT&CK 映射表 + 9 个参考链接扩充
+- P3 × 69 记录为 backlog
+- **mitre frontmatter 补齐 45 个 → 139/139 覆盖**（多次延迟的 P1 清偿）
+- TC 补充：sase-sse 12→15、vuln-assess 10→15（含机翻残留重写）
+- 文档清理：HEARTBEAT 计数 130→139、PHASE2_PROGRESS 废弃头、WORKPLAN 状态回填
+- 第 3 次月度审查并入：lint 0/0/139 无回归；NO_GUIDES 6→0
+
+详见 [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md)
+
+---
+
 ## v0.2.6 (2026-08-29) — 第 2 次月度审查 🔍
 
 ### 验证 v0.2.5.x 系列 5 个 patch 后稳定性
