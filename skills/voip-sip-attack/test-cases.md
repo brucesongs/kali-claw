@@ -29,6 +29,10 @@ Reference Payload: Corresponding section in payloads.md
 - [F. SIP Flood DoS](#f-sip-flood-dos)
 - [G. IAX2 Flood DoS](#g-iax2-flood-dos)
 - [H. RTP Interception](#h-rtp-interception)
+- [I. Toll Fraud](#i-toll-fraud)
+- [J. Session Hijacking](#j-session-hijacking)
+- [K. Signaling Injection](#k-signaling-injection)
+- [L. Transport Security Downgrade](#l-transport-security-downgrade)
 
 ---
 
@@ -178,6 +182,83 @@ Reference Payload: Corresponding section in payloads.md
   6. Document the impact on call quality and stability
 - **Expected Results**: RTP flood causes audio quality degradation (jitter, packet loss). At higher intensities, calls may drop entirely. This demonstrates the lack of RTP stream protection and rate limiting.
 - **Reference**: payloads.md Section 7 - VoIP DoS - RTP Flood
+
+---
+
+## I. Toll Fraud
+
+### TC-V009 | Toll Fraud via Default Credentials and International Dialing Abuse
+
+- **Severity**: CRITICAL
+- **Objective**: Demonstrate unauthorized long-distance/international call placement through a VoIP platform with default or weak administrative credentials, quantifying potential financial exposure
+- **Prerequisites**: Authorized lab or engagement scope explicitly covering toll-fraud scenarios; FreeSWITCH/Asterisk platform identified (default credential candidates from CVE-2019-19492 class); call plan with international destinations simulated in lab
+- **Test Steps**:
+  1. Verify event socket exposure: `nmap -p 8021 10.0.0.1` (FreeSWITCH ESL default 8021/TCP)
+  2. Attempt default ClueCon authentication (CVE-2019-19492 class): `fs_cli -H 10.0.0.1 -P 8021 -x 'status'`
+  3. On success, enumerate the dialplan: `fs_cli -x 'show dialplan'`
+  4. Place a test call to a simulated international destination via the compromised platform: `fs_cli -x 'originate sofia/gateway/testgw/011441632960001 &echo'`
+  5. On Asterisk targets, test AMI default exposure instead: `nmap -p 5038 10.0.0.1` then Originate action with guessed credentials
+  6. Review CDR evidence of the unauthorized call and calculate per-minute cost exposure at published international rates
+- **Expected Results**: Default/weak platform credentials allow administrative call origination. CDR confirms billable international call placement without user authorization. Report includes per-destination cost model and credential-rotation remediation.
+- **Reference**: payloads.md Section 19 - Known VoIP/SIP CVEs
+
+---
+
+## J. Session Hijacking
+
+### TC-V010 | SIP Registration Hijacking and re-INVITE Session Redirection
+
+- **Severity**: HIGH
+- **Objective**: Demonstrate takeover of an active SIP registration (or in-dialog session via re-INVITE) to redirect or absorb an established call leg
+- **Prerequisites**: Authorized lab with softphones registered to a SIP registrar; ability to inject SIP messages on-path (lab MITM via ARP poisoning in the voice VLAN is pre-authorized); Wireshark/scapy
+- **Test Steps**:
+  1. Capture the target extension's REGISTER (with Contact header) and note registration interval: `tshark -i eth0 -Y sip.Method=="REGISTER" -T fields -e sip.from.user -e sip.contact`
+  2. Detect weak digest auth (missing nonce/stale algorithm) on re-REGISTER via registered contact change
+  3. Craft a REGISTER replacing the Contact with attacker URI (when registrar accepts contact rewrite without re-auth): scapy `RFC3261` raw UDP injection to port 5060
+  4. For in-dialog takeover, capture an established dialog's Call-ID/tags, then inject a re-INVITE updating the SDP connection address to the attacker host
+  5. Verify inbound calls to the victim now ring at attacker-controlled endpoint (lab softphone)
+  6. Restore the victim registration and confirm recovery
+- **Expected Results**: Either (a) registrar enforces re-authentication on Contact change and re-INVITE (informational — hardened) or (b) registration/session redirection succeeds and the attacker endpoint receives the victim's calls (HIGH — full call-takeover demonstrated).
+- **Reference**: payloads.md Section 5 and Section 14
+
+---
+
+## K. Signaling Injection
+
+### TC-V011 | Forged BYE/CANCEL Call Teardown Injection
+
+- **Severity**: MEDIUM
+- **Objective**: Demonstrate premature call termination by injecting forged in-dialog BYE or CANCEL messages with guessed/observed dialog identifiers
+- **Prerequisites**: Authorized lab voice VLAN access; active test calls; scapy or sipsak; knowledge that dialog identifiers (Call-ID, From-tag) may be predictable
+- **Test Steps**:
+  1. Establish a test call between two lab extensions
+  2. Capture the dialog identifiers: `tshark -i eth0 -Y sip.Call-ID -T fields -e sip.Call-ID -e sip.r-uri`
+  3. Evaluate identifier predictability (sequential Call-IDs, fixed From-tags) across 5 test calls
+  4. Inject a forged BYE to the called party with the observed identifiers: scapy UDP injection carrying the crafted SIP BYE
+  5. If identifiers were not directly observable, attempt blind guessing based on the observed pattern
+  6. Confirm the call drops; repeat with CANCEL during ringing phase
+  7. Verify whether the platform validates From-tag/To-tag pairing before honoring teardown
+- **Expected Results**: Either (a) dialog validation rejects forged teardown (informational — hardened) or (b) calls terminate on forged BYE/CANCEL, demonstrating signaling-injection DoS with no credentials required (MEDIUM/HIGH depending on predictability).
+- **Reference**: payloads.md Section 5 - VoIP Spoofing and Call Manipulation
+
+---
+
+## L. Transport Security Downgrade
+
+### TC-V012 | SIPS/TLS Downgrade and SRTP Key Material Exposure
+
+- **Severity**: HIGH
+- **Objective**: Verify whether the voice platform (or endpoints) silently falls back from SIPS/TLS to plain UDP SIP and whether SRTP keying material (SDP crypto attributes) leaks over the downgraded leg
+- **Prerequisites**: Authorized lab with a TLS-capable SIP infrastructure; endpoints configured for both SIPS and UDP; test position allows observing both transport legs
+- **Test Steps**:
+  1. Enumerate transport support: `nmap -sU -p 5060 --script sip-methods 10.0.0.1` and `nmap -p 5061 --script tls-alpn 10.0.0.1`
+  2. Attempt a TLS connection, then send a plain-UDP REGISTER from the same identity; record which the registrar accepts and which it prefers
+  3. Force downgrade paths: incomplete TLS handshake followed immediately by UDP REGISTER (fallback probing)
+  4. On an established call, inspect the SDP for `a=crypto:` attributes over the negotiated signaling leg; if signaling fell back to UDP, capture the keying material: `tshark -i eth0 -Y sdp -T fields -e sdp.media_attr`
+  5. Use exposed SRTP keys to decrypt the captured RTP stream of the lab call (srtp decrypt via libsrtp tools or scapy-rtp)
+  6. Document which endpoints accepted the downgrade and whether media confidentiality was lost
+- **Expected Results**: Either (a) the platform refuses UDP for TLS-provisioned identities and protects SDP crypto attributes (informational — hardened) or (b) silent transport downgrade leaks SRTP master keys on the wire, reducing "encrypted" calls to plain RTP exposure (HIGH).
+- **Reference**: payloads.md Section 11 and Section 19
 
 ---
 

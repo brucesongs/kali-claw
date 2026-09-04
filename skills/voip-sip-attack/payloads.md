@@ -893,3 +893,21 @@ tshark -r voip_capture.pcap -Y "sip.Status-Code" -T fields -e sip.Status-Code | 
 - [SIPVicious attack tooling](https://github.com/EnableSecurity/sipvicious)
 - [OWASP VoIP resources](https://owasp.org)
 - [ATT&CK mapping for VoIP abuse](https://attack.mitre.org)
+
+### 19. Known VoIP/SIP CVEs (v0.3.1)
+
+All IDs verified against the NVD API on 2026-09-05 before inclusion.
+
+| CVE | Product | Class | Exploitation note |
+|-----|---------|-------|-------------------|
+| CVE-2019-19492 | FreeSWITCH ≤ 1.10.1 | Default credentials | `event_socket.conf.xml` ships ClueCon password; `fs_cli -H <host> -P 8021` gives call-origination admin (toll fraud pivot, see TC-V009) |
+| CVE-2018-19911 | FreeSWITCH ≤ 1.8.2 (mod_xml_rpc) | RCE | Arbitrary code execution when mod_xml_rpc enabled; probe `/RPC2` on the HTTP port |
+| CVE-2021-36513 | FreeSWITCH (sofia SIP stack) | SIP handling flaw | sofia_handle_sip_i_notify issue; craft NOTIFY within an established dialog |
+| CVE-2018-8828 | Kamailio < 5.0.6 / 5.1.x | Buffer overflow | crafted SIP message overflows a heap buffer in core parsing — pre-auth DoS/possible RCE |
+| CVE-2018-14767 | Kamailio < 5.0.7 / 5.1.4 | Header parsing flaw | crafted SIP with duplicate `To` headers; combine with fuzzing harness from §10 |
+
+Attack-surface bullets:
+
+- **Default-credential chain** (CVE-2019-19492 class): ESL/AMI exposure `nmap -p 8021,5038` → default auth → dialplan enum → international originate → CDR cost model for the report
+- **Pre-auth parser surface** (CVE-2018-8828/14767 class): position a SIP fuzzer (protos-sip-test or scapy template) against the proxy's public listener; parser bugs fire before authentication
+- **UC stack hygiene**: both CVE families reward version fingerprinting first (§10) — map fingerprint to this table before active testing
