@@ -977,3 +977,18 @@ curl -s -X POST http://target.com/api/v1/password-reset/confirm \
   -H "Content-Type: application/json" \
   -d "{\"token\":\"$TOKEN_1\",\"new_password\":\"NewPass123!\"}" -w "\nHTTP: %{http_code}\n"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-WEBAU-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1078 — Valid Accounts** | Auth-flow bypass to valid session | SIEM: login without MFA event |
+| **T1110.003 — Password Spraying** | Bypass via weak credential reuse | SIEM: distributed auth failures |
+| **T1552.001 — Credentials In Files** | Default/leaked credential logins | SIEM: first-seen cred use |
+| **T1187 — Forced Authentication** | NTLM relay to web SSO | NSE: relay trap signatures |
+| **T1528 — Steal Application Access Token** | Token forgery/substitution | IdP: token replay detection |
+| **T1621 — MFA Request Generation** | MFA fatigue bypass chains | IdP: push flood alerts |

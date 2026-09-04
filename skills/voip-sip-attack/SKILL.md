@@ -20,7 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 3
   mitre: "TA0046-Initial Access"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 # VoIP/SIP Attack

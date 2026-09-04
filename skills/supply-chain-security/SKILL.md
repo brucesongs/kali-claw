@@ -20,7 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   owasp: "A08:2021-Software Integrity"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 

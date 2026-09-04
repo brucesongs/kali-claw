@@ -1097,3 +1097,17 @@ docker history --no-trunc myimage:latest | grep -iE 'key|secret|password|token'
 # Dive - Analyze image layers for waste and secrets
 dive myimage:latest --ci --highestWastedBytes 50MB
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-SREV-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Review checklist anchor class | N/A — review reference mapping |
+| **T1059 — Command and Scripting Interpreter** | Injection review categories | N/A — review reference mapping |
+| **T1562.001 — Impair Defenses: Disable Tools** | Defense-in-depth review items | N/A — review reference mapping |
+| **T1070 — Indicator Removal** | Audit-trail review items | N/A — review reference mapping |
+| **T1078 — Valid Accounts** | Identity review categories | N/A — review reference mapping |

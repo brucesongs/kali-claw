@@ -920,3 +920,17 @@ ffuf -u http://target/FUZZ -w /usr/share/seclists/Discovery/Web-Content/common.t
 sqlmap -u "http://target/page?id=1" --batch --dbs --level=3
 nuclei -u http://target -t cves/ -t vulnerabilities/ -severity critical,high,medium
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-TOOL-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1046 — Network Service Scanning** | nmap technique lookup | IDS: scan fingerprints |
+| **T1190 — Exploit Public-Facing Application** | sqlmap/burp technique lookup | WAF: injector patterns |
+| **T1110 — Brute Force** | hydra/medusa technique lookup | SIEM: auth failure bursts |
+| **T1003 — OS Credential Dumping** | mimikatz-class tool mapping | EDR: LSASS access |
+| **T1210 — Exploitation of Remote Services** | metasploit module mapping | IDS: exploit signatures |

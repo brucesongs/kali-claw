@@ -1167,3 +1167,17 @@ else
   cp "$TMP_HASHES" "$KNOWN_HASHES"
 fi
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-SUPP-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1195 — Supply Chain Compromise** | Upstream compromise detection | SBOM: unexpected components |
+| **T1195.001 — Compromise Software Dependencies and Development Tools** | Build tool / dependency implant | CI: checksum drift |
+| **T1195.002 — Compromise Software Supply Chain** | Package registry attacks | Registry: typosquat alerts |
+| **T1199 — Trusted Relationship** | Third-party access abuse | IAM: vendor access anomalies |
+| **T1078.004 — Valid Accounts: Cloud Accounts** | CI/CD service account takeover | Pipeline: token reuse from new IP |

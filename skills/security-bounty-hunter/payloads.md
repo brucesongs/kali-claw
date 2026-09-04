@@ -1080,3 +1080,16 @@ curl -s "https://target.com/auth/callback?code=TOKEN" \
 curl -s "https://target.com/api/user" \
   -H "Authorization: Bearer STOLEN_OAUTH_TOKEN"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-SBH-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Bug-bounty scope exploitation | BBP: duplicate crash reports |
+| **T1595.002 — Vulnerability Scanning** | Automated recon within scope | WAF: bounty-scanner UA |
+| **T1210 — Exploitation of Remote Services** | Edge service exploitation | IDS: exotic service probes |
+| **T1203 — Exploitation for Client Execution** | Client-side bug hunting | EDR: renderer escapes |

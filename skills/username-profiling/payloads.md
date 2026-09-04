@@ -1673,3 +1673,17 @@ python3 -c "import itertools; [print(''.join(p)) for p in itertools.product(*[('
 
 **Related files**: `SKILL.md`, `test-cases.md`, `guides/maigret-username-dossier.md`, `guides/maigret-username-workshop.md`
 **Maigret upstream**: [github.com/soxoj/maigret](https://github.com/soxoj/maigret) | [maigret.readthedocs.io](https://maigret.readthedocs.io)
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-USER-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1589 — Gather Victim Identity Information** | Identity correlation across platforms | N/A — passive collection |
+| **T1589.001 — Gather Victim Identity Information: Credentials** | Username-to-breach correlation | TI: leak monitoring |
+| **T1589.003 — Gather Victim Identity Information: Employee Names** | Org chart inference from names | N/A — passive collection |
+| **T1593.002 — Search Open Websites/Domains: Social Media** | Handle enumeration on social nets | N/A — passive collection |
+| **T1593.003 — Search Open Websites/Domains: Code Repositories** | Handle reuse in commit history | N/A — passive collection |

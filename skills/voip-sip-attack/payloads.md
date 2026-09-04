@@ -871,3 +871,25 @@ tshark -r voip_capture.pcap -Y "rtp" -T fields -e rtp.ssrc -e ip.src -e ip.dst |
 # Analyze SIP response codes for security insights
 tshark -r voip_capture.pcap -Y "sip.Status-Code" -T fields -e sip.Status-Code | sort | uniq -c | sort -rn
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-VOIP-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | SIP endpoint exploitation | SBC: malformed INVITE floods |
+| **T1046 — Network Service Scanning** | extension enumeration (svmap) | SBC: OPTIONS sweeps |
+| **T1095 — Non-Application Layer Protocol** | RTP injection and Ghost call | RTCP: SSRC anomalies |
+| **T1557 — Adversary-in-the-Middle** | RTP MITM interception | SBC: codec re-invite anomalies |
+| **T1040 — Network Sniffing** | Voice capture via SPAN/vmpls | NetOps: unexpected mirrors |
+
+### Reference Expansion (F-VOIP-002)
+
+- [RFC 3261 SIP core protocol](https://www.ietf.org/rfc/rfc3261.txt)
+- [RFC 5411 SIP hitchhiker's guide](https://www.ietf.org/rfc/rfc5411.txt)
+- [SIPVicious attack tooling](https://github.com/EnableSecurity/sipvicious)
+- [OWASP VoIP resources](https://owasp.org)
+- [ATT&CK mapping for VoIP abuse](https://attack.mitre.org)

@@ -925,3 +925,17 @@ done < "$HEADER_FILE"
 
 echo "[+] Audit complete: header_audit.csv"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-SEMI-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | Exploiting exposed misconfigured services | IDS: default-path probing |
+| **T1210 — Exploitation of Remote Services** | Weak service hardening abuse | SIEM: service account misuse |
+| **T1078.004 — Valid Accounts: Cloud Accounts** | Over-permissive IAM exploitation | CloudTrail: privilege anomaly |
+| **T1552.001 — Credentials In Files** | Default credential abuse | SIEM: first-use cred logins |
+| **T1578 — Modify Cloud Compute Infrastructure** | Public snapshot/metadata abuse | CSPM: exposure alerts |
