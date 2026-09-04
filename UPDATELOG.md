@@ -1,3 +1,15 @@
+# kali-claw v0.3.0 — PQC 实现层攻击域 🆕
+
+*Generated: 2026-09-04 | Version: v0.2.7 → v0.3.0 | Focus: New PQC implementation-attack domain*
+
+---
+
+新域 `pqc-implementation-attack`（77/100 出厂）落地两个 P1 候选（实现层攻击 + Kyber 勒索软件）；退役薄壳 `quantum-cryptography-transition`（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账。SKILL 数 139 不变，lint 0/0/139 ✅
+
+详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)
+
+---
+
 # kali-claw v0.2.7 — 评估项目收尾 🏁
 
 *Generated: 2026-09-04 | Version: v0.2.6 → v0.2.7 | Focus: Complete skill assessment project*

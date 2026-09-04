@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.2.7 (2026-09-04) — **评估项目收尾**（139/139 评估闭环；mitre 139/139；skill-lint 0/0/139）。详见 [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md)。
+> **Current Version**: v0.3.0 (2026-09-04) — **PQC 实现层攻击域**（新域 pqc-implementation-attack；退役 quantum-cryptography-transition；SKILL 139 不变；skill-lint 0/0/139）。详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-09-04 (v0.2.7)
+_Last updated: 2026-09-04 (v0.3.0)

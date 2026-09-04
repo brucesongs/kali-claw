@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.0 (2026-09-04) — PQC 实现层攻击域 🆕
+
+### 新域 pqc-implementation-attack + 退役 quantum-cryptography-transition（技能数 139 不变）
+
+- 新建 `pqc-implementation-attack`（出厂 77/100 Good，0 P1/P2）：KyberSlash 类时序、单迹 SCA、故障注入、RNG 缺陷、混合 combiner 审查、Kyber 勒索软件分诊与恢复（2026-08-06 候选评估两个 P1 落地）
+- 退役 59 分薄壳 `quantum-cryptography-transition`：独有组织侧矩阵并入 post-quantum-migration-attack，git 历史可找回
+- 顺手修复 `docs/SKILL_INDEX.json`：补 v0.2.4 两技能、删退役 → 139 条与目录对账一致
+- 内置 CVE 纪律：payloads §2.3 强制 NVD 核验门（不引不可核验编号）
+- skill-lint 0/0/139；新技能四件套验证全绿
+
+详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)
+
+---
+
 ## v0.2.7 (2026-09-04) — 评估项目收尾 🏁
 
 ### Wave 4-7 一次性完成（104 SKILL）→ 评估项目 139/139 闭环

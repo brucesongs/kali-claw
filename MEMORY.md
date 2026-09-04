@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **139** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.2.7 评估项目收尾（Wave 4-7 完成，139/139 评估闭环；mitre 139/139；下一步 v0.3 PQC/Kyber）
+- **Current Focus**: v0.3.0 已发布（新域 pqc-implementation-attack；退役 quantum-cryptography-transition；SKILL 139 不变）— 下一步 P3 backlog 分批清偿 + Q4 工具基线 2026-11
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)
@@ -352,6 +352,16 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
   - MAJOR 升级即时修复 vs 留待 minor — 选留待（风险隔离）
 - **实际工时**：~45min（vs 预估 5.5h，节省 85%）
 - **后续衔接**：v0.2.3.2 抽样审查可引用本 baseline 评估时效性；v0.2.4 minor 时批量处理 MAJOR 升级影响
+
+### 2026-09-04: v0.3.0 Minor — PQC 实现层攻击域（SKILL 139 不变：+1/-1）
+
+- **决策**：2026-08-06 候选评估的两个 P1（PQC 实施层攻击 + Kyber 勒索软件，各 36/75）合并为 1 个新域 `pqc-implementation-attack`，而非 2 个独立 SKILL——探索发现 Kyber 协议层已充分覆盖（两大量子技能合计提及 100+ 次），真缺口集中在实现层
+- **范围纪律**：实现层限定（指纹/KyberSlash 时序/单迹 SCA/故障注入/RNG 缺陷/combiner 审查/勒索软件分诊）；协议与迁移内容交叉引用既有技能，KyberSlash 内容查重独有
+- **薄壳退役**：`quantum-cryptography-transition`（59 分，payloads 86 行占位符）→ 独有组织侧矩阵并入 `post-quantum-migration-attack`，目录删除（git 可找回）
+- **CVE 纪律**：payloads §2.3 强制 NVD 核验门——实现层 CVE 记忆精度不可靠，不确定的不编号
+- **顺手修复**：SKILL_INDEX.json 陈旧（缺 v0.2.4 两技能/含退役）→ 以 frontmatter 为权威全量对账 139 条
+- **出厂评估**：77/100（Good），0 P1/P2；2 P3 记 backlog（0 CVEs 为刻意策略；5 TC 为出厂标准）
+- **lint 保持**：0/0/139（新技能四件套全绿）
 
 ---
 
