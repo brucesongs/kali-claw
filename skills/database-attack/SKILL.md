@@ -20,7 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 5
   mitre: "TA0006-Credential Access"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 # Database Attack

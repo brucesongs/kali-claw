@@ -1153,3 +1153,17 @@ readelf -s firmware.elf 2>/dev/null | head -50
 # Use nm to list remaining symbols after stripping
 nm -D firmware.elf 2>/dev/null | grep -i ' T ' | sort -k3
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-FIRM-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1601 — Modify System Image** | Repackaged firmware implants | FW verify: signature mismatch |
+| **T1601.002 — Modify System Image: Downgrade System Image** | Rollback to vulnerable revision | FW telemetry: version regression |
+| **T1542.003 — Boot or Logon Autostart Execution: Bootkit** | Bootloader-level persistence | Secure Boot: measurement failure |
+| **T1195.002 — Compromise Software Supply Chain** | Vendor update channel implant | Update log: unsigned stage |
+| **T1027.002 — Software Packing** | Packed firmware blobs analysis | Entropy scan: packed sections |

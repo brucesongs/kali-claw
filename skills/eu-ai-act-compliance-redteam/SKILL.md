@@ -32,7 +32,7 @@ metadata:
     - Annex-IV
     - conformity-assessment
     - Notified-Body
-  last_reviewed: "2026-08-09"
+  last_reviewed: "2026-09-04"
 ---
 
 # Skill: EU AI Act Compliance Red Team

@@ -21,7 +21,7 @@ metadata:
   tool_count: 7
   guide_count: 0
   mitre: "T1041-Physical Attacks; emerging hardware-specific"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
   keywords: ["SPA", "DPA", "EM", "timing", "Spectre", "Meltdown", "glitching", "fault injection"]
 ---
 

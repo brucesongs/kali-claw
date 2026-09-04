@@ -1026,3 +1026,17 @@ EOF
 chmod +x /usr/local/bin/eng-comm
 eng-comm /opt/evidence/engagement_2025 "Kicked off external pentest phase 2 - notified client PM"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-ENGA-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1595 — Active Scanning** | Scoping maps to authorized scan phases | N/A — meta skill reference mapping |
+| **T1592 — Gather Victim Host Info** | Recon rules-of-engagement alignment | N/A — meta skill reference mapping |
+| **T1590 — Gather Victim Network Info** | Target-range definition reference | N/A — meta skill reference mapping |
+| **T1589 — Gather Victim Identity Information** | OSINT authorization boundaries | N/A — meta skill reference mapping |
+| **T1046 — Network Service Scanning** | Phase gating for service discovery | N/A — meta skill reference mapping |

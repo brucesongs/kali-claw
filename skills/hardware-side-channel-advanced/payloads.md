@@ -71,3 +71,16 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### Reference Expansion (F-HARDW-002)
+
+- [Spectre paper and mitigations](https://spectreattack.com)
+- [Meltdown paper and affected CPUs](https://meltdownattack.com)
+- [IACR ePrint side-channel research](https://eprint.iacr.org)
+- [CWE-203 observable discrepancy](https://cwe.mitre.org/data/definitions/203.html)
+- [NIST FIPS 140-3 physical security](https://csrc.nist.gov)
+- [Intel SA-AT advisories](https://www.intel.com)

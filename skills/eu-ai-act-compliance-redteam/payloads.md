@@ -469,3 +469,17 @@ class SeriousIncident:
 
 - See `SKILL.md` References section
 - `guides/eu-ai-act-article-9-deep-dive.md` — clause-by-clause analysis
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-EUAI-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | AI-endpoint abuse testing (injection) | WAF: anomalous LLM API payloads |
+| **T1595 — Active Scanning** | Authorized AI system probing | API gateway: probe patterns |
+| **T1566.003 — Spearphishing via Service** | Synthetic-content abuse scenarios | Mail gateway: deepfake lures |
+| **T1059.009 — Cloud API** | Automated abuse of hosted AI APIs | CloudTrail: abnormal inference volume |
+| **T1071.001 — Web Protocols** | Model exfil over HTTP channels | DLP: large model-file uploads |

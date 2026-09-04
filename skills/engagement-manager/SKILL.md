@@ -20,7 +20,7 @@ metadata:
   domain: management
   tool_count: 0
   guide_count: 3
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 

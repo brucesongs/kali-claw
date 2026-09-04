@@ -21,7 +21,7 @@ metadata:
   tool_count: 7
   guide_count: 0
   mitre: "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
   keywords: ["DLP", "exfiltration", "steganography", "DNS tunneling", "ICMP tunneling", "data loss prevention"]
 ---
 

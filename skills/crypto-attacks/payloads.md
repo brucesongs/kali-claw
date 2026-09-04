@@ -1251,3 +1251,17 @@ def analyze_ciphertext(ciphertext_hex):
 
     return "\n".join(findings)
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-CRYP-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1110.002 — Password Cracking** | Offline hash cracking (hashcat/john) | SIEM: GPU spike on workstation |
+| **T1552.001 — Credentials In Files** | Hardcoded keys found via crypto review | Secret scanning: private key blobs |
+| **T1600.001 — Weaken Encryption: Reduce Key Space** | Weak key/IV misuse exploitation | TLS scan: weak cipher suites |
+| **T1557 — Adversary-in-the-Middle** | MITM downgrade of crypto sessions | NSE: ARP/SSL-strip anomalies |
+| **T1040 — Network Sniffing** | Capture feeding offline cryptanalysis | Switch: promiscuous port detection |

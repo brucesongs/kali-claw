@@ -1770,3 +1770,17 @@ def generate_session_summary(session):
 | [Action 1] | [Team] | [Date] |
 | [Action 2] | [Team] | [Date] |
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-COUN-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1595 — Active Scanning** | Planning phase references scanning activities | N/A — meta skill reference mapping |
+| **T1592 — Gather Victim Host Info** | Recon findings reviewed by council | N/A — meta skill reference mapping |
+| **T1590 — Gather Victim Network Info** | Intel aggregation checkpoints | N/A — meta skill reference mapping |
+| **T1078 — Valid Accounts** | Post-exploitation review checkpoints | N/A — meta skill reference mapping |
+| **T1562.001 — Impair Defenses: Disable Tools** | Evasion decision review | N/A — meta skill reference mapping |

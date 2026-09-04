@@ -1230,3 +1230,17 @@ if [ -f "$PREV" ]; then
   done < "$HASH_FILE"
 fi
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-DIGI-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1070.006 — Timestomp** | Timeline analysis detects clock skew | Forensic: $STANDARD_INFORMATION anomalies |
+| **T1562 — Impair Defenses** | Evidence of log tampering recovery | SIEM: missing agent heartbeats |
+| **T1547.001 — Registry Run Keys / Startup Folder** | Persistence artifact recovery | Autostart diff vs golden image |
+| **T1055 — Process Injection** | Injected-code carving from memory | Volatility: malfind regions |
+| **T1027 — Obfuscated Files or Information** | Decoding obfuscated artifacts | YARA: encoder signatures |

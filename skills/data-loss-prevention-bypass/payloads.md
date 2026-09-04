@@ -91,3 +91,15 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### Reference Expansion (F-DATAL-002)
+
+- [Exfiltration tactic (T1048 family) reference](https://attack.mitre.org)
+- [CAPEC exfiltration attack patterns](https://capec.mitre.org)
+- [OWASP resources on data protection](https://owasp.org)
+- [Purview DLP capability docs](https://learn.microsoft.com)
+- [NIST SP 800-53 exfiltration controls](https://csrc.nist.gov)

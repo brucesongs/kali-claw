@@ -1,0 +1,22 @@
+{
+  "total_skills": 1,
+  "passed": 1,
+  "failed": 0,
+  "total_errors": 0,
+  "total_warnings": 0,
+  "reports": [
+    {
+      "skill": "hardware-security",
+      "passed": true,
+      "errors": 0,
+      "warnings": 0,
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "PRACTICAL_STEPS_COVERED_BY_METHODOLOGY",
+          "message": "Practical Steps not present but Methodology is detailed (73 lines)"
+        }
+      ]
+    }
+  ]
+}

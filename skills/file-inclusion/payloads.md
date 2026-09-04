@@ -936,3 +936,17 @@ curl http://target/page={double}
 ```bash
 curl "http://target/page=../../../etc/passwd%00.aspx"
 ```
+
+---
+
+## MITRE ATT&CK Mapping + Reference Expansion (v0.2.7)
+
+### ATT&CK Mapping (F-FILE-001)
+
+| ATT&CK Technique | Skill Activity | Detection Hint |
+|------------------|----------------|-----------------|
+| **T1190 — Exploit Public-Facing Application** | LFI/RFI via path parameters | WAF: ../ traversal payloads |
+| **T1105 — Ingress Tool Transfer** | RFI payload staging from remote | IDS: web fetch of tools |
+| **T1210 — Exploitation of Remote Services** | Include wrappers to internal SMB | NSE: web-to-SMB relay |
+| **T1505.003 — Web Shell** | Log poisoning into webshell | EDR: web proc spawning shells |
+| **T1083 — File and Directory Discovery** | LFI-based source enumeration | WAF: /etc/passwd probes |

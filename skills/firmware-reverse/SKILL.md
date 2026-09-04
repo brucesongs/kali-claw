@@ -20,7 +20,7 @@ metadata:
   tool_count: 18
   guide_count: 3
   mitre: "TA0002-Execution"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-09-04"
 ---
 
 # Firmware Reverse Engineering
