@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.1 (2026-09-05) — **Poor 技能清偿**（3 个 Poor 技能抬到 Good/Excellent，最低分 74；SKILL 139；skill-lint 0/0/139）。详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)。
+> **Current Version**: v0.3.2 (2026-09-07) — **0-CVE 批量清偿**（47 技能 208 个 NVD 核验 CVE + 14 域策略关闭；仓库均分 81.1；skill-lint 0/0/139）。详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-09-05 (v0.3.1)
+_Last updated: 2026-09-07 (v0.3.2)

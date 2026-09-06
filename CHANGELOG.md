@@ -2,6 +2,21 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.2 (2026-09-07) — 0-CVE 批量清偿 📦
+
+### 62 个 0-CVE 技能一次性处理（47 补 CVE / 14 策略关闭 / 1 既保留）
+
+- 47 个技能补入 **208 个 NVD 核验 CVE**（逐个 API 核验 + 人工策展剔除关键词噪声）
+- 14 个 meta/活动域策略关闭（评估文档标注 closed by policy）
+- 61 个技能重评：**仓库均分 74.4 → 81.1**，最低 62，无 Poor
+- 代表集：Ghidra/Keycloak/Vault/Splunk/Metasploit/hashcat（工具自反）、Stagefright/Stuxnet/Cellebrite（垂直域）、LangChain/MCP（新兴域）
+- Wave 1-3 时期评估文档统一为现行标准格式（旧 evidence 保留）
+- lint 0/0/139 无回归
+
+详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)
+
+---
+
 ## v0.3.1 (2026-09-05) — Poor 技能清偿 📈
 
 ### 3 个 Poor 技能全部抬到 Good/Excellent（最低分 56 → 74，Poor 清零）

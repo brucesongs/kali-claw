@@ -1,3 +1,16 @@
+# kali-claw v0.3.2 — 0-CVE 批量清偿 📦
+
+*Generated: 2026-09-07 | Version: v0.3.1 → v0.3.2 | Focus: 0-CVE P3 batch clearance*
+
+---
+
+62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展），14 个 meta 域策略关闭。
+61 技能重评，仓库均分 74.4 → 81.1，无 Poor。lint 0/0/139 ✅
+
+详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)
+
+---
+
 # kali-claw v0.3.1 — Poor 技能清偿 📈
 
 *Generated: 2026-09-05 | Version: v0.3.0 → v0.3.1 | Focus: P3 backlog first batch*
