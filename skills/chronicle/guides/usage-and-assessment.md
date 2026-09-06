@@ -1,32 +1,34 @@
 # chronicle — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-09-04 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **62/100 (Fair)** | **Wave 4** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-07 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.2
+> **Overall Score**: **65/100 (Fair)** | **Re-assessment (v0.3.2)** — 0-CVE clearance batch (was 62/100 on 2026-09-04)
 
 ## Quick Assessment Dashboard
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
-| 2. Content Completeness | **4** | payloads 1203 + TC 386 + 6 guides; 19 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
-| 4. References | **1** | 1 URLs + 0 CVEs |
+| 2. Content Completeness | **4** | payloads 1215 + TC 386 + 6 guides; 19 H2 |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
+| 4. References | **2** | 6 URLs + 0 CVEs |
 | 5. MITRE/OWASP Alignment | **1** | 0 ATT&CK T-codes |
 | 6. Usability | **4** | 19 H2 + 14 H3 structure |
-| **Weighted Total** | **62/100** | **Fair** |
+| **Weighted Total** | **65/100** | **Fair** |
 
 ## Findings
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-CHRO-002 | P2 | URLs 少（1 个） | Add authoritative references |
-| F-CHRO-004 | P3 | TC coverage thin（8 test cases） | Add AAA-format test cases |
+| F-CHRO-001 | P1 (closed by policy) | 0 ATT&CK T-codes — non-attack meta skill (`defense_triple_required: false`), ATT&CK N/A | N/A |
+| F-CHRO-003 | P3 (closed by policy) | 0 CVEs — no applicable CVE class for this meta/activity domain | N/A |
+| F-CHRO-004 | P3 | TC coverage thin (8 test cases) | Expand to 10+ TCs in a later batch |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 4 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.2 batch re-assessment (0-CVE P3 clearance). This is a non-attack meta
+skill (`defense_triple_required: false`): ATT&CK and CVE classes are closed
+by policy. Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-09-04/lint.json](../evidence/2026-09-04/lint.json)
+- [evidence/2026-09-07/lint.json](../evidence/2026-09-07/lint.json)

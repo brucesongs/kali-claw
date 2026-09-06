@@ -1,0 +1,22 @@
+{
+  "total_skills": 1,
+  "passed": 1,
+  "failed": 0,
+  "total_errors": 0,
+  "total_warnings": 0,
+  "reports": [
+    {
+      "skill": "chronicle",
+      "passed": true,
+      "errors": 0,
+      "warnings": 0,
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "DEFENSE_TRIPLE_EXEMPT",
+          "message": "defense_triple_required: false \u2014 Defense Triple checks skipped"
+        }
+      ]
+    }
+  ]
+}

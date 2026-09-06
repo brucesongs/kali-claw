@@ -1,7 +1,7 @@
 # safety-guard — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-09-04 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **71/100 (Good)** | **Wave 7** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-07 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.2
+> **Overall Score**: **71/100 (Good)** | **Re-assessment (v0.3.2)** — 0-CVE clearance batch (was 71/100 on 2026-09-04)
 
 ## Quick Assessment Dashboard
 
@@ -9,7 +9,7 @@
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
 | 2. Content Completeness | **4** | payloads 1198 + TC 469 + 6 guides; 18 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
 | 4. References | **4** | 20 URLs + 0 CVEs |
 | 5. MITRE/OWASP Alignment | **1** | 0 ATT&CK T-codes |
 | 6. Usability | **4** | 18 H2 + 23 H3 structure |
@@ -19,13 +19,16 @@
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-SAFE-004 | P3 | TC coverage thin（8 test cases） | Add AAA-format test cases |
+| F-SAFE-001 | P1 (closed by policy) | 0 ATT&CK T-codes — non-attack meta skill (`defense_triple_required: false`), ATT&CK N/A | N/A |
+| F-SAFE-003 | P3 (closed by policy) | 0 CVEs — no applicable CVE class for this meta/activity domain | N/A |
+| F-SAFE-004 | P3 | TC coverage thin (8 test cases) | Expand to 10+ TCs in a later batch |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 7 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.2 batch re-assessment (0-CVE P3 clearance). This is a non-attack meta
+skill (`defense_triple_required: false`): ATT&CK and CVE classes are closed
+by policy. Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-09-04/lint.json](../evidence/2026-09-04/lint.json)
+- [evidence/2026-09-07/lint.json](../evidence/2026-09-07/lint.json)
