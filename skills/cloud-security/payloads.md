@@ -1798,3 +1798,17 @@ if len(sys.argv) > 1:
 | **T1496 — Resource Hijacking** | 加密货币挖矿 | Billing: abnormal compute usage |
 | **T1610 — Deploy Container** | 在云中部署恶意容器 | K8s audit: unexpected pod creation |
 | **T1555.006 — Credentials from Password Stores: Cloud Secrets Management** | Secrets Manager 提取 | CloudTrail: ListSecrets + GetSecretValue burst |
+
+---
+
+### Known Cloud/Container CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2016-9223 | cisco/cloudcenter_orchestrator | 10.0 | A vulnerability in the Docker Engine configuration of Cisco CloudCenter Orchestrator (CCO; formerly CliQr) co… |
+| CVE-2017-10940 | joyent/triton_datacenter | 9.0 | This vulnerability allows remote attackers to execute arbitrary code on vulnerable installations of Joyent Sm… |
+| CVE-2016-8954 | ibm/dashdb_local | 9.8 | IBM dashDB Local uses hard-coded credentials that could allow a remote attacker to gain access to the Docker … |
+| CVE-2014-9357 | docker/docker | 10.0 | Docker 1.3.2 allows remote attackers to execute arbitrary code with root privileges via a crafted (1) image o… |
+| CVE-2017-7669 | apache/hadoop | 8.5 | In Apache Hadoop 2.8.0, 3.0.0-alpha1, and 3.0.0-alpha2, the LinuxContainerExecutor runs docker commands as ro… |

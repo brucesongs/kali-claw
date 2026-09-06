@@ -1139,3 +1139,16 @@ hostapd-wpe /tmp/hostapd-wpe.conf
 # Set up RADIUS server to log MS-CHAPv2 challenges
 freeradius -X
 ```
+
+---
+
+### Known Hardware/TPM CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2024-29039 | tpm2-tools_project/tpm2-tools | 9.0 | tpm2 is the source repository for the Trusted Platform Module (TPM2.0) tools. This vulnerability allows attac… |
+| CVE-2026-1709 | redhat/enterprise_linux (o) | 9.8 | A flaw was found in Keylime. The Keylime registrar, since version 7.12.0, does not enforce client-side Transp… |
+| CVE-2023-36718 | microsoft/windows_10_1507 (o) | 7.8 | Microsoft Virtual Trusted Platform Module Remote Code Execution Vulnerability |
+| CVE-2025-13609 | A | 8.2 | A vulnerability has been identified in keylime where an attacker can exploit this flaw by registering a new a… |

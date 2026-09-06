@@ -1774,3 +1774,16 @@ def adapt_request(payload, from_version, to_version="2.0"):
 
     return adapted
 ```
+
+---
+
+### Known Mcp Server Patterns CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2025-47777 | 5ire/5ire | 9.6 | 5ire is a cross-platform desktop artificial intelligence assistant and model context protocol client. Version… |
+| CVE-2025-34072 | A | 9.3 | A data exfiltration vulnerability exists in Anthropic’s deprecated Slack Model Context Protocol (MCP) Server … |
+| CVE-2025-66401 | kapilduraphe/mcp_watch | 9.8 | MCP Watch is a comprehensive security scanner for Model Context Protocol (MCP) servers. In 0.1.2 and earlier,… |
+| CVE-2025-66580 | openagentplatform/dive | 9.6 | Dive is an open-source MCP Host Desktop Application that enables integration with function-calling LLMs. A cr… |

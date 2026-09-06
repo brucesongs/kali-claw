@@ -964,3 +964,16 @@ echo "00A4040007A000000004101000" | scriptor
 
 **Related files**: `SKILL.md`, `test-cases.md`, `guides/payment-pentest-playbook.md`
 **PCI SSC**: [pcisecuritystandards.org](https://www.pcisecuritystandards.org) | **Stripe**: [stripe.com/docs/security](https://stripe.com/docs/security) | **EMVCo**: [emvco.com](https://www.emvco.com)
+
+---
+
+### Known Payment CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2007-5364 | viart/shopping_cart | 10.0 | Directory traversal vulnerability in payments/ideal_process.php in the iDEAL transaction handler in ViArt Sho… |
+| CVE-2009-2038 | oscommerce/oscommerce | 10.0 | Unspecified vulnerability in the Finnish Bank Payment module 2.2 for osCommerce has unknown impact and attack… |
+| CVE-2005-2865 | amember/amember | 7.5 | Multiple PHP remote file inclusion vulnerabilities in aMember Pro 2.3.4 allow remote attackers to execute arb… |
+| CVE-2005-3797 | alstrasoft/template_seller | 7.5 | PHP remote file inclusion vulnerability in payment_paypal.php in AlstraSoft Template Seller Pro 3.25 allows r… |

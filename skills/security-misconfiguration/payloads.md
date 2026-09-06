@@ -939,3 +939,16 @@ echo "[+] Audit complete: header_audit.csv"
 | **T1078.004 — Valid Accounts: Cloud Accounts** | Over-permissive IAM exploitation | CloudTrail: privilege anomaly |
 | **T1552.001 — Credentials In Files** | Default credential abuse | SIEM: first-use cred logins |
 | **T1578 — Modify Cloud Compute Infrastructure** | Public snapshot/metadata abuse | CSPM: exposure alerts |
+
+---
+
+### Known Misconfiguration/Default Credentials CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2017-6640 | cisco/prime_data_center_network_manager | 10.0 | A vulnerability in Cisco Prime Data Center Network Manager (DCNM) Software could allow an unauthenticated, re… |
+| CVE-2011-3290 | cisco/identity_services_engine (h) | 10.0 | Cisco Identity Services Engine (ISE) before 1.0.4.MR2 has default Oracle database credentials, which allows r… |
+| CVE-2017-6684 | cisco/elastic_services_controller | 9.0 | A vulnerability in Cisco Elastic Services Controllers could allow an authenticated, remote attacker to log in… |
+| CVE-2009-0616 | cisco/application_networking_manager | 10.0 | Cisco Application Networking Manager (ANM) before 2.0 uses default usernames and passwords, which makes it ea… |

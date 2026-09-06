@@ -1153,3 +1153,18 @@ find_offset("./vulnerable_binary")
 - [YARA pattern matching for artifact triage](https://virustotal.github.io/yara/)
 - [CVE enumeration for RE targets](https://cve.mitre.org)
 - [NVD scoring and references](https://nvd.nist.gov)
+
+---
+
+### Known Reverse-Engineering Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2023-22671 | nsa/ghidra | 9.8 | Ghidra/RuntimeScripts/Linux/support/launch.sh in NSA Ghidra through 10.2.2 passes user-provided input into ev… |
+| CVE-2020-6958 | yet_another_java_service_wrapper_project/yet_another_java_service_wrapper | 9.1 | An XXE vulnerability in JnlpSupport in Yet Another Java Service Wrapper (YAJSW) 12.14, as used in NSA Ghidra … |
+| CVE-2019-13625 | nsa/ghidra | 9.4 | NSA Ghidra before 9.0.1 allows XXE when a project is opened or restored, or a tool is imported, as demonstrat… |
+| CVE-2019-16941 | nsa/ghidra | 9.8 | NSA Ghidra through 9.0.4, when experimental mode is enabled, allows arbitrary code execution if the Read XML … |
+| CVE-2026-4946 | nsa/ghidra | 8.8 | Ghidra versions prior to 12.0.3 improperly process annotation directives embedded in automatically extracted … |
+| CVE-2026-49498 | nsa/ghidra | 8.8 | Ghidra 11.0 before 12.1 contains a SQL injection vulnerability in the changePassword() method of PostgresFunc… |

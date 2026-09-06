@@ -1947,3 +1947,16 @@ echo "Commands:    $(jq -r 'select(.eventid=="cowrie.command.input") | .input' "
 | **T1098 — Account Manipulation** | 攻击者在 honeypot 创建账户 | Honeypot log: unexpected account creation |
 | **T1071 — Application Layer Protocol** | C2 通信被 honeypot 捕获 | Honeypot: outbound connection from compromised instance |
 | **T1560 — Archive Collected Data** | 攻击者打包数据准备外传 | Honeypot: tar/zip execution alert |
+
+---
+
+### Known Deception/Honeypot CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2025-58855 | Improper | 7.1 | Improper Neutralization of Formula Elements in a CSV File vulnerability in Denis V (Artprima) AP HoneyPot Wor… |
+| CVE-2026-77830 | The | 7.2 | The Spam protection, Honeypot, Anti-Spam by CleanTalk plugin for WordPress is vulnerable to Stored Cross-Site… |
+| CVE-2019-11633 | honeypress_project/honeypress | 7.5 | HoneyPress through 2016-09-27 can be fingerprinted by attackers because of the ingrained unique www.atxsec.co… |
+| CVE-2024-24933 | prasidhdamalla/honeypot_for_wp_comment | 7.1 | Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Prasidh… |

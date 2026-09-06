@@ -70,3 +70,15 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+### Known Edge Computing CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2022-31074 | linuxfoundation/kubeedge | 6.5 | KubeEdge is an open source system for extending native containerized application orchestration capabilities t… |
+| CVE-2022-31075 | linuxfoundation/kubeedge | 6.5 | KubeEdge is an open source system for extending native containerized application orchestration capabilities t… |
+| CVE-2022-31077 | linuxfoundation/kubeedge | 5.7 | KubeEdge is built upon Kubernetes and extends native containerized application orchestration and device manag… |

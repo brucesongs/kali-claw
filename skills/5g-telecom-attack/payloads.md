@@ -2146,3 +2146,16 @@ git clone https://github.com/open5gs/open5gs /opt/open5gs && \
 - [ ] Regulator notification path identified (EU NIS2, US FCC, national CERT)
 - [ ] Capture/retention policy for subscriber data confirmed
 - [ ] No real subscriber IMSI/SUPI/K/OPc used — test PLMN 001/01 only
+
+---
+
+### Known Telecom/SS7 CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2017-15318 | huawei/rp200_firmware (o) | 7.8 | RP200 V500R002C00, V600R006C00; TE30 V100R001C10, V500R002C00, V600R006C00; TE40 V500R002C00, V600R006C00; TE… |
+| CVE-2017-15319 | huawei/rp200_firmware (o) | 7.8 | RP200 V500R002C00, V600R006C00; TE30 V100R001C10, V500R002C00, V600R006C00; TE40 V500R002C00, V600R006C00; TE… |
+| CVE-2017-15320 | huawei/rp200_firmware (o) | 7.8 | RP200 V500R002C00, V600R006C00; TE30 V100R001C10, V500R002C00, V600R006C00; TE40 V500R002C00, V600R006C00; TE… |
+| CVE-2014-2282 | wireshark/wireshark | 4.3 | The dissect_protocol_data_parameter function in epan/dissectors/packet-m3ua.c in the M3UA dissector in Wiresh… |

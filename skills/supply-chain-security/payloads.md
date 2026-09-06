@@ -1181,3 +1181,16 @@ fi
 | **T1195.002 — Compromise Software Supply Chain** | Package registry attacks | Registry: typosquat alerts |
 | **T1199 — Trusted Relationship** | Third-party access abuse | IAM: vendor access anomalies |
 | **T1078.004 — Valid Accounts: Cloud Accounts** | CI/CD service account takeover | Pipeline: token reuse from new IP |
+
+---
+
+### Known Supply Chain/Dependency CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2017-8914 | sap/hana_xs | 8.3 | sinopia, as used in SAP HANA XS 1.00 and 2.00, allows remote attackers to hijack npm packages or host arbitra… |
+| CVE-2019-5413 | morgan_project/morgan | 9.8 | An attacker can use the format parameter to inject arbitrary commands in the npm package morgan < 1.9.1. |
+| CVE-2019-5417 | zeit/serve | 7.5 | A path traversal vulnerability in serve npm package version 7.0.1 allows the attackers to read content of arb… |
+| CVE-2016-10703 | ecstatic_project/ecstatic | 7.8 | A regular expression Denial of Service (DoS) vulnerability in the file lib/ecstatic.js of the ecstatic npm pa… |

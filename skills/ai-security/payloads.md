@@ -1095,3 +1095,18 @@ curl -s -X POST "$AGENT_URL/chat" \
 | **T1557 — Adversary-in-the-Middle** | LLM API 流量劫持 | TLS inspection: unexpected API redirect |
 | **T1195.001 — Supply Chain Compromise: Software Dependencies** | 模型/依赖投毒 | Model registry: unsigned model upload |
 | **T1005 — Data from Local System** | 训练数据本地提取 | EDR: bulk dataset access |
+
+---
+
+### Known AI/LLM CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2024-31224 | binary-husky/gpt_academic | 9.8 | GPT Academic provides interactive interfaces for large language models. A vulnerability was found in gpt_acad… |
+| CVE-2024-52803 | hiyouga/llama-factory | 9.8 | LLama Factory enables fine-tuning of large language models. A critical remote OS command injection vulnerabil… |
+| CVE-2025-46724 | langroid/langroid | 9.8 | Langroid is a Python framework to build large language model (LLM)-powered applications. Prior to version 0.5… |
+| CVE-2025-46725 | langroid/langroid | 9.8 | Langroid is a Python framework to build large language model (LLM)-powered applications. Prior to version 0.5… |
+| CVE-2025-47277 | vllm/vllm | 9.8 | vLLM, an inference and serving engine for large language models (LLMs), has an issue in versions 0.6.5 throug… |
+| CVE-2024-28088 | langchain/langchain | 8.1 | LangChain through 0.1.10 allows ../ directory traversal by an actor who is able to control the final part of … |

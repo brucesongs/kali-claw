@@ -1287,3 +1287,18 @@ python3 xxeer.py -u "http://target/api/endpoint" --method POST \
 # Use the "XXE Scanner" BApp from the BApp Store
 # Configure payload list and OOB callback
 ```
+
+---
+
+### Known XXE CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2017-12620 | apache/opennlp | 9.8 | When loading models or dictionaries that contain XML it is possible to perform an XXE attack, since Apache Op… |
+| CVE-2017-12629 | apache/solr | 9.8 | Remote code execution occurs in Apache Solr before 7.1 with Apache Lucene before 7.1 by exploiting XXE in con… |
+| CVE-2016-6798 | apache/sling | 9.8 | In the XSS Protection API module before 1.0.12 in Apache Sling, the method XSS.getValidXML() uses an insecure… |
+| CVE-2017-8110 | modified-shop/modified_ecommerce_shopsoftware | 10.0 | www.modified-shop.org modified eCommerce Shopsoftware 2.0.2.2 rev 10690 has XXE in api/it-recht-kanzlei/api-i… |
+| CVE-2017-7503 | redhat/jboss_enterprise_application_platform | 9.8 | It was found that the Red Hat JBoss EAP 7.0.5 implementation of javax.xml.transform.TransformerFactory is vul… |
+| CVE-2015-7273 | dell/integrated_remote_access_controller_firmware (o) | 9.8 | Dell Integrated Remote Access Controller (iDRAC) 7/8 before 2.21.21.21 has XXE. |

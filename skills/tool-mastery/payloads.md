@@ -934,3 +934,16 @@ nuclei -u http://target -t cves/ -t vulnerabilities/ -severity critical,high,med
 | **T1110 — Brute Force** | hydra/medusa technique lookup | SIEM: auth failure bursts |
 | **T1003 — OS Credential Dumping** | mimikatz-class tool mapping | EDR: LSASS access |
 | **T1210 — Exploitation of Remote Services** | metasploit module mapping | IDS: exploit signatures |
+
+---
+
+### Known Security Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2018-15173 | nmap/nmap | 7.5 | Nmap through 7.70, when the -sV option is used, allows remote attackers to cause a denial of service (stack c… |
+| CVE-2018-17228 | nmap4j_project/nmap4j | 9.8 | nmap4j 1.1.0 allows attackers to execute arbitrary commands via shell metacharacters in an includeHosts call. |
+| CVE-1999-0454 | A | 10.0 | A remote attacker can sometimes identify the operating system of a host based on how it reacts to some IP or … |
+| CVE-2015-4045 | alienvault/open_source_security_information_management | 7.2 | The sudoers file in the asset discovery scanner in AlienVault OSSIM before 5.0.1 allows local users to gain p… |

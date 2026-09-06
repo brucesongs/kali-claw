@@ -1318,3 +1318,16 @@ kismet_drone -c wlan0 --remote-host 192.168.1.100:2501
 # NTLM auth: ntlmssp.auth
 # LDAP bind: ldap.bind_request
 ```
+
+---
+
+### Known Sniffing/Analysis Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2006-3628 | ethereal_group/ethereal | 10.0 | Multiple format string vulnerabilities in Wireshark (aka Ethereal) 0.10.x to 0.99.0 allow remote attackers to… |
+| CVE-2006-3632 | ethereal_group/ethereal | 10.0 | Buffer overflow in Wireshark (aka Ethereal) 0.8.16 to 0.99.0 allows remote attackers to cause a denial of ser… |
+| CVE-2007-6112 | wireshark/wireshark | 10.0 | Buffer overflow in the PPP dissector Wireshark (formerly Ethereal) 0.99.6 allows remote attackers to cause a … |
+| CVE-2007-6114 | wireshark/wireshark | 10.0 | Multiple buffer overflows in Wireshark (formerly Ethereal) 0.99.0 through 0.99.6 allow remote attackers to ca… |

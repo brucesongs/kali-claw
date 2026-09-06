@@ -1546,3 +1546,16 @@ with open('suspect.pdf', 'rb') as f:
         print('Note: Annotations/form fields present')
 "
 ```
+
+---
+
+### Known Steganography CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2026-34977 | aperisolve/aperisolve | 9.8 | Aperi'Solve is an open-source steganalysis web platform. In versions 3.1.3 through 3.2.0, when uploading a JP… |
+| CVE-2007-0163 | securekit/securekit_steganography | 7.8 | SecureKit Steganography 1.7.1 and 1.8 embeds password information in the carrier file, which allows remote at… |
+| CVE-2007-0164 | camouflage/camouflage | 7.8 | Camouflage 1.2.1 embeds password information in the carrier file, which allows remote attackers to bypass aut… |
+| CVE-2026-81684 | jahlives/openssl_encrypt | 6.9 | In openssl_encrypt (pip package openssl-encrypt) versions <= 1.4.8, the desktop GUI passes the steganography … |

@@ -952,3 +952,16 @@ def run_recon_correlation(domain, output_dir):
 | **T1590 — Gather Victim Network Info** | Domain/network footprinting | N/A — recon phase |
 | **T1589 — Gather Victim Identity Information** | Staff and role mapping | N/A — recon phase |
 | **T1593 — Search Open Websites/Domains** | OSINT source harvesting | N/A — recon phase |
+
+---
+
+### Known OSINT Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2026-32311 | flowsint/flowsint | 9.8 | Flowsint is an open-source OSINT graph exploration tool designed for cybersecurity investigation, transparenc… |
+| CVE-2025-32778 | Web-Check | 9.3 | Web-Check is an all-in-one OSINT tool for analyzing any website. A command injection vulnerability exists in … |
+| CVE-2026-42156 | Flowsint | 7.1 | Flowsint is an open-source OSINT graph exploration tool designed for cybersecurity investigation, transparenc… |
+| CVE-2026-42866 | Tookie | 6.7 | Tookie is a advanced OSINT information gathering tool. Prior to 4.1fix, modules/modules.py's write_txt, write… |

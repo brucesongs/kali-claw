@@ -1244,3 +1244,15 @@ fi
 | **T1547.001 — Registry Run Keys / Startup Folder** | Persistence artifact recovery | Autostart diff vs golden image |
 | **T1055 — Process Injection** | Injected-code carving from memory | Volatility: malfind regions |
 | **T1027 — Obfuscated Files or Information** | Decoding obfuscated artifacts | YARA: encoder signatures |
+
+---
+
+### Known Forensic Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2020-12798 | sun-denshi/universal_forensic_extraction_device_firmware (o) | 7.8 | Cellebrite UFED 5.0 to 7.5.0.845 implements local operating system policies that can be circumvented to obtai… |
+| CVE-2020-14474 | cellebrite/ufed_firmware (o) | 7.5 | The Cellebrite UFED physical device 5.0 through 7.5.0.845 relies on key material hardcoded within both the ex… |
+| CVE-2020-11723 | cellebrite/ufed_firmware (o) | 5.5 | Cellebrite UFED 5.0 through 7.29 uses four hardcoded RSA private keys to authenticate to the ADB daemon on ta… |

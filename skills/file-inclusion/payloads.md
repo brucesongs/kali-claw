@@ -950,3 +950,15 @@ curl "http://target/page=../../../etc/passwd%00.aspx"
 | **T1210 — Exploitation of Remote Services** | Include wrappers to internal SMB | NSE: web-to-SMB relay |
 | **T1505.003 — Web Shell** | Log poisoning into webshell | EDR: web proc spawning shells |
 | **T1083 — File and Directory Discovery** | LFI-based source enumeration | WAF: /etc/passwd probes |
+
+---
+
+### Known File Inclusion/Path Traversal CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2005-2371 | oracle/reports | 5.0 | Directory traversal vulnerability in Oracle Reports 6.0, 6i, 9i, and 10g allows remote attackers to overwrite… |
+| CVE-2005-2378 | oracle/reports | 5.0 | Directory traversal vulnerability in Oracle Reports allows remote attackers to read arbitrary files via an ab… |
+| CVE-2005-3755 | google/mini_search_appliance (h) | 5.0 | Directory traversal vulnerability in Google Mini Search Appliance, and possibly Google Search Appliance, allo… |

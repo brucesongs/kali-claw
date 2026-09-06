@@ -1036,3 +1036,16 @@ sudo iodine -f -P secretpass 10.0.0.1 tunnel.example.com
 ping -c 3 10.0.0.1
 iperf3 -c 10.0.0.1 -t 10 -u -b 1M
 ```
+
+---
+
+### Known VPN/Tunnel CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2018-7311 | privatevpn/privatevpn | 9.0 | PrivateVPN 2.0.31 for macOS suffers from a root privilege escalation vulnerability. The software installs a p… |
+| CVE-2017-12166 | openvpn/openvpn | 9.8 | OpenVPN versions before 2.3.3 and 2.4.x before 2.4.4 are vulnerable to a buffer overflow vulnerability when k… |
+| CVE-2006-1629 | openvpn/openvpn | 9.0 | OpenVPN 2.0 through 2.0.5 allows remote malicious servers to execute arbitrary code on the client by using se… |
+| CVE-2017-7478 | openvpn/openvpn | 7.5 | OpenVPN version 2.3.12 and newer is vulnerable to unauthenticated Denial of Service of server via received la… |

@@ -1801,3 +1801,15 @@ if script_src:
         if domain in script_src:
             print(f"POTENTIAL BYPASS: {domain} is whitelisted and has JSONP: {endpoint}")
 ```
+
+---
+
+### Known Browser Qa CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2026-25244 | openjsf/webdriverio | 9.8 | WebdriverIO is a test automation framework for unit, e2e and component testing using WebDriver, WebDriver BiD… |
+| CVE-2022-24829 | garden/garden | 9.8 | Garden is an automation platform for Kubernetes development and testing. In versions prior to 0.12.39 multipl… |
+| CVE-2023-44392 | garden/garden | 9.0 | Garden provides automation for Kubernetes development and testing. Prior tov ersions 0.13.17 and 0.12.65, Gar… |

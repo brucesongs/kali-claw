@@ -1806,3 +1806,18 @@ graph TD
 | GitHub Actions tj-actions/changed-files | 2025 | Maintainer account takeover | Pin actions to SHA, audit popularity |
 | Capital One | 2019 | SSRF → metadata → S3 | Block IMDSv1; require IMDSv2 |
 | Twitch | 2021 | Git repo dump | Scan + rotate after every push |
+
+---
+
+### Known Secret Management CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2021-30476 | hashicorp/terraform_provider | 9.8 | HashiCorp Terraform’s Vault Provider (terraform-provider-vault) did not correctly configure GCE-type bound la… |
+| CVE-2021-43837 | vault-cli_project/vault-cli | 9.1 | vault-cli is a configurable command-line interface tool (and python library) to interact with Hashicorp Vault… |
+| CVE-2020-10661 | hashicorp/vault | 9.1 | HashiCorp Vault and Vault Enterprise versions 0.11.0 through 1.3.3 may, under certain circumstances, have exi… |
+| CVE-2020-12757 | hashicorp/vault | 9.8 | HashiCorp Vault and Vault Enterprise 1.4.0 and 1.4.1, when configured with the GCP Secrets Engine, may incorr… |
+| CVE-2021-42135 | hashicorp/vault | 8.1 | HashiCorp Vault and Vault Enterprise 1.8.x through 1.8.4 may have an unexpected interaction between glob-rela… |
+| CVE-2021-3282 | hashicorp/vault | 7.5 | HashiCorp Vault Enterprise 1.6.0 & 1.6.1 allowed the `remove-peer` raft operator command to be executed again… |

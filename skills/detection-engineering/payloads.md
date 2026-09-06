@@ -2323,3 +2323,17 @@ Threat Hunt finds something →
 ```
 
 The two disciplines are paired: hunting supplies the empirical truth that detection engineers encode; detection engineers supply the detectors that hunters lean on for breadth. The Sigma rule you ship today is the building block of tomorrow's hunt.
+
+---
+
+### Known Detection/SIEM CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2016-10126 | splunk/splunk | 10.0 | Splunk Web in Splunk Enterprise 5.0.x before 5.0.17, 6.0.x before 6.0.13, 6.1.x before 6.1.12, 6.2.x before 6… |
+| CVE-2013-6771 | splunk/splunk | 9.3 | Directory traversal vulnerability in the collect script in Splunk before 5.0.5 allows remote attackers to exe… |
+| CVE-2013-7394 | splunk/splunk | 9.0 | The "runshellscript echo.sh" script in Splunk before 5.0.5 allows remote authenticated users to execute arbit… |
+| CVE-2010-2502 | splunk/splunk | 7.5 | Multiple directory traversal vulnerabilities in Splunk 4.0 through 4.0.10 and 4.1 through 4.1.1 allow (1) rem… |
+| CVE-2010-3322 | splunk/splunk | 8.8 | The XML parser in Splunk 4.0.0 through 4.1.4 allows remote authenticated users to obtain sensitive informatio… |

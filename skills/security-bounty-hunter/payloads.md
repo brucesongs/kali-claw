@@ -1093,3 +1093,16 @@ curl -s "https://target.com/api/user" \
 | **T1595.002 — Vulnerability Scanning** | Automated recon within scope | WAF: bounty-scanner UA |
 | **T1210 — Exploitation of Remote Services** | Edge service exploitation | IDS: exotic service probes |
 | **T1203 — Exploitation for Client Execution** | Client-side bug hunting | EDR: renderer escapes |
+
+---
+
+### Known Bounty Target Class CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2022-46255 | github/enterprise_server | 9.8 | An improper limitation of a pathname to a restricted directory vulnerability was identified in GitHub Enterpr… |
+| CVE-2020-10516 | github/github | 9.8 | An improper access control vulnerability was identified in the GitHub Enterprise Server API that allowed an o… |
+| CVE-2021-22863 | github/github | 8.1 | An improper access control vulnerability was identified in the GitHub Enterprise Server GraphQL API that allo… |
+| CVE-2021-22864 | github/enterprise_server | 8.8 | A remote code execution vulnerability was identified in GitHub Enterprise Server that could be exploited when… |

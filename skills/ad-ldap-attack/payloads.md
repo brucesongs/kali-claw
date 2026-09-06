@@ -1193,3 +1193,16 @@ put backdoor.bat "Startup\backdoor.bat"
 # Edit \\corp.local\SYSVOL\corp.local\Policies\{GUID}\Machine\Preferences\ScheduledTasks\ScheduledTasks.xml
 # Add an Immediate Task that runs on next Group Policy refresh
 ```
+
+---
+
+### Known AD/LDAP CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2002-1256 | microsoft/windows_2000 (o) | 5.0 | The SMB signing capability in the Server Message Block (SMB) protocol in Microsoft Windows 2000 and Windows X… |
+| CVE-2000-0311 | microsoft/windows_2000 (o) | 2.1 | The Windows 2000 domain controller allows a malicious user to modify Active Directory information by modifyin… |
+| CVE-2001-0018 | microsoft/windows_2000 (o) | 5.0 | Windows 2000 domain controller in Windows 2000 Server, Advanced Server, or Datacenter Server allows remote at… |
+| CVE-2005-1981 | microsoft/windows_2000 (o) | 2.1 | Unknown vulnerability in Microsoft Windows 2000 Server and Windows Server 2003 domain controllers allows remo… |

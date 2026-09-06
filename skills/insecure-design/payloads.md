@@ -916,3 +916,16 @@ wait
 curl -s http://target/api/v1/accounts \
   -H "Authorization: Bearer $TOKEN" | jq '.[].balance'
 ```
+
+---
+
+### Known Insecure Design/Authorization CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2022-44004 | backclick/backclick | 9.8 | An issue was discovered in BACKCLICK Professional 5.9.63. Due to insecure design or lack of authentication, u… |
+| CVE-2023-27637 | tshirtecommerce/custom_product_designer | 9.8 | An issue was discovered in the tshirtecommerce (aka Custom Product Designer) component 2.1.4 for PrestaShop. … |
+| CVE-2023-27638 | tshirtecommerce/custom_product_designer | 9.8 | An issue was discovered in the tshirtecommerce (aka Custom Product Designer) component 2.1.4 for PrestaShop. … |
+| CVE-2024-34461 | Zenario | 9.8 | Zenario before 9.5.60437 uses Twig filters insecurely in the Twig Snippet plugin, and in the site-wide HEAD a… |

@@ -582,3 +582,16 @@ Out-of-band data exfiltration:
 | **T1059.003 — Windows Command and Shell Scripting Interpreter** | cmd/powershell payload variants | Sysmon EID 1: powershell -enc |
 | **T1190 — Exploit Public-Facing Application** | Injection via unsanitized parameters | WAF: shell metacharacter payloads |
 | **T1562.001 — Impair Defenses: Disable Tools** | Post-injection defense takedown | EDR: agent kill attempts |
+
+---
+
+### Known Command Injection CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-1999-0067 | apache/http_server | 10.0 | phf CGI program allows remote command execution through shell metacharacters. |
+| CVE-1999-0172 | matt_wright/formmail | 7.5 | FormMail CGI program allows remote execution of commands. |
+| CVE-1999-0147 | university_of_arizona/glimpse_http | 7.5 | The aglimpse CGI program of the Glimpse package allows remote execution of arbitrary commands. |
+| CVE-1999-0237 | webcom/cgi_guestbook | 7.5 | Remote execution of arbitrary commands through Guestbook CGI program. |

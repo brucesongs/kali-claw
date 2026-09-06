@@ -1689,3 +1689,18 @@ print(f'Verification: {\"MATCH\" if verify_block[:16] == modified_block[:16] els
 c.disconnect()
 "
 ```
+
+---
+
+### Known SCADA/ICS CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2010-2568 | microsoft/windows_7 (o) | 9.3 | Windows Shell in Microsoft Windows XP SP3, Server 2003 SP2, Vista SP1 and SP2, Server 2008 SP2 and R2, and Wi… |
+| CVE-2008-0176 | ge_fanuc/cimplicity | 10.0 | Heap-based buffer overflow in w32rtr.exe in GE Fanuc CIMPLICITY HMI SCADA system 7.0 before 7.0 SIM 9, and ea… |
+| CVE-2010-4740 | scadaengine/bacnet_opc_client | 9.3 | Stack-based buffer overflow in WTclient.dll in SCADA Engine BACnet OPC Client before 1.0.25 allows user-assis… |
+| CVE-2011-1565 | 7t/igss | 10.0 | Directory traversal vulnerability in IGSSdataServer.exe 9.00.00.11063 and earlier in 7-Technologies Interacti… |
+| CVE-2011-1566 | 7t/igss | 10.0 | Directory traversal vulnerability in dc.exe 9.00.00.11059 and earlier in 7-Technologies Interactive Graphical… |
+| CVE-2011-1567 | 7t/igss | 10.0 | Multiple stack-based buffer overflows in IGSSdataServer.exe 9.00.00.11063 and earlier in 7-Technologies Inter… |

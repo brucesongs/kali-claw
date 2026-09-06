@@ -1069,3 +1069,17 @@ printf 'POST / HTTP/1.1\r\nHost: target.com\r\nContent-Length: 4\r\nTransfer-Enc
 | **T1098 — Account Manipulation** | Self-registration role escalation | IAM: unapproved role grants |
 | **T1539 — Steal Web Session Cookie** | Session fixation/cookie theft paths | SIEM: session token reuse |
 | **T1528 — Steal Application Access Token** | OAuth scope abuse | IdP: over-scoped token grants |
+
+---
+
+### Known Web Access Control CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2001-0537 | cisco/ios (o) | 9.3 | HTTP server for Cisco IOS 11.3 to 12.2 allows attackers to bypass authentication and execute arbitrary comman… |
+| CVE-2005-2105 | cisco/ios (o) | 7.5 | Cisco IOS 12.2T through 12.4 allows remote attackers to bypass Authentication, Authorization, and Accounting … |
+| CVE-2012-0384 | cisco/ios (o) | 8.5 | Cisco IOS 12.2 through 12.4 and 15.0 through 15.2 and IOS XE 2.1.x through 2.6.x and 3.1.xS before 3.1.2S, 3.… |
+| CVE-2008-7109 | kyoceramita/scanner_file_utility | 10.0 | The Scanner File Utility (aka listener) in Kyocera Mita (KM) 3.3.0.1 allows remote attackers to bypass author… |
+| CVE-2007-0432 | bea/aqualogic_service_bus | 7.5 | BEA AquaLogic Service Bus 2.0, 2.1, and 2.5 does not properly reject malformed request messages to a proxy se… |

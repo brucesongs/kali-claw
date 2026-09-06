@@ -1687,3 +1687,18 @@ python3 -c "import itertools; [print(''.join(p)) for p in itertools.product(*[('
 | **T1589.003 — Gather Victim Identity Information: Employee Names** | Org chart inference from names | N/A — passive collection |
 | **T1593.002 — Search Open Websites/Domains: Social Media** | Handle enumeration on social nets | N/A — passive collection |
 | **T1593.003 — Search Open Websites/Domains: Code Repositories** | Handle reuse in commit history | N/A — passive collection |
+
+---
+
+### Known Enumeration CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2020-27199 | magic_home_pro_project/magic_home_pro | 7.5 | The Magic Home Pro application 1.5.1 for Android allows Authentication Bypass. The security control that the … |
+| CVE-2017-6752 | cisco/adaptive_security_appliance_software (o) | 7.5 | A vulnerability in the web interface of the Cisco Adaptive Security Appliance (ASA) 9.3(3) and 9.6(2) could a… |
+| CVE-2019-7217 | citrix/sharefile | 7.5 | Citrix ShareFile before 19.12 allows User Enumeration. It is possible to enumerate application username based… |
+| CVE-2018-1154 | tenable/security_center | 8.8 | In SecurityCenter versions prior to 5.7.0, a username enumeration issue could allow an unauthenticated attack… |
+| CVE-2019-1842 | cisco/ios_xr_firmware (o) | 5.5 | A vulnerability in the Secure Shell (SSH) authentication function of Cisco IOS XR Software could allow an aut… |
+| CVE-2018-15919 | openbsd/openssh | 5.3 | Remotely observable behaviour in auth-gss2.c in OpenSSH through 7.8 could be used by remote attackers to dete… |

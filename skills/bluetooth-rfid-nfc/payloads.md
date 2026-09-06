@@ -951,3 +951,17 @@ hcitool info AA:BB:CC:DD:EE:FF
 sdptool browse AA:BB:CC:DD:EE:FF
 btmgmt info AA:BB:CC:DD:EE:FF 2>/dev/null
 ```
+
+---
+
+### Known Bluetooth/NFC CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2005-2277 | nokia/affix | 10.0 | Bluetooth FTP client (BTFTP) in Nokia Affix 2.1.2 and 3.2.0 allows remote attackers to execute arbitrary comm… |
+| CVE-2006-5611 | toshiba/bluetooth_stack | 10.0 | Unspecified vulnerability in Toshiba Bluetooth Stack before 4.20.01 has unspecified impact and attack vectors… |
+| CVE-2004-0775 | widcomm/bluetooth_communication_software | 7.5 | Buffer overflow in WIDCOMM Bluetooth Connectivity Software, as used in products such as BTStackServer 1.3.2.7… |
+| CVE-2005-0750 | conectiva/linux (o) | 7.2 | The bluez_sock_create function in the Bluetooth stack for Linux kernel 2.4.6 through 2.4.30-rc1 and 2.6 throu… |
+| CVE-2005-1294 | nokia/affix | 7.2 | The affix_sock_register in the Affix Bluetooth Protocol Stack for Linux might allow local users to gain privi… |

@@ -1020,3 +1020,16 @@ echo "Total pairs: $(wc -l < filtered_creds.txt)"
 echo "Unique users: $(cut -d: -f1 filtered_creds.txt | sort -u | wc -l)"
 echo "Unique passwords: $(cut -d: -f2 filtered_creds.txt | sort -u | wc -l)"
 ```
+
+---
+
+### Known Password/Auth CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2026-42482 | hashcat/hashcat | 9.8 | A stack-based buffer overflow in mangle_to_hex_lower() and mangle_to_hex_upper() in src/rp_cpu.c in hashcat v… |
+| CVE-2026-42483 | hashcat/hashcat | 9.8 | A heap-based buffer overflow in the Kerberos hash parser in hashcat v7.1.2 allows an attacker to cause a deni… |
+| CVE-2026-42484 | hashcat/hashcat | 9.8 | A heap-based buffer overflow in hex_to_binary in the PKZIP hash parser in hashcat v7.1.2 allows an attacker t… |
+| CVE-2026-68766 | hashcat | 8.5 | hashcat fails to restrict command-line options when parsing restore files, allowing attackers to inject outpu… |

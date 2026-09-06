@@ -1735,3 +1735,17 @@ picklescan -p ./model_dir/ --log warning
 | **T1586 — Compromise Accounts** | LLM service account abuse | API logs: key misuse patterns |
 | **T1059 — Command and Scripting Interpreter** | Indirect injection to tool exec | EDR: agent-driven shell spawns |
 | **T1539 — Steal Web Session Cookie** | Token theft via LLM plugin abuse | SIEM: session anomalies |
+
+---
+
+### Known LLM Platform CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2023-34540 | langchain/langchain | 9.8 | Langchain before v0.0.225 was discovered to contain a remote code execution (RCE) vulnerability in the compon… |
+| CVE-2023-34541 | langchain/langchain | 9.8 | Langchain 0.0.171 is vulnerable to Arbitrary code execution in load_prompt. |
+| CVE-2023-36258 | langchain/langchain | 9.8 | An issue in LangChain before 0.0.236 allows an attacker to execute arbitrary code because Python code with os… |
+| CVE-2023-36188 | langchain/langchain | 9.8 | An issue in langchain v.0.0.64 allows a remote attacker to execute arbitrary code via the PALChain parameter … |
+| CVE-2023-36095 | langchain/langchain | 9.8 | An issue in Harrison Chase langchain v.0.0.194 allows an attacker to execute arbitrary code via the python ex… |

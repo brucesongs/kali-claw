@@ -857,3 +857,17 @@ print(f'DC offset: {np.abs(dc_offset):.6f} (lower = better)')
 print(f'Signal quality: {10*np.log10(np.var(data)/np.abs(dc_offset)**2):.1f} dB')
 "
 ```
+
+---
+
+### Known SDR/Radio CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2025-1727 | The | 8.1 | The protocol used for remote linking over RF for End-of-Train and Head-of-Train (also known as a FRED) relies… |
+| CVE-2024-41722 | gotenna/gotenna | 6.5 | In the goTenna Pro ATAK Plugin there is a vulnerability that makes it possible to inject any custom message w… |
+| CVE-2024-47127 | gotenna/gotenna_pro | 6.5 | In the goTenna Pro App there is a vulnerability that makes it possible to inject any custom message with any … |
+| CVE-2025-32885 | gotenna/mesh_firmware (o) | 6.5 | An issue was discovered on goTenna v1 devices with app 5.5.3 and firmware 0.25.5. The app there makes it poss… |
+| CVE-2017-17910 | hoermann/hs5-868-bs_firmware (o) | 6.5 | On Hoermann BiSecur devices before 2018, a vulnerability can be exploited by recording a single radio transmi… |

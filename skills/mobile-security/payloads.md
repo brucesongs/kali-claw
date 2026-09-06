@@ -991,3 +991,16 @@ Java.perform(function() {
 | **T1518.001 — Software Discovery: Security Software** | App detects EMM/agent presence | MDM: anti-analysis behavior |
 | **T1552.001 — Credentials In Files** | Secrets in app prefs/keystore misuse | Static scan: hardcoded keys |
 | **T1566.003 — Spearphishing via Service** | Deep-link abuse delivery | Netsec: unusual deep-link bursts |
+
+---
+
+### Known Mobile CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2015-4480 | canonical/ubuntu_linux (o) | 9.3 | Integer overflow in the stagefright::SampleTable::isValid function in libstagefright in Mozilla Firefox befor… |
+| CVE-2015-4493 | oracle/solaris (o) | 9.3 | Heap-based buffer overflow in the stagefright::ESDS::parseESDescriptor function in libstagefright in Mozilla … |
+| CVE-2024-34736 | google/android (o) | 7.8 | In setupVideoEncoder of StagefrightRecorder.cpp, there is a possible asynchronous playback when B-frame suppo… |
+| CVE-2016-2814 | mozilla/firefox | 8.8 | Heap-based buffer overflow in the stagefright::SampleTable::parseSampleCencInfo function in libstagefright in… |

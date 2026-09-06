@@ -1152,3 +1152,15 @@ curl -s "https://target/poison" \
 - Black Hat USA — *Cross-Tenant Attacks in Edge Platforms* (2024)
 - PortSwigger — *Web Cache Poisoning* (James Kettle, 2018-2024)
 - MITRE ATT&CK — T1190 Exploit Public-Facing Application, T1552.007 Container and Cloud Instance Credentials API
+
+---
+
+### Known Edge Computing CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2026-82473 | KubeEdge | 8.8 | KubeEdge CloudCore through 1.23.1 accepts node task status reports on its HTTPS server without authentication… |
+| CVE-2022-31073 | linuxfoundation/kubeedge | 7.5 | KubeEdge is an open source system for extending native containerized application orchestration capabilities t… |
+| CVE-2022-31076 | linuxfoundation/kubeedge | 5.7 | KubeEdge is built upon Kubernetes and extends native containerized application orchestration and device manag… |

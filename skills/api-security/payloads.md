@@ -861,3 +861,18 @@ done
 | **T1539 — Steal Web Session Cookie** | JWT/session extraction from API responses | SIEM: session replay from new UA |
 | **T1552.001 — Credentials In Files** | Keys found in swagger/openapi docs and repos | GitHub secret scanning alerts |
 | **T1098 — Account Manipulation** | Mass-assignment role change on user objects | IAM: role change outside change window |
+
+---
+
+### Known API CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2020-9483 | apache/skywalking | 7.5 | **Resolved** When use H2/MySQL/TiDB as Apache SkyWalking storage, the metadata query through GraphQL protocol… |
+| CVE-2021-22863 | github/github | 8.1 | An improper access control vulnerability was identified in the GitHub Enterprise Server GraphQL API that allo… |
+| CVE-2021-22209 | gitlab/gitlab | 7.5 | An issue has been discovered in GitLab CE/EE affecting all versions starting from 13.8. GitLab was not proper… |
+| CVE-2021-35970 | voxmedia/coral_talk | 7.5 | Talk 4 in Coral before 4.12.1 allows remote attackers to discover e-mail addresses and other sensitive inform… |
+| CVE-2021-22224 | gitlab/gitlab | 7.1 | A cross-site request forgery vulnerability in the GraphQL API in GitLab since version 13.12 and before versio… |
+| CVE-2021-36044 | adobe/adobe_commerce | 7.5 | Magento Commerce versions 2.4.2 (and earlier), 2.4.2-p1 (and earlier) and 2.3.7 (and earlier) are affected by… |

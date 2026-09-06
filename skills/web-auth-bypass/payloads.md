@@ -992,3 +992,17 @@ curl -s -X POST http://target.com/api/v1/password-reset/confirm \
 | **T1187 — Forced Authentication** | NTLM relay to web SSO | NSE: relay trap signatures |
 | **T1528 — Steal Application Access Token** | Token forgery/substitution | IdP: token replay detection |
 | **T1621 — MFA Request Generation** | MFA fatigue bypass chains | IdP: push flood alerts |
+
+---
+
+### Known Web Authentication CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2000-0233 | suse/suse_linux_imap_server | 10.0 | SuSE Linux IMAP server allows remote attackers to bypass IMAP authentication and gain privileges. |
+| CVE-2001-0269 | sun/sunos (o) | 10.0 | pam_ldap authentication module in Solaris 8 allows remote attackers to bypass authentication via a NULL passw… |
+| CVE-2001-1053 | adcycle/adcycle | 10.0 | AdLogin.pm in AdCycle 1.15 and earlier allows remote attackers to bypass authentication and gain privileges b… |
+| CVE-1999-1591 | microsoft/internet_information_server | 7.5 | Microsoft Internet Information Services (IIS) server 4.0 SP4, without certain hotfixes released for SP4, does… |
+| CVE-2000-1056 | cisco/secure_access_control_server | 7.5 | CiscoSecure ACS Server 2.4(2) and earlier allows remote attackers to bypass LDAP authentication on the server… |

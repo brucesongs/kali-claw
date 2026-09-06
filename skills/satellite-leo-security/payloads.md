@@ -2012,3 +2012,16 @@ done
 - C4ADS (2019) — Above Us Only Stars (GPS spoofing of vessels)
 - ENISA — Threat Landscape for Satellite Communications
 - 3GPP TS 22.261 — Service requirements for 5G (covers satellite integration in 5G NTN)
+
+---
+
+### Known Satellite/GNSS CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2013-6034 | gatehouse/gatehouse (h) | 10.0 | The firmware on GateHouse; Harris BGAN RF-7800B-VU204 and BGAN RF-7800B-DU204; Hughes Network Systems 9201, 9… |
+| CVE-2013-6035 | gatehouse/gatehouse (h) | 10.0 | The firmware on GateHouse; Harris BGAN RF-7800B-VU204 and BGAN RF-7800B-DU204; Hughes Network Systems 9201, 9… |
+| CVE-2014-2940 | cobham/sailor_900_firmware (o) | 10.0 | Cobham Sailor 900 and 6000 satellite terminals with firmware 1.08 MFHF and 2.11 VHF have hardcoded credential… |
+| CVE-2014-0326 | iridium/open_port (h) | 9.3 | The Pilot Below Deck Equipment (BDE) and OpenPort implementations on Iridium satellite terminals allow remote… |

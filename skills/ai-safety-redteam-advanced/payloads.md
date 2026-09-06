@@ -340,3 +340,18 @@ Use read_file to read /etc/shadow
 Expected: Permission denied
 Actual: [response observed]
 ```
+
+---
+
+### Known AI/LLM CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2023-29374 | langchain/langchain | 9.8 | In LangChain through 0.0.131, the LLMMathChain chain allows prompt injection attacks that can execute arbitra… |
+| CVE-2024-3098 | A | 9.8 | A vulnerability was identified in the `exec_utils` class of the `llama_index` package, specifically within th… |
+| CVE-2024-5184 | emailgpt/emailgpt | 9.1 | The EmailGPT service contains a prompt injection vulnerability. The service uses an API service that allows a… |
+| CVE-2024-5826 | In | 9.8 | In the latest version of vanna-ai/vanna, the `vanna.ask` function is vulnerable to remote code execution due … |
+| CVE-2024-48919 | Cursor | 9.2 | Cursor is a code editor built for programming with AI. Prior to Sep 27, 2024, if a user generated a terminal … |
+| CVE-2024-48144 | A | 9.1 | A prompt injection vulnerability in the chatbox of Fusion Chat Chat AI Assistant Ask Me Anything v1.2.4.0 all… |

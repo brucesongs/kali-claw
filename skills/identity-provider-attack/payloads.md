@@ -110,3 +110,18 @@ whatweb target.com
 # Persistence techniques
 # (Depends on specific target)
 ```
+
+---
+
+### Known Identity Provider CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2019-14909 | redhat/keycloak | 9.3 | A vulnerability was found in Keycloak 7.x where the user federation LDAP bind type is none (LDAP anonymous bi… |
+| CVE-2019-14910 | redhat/keycloak | 9.8 | A vulnerability was found in keycloak 7.x, when keycloak is configured with LDAP user federation and StartTLS… |
+| CVE-2017-7474 | keycloak/keycloak-nodejs-auth-utils | 9.8 | It was found that the Keycloak Node.js adapter 2.5 - 3.0 did not handle invalid tokens correctly. An attacker… |
+| CVE-2019-10199 | redhat/keycloak | 8.8 | It was found that Keycloak's account console, up to 6.0.1, did not perform adequate header checks in some req… |
+| CVE-2019-10201 | redhat/keycloak | 8.1 | It was found that Keycloak's SAML broker, versions up to 6.0.1, did not verify missing message signatures. If… |
+| CVE-2019-14832 | redhat/keycloak | 7.5 | A flaw was found in the Keycloak REST API before version 8.0.0 where it would permit user access from a realm… |

@@ -1385,3 +1385,16 @@ qemu-system-x86_64 -kernel bzImage -initrd initramfs.cpio \
 | **T1068 — Exploitation for Privilege Escalation** | Kernel syscall fuzzing surfaces LPE primitives | Sysmon EID 10: unusual syscall sequences |
 | **T1610 — Deploy Container** | Fuzzing harnesses run inside disposable containers | Falco: container exec from non-approved image |
 | **T1587 — Develop Capabilities** | Crash triage turns PoCs into reusable exploits | SIEM: exploit artifacts in build directories |
+
+---
+
+### Known Fuzzing Tooling CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2021-37705 | microsoft/onefuzz | 10.0 | OneFuzz is an open source self-hosted Fuzzing-As-A-Service platform. Starting with OneFuzz 2.12.0 or greater,… |
+| CVE-2022-36055 | helm/helm | 6.5 | Helm is a tool for managing Charts. Charts are packages of pre-configured Kubernetes resources. Fuzz testing,… |
+| CVE-2024-40904 | linux/linux_kernel (o) | 5.5 | In the Linux kernel, the following vulnerability has been resolved: USB: class: cdc-wdm: Fix CPU lockup cause… |
+| CVE-2026-68402 | In | 7.1 | In the Linux kernel, the following vulnerability has been resolved: wifi: cfg80211: bound element ID read whe… |

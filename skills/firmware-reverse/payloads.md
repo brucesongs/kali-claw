@@ -1167,3 +1167,16 @@ nm -D firmware.elf 2>/dev/null | grep -i ' T ' | sort -k3
 | **T1542.003 — Boot or Logon Autostart Execution: Bootkit** | Bootloader-level persistence | Secure Boot: measurement failure |
 | **T1195.002 — Compromise Software Supply Chain** | Vendor update channel implant | Update log: unsigned stage |
 | **T1027.002 — Software Packing** | Packed firmware blobs analysis | Entropy scan: packed sections |
+
+---
+
+### Known Firmware CVEs (NVD-verified, v0.3.2)
+
+All IDs verified against the NVD API on 2026-09-07 before inclusion.
+
+| CVE | Product | CVSS | Summary (from NVD record) |
+|-----|---------|------|----------------------------|
+| CVE-2001-1220 | d-link/dwl-1000ap (h) | 10.0 | D-Link DWL-1000AP Firmware 3.2.28 #483 Wireless LAN Access Point stores the administrative password in plaint… |
+| CVE-2001-1424 | alcatel/speed_touch_home (h) | 7.5 | Alcatel Speed Touch ADSL modem running firmware KHDSAA.108, KHDSAA.132, KHDSBA.133, and KHDSAA.134 has a blan… |
+| CVE-2001-1425 | alcatel/speed_touch_home (h) | 7.5 | The challenge-response authentication of the EXPERT user for Alcatel Speed Touch running firmware KHDSAA.108 … |
+| CVE-2001-1426 | alcatel/speed_touch_home (h) | 7.5 | Alcatel Speed Touch running firmware KHDSAA.108 and KHDSAA.132 through KHDSAA.134 has a TFTP server running w… |
