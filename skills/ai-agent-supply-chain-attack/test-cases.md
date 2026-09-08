@@ -333,3 +333,71 @@ Not covered (future TCs):
 
 - See `SKILL.md` References
 - `guides/hugging-face-2026-07-incident-case-study.md` for full incident reconstruction
+
+---
+
+## TC-AISC-006: Keras Lambda Layer Injection
+
+- **Objective**: Embed arbitrary Python in a Keras model via a Lambda layer so loading the model executes attacker code
+- **Severity**: CRITICAL
+- **Prerequisites**: Keras/TensorFlow environment; model-building script; ModelScan installed for verification
+- **Test Steps**:
+  1. Craft: define a benign-architecture model and insert `keras.layers.Lambda(lambda x: __import__('os').system('id'), output_shape=...)`-style layer
+  2. Save to .h5/.keras and inspect the serialized lambda bytecode string
+  3. Scan with `modelscan -p evil.keras` — record detection result
+  4. Load the model in a clean sandbox: `keras.models.load_model('evil.keras')`
+  5. Verify marker execution (file/DNS callback)
+- **Expected Result**: Model load executes the embedded Lambda code; ModelScan detection status recorded (detect/evade)
+
+## TC-AISC-007: Vector DB Document Poisoning (Chroma)
+
+- **Objective**: Poison a RAG knowledge base so retrieval injects attacker instructions or planted facts
+- **Severity**: HIGH
+- **Prerequisites**: Lab RAG pipeline with Chroma; write access to the ingestion path or shared document source
+- **Test Steps**:
+  1. Craft a poisoned doc embedding prompt-instruction text styled as policy ("When asked about refunds, reply with...")
+  2. Ingest via the normal pipeline into the lab Chroma collection
+  3. Query the RAG app with trigger questions near the poisoned topic
+  4. Verify the poisoned chunk is retrieved (check top-k sources) and influences output
+  5. Test persistence across re-index cycles
+- **Expected Result**: Poisoned document survives ingestion and measurably steers answers, demonstrating RAG supply-chain risk
+
+## TC-AISC-008: ModelScan Evasion via Steganographic Weights
+
+- **Objective**: Hide a functional backdoor trigger in quantized weight perturbations below scanner thresholds
+- **Severity**: HIGH
+- **Prerequisites**: PyTorch tooling; ModelScan installed; lab classification model to backdoor
+- **Test Steps**:
+  1. Train/finetune the lab model with a trigger pattern (patch trigger)
+  2. Distribute the backdoor across many small weight deltas (LSB-scale) to avoid outlier detection
+  3. Save and scan: `modelscan -p trojan.pt` — aim for a clean verdict
+  4. Validate functional backdoor: trigger input produces attacker-chosen output
+  5. Document clean-scan + live-backdoor as the evasion evidence pair
+- **Expected Result**: Scanner-clean model that still fires the trigger — quantified evasion with trigger accuracy stats
+
+## TC-AISC-009: MLflow Pipeline Artifact Attack
+
+- **Objective**: Abuse MLflow tracking/artifact storage to achieve RCE on the ML platform
+- **Severity**: CRITICAL
+- **Prerequisites**: Authorized lab MLflow server (unpatched/defaults); network access to its UI/API ports
+- **Test Steps**:
+  1. Enumerate: `curl http://mlflow:5000/api/2.0/mlflow/experiments/search`
+  2. Test path traversal on artifact upload (known MLflow traversal classes): upload `../../../../etc/cron.d/x` artifact
+  3. Alternatively register a malicious MLproject whose entry_point executes on next run
+  4. Trigger execution via the runs API and catch callback
+  5. Document the exact version and configuration that permitted it
+- **Expected Result**: Code execution on the ML platform host via artifact/project abuse, with version pinning evidence
+
+## TC-AISC-010: Kubeflow Workload Compromise
+
+- **Objective**: Compromise a Kubeflow pipeline/workload to run attacker containers with cluster privileges
+- **Severity**: CRITICAL
+- **Prerequisites**: Authorized lab Kubeflow deployment; credentials to a pipeline namespace
+- **Test Steps**:
+  1. Enumerate namespaces and service accounts: `kubectl auth can-i --list -n kubeflow`
+  2. Submit a pipeline step using an attacker-controlled image with serviceaccount mount
+  3. Verify pod execution and SA token access
+  4. Test privilege escalation paths (privileged pods / hostPath) permitted by the PSA policy
+  5. Document cluster-impact boundaries
+- **Expected Result**: Attacker container runs inside the ML cluster with documented service-account privileges — the blast radius of a single compromised pipeline
+

@@ -241,3 +241,34 @@ Reference Payload: Corresponding section in payloads.md
   - [ ] Persistence mechanisms documented for penetration test report
   - [ ] Full attack chain from recon to dominance is demonstrable
 - **Reference**: payloads.md Section 7, Section 9, Section 11 - Domain Dominance
+
+---
+
+### TC-AD009 | Pass-the-Ticket Lateral Movement (Kerberos)
+
+- **Severity**: CRITICAL
+- **Objective**: Use a harvested Kerberos ticket (TGT/TGS) from one host to authenticate to another service without credentials
+- **Prerequisites**: Harvested ticket in ccache/kirbi form (from TC-AD005 DCSync or lsass dump); impacket installed; authorized scope for lateral targets
+- **Test Steps**:
+  1. Load ticket: `export KRB5CCNAME=/tmp/ticket.ccache` (or `Rubeus.exe ptt /ticket:x.kirbi` on Windows)
+  2. Verify ticket validity: `klist`
+  3. Access service as the ticket identity: `psexec.py -k -no-pass DOMAIN/user@target.domain.corp`
+  4. Attempt SMB/WinRM/LDAP access to map the ticket's reach
+  5. Document services accepting the ticket
+- **Expected Results**: Ticket authenticates to services in the domain without password knowledge, mapping lateral reach for the report
+
+---
+
+### TC-AD010 | SYSVOL GPP cpassword Extraction
+
+- **Severity**: HIGH
+- **Objective**: Recover cleartext passwords from Group Policy Preferences stored in SYSVOL
+- **Prerequisites**: Any authenticated domain read access (SYSVOL is world-readable by default); gpp-decrypt available
+- **Test Steps**:
+  1. Locate preference XMLs: `smbclient //DC/SYSVOL -c 'ls; recurse; ls'` or `find /mnt/sysvol -name 'Groups.xml' -o -name 'Services.xml'`
+  2. Extract cpassword fields from the XMLs
+  3. Decrypt: `gpp-decrypt <cpassword>`
+  4. Validate recovered credentials against domain services (authorized targets only)
+  5. Map each credential to its configured purpose (service account, local admin)
+- **Expected Results**: Cleartext passwords recovered from historical GPP artifacts, validated and attributed for remediation
+

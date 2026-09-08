@@ -340,3 +340,66 @@ assert incident.is_overdue() == True  # Day 16 is overdue
 
 - See `SKILL.md` References
 - `guides/eu-ai-act-article-9-deep-dive.md` for clause-by-clause analysis
+
+---
+
+## TC-EUAI-006: Article 13 Transparency Documentation
+
+**Objective**: Verify transparency artifacts exist and are accurate for deployers and end users
+
+**Arrange**: High-risk AI system with intended LLM feature deployed; product docs accessible
+
+**Act**: Compare actual system behavior (from TC-EUAI-003 results) against user-facing disclosures, instructions for use, and confidence/explanation outputs
+
+**Assert**: Every Art. 13 element present and consistent with observed behavior; gaps listed as compliance findings
+
+---
+
+## TC-EUAI-007: Article 14 Human Oversight Effectiveness
+
+**Objective**: Verify overseers can understand, monitor, interpret, and override outputs
+
+**Arrange**: Human-in-the-loop workflow staffed in lab; override mechanism instrumented
+
+**Act**: Present the model with the adversarial failures from TC-EUAI-003; measure whether overseers detect and correctly override, logging override rates
+
+**Assert**: Override mechanism functional; detection rate for known-failure cases documented; unusable overrides flagged
+
+---
+
+## TC-EUAI-008: Article 12 / Annex IV Logging Completeness
+
+**Objective**: Verify automatic event logging captures training, validation, and post-market events
+
+**Arrange**: System with logging configured per Annex IV §2(f)
+
+**Act**: Generate representative events (train run, validation test, production inference, human override) and inspect log capture
+
+**Assert**: All four event classes recorded with timestamps and traceability; any silent gaps are findings
+
+---
+
+## TC-EUAI-009: Article 72 Post-Market Monitoring Loop
+
+**Objective**: Verify the post-market monitoring process closes the loop from telemetry to risk-register update
+
+**Arrange**: Deployed lab system with monitoring hooks and risk register from TC-EUAI-002
+
+**Act**: Inject a production anomaly (degraded accuracy pattern), let the monitoring window elapse, and trace it through detection → re-test → risk register update
+
+**Assert**: Anomaly reaches the risk register with a retest decision inside the documented SLA; broken links identified
+
+---
+
+## TC-EUAI-010: Conformity Assessment Readiness (Notified Body Prep)
+
+**Objective**: Assemble and gap-check the conformity dossier before external assessment
+
+**Arrange**: All artifacts from TC-EUAI-001..009
+
+**Act**: Compile Annex IV file, risk register, test evidence, and declaration draft; run the readiness checklist per article mapping
+
+**Assert**: Dossier complete with traceable evidence per article; outstanding gaps listed with owners and dates
+
+---
+

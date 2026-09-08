@@ -444,3 +444,32 @@ Post-conditions: State after test completion
   - Supply chain risk score calculated for the project
   - Remediation plan with priority order: CRITICAL CVEs first, then HIGH, then license issues
 - **Reference**: payloads.md section 5 (Dependency Audit Commands), TC-SR-006 (Dependency Security Audit)
+
+---
+
+## TC-SR-009: API Security Checklist Review
+
+- **Objective**: Run a structured API-focused review (authn/z, object-level access, rate limits, error handling)
+- **Severity**: MEDIUM
+- **Prerequisites**: API specification (OpenAPI) or endpoint inventory; test credentials at two privilege levels
+- **Test Steps**:
+  1. Extract endpoint × method × role matrix from the spec
+  2. Verify object-level authorization on 10 sampled endpoints with cross-tenant objects (BOLA check)
+  3. Verify function-level authorization for admin endpoints with user tokens
+  4. Check rate limiting and error information leakage per endpoint
+  5. Record findings mapped to the API checklist sections
+- **Expected Result**: Structured API finding set with pass/fail per checklist item and evidence for each failure
+
+## TC-SR-010: Threat Model Validation Review
+
+- **Objective**: Validate that implemented controls match the system's documented threat model assumptions
+- **Severity**: MEDIUM
+- **Prerequisites**: Existing threat model/architecture doc (STRIDE or attack-tree); code/deployment access
+- **Test Steps**:
+  1. Extract the model's assumed controls per threat (e.g., "TLS everywhere", "signed JWTs")
+  2. Verify each assumption against implementation (config + code sampling)
+  3. Identify assumptions with no owner/control ("documented but unimplemented")
+  4. Identify controls contradicting the model (unlisted exposure)
+  5. Deliver delta table: threat × assumed control × actual state
+- **Expected Result**: Threat-model-to-reality delta table highlighting every unimplemented or undocumented control divergence
+

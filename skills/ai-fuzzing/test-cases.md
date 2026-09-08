@@ -404,3 +404,34 @@
   - [ ] At least 1 unique crash found by grammar-aware approach that standard approach missed
   - [ ] Minimized crash input is structurally plausible (passes syntax validation)
   - [ ] Crash root cause traced to semantic processing logic, not syntax parsing
+
+---
+
+### TC-AF-009 | Honggfuzz Persistent-Mode Fuzzing
+
+- **Severity**: MEDIUM
+- **Objective**: Exercise a network service parser with honggfuzz persistent mode for high-throughput stateful fuzzing
+- **Prerequisites**: honggfuzz installed; target service with a persistent-mode harness compiled (`HFND_PERSISTENT` symbols) or accepted socket input
+- **Test Steps**:
+  1. Build/prepare the persistent harness: wrap the packet-parse entry point with `HF_ITER` input injection
+  2. Seed corpus: capture 20 valid protocol exchanges to files
+  3. Launch: `honggfuzz -i seeds/ -P -n 4 -- ./harness`
+  4. Run 30 minutes; monitor exec/s and coverage feedback (`--display_stats`)
+  5. Triage unique crashes with the reproducer files
+- **Expected Results**: Sustained exec/s 5-10x non-persistent mode, with any parser crashes minimized and severity-classified
+
+---
+
+### TC-AF-010 | Target Attack-Surface Analysis and Seed Corpus Curation
+
+- **Severity**: LOW
+- **Objective**: Systematically map a fuzzing target's input surface and build a high-value seed corpus before execution
+- **Prerequisites**: Target binary/service source or docs; coverage build (sanitizer+gcov) available
+- **Test Steps**:
+  1. Enumerate input entry points (argv, files, sockets, env) and rank by parse complexity
+  2. Collect seeds: valid files/traffic from docs, unit tests, prior captures
+  3. Minimize: `afl-cmin -i seeds_raw -o seeds` with coverage dedup
+  4. Profile coverage per seed on the instrumented build; drop seeds adding <1% blocks
+  5. Document corpus stats (count, size distribution, coverage baseline)
+- **Expected Results**: Curated corpus with documented coverage baseline — the measurable starting point for all subsequent fuzzing campaigns
+

@@ -233,3 +233,19 @@
 **Remediation**: If evidence files are missing or empty, document the gap and attempt recovery from logs. If findings are incomplete, supplement with additional analysis. If scope violations are found, document and notify client per rules of engagement. If report has placeholders, complete them before delivery.
 
 **Pass Criteria**: 100% of evidence files pass validation. 100% of findings have all required fields. Zero scope violations detected. Report has zero placeholder text. Evidence checksums match original values. Drift detection shows no configuration changes. QA review documented and archived.
+
+---
+
+## TC-EM-010: Post-Engagement Lessons-Learned and Metrics Capture
+
+- **Objective**: Close the engagement with a structured retrospective feeding the knowledge base and next scoping
+- **Severity**: LOW
+- **Prerequisites**: Completed engagement with findings, timeline, and time tracking available
+- **Test Steps**:
+  1. Collect metrics: findings per severity, dwell/verification time, scope creep events, tool gaps
+  2. Run a 30-minute retrospective: what worked, what blocked, what to automate
+  3. Convert outcomes into checklist/check updates (test-cases, payloads)
+  4. Archive sanitized lessons to the knowledge base (chronicle/memory per repo conventions)
+  5. Update the scoping model with actual-vs-estimated hours
+- **Expected Result**: Retrospective record with metric set archived; at least one checklist/tooling improvement committed
+

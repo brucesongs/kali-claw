@@ -91,3 +91,45 @@
 
 5 test cases covering reconnaissance, exploitation, persistence, detection, and defense bypass.
 """
+
+---
+
+## TC-006: SAML Signature Wrapping (XSW) Attack
+
+- **Objective**: Bypass SAML assertion signature verification via signature-wrapping transformations
+- **Severity**: HIGH
+- **Prerequisites**: SP with SAML SSO in scope; a captured signed assertion; XSW tooling (SAML Raider / Burp)
+- **Test Steps**:
+  1. Capture a valid signed assertion via the lab IdP login
+  2. Apply XSW variants 1-8 (SAML Raider): clone the assertion, modify NameID, reposition SignatureValue references
+  3. Replay each wrapped response to the SP ACS endpoint
+  4. Record which variant authenticates as the forged identity
+  5. Confirm root cause (signature applied to original assertion node only)
+- **Expected Result**: At least one XSW variant authenticates as the forged user, or all variants rejected with signature-reference validation verified
+
+## TC-007: OAuth Mix-Up / Token Substitution
+
+- **Objective**: Confuse an OAuth client about which IdP issued a token, replaying one IdP's token against another
+- **Severity**: HIGH
+- **Prerequisites**: Client registered with multiple IdPs (lab); valid tokens from both
+- **Test Steps**:
+  1. Obtain token A from IdP-1 for victim account
+  2. Initiate flow against IdP-2 but submit token A at the token-validation step
+  3. Observe whether the client accepts the foreign token and mints a session
+  4. If accepted, test privilege implications (victim identity binding)
+  5. Verify `azp`/`iss` claim validation as the missing control
+- **Expected Result**: Foreign-token acceptance mints an authenticated session (mix-up confirmed) or all cross-IdP substitutions rejected
+
+## TC-008: IdP Metadata Injection
+
+- **Objective**: Poison SP trust in the IdP by injecting attacker-controlled metadata (entity ID / endpoint)
+- **Severity**: HIGH
+- **Prerequisites**: SP consuming IdP metadata (URL or file) in a lab; write access to a metadata source the SP refreshes
+- **Test Steps**:
+  1. Register/modify metadata: point AssertionConsumerService or SingleSignOnService to attacker endpoints
+  2. Trigger SP metadata refresh (TTL expiry or forced reload)
+  3. Initiate SSO: SP redirects to attacker-controlled endpoint
+  4. Return a forged assertion signed by the attacker key from the injected metadata
+  5. Verify session minting
+- **Expected Result**: SP follows the injected metadata and accepts the forged assertion — full IdP impersonation via trust-anchor poisoning
+
