@@ -5,9 +5,9 @@
 
 ---
 
-## Test Case 1: OS Command Injection with Space Filter Bypass
+## TC-CI-001: OS Command Injection with Space Filter Bypass
 
-**Test ID**: CI-ADV-001  
+**Test ID**: TC-CI-001  
 **Severity**: CRITICAL  
 **Category**: OS Command Injection  
 **CyberGym Bug Class**: IN1, IN2
@@ -59,9 +59,9 @@ Test command injection in a network utility (ping, traceroute) that filters spac
 
 ---
 
-## Test Case 2: LDAP Injection Authentication Bypass
+## TC-CI-002: LDAP Injection Authentication Bypass
 
-**Test ID**: CI-ADV-002  
+**Test ID**: TC-CI-002  
 **Severity**: CRITICAL  
 **Category**: LDAP Injection  
 **CyberGym Bug Class**: IN3
@@ -112,9 +112,9 @@ Test LDAP authentication bypass via filter manipulation.
 
 ---
 
-## Test Case 3: NoSQL Injection in MongoDB API
+## TC-CI-003: NoSQL Injection in MongoDB API
 
-**Test ID**: CI-ADV-003  
+**Test ID**: TC-CI-003  
 **Severity**: CRITICAL  
 **Category**: NoSQL Injection  
 **CyberGym Bug Class**: IN4
@@ -165,9 +165,9 @@ Test MongoDB operator injection for authentication bypass.
 
 ---
 
-## Test Case 4: Jinja2 SSTI RCE
+## TC-CI-004: Jinja2 SSTI RCE
 
-**Test ID**: CI-ADV-004  
+**Test ID**: TC-CI-004  
 **Severity**: CRITICAL  
 **Category**: Server-Side Template Injection  
 **CyberGym Bug Class**: IN1
@@ -220,9 +220,9 @@ Test Jinja2 template injection for remote code execution.
 
 ---
 
-## Test Case 5: XPath Injection Data Extraction
+## TC-CI-005: XPath Injection Data Extraction
 
-**Test ID**: CI-ADV-005  
+**Test ID**: TC-CI-005  
 **Severity**: HIGH  
 **Category**: XPath Injection  
 **CyberGym Bug Class**: IN3
@@ -270,9 +270,9 @@ Test XPath injection for authentication bypass and blind data extraction.
 
 ---
 
-## Test Case 6: Template Engine Exploitation (Multi-Engine)
+## TC-CI-006: Template Engine Exploitation (Multi-Engine)
 
-**Test ID**: CI-ADV-006  
+**Test ID**: TC-CI-006  
 **Severity**: CRITICAL  
 **Category**: Server-Side Template Injection  
 **CyberGym Bug Class**: IN1, IN2
@@ -368,3 +368,126 @@ Test template injection across multiple engines with automated detection.
 - **Burp Suite**: Commercial (Community edition free)
 
 *These test cases provide structured procedures for advanced injection testing without including specific exploit payloads.*
+
+---
+
+## TC-CI-007: Blind OS Command Injection via Time-Based Delay
+
+**Test ID**: TC-CI-007  
+**Severity**: HIGH  
+**Category**: Blind Command Injection  
+**CyberGym Bug Class**: IN1
+
+### Description
+Confirm command injection in a parameter with no visible output channel by using time-delay markers and differential response timing.
+
+### Preconditions
+- Target endpoint executes a shell command incorporating user input
+- Response time is measurable and baseline is stable
+
+### Test Steps
+1. Measure baseline response time over 5 requests
+2. Inject a delay payload appropriate to the platform and observe the delta
+3. Repeat with a longer delay to confirm proportionality
+4. Test both separator families and quote contexts around the injection point
+5. Verify a benign payload produces no delay (control case)
+
+### Expected Results
+Response time scales with the injected delay parameter while the control stays at baseline, confirming blind command execution.
+
+### Pass Criteria
+- At least two delay magnitudes reproduce proportionally
+- Control requests show no timing deviation
+- The working separator/quote context is documented for exploitation follow-up
+
+---
+
+## TC-CI-008: Keyword Filter Evasion via Encoding and Obfuscation
+
+**Test ID**: TC-CI-008  
+**Severity**: HIGH  
+**Category**: Filter Bypass  
+**CyberGym Bug Class**: IN2
+
+### Description
+Bypass deny-list keyword filters (blocked command names, separators) using encodings, wildcards, and variable indirection.
+
+### Preconditions
+- Target blocks obvious command keywords or separators
+- Command output (or timing channel) is observable from TC-CI-007
+
+### Test Steps
+1. Map the filter: probe blocked keywords and separators with a marker payload
+2. Try wildcard indirection for blocked command names
+3. Try encoding layers where the target decodes them
+4. Try variable/quote indirection for blocked operators
+5. Chain the best bypass with the delay marker to confirm execution
+
+### Expected Results
+At least one obfuscation family reaches execution despite the deny list, demonstrating the filter is not allow-list based.
+
+### Pass Criteria
+- Working bypass payload documented with its filter class
+- Evidence that the filter is deny-list (bypass succeeded) vs allow-list (bypass failed — negative result recorded)
+
+---
+
+## TC-CI-009: Argument Injection in File-Handling Features
+
+**Test ID**: TC-CI-009  
+**Severity**: HIGH  
+**Category**: Context-Specific Injection  
+**CyberGym Bug Class**: IN1
+
+### Description
+Detect argument injection where user input is passed as an argument (not via shell) to a binary that treats specially-crafted arguments as options or subcommands.
+
+### Preconditions
+- Feature invokes an external binary (document viewer, archive tool, media player) with a user-controlled filename or argument
+- Shell metacharacter injection has been ruled out (no separators execute)
+
+### Test Steps
+1. Confirm the base feature works with a benign filename
+2. Probe with a leading option-marker payload to trigger distinct behavior
+3. Test subcommand-style arguments for tools with interpreter modes
+4. Probe the escape-to-shell argument where the tool supports it
+5. Verify impact (file read, shell spawn) with a safe marker
+
+### Expected Results
+Option-marker or subcommand arguments change program behavior, proving user input reaches the argument vector of the invoked binary.
+
+### Pass Criteria
+- One concrete argument-level effect demonstrated (distinct from shell injection)
+- The invoked binary and working argument family documented
+
+---
+
+## TC-CI-010: Out-of-Band (OOB) Command Execution Confirmation
+
+**Test ID**: TC-CI-010  
+**Severity**: HIGH  
+**Category**: Blind Command Injection  
+**CyberGym Bug Class**: IN1
+
+### Description
+Confirm blind command injection and exfiltrate command output through an out-of-band DNS/HTTP channel when no in-band response exists.
+
+### Preconditions
+- Authorized engagement scope permits callbacks to attacker-controlled infrastructure
+- Interactable domain or HTTP listener available
+- Injection point strongly suspected from prior probing
+
+### Test Steps
+1. Inject a DNS-resolution payload targeting the callback domain
+2. Confirm the callback arrives (resolver log or listener hit)
+3. Wrap a command substitution into the subdomain to exfiltrate short outputs
+4. For chunked output, use an HTTP listener payload
+5. Record the callback timeline as evidence
+
+### Expected Results
+Callbacks arrive carrying command output in subdomains or HTTP paths, giving both confirmation and a primitive output channel.
+
+### Pass Criteria
+- At least one callback correlated in time with the injected request
+- Output exfiltration of a marker value demonstrated
+- Callback domain and payload family documented for the report
