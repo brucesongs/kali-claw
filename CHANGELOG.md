@@ -2,6 +2,19 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.4 (2026-09-09) — Q4 工具基线提前 🧰
+
+### KALI_TOOLS_BASELINE_2026_09 + 漂移检查自动化
+
+- **0 新 MAJOR**（安静月份）；上次 6 个 MAJOR 复查全稳定，v0.2.4 修复 0 回归；11 个 MINOR/PATCH；~115 rolling
+- 关闭 08 基线 Trivy 行动项：3 处 `trivy-action@master` 固定为 release tag（CVE-2026-33634 打击模式）
+- 新增 `validation/check-tool-versions.py`（08 改进项 #1 落地）：在线 apt/--version 探测 + 离线清单 + --json
+- 文档型 patch（v0.2.3.1 先例）：SKILL 修改仅 3 行；lint 0/0/139
+
+详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)
+
+---
+
 ## v0.3.3 (2026-09-08) — TC 薄类清偿 & backlog 归零 🧪🏁
 
 ### 88 条新 TC + 全仓评估文档 truth-sync → 非策略 open findings = 0

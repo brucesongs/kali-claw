@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.3 (2026-09-08) — **TC 清偿 & backlog 归零**（88 条新 TC；truth-sync 全仓重算；非策略 open findings = 0；skill-lint 0/0/139）。详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)。
+> **Current Version**: v0.3.4 (2026-09-09) — **Q4 工具基线提前**（2026_09 基线：0 新 MAJOR；Trivy 行动项关闭；check-tool-versions.py；skill-lint 0/0/139）。详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)。
 
 ---
 
@@ -148,4 +148,4 @@ See `SKILL_REMEDIATION_LIST.json` for per-SKILL status and `PHASE2_PROGRESS.md` 
 
 ---
 
-_Last updated: 2026-09-08 (v0.3.3)
+_Last updated: 2026-09-09 (v0.3.4)

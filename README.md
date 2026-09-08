@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.3** (2026-09-08) — **TC 薄类清偿 & backlog 归零**（88 条新 TC；全仓评估文档 truth-sync；非策略 open findings = 0；skill-lint 0/0/139）。详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)。
+> **Current Version**: **v0.3.4** (2026-09-09) — **Q4 工具基线提前**（2026_09 基线：0 新 MAJOR、Trivy 行动项关闭、check-tool-versions.py 自动化；skill-lint 0/0/139）。详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)。
 
 ---
 
@@ -394,6 +394,7 @@ TOOLS.md:
 | **v0.3.1** | **2026-09-05** | **Poor 技能清偿** 📈 | P3 首批：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77 —— Poor 清零；pqi TC 5→10；两个薄 payloads 重建（87→347 / 86→313，占位垃圾清除）；20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）；lint 0/0/139 ✅. See [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md) |
 | **v0.3.2** | **2026-09-07** | **0-CVE 批量清偿** 📦 | 62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展剔除关键词噪声）、14 个 meta 域策略关闭；61 技能重评，仓库均分 74.4→**81.1**，无 Poor；Wave 1-3 评估文档统一现行格式；lint 0/0/139 ✅. See [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md) |
 | **v0.3.3** | **2026-09-08** | **TC 清偿 & backlog 归零** 🧪🏁 | 88 条新 TC（34 技能补齐至 10 + command-injection 计数修复 + council 修正）；9 豁免 meta 策略关闭；全仓 139 评估文档 truth-sync 重算（清除 ~85 行陈旧 finding）——**非策略 open findings = 0**；lint 0/0/139 ✅. See [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md) |
+| **v0.3.4** | **2026-09-09** | **Q4 工具基线提前** 🧰 | KALI_TOOLS_BASELINE_2026_09（0 新 MAJOR、上次 6 个复查 0 回归、11 MINOR/PATCH）；Trivy 行动项关闭（3 处 @master 固定，CVE-2026-33634）；新增 validation/check-tool-versions.py（08 改进项 #1）；lint 0/0/139 ✅. See [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

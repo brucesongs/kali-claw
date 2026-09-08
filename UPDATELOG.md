@@ -1,3 +1,16 @@
+# kali-claw v0.3.4 — Q4 工具基线提前 🧰
+
+*Generated: 2026-09-09 | Version: v0.3.3 → v0.3.4 | Focus: Early Q4 tool baseline + drift automation*
+
+---
+
+2026_09 基线：0 新 MAJOR、11 MINOR/PATCH、上次 6 个 MAJOR 复查 0 回归；Trivy 行动项关闭（3 处 @master 固定）；
+新增 validation/check-tool-versions.py（在线探测/离线清单/--json）。lint 0/0/139 ✅
+
+详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)
+
+---
+
 # kali-claw v0.3.3 — TC 薄类清偿 & backlog 归零 🧪🏁
 
 *Generated: 2026-09-08 | Version: v0.3.2 → v0.3.3 | Focus: TC-thin clearance + assessment truth-sync*
