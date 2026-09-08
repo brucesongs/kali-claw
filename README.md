@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.2** (2026-09-07) — **0-CVE 批量清偿**（47 技能补 208 个 NVD 核验 CVE、14 域策略关闭；仓库均分 81.1；skill-lint 0/0/139）。详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)。
+> **Current Version**: **v0.3.3** (2026-09-08) — **TC 薄类清偿 & backlog 归零**（88 条新 TC；全仓评估文档 truth-sync；非策略 open findings = 0；skill-lint 0/0/139）。详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)。
 
 ---
 
@@ -393,6 +393,7 @@ TOOLS.md:
 | **v0.3.0** | **2026-09-04** | **PQC 实现层攻击域** 🆕 | 新域 pqc-implementation-attack（77/100 出厂，0 P1/P2）：KyberSlash 时序/单迹 SCA/故障注入/RNG 缺陷/Kyber 勒索软件分诊；退役 59 分薄壳 quantum-cryptography-transition（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账；SKILL 数 139 不变 ✅. See [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md) |
 | **v0.3.1** | **2026-09-05** | **Poor 技能清偿** 📈 | P3 首批：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77 —— Poor 清零；pqi TC 5→10；两个薄 payloads 重建（87→347 / 86→313，占位垃圾清除）；20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）；lint 0/0/139 ✅. See [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md) |
 | **v0.3.2** | **2026-09-07** | **0-CVE 批量清偿** 📦 | 62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展剔除关键词噪声）、14 个 meta 域策略关闭；61 技能重评，仓库均分 74.4→**81.1**，无 Poor；Wave 1-3 评估文档统一现行格式；lint 0/0/139 ✅. See [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md) |
+| **v0.3.3** | **2026-09-08** | **TC 清偿 & backlog 归零** 🧪🏁 | 88 条新 TC（34 技能补齐至 10 + command-injection 计数修复 + council 修正）；9 豁免 meta 策略关闭；全仓 139 评估文档 truth-sync 重算（清除 ~85 行陈旧 finding）——**非策略 open findings = 0**；lint 0/0/139 ✅. See [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

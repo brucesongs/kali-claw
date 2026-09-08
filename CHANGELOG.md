@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.3 (2026-09-08) — TC 薄类清偿 & backlog 归零 🧪🏁
+
+### 88 条新 TC + 全仓评估文档 truth-sync → 非策略 open findings = 0
+
+- 34 个技术技能 TC 精确补到 10（三批：Web/注入 +22、网络/IoT +28、AI/平台 +32），选题全部来自 payloads 主题缺口
+- command-injection-advanced 计数口径修复（旧 `Test Case N` 头归一 + 4 条新用例）
+- 9 个豁免 meta 策略关闭；council 曾误归豁免——实补 2 条 TC 修正
+- Truth-sync：DoD 验证发现 ~85 行陈旧/失真 finding 残留 → 139 个评估文档全部按活体指标重算
+- **评估 backlog（P1/P2/P3 非策略）全仓归零**；lint 0/0/139；testcase warning 17→16
+
+详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)
+
+---
+
 ## v0.3.2 (2026-09-07) — 0-CVE 批量清偿 📦
 
 ### 62 个 0-CVE 技能一次性处理（47 补 CVE / 14 策略关闭 / 1 既保留）

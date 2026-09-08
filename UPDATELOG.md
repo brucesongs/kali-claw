@@ -1,3 +1,17 @@
+# kali-claw v0.3.3 — TC 薄类清偿 & backlog 归零 🧪🏁
+
+*Generated: 2026-09-08 | Version: v0.3.2 → v0.3.3 | Focus: TC-thin clearance + assessment truth-sync*
+
+---
+
+88 条新 TC（34 技能补齐 + 计数修复）；9 个豁免 meta 策略关闭；
+全仓 139 个评估文档 truth-sync 重算 —— **非策略 open findings = 0，评估 backlog 归零** 🏁
+lint 0/0/139 ✅
+
+详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)
+
+---
+
 # kali-claw v0.3.2 — 0-CVE 批量清偿 📦
 
 *Generated: 2026-09-07 | Version: v0.3.1 → v0.3.2 | Focus: 0-CVE P3 batch clearance*
