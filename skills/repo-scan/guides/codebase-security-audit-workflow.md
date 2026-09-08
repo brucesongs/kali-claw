@@ -560,7 +560,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Trivy Vulnerability Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.78.2  # pin release tag, verify SHA before bumping (CVE-2026-33634)
         with:
           scan-type: 'fs'
           severity: 'HIGH,CRITICAL'
