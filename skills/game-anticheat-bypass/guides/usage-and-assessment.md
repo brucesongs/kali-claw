@@ -1,31 +1,33 @@
 # game-anticheat-bypass — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-08-17 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **85/100 (Excellent)** | **Wave 3** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **80/100 (Excellent)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
-| 2. Content Completeness | **5** | payloads 2168 + TC 223 + 1 guides; 10 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
-| 4. References | **5** | 2 URLs + 3 CVEs |
-| 5. MITRE/OWASP Alignment | **3** | 2 ATT&CK T-codes |
-| 6. Usability | **5** | 10 H2 + 14 H3 structure |
-| **Weighted Total** | **85/100** | **Excellent** |
+| 2. Content Completeness | **4** | payloads 2168 + TC 223 + 2 guides; 10 H2 |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
+| 4. References | **4** | 10 URLs + 4 CVEs |
+| 5. MITRE/OWASP Alignment | **5** | 12 ATT&CK T-codes |
+| 6. Usability | **3** | 10 H2 + 14 H3 structure |
+| **Weighted Total** | **80/100** | **Excellent** |
 
 ## Findings
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-GAM-002 | P2 | URLs too few (2) | Add references |
+| — | — | No open findings | — |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 3 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-08-17/lint.json](../evidence/2026-08-17/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

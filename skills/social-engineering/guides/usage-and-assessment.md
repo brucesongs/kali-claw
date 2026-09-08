@@ -1,7 +1,7 @@
 # social-engineering — Usage Instructions & Capability Assessment
 
 > **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
-> **Overall Score**: **77/100 (Good)** | **Re-assessment (v0.3.3)** — TC-thin clearance batch (was 77/100 on 2026-09-04)
+> **Overall Score**: **77/100 (Good)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
@@ -19,11 +19,13 @@
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| — | — | No open findings | — |
+| F-SOCI-003 | P3 (closed by policy) | 0 CVEs — no applicable CVE class for this meta/activity domain | N/A |
 
 ## Re-assessment Note
 
-v0.3.3 batch re-assessment (TC-thin P3 clearance). All P3 classes cleared; assessment backlog empty.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
 Prior evidence directories are preserved.
 
 ## Validation Evidence

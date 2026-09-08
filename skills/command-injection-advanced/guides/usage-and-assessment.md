@@ -1,7 +1,7 @@
 # command-injection-advanced — Usage Instructions & Capability Assessment
 
 > **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
-> **Overall Score**: **80/100 (Excellent)** | **Re-assessment (v0.3.3)** — TC header normalization + expansion
+> **Overall Score**: **80/100 (Excellent)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
@@ -21,16 +21,12 @@
 |----|----------|-------------|-----|
 | — | — | No open findings | — |
 
-### Closed in v0.3.3
-
-| ID | Was | Resolution |
-|----|-----|------------|
-| F-COMM-004 | P3 (TC coverage thin — counting artifact, legacy headers) | ✅ Headers normalized to TC-CI-nnn + 4 new cases (blind time-based, filter evasion, argument injection, OOB) — 10 countable TCs |
-
 ## Re-assessment Note
 
-v0.3.3: legacy 'Test Case N' headers normalized; the 0-TC finding was a
-counting artifact over healthy content. Prior evidence preserved.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 

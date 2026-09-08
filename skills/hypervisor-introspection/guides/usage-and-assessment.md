@@ -1,29 +1,33 @@
 # hypervisor-introspection — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-08-17 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **91/100 (Excellent)** | **Wave 3** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **89/100 (Excellent)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
-| 2. Content Completeness | **5** | payloads 2223 + TC 267 + 1 guides; 26 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
-| 4. References | **5** | 9 URLs + 12 CVEs |
+| 2. Content Completeness | **4** | payloads 2223 + TC 267 + 2 guides; 26 H2 |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
+| 4. References | **5** | 52 URLs + 50 CVEs |
 | 5. MITRE/OWASP Alignment | **5** | 12 ATT&CK T-codes |
 | 6. Usability | **5** | 26 H2 + 17 H3 structure |
-| **Weighted Total** | **91/100** | **Excellent** |
+| **Weighted Total** | **89/100** | **Excellent** |
 
 ## Findings
 
-No significant findings.
+| ID | Priority | Description | Fix |
+|----|----------|-------------|-----|
+| — | — | No open findings | — |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 3 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-08-17/lint.json](../evidence/2026-08-17/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

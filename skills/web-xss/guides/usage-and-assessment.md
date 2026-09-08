@@ -1,7 +1,7 @@
 # web-xss — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-09-04 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **77/100 (Good)** | **Wave 7** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **77/100 (Good)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
@@ -9,7 +9,7 @@
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
 | 2. Content Completeness | **4** | payloads 1086 + TC 244 + 9 guides; 19 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
 | 4. References | **5** | 202 URLs + 5 CVEs |
 | 5. MITRE/OWASP Alignment | **2** | 1 ATT&CK T-codes |
 | 6. Usability | **4** | 19 H2 + 17 H3 structure |
@@ -19,13 +19,15 @@
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| — | — | No findings | — |
+| — | — | No open findings | — |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 7 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-09-04/lint.json](../evidence/2026-09-04/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

@@ -1,7 +1,7 @@
 # codebase-onboarding — Usage Instructions & Capability Assessment
 
 > **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
-> **Overall Score**: **65/100 (Fair)** | **Re-assessment (v0.3.3)** — TC-thin clearance batch (was 65/100 on 2026-09-04)
+> **Overall Score**: **65/100 (Fair)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
@@ -23,7 +23,9 @@
 
 ## Re-assessment Note
 
-v0.3.3 batch re-assessment (TC-thin P3 clearance). Non-attack meta skill: ATT&CK/CVE/TC thresholds closed by policy where N/A.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. Non-attack meta skill: N/A classes closed by policy.
 Prior evidence directories are preserved.
 
 ## Validation Evidence

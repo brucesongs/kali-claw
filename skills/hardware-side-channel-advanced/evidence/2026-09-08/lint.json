@@ -1,0 +1,16 @@
+{
+  "total_skills": 1,
+  "passed": 1,
+  "failed": 0,
+  "total_errors": 0,
+  "total_warnings": 0,
+  "reports": [
+    {
+      "skill": "hardware-side-channel-advanced",
+      "passed": true,
+      "errors": 0,
+      "warnings": 0,
+      "findings": []
+    }
+  ]
+}

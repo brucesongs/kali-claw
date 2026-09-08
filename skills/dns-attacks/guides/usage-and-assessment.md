@@ -1,39 +1,33 @@
 # dns-attacks — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-08-17 | **Reviewer**: Claude | **Version**: v0.2.0.2
-> **Overall Score**: **72/100 (Good)** | **Findings**: **P1**:1 P2:1
-> **Wave 2** | Practical validation: ✅
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **89/100 (Excellent)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
-| 1. Compliance | **5** | 0/0 |
-| 2. Content Completeness | **5** | payloads 2430 + TC 148 + **8 guides**; 19 H2 |
-| 3. Command Syntax (validated) | **4** | dig/nslookup/host/dnswalk/fierce 全部可用 ✅ |
-| 4. References | **2** | **5 URLs; 0 CVEs**（偏少） |
-| 5. MITRE/OWASP Alignment | **2** | **0 ATT&CK T-codes** ⚠️ |
-| 6. Usability | **4** | 19 节覆盖全面（缓存投毒/DNSSEC/隧道/域传送） |
-| **Weighted Total** | **72/100** | **Good** |
+| 1. Compliance | **5** | 0 errors / warnings |
+| 2. Content Completeness | **5** | payloads 2463 + TC 175 + 9 guides; 19 H2 |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
+| 4. References | **5** | 124 URLs + 12 CVEs |
+| 5. MITRE/OWASP Alignment | **5** | 9 ATT&CK T-codes |
+| 6. Usability | **4** | 19 H2 + 14 H3 structure |
+| **Weighted Total** | **89/100** | **Excellent** |
 
-## Practical Validation (2026-08-17)
-
-DNS 查询 + DNSSEC 检查 + 缓存投毒模式 + 子域枚举（dig/fierce 可用）
-
-## Findings & Priorities
+## Findings
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-DNS-001 | **P1** | **0 ATT&CK T-codes** | 加 T1071.004 DNS / T1584.002 DNS Server / T1090.001 Internal Proxy |
-| F-DNS-002 | P2 | URLs 少（5）+ 0 CVEs | 补 DNSFlagDay / Kaminsky CVE / BIND CVE |
+| — | — | No open findings | — |
 
+## Re-assessment Note
+
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-08-17/lint.json](../evidence/2026-08-17/lint.json)
-- Kali VM: parallels@10.211.55.5
-
-## Reviewer Sign-off
-
-- Reviewer: Claude (Wave 2)
-- Approved by: _______________ Date: _______
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

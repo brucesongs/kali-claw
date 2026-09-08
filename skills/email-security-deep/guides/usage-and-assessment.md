@@ -1,31 +1,33 @@
 # email-security-deep — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-08-17 | **Reviewer**: Claude (batch) | **Version**: v0.2.0.2
-> **Overall Score**: **82/100 (Excellent)** | **Wave 3** (batch assessment, no practical validation)
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **83/100 (Excellent)** | **Re-assessment (v0.3.3)** — assessment-doc truth sync
 
 ## Quick Assessment Dashboard
 
 | Dimension | Score | Rationale |
 |-----------|-------|-----------|
 | 1. Compliance | **5** | 0 errors / warnings |
-| 2. Content Completeness | **5** | payloads 1870 + TC 281 + 3 guides; 15 H2 |
-| 3. Command Syntax | **3** | Batch assessment — tool availability varies by domain |
-| 4. References | **4** | 22 URLs + 0 CVEs |
+| 2. Content Completeness | **4** | payloads 1870 + TC 281 + 4 guides; 15 H2 |
+| 3. Command Syntax | **3** | Batch re-assessment — tool availability varies by domain |
+| 4. References | **5** | 108 URLs + 2 CVEs |
 | 5. MITRE/OWASP Alignment | **4** | 3 ATT&CK T-codes |
 | 6. Usability | **4** | 15 H2 + 23 H3 structure |
-| **Weighted Total** | **82/100** | **Excellent** |
+| **Weighted Total** | **83/100** | **Excellent** |
 
 ## Findings
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-EMA-003 | P3 | 0 CVEs | Add known CVEs |
+| — | — | No open findings | — |
 
-## Batch Assessment Note
+## Re-assessment Note
 
-This is a Wave 3 batch assessment (no per-SKILL practical validation).
-For full practical validation, see Wave 1/2 methodology.
+v0.3.3 truth sync: this document regenerated from live metrics — legacy
+wave-era finding rows that described already-fixed conditions are closed
+by this recompute. All classes at or above threshold.
+Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-08-17/lint.json](../evidence/2026-08-17/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

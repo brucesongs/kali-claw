@@ -748,3 +748,31 @@ THEN: output:
 - [ ] Devil's advocate rotation generated insights not previously discussed
 - [ ] Bias incidents documented with specific examples of biased reasoning
 - [ ] Final report includes bias detection section alongside findings
+
+---
+
+## TC-CL-009: Council Decision Record Integrity and Traceability
+
+- **Objective**: Verify every council output is captured in the decision-record format with traceable rationale
+- **Severity**: MEDIUM
+- **Prerequisites**: Council session run on a mixed web+cloud engagement; decision-record template from payloads.md
+- **Test Steps**:
+  1. Run a council session on a lab finding set with at least two contested items
+  2. Capture the decision record: metadata, context, options analyzed, dissent, final call
+  3. Verify each contested item records minority opinion verbatim
+  4. Reconstruct the decision path from the record alone (blind reviewer test)
+- **Expected Results**: A blind reviewer reconstructs the council's decision and rationale from the record with no external context — traceability confirmed
+
+---
+
+## TC-CL-010: Perspective Coverage Completeness (Attacker/Defender/Auditor)
+
+- **Objective**: Verify council sessions draw on all three perspective checklists and flag their absence when a domain makes one irrelevant
+- **Severity**: LOW
+- **Prerequisites**: Three checklist templates from payloads.md; two lab scenarios (one where defender perspective is dominant, one attacker)
+- **Test Steps**:
+  1. Run session A (incident-response scenario) capturing which checklist items each perspective contributed
+  2. Run session B (external pentest scenario) identically
+  3. Score coverage: fraction of applicable checklist items touched per perspective
+  4. Flag perspectives that contributed <30% of applicable items
+- **Expected Results**: Coverage scores per perspective per scenario documented; dominant-perspective shift between scenarios observed (defender-heavy in A, attacker-heavy in B) — the multi-perspective mechanism functioning
