@@ -256,3 +256,30 @@ Reference Payload: Corresponding section in payloads.md
 | F. Exchange Exploitation | 1 | 1 | 0 | 0 | 0 |
 | G. TLS Testing | 1 | 0 | 1 | 0 | 0 |
 | **Total** | **8** | **4** | **4** | **0** | **0** |
+
+---
+
+### TC-E009 | DMARC Policy Analysis and Bypass Testing
+
+- **Severity**: MEDIUM
+- **Prerequisites**: Target domain with SPF and DKIM results known from TC-E004/E005; DNS lookup access
+- **Test Steps**:
+  1. Fetch policy: `dig TXT _dmarc.target.com +short`
+  2. Parse p= (none/quarantine/reject), pct=, alignment (aspf/adkim) modes
+  3. Test pct evasion: send N=10 spoofed messages and count inbox vs quarantine rates where pct<100
+  4. Test relaxed-alignment abuse: spoof a sibling subdomain that aligns under relaxed mode
+  5. Verify reporting (rua=) presence as detection signal for defenders
+- **Expected Results**: DMARC enforcement gaps quantified: pct bypass rate measured and alignment weakness demonstrated with spoofed deliveries
+
+### TC-E010 | Mail Server Fingerprinting and Version Probing
+
+- **Severity**: LOW
+- **Prerequisites**: SMTP/IMAP/POP3 ports reachable in authorized scope
+- **Test Steps**:
+  1. Banner grab: `nc TARGET 25` and record the greeting (Postfix/Exim/Exchange + version)
+  2. Capability probes: `swaks --server TARGET --quit-after EHLO` to list ESMTP extensions (STARTTLS, AUTH types, SIZE)
+  3. IMAP/POP3 banners: `nc TARGET 143`; TLS ports via `openssl s_client -connect TARGET:993`
+  4. Map versions to known CVEs for the identified product/version pair
+  5. Passive confirm via `nmap -sV -p 25,143,993 TARGET`
+- **Expected Results**: Precise product/version/capability profile of the mail stack produced, mapped to the known-CVE list for exploitation planning
+

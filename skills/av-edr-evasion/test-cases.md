@@ -147,3 +147,30 @@
 - **Expected Results** | LOLBin techniques evade static file-based detection because the downloaded content is executed by trusted system binaries; at least one LOLBin technique bypasses real-time protection; detection is lower than direct executable execution
 - **Remediation** | Deploy application allowlisting (AppLocker/WDAC); monitor certutil, mshta, and msiexec for network connections to external IPs; enable AMSI for script content scanning; restrict LOLBin execution via Group Policy
 - **Pass Criteria** | At least one LOLBin technique successfully downloads and executes payload without AV quarantine; LOLBin detection rate is lower than direct execution; network-level detection opportunities are documented
+
+---
+
+### TC-AV-009: Direct Syscall Payload via SysWhispers2
+
+| Field | Value |
+|------|------|
+| **ID** | TC-AV-009 |
+| **Name** | Direct Syscall Payload via SysWhispers2 |
+| **Category** | E. Evasion Techniques |
+| **Severity** | HIGH |
+| **Prerequisites** | Kali build environment with SysWhispers2 and mingw; target endpoint with user-land API hooking EDR (identified via prior hook enumeration) |
+| **Test Steps** | 1. Generate syscall stubs: `python3 syswhispers.py --preset common -o syscalls`<br>2. Compile the implant calling NtAllocateVirtualMemory/NtWriteVirtualMemory/NtCreateThreadEx via stubs instead of kernel32 exports: `x86_64-w64-mingw32-gcc implant.c syscalls.c -o implant.exe`<br>3. Execute on target and verify the process operation succeeds while API monitors log nothing<br>4. Compare against a Win32-API build to document EDR detection delta |
+| **Expected Results** | Direct-syscall build completes the injection chain with no user-land hook events, evading API-hooking defenses |
+
+### TC-AV-010: Sleep Obfuscation with Timed Callbacks (Ekko-style)
+
+| Field | Value |
+|------|------|
+| **ID** | TC-AV-010 |
+| **Name** | Sleep Obfuscation with Timed Callbacks (Ekko-style) |
+| **Category** | E. Evasion Techniques |
+| **Severity** | HIGH |
+| **Prerequisites** | C2 implant source buildable on Kali; target memory-scanning EDR; authorized lab endpoint |
+| **Test Steps** | 1. Implement timer-based sleep encryption: on sleep, use timer-queue callbacks to encrypt the implant's `.text` via SystemFunction032 (RC4) with flushed VF page state<br>2. Wake handler decrypts before resuming<br>3. Run the implant and take 3 memory snapshots at sleep vs wake states (via a debug harness)<br>4. Verify scanner signatures miss the encrypted sleep state (no static pattern hits) |
+| **Expected Results** | Memory scans during sleep find encrypted/unbacked regions without signature matches; behavior proves scan-time evasion |
+

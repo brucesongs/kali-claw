@@ -183,3 +183,30 @@
 - [ ] Automated fuzzing completed with dotdotpwn
 - [ ] Race condition exploitation attempted (if upload functionality present)
 - [ ] All findings documented with severity, impact, and remediation steps
+
+---
+
+### TC-FI-009: PHP Session File Poisoning LFI-to-RCE
+
+| Field | Value |
+|------|------|
+| **ID** | TC-FI-009 |
+| **Name** | PHP Session File Poisoning LFI-to-RCE |
+| **Category** | C. LFI to RCE |
+| **Severity** | HIGH |
+| **Prerequisites** | Confirmed LFI (TC-FI-001); PHP sessions enabled with predictable session file location (`/var/lib/php/sessions/sess_<PHPSESSID>` or `/tmp/sess_<id>`) |
+| **Test Steps** | 1. Obtain a session cookie and set a controlled parameter (e.g., username or User-Agent) to `<?php system($_GET['c']); ?>`<br>2. Locate the session file via LFI: `?page=../../../../../var/lib/php/sessions/sess_<PHPSESSID>`<br>3. Confirm the poisoned value is stored unencoded in the session file<br>4. Re-include the session file with a command parameter: `&c=id`<br>5. Escalate to a reverse shell via the same vector |
+| **Expected Results** | Command output renders through the included session file, proving LFI-to-RCE without log write access |
+
+### TC-FI-010: /proc/self/environ Inclusion to RCE
+
+| Field | Value |
+|------|------|
+| **ID** | TC-FI-010 |
+| **Name** | /proc/self/environ Inclusion to RCE |
+| **Category** | C. LFI to RCE |
+| **Severity** | HIGH |
+| **Prerequisites** | Confirmed LFI on a Linux Apache/mod_php target where `/proc/self/environ` is readable through the include primitive and process environment reflects request headers |
+| **Test Steps** | 1. Include `/proc/self/environ` via the LFI and inspect which header values appear<br>2. Set the User-Agent header to `<?php system($_GET['c']); ?>`<br>3. Re-request the LFI with `&c=id`<br>4. On success, pivot to a reverse shell; on failure, test `/proc/self/fd/N` descriptors as an alternative environ source |
+| **Expected Results** | Environment-injected PHP code executes through the include, confirming RCE |
+

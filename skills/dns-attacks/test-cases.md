@@ -146,3 +146,30 @@
 | **Expected Results** | Source port diversity is high (>15 unique ports out of 20 queries); transaction IDs appear random; DNSSEC validation is enabled (AD flag present); 0x20 case randomization is supported. If any check fails, the resolver may be vulnerable to cache poisoning |
 | **Remediation** | Enable source port randomization on DNS resolvers; deploy DNSSEC validation on all recursive resolvers; implement 0x20 case randomization; update to current DNS server software versions with improved randomization; use DNS-over-TLS or DNS-over-HTTPS for forwarding queries |
 | **Pass Criteria** | Source port diversity exceeds 75% unique ports; DNSSEC validation returns AD flag for signed zones; 0x20 encoding preserves mixed case in responses; no evidence of predictable transaction IDs |
+
+---
+
+### TC-DNS-009: DNS Amplification and Reflection Assessment
+
+| Field | Value |
+|------|------|
+| **ID** | TC-DNS-009 |
+| **Name** | DNS Amplification and Reflection Assessment |
+| **Category** | F. DNS Attacks |
+| **Severity** | HIGH |
+| **Prerequisites** | Authoritative/recursive DNS server in authorized scope; traffic-generation measurement position with rate limiting honored |
+| **Test Steps** | 1. Identify largest-answer record types on the server: `dig ANY target.com @NS +noall +answer` (and DNSKEY/RRSIG for signed zones)<br>2. Measure amplification factor: compare query size vs response size with `dig +stats`<br>3. Test whether the server answers recursive queries from arbitrary sources (`dig +recurse google.com @TARGET`)<br>4. If open recursion exists, document the reflection vector with a single controlled query to the measurement host<br>5. Verify response-rate limiting (RRL) by sending a burst of 10 queries and observing rate-limited truncated responses |
+| **Expected Results** | Amplification factor documented per record type; open recursion and absence/presence of RRL recorded for the DoS assessment |
+
+### TC-DNS-010: DNS Cache Snooping for Internal Domain Discovery
+
+| Field | Value |
+|------|------|
+| **ID** | TC-DNS-010 |
+| **Name** | DNS Cache Snooping for Internal Domain Discovery |
+| **Category** | G. DNS Recon |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Access to a resolver used by the target organization (captive portal, VPN resolver, or recursive NS in scope) |
+| **Test Steps** | 1. Send non-recursive queries for candidate internal names: `dig +norecurse intranet.target-corp.com @RESOLVER`<br>2. Interpret AA/A answer presence as cached = recently resolved by an internal user<br>3. Iterate a curated list (mail, vpn, intranet, jira, git, ci prefixes) plus wildcard controls<br>4. Script the sweep: `for h in $(cat hosts.txt); do dig +norecurse +short $h @RESOLVER; done` |
+| **Expected Results** | Set of internal/external domains recently resolved by the organization's users inferred from cache state, feeding the attack-surface map |
+

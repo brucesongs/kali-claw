@@ -156,3 +156,30 @@
 | **Expected Results** | At least one encoding or obfuscation technique bypasses the WAF filter and delivers a functional XXE payload to the XML parser; OOB callback is received confirming the parser resolved the entity; WAF does not detect or block the obfuscated payload |
 | **Remediation** | Deploy WAF with multi-encoding awareness (UTF-16, gzip, base64); normalize XML input before filtering; block DOCTYPE declarations entirely regardless of encoding; implement schema validation that rejects unexpected entity declarations |
 | **Pass Criteria** | At least one bypass technique successfully delivers XXE payload past the WAF; XML parser resolves the entity (confirmed by OOB callback or in-band response); WAF logs show no detection of the obfuscated payload |
+
+---
+
+### TC-XXE-009: XInclude Injection in Embedded XML Contexts
+
+| Field | Value |
+|------|------|
+| **ID** | TC-XXE-009 |
+| **Name** | XInclude Injection in Embedded XML Contexts |
+| **Category** | E. Advanced XXE |
+| **Severity** | HIGH |
+| **Prerequisites** | Target application embeds user input into server-side XML documents (SVG processors, XSL-FO pipelines, SOAP intermediaries) where full DOCTYPE injection is not possible but XInclude processing is enabled |
+| **Test Steps** | 1. Submit `<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" parse="text" href="file:///etc/passwd"/>` inside any user-controlled XML element<br>2. If reflected, escalate to targeted file disclosure (`file:///var/www/html/.env`, key material)<br>3. Test `parse="xml"` with local XSLT stylesheets to probe transform behavior<br>4. Attempt XInclude pointing at `http://169.254.169.254/latest/meta-data/` where server-side fetching is allowed |
+| **Expected Results** | File contents or metadata appear in the response, proving XInclude processing is enabled even though classic entity injection is blocked |
+
+### TC-XXE-010: Error-Based XXE File Content Disclosure
+
+| Field | Value |
+|------|------|
+| **ID** | TC-XXE-010 |
+| **Name** | Error-Based XXE File Content Disclosure |
+| **Category** | E. Advanced XXE |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Target XML parser has external entities disabled for resolution but returns detailed parser errors; XML validation is observable in responses |
+| **Test Steps** | 1. Submit a payload referencing a nonexistent file via parameter entity to trigger a parser error that echoes the attempted URI<br>2. Replace with `file:///etc/passwd` and observe whether the error message leaks file existence or content fragments<br>3. Binary-probe existence line by line using `file:///proc/self/cmdline` and conditional error triggers<br>4. Automate character-by-character extraction with a script driving the error oracle |
+| **Expected Results** | Parser error messages disclose file existence or content fragments, providing a file-read oracle without any OOB channel |
+

