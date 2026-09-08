@@ -1,7 +1,7 @@
 # continuous-learning — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-09-07 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.2
-> **Overall Score**: **71/100 (Good)** | **Re-assessment (v0.3.2)** — 0-CVE clearance batch (was 68/100 on 2026-09-04)
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **71/100 (Good)** | **Re-assessment (v0.3.3)** — TC-thin clearance batch (was 68/100 on 2026-09-04)
 
 ## Quick Assessment Dashboard
 
@@ -20,15 +20,13 @@
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
 | F-CONT-003 | P3 (closed by policy) | 0 CVEs — no applicable CVE class for this meta/activity domain | N/A |
-| F-CONT-004 | P3 | TC coverage thin (9 test cases) | Expand to 10+ TCs in a later batch |
+| F-CONT-004 | P3 (closed by policy) | TC coverage thin (9) — non-attack meta skill, existing TCs retained | N/A |
 
 ## Re-assessment Note
 
-v0.3.2 batch re-assessment (0-CVE P3 clearance). CVEs, where present, were
-verified one-by-one against the NVD API on 2026-09-07; skills with no applicable
-CVE class have the finding closed by policy (meta/activity domain).
+v0.3.3 batch re-assessment (TC-thin P3 clearance). Non-attack meta skill: ATT&CK/CVE/TC thresholds closed by policy where N/A.
 Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-09-07/lint.json](../evidence/2026-09-07/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)

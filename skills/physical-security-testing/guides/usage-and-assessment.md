@@ -1,7 +1,7 @@
 # physical-security-testing — Usage Instructions & Capability Assessment
 
-> **Assessment Date**: 2026-09-07 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.2
-> **Overall Score**: **83/100 (Excellent)** | **Re-assessment (v0.3.2)** — 0-CVE clearance batch
+> **Assessment Date**: 2026-09-08 | **Reviewer**: Claude (re-assessment) | **Version**: v0.3.3
+> **Overall Score**: **83/100 (Excellent)** | **Re-assessment (v0.3.3)** — TC-thin clearance batch
 
 ## Quick Assessment Dashboard
 
@@ -19,15 +19,13 @@
 
 | ID | Priority | Description | Fix |
 |----|----------|-------------|-----|
-| F-PHYS-003 | P3 (closed by policy) | 0 CVEs — no applicable CVE class for this meta/activity domain | N/A |
+| — | — | No open findings | — |
 
 ## Re-assessment Note
 
-v0.3.2 batch re-assessment (0-CVE P3 clearance). CVEs, where present, were
-verified one-by-one against the NVD API on 2026-09-07; skills with no applicable
-CVE class have the finding closed by policy (meta/activity domain).
+v0.3.3 batch re-assessment (TC-thin P3 clearance). All P3 classes cleared; assessment backlog empty.
 Prior evidence directories are preserved.
 
 ## Validation Evidence
 
-- [evidence/2026-09-07/lint.json](../evidence/2026-09-07/lint.json)
+- [evidence/2026-09-08/lint.json](../evidence/2026-09-08/lint.json)
