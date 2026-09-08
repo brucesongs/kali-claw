@@ -185,3 +185,30 @@
 - [ ] Conpot honeypot deployed and logging verified
 - [ ] IT/OT network segmentation validated against Purdue Model
 - [ ] All cross-zone communication paths documented
+
+---
+
+### TC-ICS-009: DNP3 Outstation Enumeration and Unsolicited Response Injection
+
+| Field | Value |
+|------|------|
+| **ID** | TC-ICS-009 |
+| **Name** | DNP3 Outstation Enumeration and Unsolicited Response Injection |
+| **Category** | G. Protocol Attacks |
+| **Severity** | HIGH |
+| **Prerequisites** | DNP3 outstation reachable (TCP 20000) in an authorized lab; opendnp3/scada-tools installed |
+| **Test Steps** | 1. Enumerate: `nmap -p 20000 --script dnp3-enumerate TARGET`<br>2. Read data-link broadcast address and index ranges with a DNP3 master simulator<br>3. Craft unsolicited response messages toward the master simulation (lab master of record)<br>4. Observe whether the master accepts unauthenticated unsolicited data (false measurement injection)<br>5. Test secure-authentication version presence (SAv5) as a hardening check |
+| **Expected Results** | Unsolicited injection accepted without SAv5 authentication, demonstrating false-data injection into SCADA telemetry |
+
+### TC-ICS-010: BACnet Building Automation Enumeration and Control Testing
+
+| Field | Value |
+|------|------|
+| **ID** | TC-ICS-010 |
+| **Name** | BACnet Building Automation Enumeration and Control Testing |
+| **Category** | H. Protocol Attacks |
+| **Severity** | MEDIUM |
+| **Prerequisites** | BACnet device reachable (UDP 47808) in authorized scope; bacnet-stack tools installed |
+| **Test Steps** | 1. Discover devices: `bacwi -1` (Who-Is broadcast)<br>2. Read object lists: `bacrp <device> 8 <instance> 76` (object-list property)<br>3. Enumerate points: binary/analogue inputs-outputs and setpoints<br>4. Write test (lab only): flip a non-critical binary output via `bacwp` and verify physical/HMI change<br>5. Document write-protection status per object |
+| **Expected Results** | Full point inventory extracted; an authorized write to a non-critical point succeeds or is blocked — either documented with object-level detail |
+

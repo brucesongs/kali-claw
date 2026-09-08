@@ -224,3 +224,30 @@
 | **Expected Results** | Responder captures NTLMv2 authentication hashes from Windows hosts via LLMNR/NBT-NS poisoning; ntlmrelayx successfully relays authentication to internal services without knowing the password; relayed session provides authenticated access to SMB shares or LDAP directory; proof of access is documented with file creation or directory enumeration output |
 | **Remediation** | Disable LLMNR via Group Policy: Computer Configuration > Administrative Templates > Network > DNS Client > Turn off Multicast Name Resolution = Enabled; disable NBT-NS via registry or Group Policy; enable LDAP signing and SMB signing; deploy LAPS for unique local admin passwords; implement Credential Guard on Windows 10+ for NTLM credential protection |
 | **Pass Criteria** | NTLMv2 hashes are captured from at least one Windows host; relayed authentication provides access to at least one internal service; captured hashes are crackable with hashcat mode 5600; complete attack chain from poisoning to authenticated access is documented |
+
+---
+
+### TC-NSM-009: Rogue DHCP Server Positioning Attack
+
+| Field | Value |
+|------|------|
+| **ID** | TC-NSM-009 |
+| **Name** | Rogue DHCP Server Positioning Attack |
+| **Category** | F. MITM Positioning |
+| **Severity** | HIGH |
+| **Prerequisites** | Authorized L2 position in the target segment; bettercap installed; DHCP snooping status unknown |
+| **Test Steps** | 1. Start rogue DHCP: `sudo bettercap -iface eth0 -eval "net.probe on; set dhcp.spoof.domains target.corp; dhcp.spoof on"`<br>2. Offer competing lease with attacker IP as gateway/DNS to a lab client renewing its lease<br>3. Verify the client received the rogue lease (`ipconfig /all` / `nmcli`)<br>4. Confirm traffic flows through the attacker interface<br>5. Document whether DHCP snooping/port-security blocked the offer (negative result) |
+| **Expected Results** | Rogue lease accepted and client traffic traverses the attacker position, or defensive control blocks it — either outcome documented |
+
+### TC-NSM-010: mitmproxy Scripted Traffic Manipulation
+
+| Attribute | Value |
+|------|------|
+| **ID** | TC-NSM-010 |
+| **Name** | mitmproxy Scripted Traffic Manipulation |
+| **Category** | G. Traffic Manipulation |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Active MITM position established (TC-NSM-002/006); mitmproxy installed; lab application traffic to rewrite |
+| **Test Steps** | 1. Write an addon script: `def response(flow): flow.response.replace('prod-server','evil-host')` saved as rewrite.py<br>2. Launch: `mitmproxy -s rewrite.py --mode transparent`<br>3. Drive lab client traffic through the proxy and observe substitutions<br>4. Extend the script to inject an auth-header capture (`def request(flow): log(flow.request.headers.get('Authorization'))`)<br>5. Verify captured tokens and rewritten responses in the mitmproxy flow list |
+| **Expected Results** | Scripted interception modifies application traffic and captures auth material in transit, demonstrating full content control at the MITM position |
+

@@ -150,3 +150,30 @@
 | **Expected Results** | Spectrogram reveals hidden visual content (text, URLs, images) embedded in the audio frequency spectrum; hidden content is not audible when playing the audio; spectrogram comparison between clean and suspect files shows clear anomalies |
 | **Remediation** | Implement automated spectrogram analysis on audio file sharing platforms; restrict audio file uploads in environments handling sensitive data; use frequency analysis tools to detect anomalous audio patterns |
 | **Pass Criteria** | Hidden visual content is clearly visible in the spectrogram; extracted content matches the known hidden message; clean audio files show no false positives in spectrogram analysis |
+
+---
+
+### TC-STEG-009: Video Steganography Detection and Frame-Level Analysis
+
+| Field | Value |
+|------|------|
+| **ID** | TC-STEG-009 |
+| **Name** | Video Steganography Detection and Frame-Level Analysis |
+| **Category** | L. Video Steg |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Suspect video file; ffmpeg, zsteg/binwalk available; lab-generated carrier for positive control |
+| **Test Steps** | 1. Extract frames: `ffmpeg -i carrier.mp4 frames/%04d.png`<br>2. Hash frames and diff consecutive: `md5sum frames/*` to find anomalous regions<br>3. Run zsteg on outlier frames for LSB patterns<br>4. Check codec-level containers: `ffmpeg -i carrier.mp4 -f srt -map 0:s subtitle.srt` for subtitle-track hiding<br>5. Assemble any extracted artifacts |
+| **Expected Results** | Hidden payload located in frame LSBs or container streams from the suspect video, with extraction evidence |
+
+### TC-STEG-010: Whitespace and Encoding Steganography Detection
+
+| Field | Value |
+|------|------|
+| **ID** | TC-STEG-010 |
+| **Name** | Whitespace and Encoding Steganography Detection |
+| **Category** | M. Encoding Steg |
+| **Severity** | LOW |
+| **Prerequisites** | Suspect text/HTML files; stegsnow, exiftool, xxd available |
+| **Test Steps** | 1. Inspect trailing whitespace: `cat -A file.txt | tail` for suspicious trailing spaces/tabs<br>2. Extract with `stegsnow -C file.txt`<br>3. Check zero-width characters: `xxd file | grep -i 'e2 80'` (zero-width families)<br>4. Test base64-in-whitespace patterns with a decode pass<br>5. Verify with a known stegsnow-encoded control file |
+| **Expected Results** | Whitespace-encoded payload extracted and decoded, or the control validates the workflow while the suspect file proves clean |
+

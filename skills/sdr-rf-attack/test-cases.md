@@ -123,3 +123,34 @@
 - [ ] Custom flowgraphs tested with both recorded and live signals
 - [ ] All tests documented with frequency, gain, and sample rate parameters
 - [ ] Compliance with local radio regulations verified for all transmissions
+
+---
+
+## TC-SRF-009: Zigbee IoT Network Key Capture
+
+- **Objective**: Capture Zigbee traffic and recover the network key from a lab IoT deployment
+- **Severity**: HIGH
+- **Prerequisites**: KillerBee/KillerZoo installed; authorized Zigbee network; ATUSB or similar Zigbee SDR
+- **Test Steps**:
+  1. Identify channel: `zbstumbler -c 11-26` or spectrum scan for 802.15.4 energy
+  2. Capture: `zbdump -c 15 -w zigbee.pcap`
+  3. If key transport observed (legacy join), extract with `zbwireshark` key search
+  4. On encrypted networks, capture a rejoin event triggered in lab (device power cycle during commissioning window)
+  5. Decrypt with recovered key and enumerate devices/commands
+- **Expected Result**: Network key recovered and traffic decrypted, exposing device commands and network topology
+- **Pass Criteria**: Decrypted Zigbee traffic with at least one control command identified
+
+## TC-SRF-010: TPMS Signal Capture and Spoof
+
+- **Objective**: Capture tire-pressure sensor transmissions and assess spoofability in a lab vehicle/wheel rig
+- **Severity**: MEDIUM
+- **Prerequisites**: RTL-SDR; urh installed; authorized test vehicle or TPMS bench unit (315/433 MHz)
+- **Test Steps**:
+  1. Locate TPMS bursts: `urh` spectrum + record at 315/433 MHz FSK/OOK
+  2. Decode sensor ID and pressure fields against known bench values
+  3. Reverse the frame checksum with urh protocol analysis
+  4. Replay captured frame and observe dashboard reaction
+  5. Craft modified pressure value frame and transmit at low power to the bench unit
+- **Expected Result**: Frame structure reverse-engineered; spoofed frame accepted by the receiver ECU (bench), documenting the missing authentication
+- **Pass Criteria**: Spoofed frame elicits the expected dashboard warning on the bench unit
+

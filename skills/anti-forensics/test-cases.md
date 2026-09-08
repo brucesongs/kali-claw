@@ -272,3 +272,30 @@
 - Use centralized network logging (SIEM, NetFlow collector) that is not accessible from compromised hosts
 - Implement persistent connection tracking on network devices that survives endpoint cleanup
 - Deploy network-level forensic tools (Zeek, Suricata) with remote log aggregation
+
+---
+
+### TC-AF-009: Memory-Only Artifact Operation (Fileless Evasion)
+
+| Field | Value |
+|------|------|
+| **ID** | TC-AF-009 |
+| **Name** | Memory-Only Artifact Operation (Fileless Evasion) |
+| **Category** | J. Memory Anti-Forensics |
+| **Severity** | HIGH |
+| **Prerequisites** | Lab Windows/Linux host with memory-acquisition tooling (Volatility); fileless lab payload (PowerShell/Python) authorized |
+| **Test Steps** | 1. Execute a fileless marker operation: process runs entirely from memory with a unique string embedded<br>2. During execution, acquire memory (winpmem/LiME)<br>3. Verify the marker is findable in RAM: `strings dump.raw | grep MARKER` and via volatility plugin<br>4. Confirm zero disk artifacts: full disk image grep for the marker<br>5. Terminate and re-acquire memory to measure remanence |
+| **Expected Results** | Marker present in live memory and absent from disk (and from post-termination RAM after reboo), quantifying memory-forensics detection windows |
+
+### TC-AF-010: Secure Wipe Verification Against Recovery
+
+| Field | Value |
+|------|------|
+| **ID** | TC-AF-010 |
+| **Name** | Secure Wipe Verification Against Recovery |
+| **Category** | K. Sanitization |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Sacrificial lab disk; nwipe/shred/blkdiscard available; recovery tooling (photorec/testdisk) for validation |
+| **Test Steps** | 1. Fill the lab disk with known marker files<br>2. Wipe with chosen method: `nwipe --method=doe` / `shred -z -n 3` / `blkdiscard`<br>3. Attempt recovery: run testdisk/photorec scanning<br>4. Compare recovered marker count by method<br>5. Document per-method residual-data results |
+| **Expected Results** | Recovery attempts yield zero marker files for passing methods, with a method-by-method evidence table |
+

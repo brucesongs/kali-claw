@@ -182,3 +182,30 @@
 - [ ] ICMP tunnel carries SSH session successfully
 - [ ] TLS wrapping verified to hide protocol fingerprints from tcpdump
 - [ ] Full three-hop pivot chain reaches isolated database tier
+
+---
+
+### TC-TUN-009: Tunnel Obfuscation and Evasion (TLS Mimicry + Domain Fronting)
+
+| Field | Value |
+|------|------|
+| **ID** | TC-TUN-009 |
+| **Name** | Tunnel Obfuscation and Evasion (TLS Mimicry + Domain Fronting) |
+| **Category** | H. Evasion |
+| **Severity** | HIGH |
+| **Prerequisites** | Egress-restricted target network allowing HTTPS to allowed domains; chisel/gost + CDN-frontable domain under attacker control |
+| **Test Steps** | 1. Wrap chisel in TLS with a plausible SNI: `chisel server --tls-domain cdn-allowed.example.com` / client `--tls-sni cdn-allowed.example.com`<br>2. Test domain fronting: HTTP CONNECT to front domain with Host header pointing at attacker origin<br>3. Profile egress: attempt plain SOCKS, plain TLS, and fronted variants; record which passes<br>4. Measure detection: check whether proxy logs flag the flow vs baseline HTTPS<br>5. Fallback: gost with websocket transport `gost -L ws://:8080` over CDN |
+| **Expected Results** | Covert channel established through allowed-egress patterns with the working technique documented (which disguise survived) |
+
+### TC-TUN-010: Tunnel Verification and Diagnostics Workflow
+
+| Field | Value |
+|------|------|
+| **ID** | TC-TUN-010 |
+| **Name** | Tunnel Verification and Diagnostics Workflow |
+| **Category** | I. Diagnostics |
+| **Severity** | MEDIUM |
+| **Prerequisites** | Any established tunnel from TC-TUN-001..009; tools: curl, nc, mtr accessible through the tunnel |
+| **Test Steps** | 1. Verify egress IP through tunnel: `curl --socks5 127.0.0.1:1080 ifconfig.me`<br>2. Path MTU/latency check: `proxychains mtr -c 20 internal-target`<br>3. Port reachability matrix through tunnel: `for p in 22 80 443 445 3389; do nc -z -w2 host $p; done`<br>4. Confirm no DNS leaks: `proxychains dig +short whoami.example.org` resolves via tunnel-side resolver<br>5. Record throughput baseline with iperf3 over the tunnel |
+| **Expected Results** | Tunnel functionally verified with egress identity, reachability matrix, and DNS-leak status documented for pivot reporting |
+

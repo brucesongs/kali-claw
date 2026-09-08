@@ -256,3 +256,30 @@ Reconnaissance (TC-001, TC-002) -> BLE Enumeration (TC-003) -> Encryption Crack 
 - [ ] Card clone successfully authenticates against test reader
 - [ ] Device identity spoofing tested against paired/trusted devices
 - [ ] NFC tag manipulation and relay demonstrated
+
+---
+
+### TC-BT-009: NFC Relay Attack Across Distance
+
+| Field | Value |
+|------|------|
+| **ID** | TC-BT-009 |
+| **Name** | NFC Relay Attack Across Distance |
+| **Category** | H. NFC Attacks |
+| **Severity** | HIGH |
+| **Prerequisites** | Two reader devices (e.g., Proxmark3 or Android with NFC gate apps) physically separated; authorized relay target (access control lab) |
+| **Test Steps** | 1. Position reader A at the legitimate card and reader B at the door reader<br>2. Bridge the two over IP (nfcgate relay or Proxmark3 relay setup)<br>3. Present reader B to the reader while A reads the card remotely<br>4. Verify the transaction completes without the card being physically present<br>5. Measure relay latency tolerance of the target system |
+| **Expected Results** | Relayed transaction succeeds beyond the intended physical proximity, proving absence of distance bounding |
+
+### TC-BT-010: Bluetooth Pairing Sniffing (Legacy and LE)
+
+| Field | Value |
+|------|------|
+| **ID** | TC-BT-010 |
+| **Name** | Bluetooth Pairing Sniffing (Legacy and LE) |
+| **Category** | I. Bluetooth Analysis |
+| **Severity** | HIGH |
+| **Prerequisites** | Ubertooth or Android HCI snoop capture capability; lab devices performing pairing during the test window |
+| **Test Steps** | 1. Capture pairing exchange: `ubertooth-rx -f 2402` (channel follow) or enable Android HCI snoop log<br>2. Extract pairing frames to PCAP for legacy PIN/LE legacy analysis<br>3. Offline-crack legacy pairing: `crackle -i pairing.pcap` (LE LTK derivation when available)<br>4. With recovered keys, decrypt subsequent traffic<br>5. Verify LE Secure Connections resists the same capture (negative control) |
+| **Expected Results** | Pairing capture yields keys for legacy modes while secure-pairing traffic resists decryption — both outcomes documented |
+

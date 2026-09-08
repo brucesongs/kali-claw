@@ -264,3 +264,32 @@ Reference Payload: Corresponding section in payloads.md
 - [ ] YARA backdoor scan completed with false positive rate documented
 - [ ] Version diffing identifies security-relevant changes between firmware versions
 - [ ] All findings documented with severity, reproduction steps, and remediation
+
+---
+
+## TC-FW009: Firmware Modification and Repacking Validation
+
+Severity: HIGH
+Prerequisites: Extracted firmware filesystem from TC-FW001; binwalk, squashfs-tools, firmware-mod-kit installed; lab target accepting re-flashed images
+Test Steps:
+  1. Extract: `binwalk -e firmware.bin` and enter the squashfs root
+  2. Modify a benign marker (add `/etc/pwn_marker` file and a banner string)
+  3. Repack: `mksquashfs squashfs-root new.squashfs -comp xz -b 256k` (match original compressor via binwalk entropy/signature)
+  4. Rebuild image preserving header/checksum: use `fmk` (firmware-mod-kit) `build.sh`
+  5. Flash to lab device and verify the marker persists through boot
+Expected Results: Modified image boots with the marker present, proving a full repack chain (modification → checksum fix → re-flash) for implant scenarios
+Reference Payload: payloads.md section 8 — Firmware Modification and Repacking
+
+## TC-FW010: Firmware String Analysis and Sensitive Pattern Extraction
+
+Severity: MEDIUM
+Prerequisites: Extracted filesystem; grep/ripgrep, firmwalker available
+Test Steps:
+  1. Run `firmwalker.sh squashfs-root/` and capture the report
+  2. Grep credential patterns: `rg -i 'password|passwd|secret|token|apikey|private key' squashfs-root/etc/`
+  3. Extract certificates/keys: `find . -name '*.pem' -o -name '*.key' | xargs openssl x509 -noout -subject -dates`
+  4. Map admin/backdoor accounts: `rg -v '^#' squashfs-root/etc/passwd squashfs-root/etc/shadow 2>/dev/null`
+  5. Cross-reference endpoints: `rg -o 'https?://[^ ]+' -N . | sort -u | head -30`
+Expected Results: Sensitive artifacts (credentials, keys, endpoints, backdoor accounts) cataloged with file paths for the report
+Reference Payload: payloads.md section 11 — String Analysis and Pattern Extraction
+

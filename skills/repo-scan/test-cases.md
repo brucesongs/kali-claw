@@ -548,3 +548,76 @@ HIGH — Container images often contain hardcoded credentials, vulnerable system
 - [ ] Images run as non-root user with minimal capabilities
 - [ ] Unnecessary packages and tools identified for removal
 - [ ] Base images pinned to specific versions or digests
+
+---
+
+## TC-RS-009: High-Entropy Secret Detection with Validation
+
+### Scenario
+A repository history needs to be checked for leaked credentials where obvious pattern matching fails (high-entropy API keys, tokens without known prefixes).
+
+### Pre-conditions
+- Repository cloned with full history
+- `gitleaks`, `trufflehog` installed on Kali system
+
+### Test Steps
+
+1. **Entropy-based scan with gitleaks**
+
+   ```bash
+   gitleaks detect --source . --report-format json --report-path entropy-secrets.json -v
+   ```
+
+2. **History-aware verification with trufflehog**
+
+   ```bash
+   trufflehog git file://. --only-verified
+   ```
+
+3. **Triage false positives**
+   - Classify each hit: known-safe pattern (lockfile hash, test fixture) vs live credential
+   - For candidate keys, verify format against the vendor's key layout (no live API calls without authorization)
+
+4. **Commit attribution**
+   - Map each finding to the introducing commit and author for remediation routing
+
+### Expected Results
+Verified secret findings with commit attribution; false-positive rate documented per scanner, and rotation list delivered to the owner
+
+### Pass Criteria
+All high-entropy hits triaged with verified/triaged-out status recorded
+
+---
+
+## TC-RS-010: License Compliance and Dangerous Dependency Audit
+
+### Scenario
+A product repository requires a license-compliance and dangerous-dependency audit prior to acquisition or release.
+
+### Pre-conditions
+- Repository with lockfiles (package-lock.json / requirements.txt / go.sum) present
+- `scancode-toolkit`, `pip-audit`, `npm audit` installed
+
+### Test Steps
+
+1. **License inventory**
+
+   ```bash
+   scancode -l --json-pp licenses.json package-lock.json requirements.txt
+   ```
+
+2. **Copyleft/risky license flagging**
+   - Flag GPL/AGPL/SSPL in a proprietary-shipping context; flag unknown licenses for legal review
+
+3. **Dangerous dependency cross-check**
+   - Correlate dependency list against recalls/abandoned-package lists and install-script presence (`preinstall` hooks in npm deps)
+
+4. **Report assembly**
+   - Merge license table + dependency risk table into the audit deliverable
+
+### Expected Results
+Complete license inventory with risky-license flags and install-script warnings, delivered as a structured compliance report
+
+### Pass Criteria
+Every direct dependency has a license classification; every flagged risk has a disposition
+

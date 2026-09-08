@@ -124,3 +124,36 @@
 - [ ] Tunnel encryption parameters verified
 - [ ] Split tunneling configuration confirmed
 - [ ] All findings documented with remediation recommendations
+
+---
+
+## TC-VPN-009: SSL VPN Web Portal Exploitation Chain
+
+- **Objective**: Exploit an SSL VPN web portal weakness and pivot into the internal network
+- **Severity**: HIGH
+- **Prerequisites**: SSL VPN portal enumerated (TC-VPN-004); known CVE history for the identified product; authorized scope covers the VPN gateway
+- **Test Steps**:
+  1. Fingerprint portal product/version: `whatweb https://vpn.target.com` + `/remote/login` path probing
+  2. Match against known pre-auth RCE/auth-bypass classes for the product family
+  3. Test path-traversal read of configuration: `curl --path-as-is https://vpn.target.com/remote/..;/etc/passwd`-style probes per product
+  4. On success, extract session/credentials and authenticate to the tunnel endpoint
+  5. Establish tunnel and verify internal reachability
+- **Expected Result**: Pre-auth or stolen-session access converts to an authenticated tunnel with internal network reachability
+- **Remediation**: Patch to current firmware; enforce MFA; restrict admin paths
+- **Pass Criteria**: Internal resource reachable through the attacker-established tunnel
+
+## TC-VPN-010: VPN Gateway Vulnerability Scanning
+
+- **Objective**: Systematically map a VPN gateway against its known vulnerability history
+- **Severity**: MEDIUM
+- **Prerequisites**: IKE and SSL VPN surfaces enumerated (TC-VPN-001/004); nmap NSE + product CVE references available
+- **Test Steps**:
+  1. Service scan: `nmap -sU -sV -p 500,4500,1194 TARGET`
+  2. TLS surface: `nmap -sV -p 443 --script ssl-enum-ciphers,vuln TARGET`
+  3. Version map: correlate fingerprint with the product's security advisory list
+  4. Verify one claimed vuln class non-destructively (safe check only)
+  5. Document exposure matrix: protocol × version × known issues
+- **Expected Result**: Vulnerability exposure matrix for the gateway with verified-safe findings distinguishing theoretical from confirmed
+- **Remediation**: Version currency program; disable legacy protocols (IKEv1 aggressive mode, TLS 1.0/1.1)
+- **Pass Criteria**: Product/version/issue matrix complete with at least one verified data point
+
