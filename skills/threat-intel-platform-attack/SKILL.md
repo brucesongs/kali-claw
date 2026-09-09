@@ -530,7 +530,7 @@ docker run -d -p 443:443 -p 80:80 \
 
 # OpenCTI Docker
 git clone https://github.com/OpenCTI-Platform/opencti
-cd opencti && docker-compose up -d
+cd opencti && docker compose up -d
 
 # STIX tools
 pip install stix2 taxii2-client

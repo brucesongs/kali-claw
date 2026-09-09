@@ -1277,7 +1277,7 @@ MEM=/runs/SCEN-007/mem/exploit-attempt-memory.json
 {
   echo "digraph G {"
   jq -r '.vulnerability_hypotheses[] | "  \"\(.id)\" [label=\"\(.id): \(.hypothesis | .[0:40])...\"];"' "$MEM"
-  jq -r '.vulnerability_hypotheses[] | . as $h | $h.evidence_for[]? | "  \"\(. | gsub("\""; "'"))\" -> \"\($h.id)\";"' "$MEM"
+  jq -r '.vulnerability_hypotheses[] | . as $h | $h.evidence_for[]? | "  \"\(. | tostring | gsub(\"\"; \"-\"))\" -> \"\($h.id)\";"' "$MEM"
   echo "}"
 } | dot -Tsvg > hypotheses.svg
 ```
@@ -3029,4 +3029,3 @@ Future:
   v1.2.0 — add cross-engagement memory federation (§35) automation
   v1.3.0 — add LangGraph-style checkpoint graph primitives
 ```
-

@@ -404,7 +404,7 @@ def hide_payload_in_shape(payload: bytes, target_shape=(1024, 1024)):
 
 ## 9. MLflow / Kubeflow Pipeline Attack
 
-```bash
+```text
 # MLflow artifact injection
 # If victim's MLflow tracks experiments with artifacts uploaded from HF,
 # attacker can compromise the artifact store

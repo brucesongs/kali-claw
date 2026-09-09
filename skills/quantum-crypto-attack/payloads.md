@@ -2161,7 +2161,7 @@ if __name__ == "__main__":
         time.sleep(60)
 ```
 
-```bash
+```promql
 # ─── Prometheus alerting rule for constant-time leakage ───
 cat > /etc/prometheus/rules/pqc.yml <<'EOF'
 groups:
@@ -2184,7 +2184,7 @@ groups:
 EOF
 ```
 
-```bash
+```promql
 # ─── SLO dashboard query (Prometheus) ───
 # Hybrid handshake rate over 30 days
 sum(rate(tls_handshakes_total{group=~".*mlkem.*"}[30d])) by (group)

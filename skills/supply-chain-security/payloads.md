@@ -1090,7 +1090,7 @@ jobs:
 
 ### Automated SBOM Diff for Pull Requests
 
-```bash
+~~~bash
 #!/bin/bash
 # Generate SBOM diff between base and PR branch to catch new risky dependencies
 # Usage: sbom-diff.sh main feature-branch
@@ -1112,7 +1112,8 @@ jq -r '.components[] | "\(.name)@\(.version)"' /tmp/sbom-pr.json | sort > /tmp/p
 echo "# SBOM Diff: $BASE_BRANCH -> $PR_BRANCH" > "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 echo "## New Dependencies" >> "$REPORT_FILE"
-echo '```' >> "$REPORT_FILE"
+echo '
+```' >> "$REPORT_FILE"
 comm -13 /tmp/base-components.txt /tmp/pr-components.txt >> "$REPORT_FILE"
 echo '```' >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
@@ -1128,8 +1129,7 @@ comm -13 /tmp/base-components.txt /tmp/pr-components.txt | while read dep; do
   echo "Scanning: $dep"
 done | grype dir:. -o table >> "$REPORT_FILE" 2>/dev/null
 
-echo "SBOM diff report: $REPORT_FILE"
-```
+echo "SBOM diff report: $REPORT_FILE"~~~
 
 ### Package Integrity Monitoring Cron Job
 

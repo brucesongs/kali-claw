@@ -1501,7 +1501,7 @@ curl --connect-timeout 5 -H "Authorization: Bearer Oracle" \
 
 # DigitalOcean metadata
 curl --connect-timeout 5 "http://169.254.169.254/metadata/v1.json"
-curl --connect-timeout 5 "http://169.254.169.254/metadata/v1/")
+curl --connect-timeout 5 "http://169.254.169.254/metadata/v1/"
 
 # Cloudflare Workers (if SSRF reaches workers)
 curl "http://169.254.169.254/cdn-cgi/trace"

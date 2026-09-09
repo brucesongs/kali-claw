@@ -650,11 +650,11 @@ cat /sys/module/kvm_intel/parameters/nested   # Should be Y or 1
 echo "options kvm-amd nested=1" | sudo tee /etc/modprobe.d/kvm-amd.conf
 
 # In the guest, expose VMX/SVM to nested hypervisor
-<cpu mode='host-passthrough'>
-  <feature policy='require' name='vmx'/>
-</cpu>
+# <cpu mode='host-passthrough'>
+#   <feature policy='require' name='vmx'/>
+# </cpu>
 # Or for AMD:
-  <feature policy='require' name='svm'/>
+#   <feature policy='require' name='svm'/>
 
 # Use case: reproduce hypervisor escapes inside a nested VM safely
 ```

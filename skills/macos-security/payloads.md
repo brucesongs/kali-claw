@@ -1223,11 +1223,11 @@ jtool2 -d --arch arm64e /Applications/Safari.app/Contents/MacOS/Safari 2>/dev/nu
 
 # GDB-style debugging with lldb:
 lldb /Applications/Safari.app
-(lldb) target create "/Applications/Safari.app/Contents/MacOS/Safari"
-(lldb) b main
-(lldb) run
-(lldb) register read
-(lldb) x/10i $pc
+# (lldb) target create "/Applications/Safari.app/Contents/MacOS/Safari"
+# (lldb) b main
+# (lldb) run
+# (lldb) register read
+# (lldb) x/10i $pc
 # Note: debugging Apple-signed binaries requires disabling SIP (or specific entitlements).
 ```
 
@@ -1384,9 +1384,9 @@ heap <PID> | head -20
 # ─── Strings of memory (live capture) ───
 # Use lldb (debugger) to read process memory:
 lldb -p <PID>
-(lldb) process attach --pid <PID>
-(lldb) memory read --size 4 --format x --count 32 0xADDRESS
-(lldb) memory find -s "password" --string 0xSTART 0xEND
+# (lldb) process attach --pid <PID>
+# (lldb) memory read --size 4 --format x --count 32 0xADDRESS
+# (lldb) memory find -s "password" --string 0xSTART 0xEND
 ```
 
 ```bash
@@ -1422,14 +1422,14 @@ taskpolicy -B -p <PID>             # mark as background
 ```bash
 # ─── lldb advanced (debugging) ───
 lldb /tmp/mybinary
-(lldb) b main
-(lldb) run
-(lldb) bt                          # backtrace
-(lldb) frame variable              # local variables
-(lldb) register read
-(lldb) image list                  # loaded images (dylibs)
-(lldb) image lookup -r -n "main"   # find symbol
-(lldb) expr -- (int)printf("hi\n") # evaluate C expression
+# (lldb) b main
+# (lldb) run
+# (lldb) bt                          # backtrace
+# (lldb) frame variable              # local variables
+# (lldb) register read
+# (lldb) image list                  # loaded images (dylibs)
+# (lldb) image lookup -r -n "main"   # find symbol
+# (lldb) expr -- (int)printf("hi\n") # evaluate C expression
 
 # Attach to running process (must have permission; SIP blocks attaching to system binaries)
 sudo lldb -p $(pgrep -f mybinary)

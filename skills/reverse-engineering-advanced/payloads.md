@@ -363,7 +363,7 @@ cat etc/dropbear/dropbear_rsa_host_key 2>/dev/null | head
 
 ### 7.1 Identify OLLVM CFF (Control Flow Flattening)
 
-```bash
+```python
 # Visual signature: large dispatcher function with switch statement
 # In Ghidra / IDA:
 # 1. Open binary
@@ -1320,7 +1320,7 @@ class-dump-z binary > classes.h
 
 ## Section 29 — Network protocol reverse engineering
 
-```bash
+```python
 # 1. Capture traffic
 sudo tcpdump -i any -w capture.pcap host 192.168.1.100
 # or

@@ -91,7 +91,7 @@ curl -s --socks5-hostname 127.0.0.1:9050 https://api.ipify.org
 
 # 3. Tor exit geolocation
 curl -s --socks5-hostname 127.0.0.1:9050 https://ifconfig.me/json | \
-  jq '{ip, country, city, region}
+  jq '{ip, country, city, region}'
 
 # 4. DNS resolver — should be 127.0.0.1 (Tor DNS) in Tails/Whonix
 cat /etc/resolv.conf
@@ -682,7 +682,7 @@ TOR=$(curl -s --socks5-hostname 127.0.0.1:9050 https://api.ipify.org)
 [ "$REAL" = "$TOR" ] && echo "FAIL: Tor egress equals real IP" || echo "PASS: Tor egress differs"
 
 # Geolocation (must NOT be your real location)
-curl -s --socks5-hostname 127.0.0.1:9050 https://ifconfig.me/json | jq '{ip, country, city}
+curl -s --socks5-hostname 127.0.0.1:9050 https://ifconfig.me/json | jq '{ip, country, city}'
 ```
 
 ### 9.2 DNS leak test
@@ -854,41 +854,41 @@ sudo apt install recon-ng
 recon-ng
 
 # Create a dedicated workspace
-[recon-ng] > workspaces create darkweb_intel
-[recon-ng] > db insert domains
-domain (text): example.com
-notes (text): investigation target
-[recon-ng] > show domains
+# [recon-ng] > workspaces create darkweb_intel
+# [recon-ng] > db insert domains
+# domain (text): example.com
+# notes (text): investigation target
+# [recon-ng] > show domains
 
 # Install marketplace modules
-[recon-ng] > marketplace install all
-[recon-ng] > marketplace search dark
+# [recon-ng] > marketplace install all
+# [recon-ng] > marketplace search dark
 ```
 
 ### 11.2 Common module chain
 
 ```bash
-[recon-ng] > workspaces load darkweb_intel
+# [recon-ng] > workspaces load darkweb_intel
 
 # Resolve subdomains (clearnet pivot point)
-[recon-ng] > use recon/domains-hosts/brute_hosts
-[recon-ng] > run
+# [recon-ng] > use recon/domains-hosts/brute_hosts
+# [recon-ng] > run
 
 # Resolve hosts to IPs
-[recon-ng] > use recon/hosts-hosts/resolve
-[recon-ng] > run
+# [recon-ng] > use recon/hosts-hosts/resolve
+# [recon-ng] > run
 
 # Cross-reference hosts in IntelX (if API key configured)
-[recon-ng] > keys add INTELX_KEY <KEY>
-[recon-ng] > use recon/hosts-contacts/intelx
-[recon-ng] > run
+# [recon-ng] > keys add INTELX_KEY <KEY>
+# [recon-ng] > use recon/hosts-contacts/intelx
+# [recon-ng] > run
 
 # Show contacts (emails harvested from breach data)
-[recon-ng] > show contacts
+# [recon-ng] > show contacts
 
 # Export for downstream analysis
-[recon-ng] > export csv /tmp/darkweb_recon.csv
-[recon-ng] > export json /tmp/darkweb_recon.json
+# [recon-ng] > export csv /tmp/darkweb_recon.csv
+# [recon-ng] > export json /tmp/darkweb_recon.json
 ```
 
 ### 11.3 Modules of interest

@@ -1928,18 +1928,18 @@ docker pull openpolicyagent/conftest
 # 验证 YAML 配置
 conftest test deployment.yaml --policy policy.rego
 
-# policy.rego 示例
-package main
+# policy.rego 示例 (rego):
+# package main
 
-deny[msg] {
-  input.spec.template.spec.containers[_].image == "nginx:latest"
-  msg := "禁止使用 latest 标签"
-}
+# deny[msg] {
+#   input.spec.template.spec.containers[_].image == "nginx:latest"
+#   msg := "禁止使用 latest 标签"
+# }
 
-deny[msg] {
-  input.spec.template.spec.containers[_].securityContext.privileged == true
-  msg := "禁止 privileged 容器"
-}
+# deny[msg] {
+#   input.spec.template.spec.containers[_].securityContext.privileged == true
+#   msg := "禁止 privileged 容器"
+# }
 ```
 
 ### Argo CD Application 审计（实战验证结果）

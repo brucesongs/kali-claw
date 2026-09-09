@@ -294,8 +294,8 @@ frida -f /Applications/Zscaler/ZscalerClientConnector.app/Contents/MacOS/Zscaler
 cat > /tmp/bypass-posture.js << 'EOF'
 // Hook the posture reporter; replace with the actual function name from disassembly
 // Use `frida-trace -i '*[Pp]osture*' -n ZscalerClientConnector` to discover
-const postureFunc = Module.findExportByName(null, '_ZN20ZscalerClientConnector13getPostureEv')
-  || Module.findExportByName(null, 'getPostureState');
+const postureFunc = Module.getGlobalExportByName('_ZN20ZscalerClientConnector13getPostureEv') // Frida 17+
+  || Module.getGlobalExportByName('getPostureState');
 
 if (postureFunc) {
   Interceptor.replace(postureFunc, new NativeCallback(() => {

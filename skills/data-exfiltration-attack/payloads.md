@@ -1112,7 +1112,7 @@ shred -uvz ~/.bash_history
 
 ## §22. Post-Engagement Detection Validation
 
-```bash
+```text
 # Verify detection gaps
 # Compare SOC alerts during engagement:
 # - Expected: 5+ alerts per exfil channel

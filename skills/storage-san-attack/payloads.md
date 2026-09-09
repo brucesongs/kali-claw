@@ -393,7 +393,7 @@ grep -E 'no_root_squash|no_all_squash' /etc/exports
 mount -t nfs -o vers=4,sec=krb5p nfs.example.com:/data /mnt/nfs
 
 # Whitelist clients in /etc/exports
-/data  @storage_clients(rw,sec=krb5p,root_squash)
+# /data  @storage_clients(rw,sec=krb5p,root_squash)
 ```
 
 ---
@@ -2070,10 +2070,10 @@ This is a worked example for a hypothetical engagement against a fictional ACME 
 nmap -sV -p 3260,2049,445,161,10000,9000,8080,5000,5001 10.0.0.0/24 -oA recon/storage_sweep
 
 # Per-host
-10.0.0.5: open 443, 3260, 2049, 445, 161, 22 — NetApp FAS2750 (banner)
-10.0.0.6: open 443, 3260, 2049, 445 — Dell EMC Unity 380
-10.0.0.10: open 8080, 445, 2049, 22 — QNAP TS-870
-10.0.0.11: open 5000, 5001, 445, 2049 — Synology RS3618xs
+# 10.0.0.5: open 443, 3260, 2049, 445, 161, 22 — NetApp FAS2750 (banner)
+# 10.0.0.6: open 443, 3260, 2049, 445 — Dell EMC Unity 380
+# 10.0.0.10: open 8080, 445, 2049, 22 — QNAP TS-870
+# 10.0.0.11: open 5000, 5001, 445, 2049 — Synology RS3618xs
 ```
 
 ### 22.3 Exploitation (Hypothetical Findings)

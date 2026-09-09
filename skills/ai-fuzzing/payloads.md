@@ -561,8 +561,7 @@ ASAN_OPTIONS=abort_on_error=1:detect_leaks=0 \
 
 # Run with GDB for interactive debugging
 gdb --args ./target_asan crash_input
-(gdb) run
-# ASAN will report the crash location and stack trace
+# (gdb) run  — ASAN will report the crash location and stack trace
 ```
 
 ### Crash Deduplication

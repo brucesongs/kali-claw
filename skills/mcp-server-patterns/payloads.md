@@ -980,18 +980,18 @@ class AuditLogger:
 
 ```bash
 # /etc/logrotate.d/mcp-server
-/var/log/mcp/*.jsonl {
-    daily
-    rotate 30
-    compress
-    delaycompress
-    missingok
-    notifempty
-    create 0640 mcp mcp
-    postrotate
-        systemctl reload mcp-server
-    endscripts
-}
+# /var/log/mcp/*.jsonl {
+#     daily
+#     rotate 30
+#     compress
+#     delaycompress
+#     missingok
+#     notifempty
+#     create 0640 mcp mcp
+#     postrotate
+#         systemctl reload mcp-server
+#     endscripts
+# }
 ```
 
 ---

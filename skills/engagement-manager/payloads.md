@@ -986,7 +986,7 @@ print(f\"Engagement cost: \${hours * rate:,.2f}\")
 ### Scope Change Management
 
 ```bash
-echo "SCOPE_CHANGE: $(date -u +%Y-%m-%dT%H:%M:%SZ) | Added: 192.168.2.50 | Reason: Client requested\" >> engagement/state/scope_changes.log
+echo "SCOPE_CHANGE: $(date -u +%Y-%m-%dT%H:%M:%SZ) | Added: 192.168.2.50 | Reason: Client requested" >> engagement/state/scope_changes.log
 ```
 
 ### Engagement Risk Register

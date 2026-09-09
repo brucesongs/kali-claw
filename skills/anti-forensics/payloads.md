@@ -170,7 +170,7 @@ utmpdump /var/log/wtmp | grep -v "192.168.1.100" | utmpdump -r -o /var/log/wtmp
 
 ### Windows Event Log Manipulation
 
-```bash
+```powershell
 # Clear specific event log (requires admin, highly detectable)
 # PowerShell on target:
 wevtutil cl Security

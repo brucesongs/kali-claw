@@ -43,7 +43,7 @@ hashcat --restore
 ### Advanced Options
 ```bash
 # Performance optimization
-hashcat -O -w 3 -m 1000 hash.txt wordlist.txt
+hashcat -w 3 -m 1000 hash.txt wordlist.txt  # -O removed in hashcat 7 (OpenCL runtime auto-selected)
 
 # Output format
 hashcat --show --outfile cracked.txt hash.txt

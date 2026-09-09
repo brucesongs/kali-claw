@@ -17,10 +17,10 @@ roadtx --version
 
 # ─── AADInternals (PowerShell) ───
 # From PowerShell:
-Install-Module -Name AADInternals -Force -AllowClobber
-Import-Module AADInternals
+# From PowerShell: Install-Module -Name AADInternals -Force -AllowClobber
+# Import-Module AADInternals
 # Or one-liner download:
-iex(iwr https://raw.githubusercontent.com/Gerenios/AADInternals/master/AADInternals.ps1).Content
+# iex(iwr https://raw.githubusercontent.com/Gerenios/AADInternals/master/AADInternals.ps1).Content
 
 # ─── MicroBurst ───
 git clone https://github.com/NetSPI/MicroBurst /opt/MicroBurst
@@ -421,7 +421,7 @@ curl "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/authorize?client_id
 
 ### 5.1 SAML signature wrapping
 
-```bash
+```text
 # When a SAML-relying app verifies the signature at one location in the XML
 # but uses assertions from another location, signature wrapping is possible.
 # Tools: SAML Raider (Burp Suite extension), SAMLExtractor, WS-Attacker
@@ -863,7 +863,7 @@ curl -X POST "https://corp.auth0.com/dbconnections/signup" \
 
 ### 11.2 Auth0 rule / hook abuse
 
-```bash
+```javascript
 # Auth0 rules run as JS during auth flow
 # A compromised Auth0 admin can inject malicious rules
 

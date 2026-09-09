@@ -1278,7 +1278,7 @@ curl -s --user "api:$MAILGUN_API_KEY" \
 
 ### 18.1 Push Bombing — Reconnaissance
 
-```bash
+```powershell
 # Identify which users in scope use push MFA (vs TOTP, SMS, FIDO2)
 # In Microsoft Graph (requires AuditLog.Read.All permission)
 Connect-MgGraph -Scopes "UserAuthenticationMethod.Read.All,AuditLog.Read.All"

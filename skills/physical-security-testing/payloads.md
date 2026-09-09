@@ -913,7 +913,7 @@ nc -lvnp 4444
 
 ### 8.2 Common DuckyScript payloads
 
-```bash
+```text
 # Reverse shell (above)
 
 # Exfil via DNS

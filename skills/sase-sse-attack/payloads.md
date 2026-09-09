@@ -81,7 +81,7 @@ openssl x509 -in /etc/ssl/certs/zscaler-root-ca.pem -noout -subject -issuer -dat
 
 ### 1.4 Process Inspection (Cross-Platform)
 
-```bash
+```powershell
 # macOS / Linux: list running agent processes
 ps -axo pid,comm | grep -iE 'zsagent|zscaler|nspa|netskope|pangpa|globalprotect|umbrella|cato|cloudflare|warp|gsa|globalsecure'
 

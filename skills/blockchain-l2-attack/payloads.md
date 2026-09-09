@@ -199,7 +199,7 @@ done
 # Step 3: Preimage tx confirms first, but B's HTLC-timeout tx is dropped
 
 # Demonstrate on regtest
-lightning-cli --lightning-dir=/tmp/l2 dev-sign-last-tx 0222..(A_pubkey)
+lightning-cli --lightning-dir=/tmp/l2 dev-sign-last-tx '0222..(A_pubkey)'
 # Examine the to_local / to_remote outputs
 ```
 
@@ -250,7 +250,7 @@ lightning-cli --lightning-dir=/tmp/l2 dev-extract-onion-secret \
 # 4. Without a WatchTower, B has 144 blocks to notice and broadcast a penalty tx
 # 5. If B is offline > 144 blocks, A steals 0.5 BTC
 
-lightning-cli --lightning-dir=/tmp/l1 close --force 0222..(B_pubkey)
+lightning-cli --lightning-dir=/tmp/l1 close --force '0222..(B_pubkey)'
 # Observe: A's commitment tx is the OLD state, B has 144 blocks to react
 ```
 
@@ -335,7 +335,7 @@ Optimistic rollups (Optimism/OP Stack, Arbitrum/Nitro, Boba, Base) assume transa
 # then attempts to prevent honest watchers from submitting fraud proofs
 
 # How to detect: monitor the L2OutputOracle for state root proposals
-cast call 0x5537...KKT (L2OutputOracle) "nextOutputIndex()" --rpc-url $L1_RPC
+cast call 0x5537...KKT "L2OutputOracle" "nextOutputIndex()" --rpc-url $L1_RPC
 cast call 0x5537...KKT "getL2Output(uint256)()" 123 --rpc-url $L1_RPC
 # Compare the proposed output vs the actual L2 state root
 cast rpc --rpc-url $L2_RPC eth_getBlockByNumber "latest" false | jq -r .stateRoot
@@ -399,7 +399,7 @@ docker run -d -p 8547:8547 -p 9642:9642 \
   --node.seq-coordinate-url=wss://seq.coordinator
 
 # Verify the Nitro rollup manager on L1
-cast call 0xA4B00000000000000000000000000000000000 (RollupProxy) \
+cast call 0xA4B00000000000000000000000000000000000 "RollupProxy" \
   "latestConfirmed()" --rpc-url $L1_RPC
 
 # Inspect a Nitro assertion
@@ -497,7 +497,7 @@ ZK rollups (zkSync Era, StarkNet, Polygon zkEVM, Scroll, Linea) rely on zero-kno
 # for an invalid state transition
 
 # Detect: verify the prover's claimed public inputs match the actual state
-cast call 0x32400084C286CF3E17e7B677ea9583e60a000324 (zkSyncDiamond) \
+cast call 0x32400084C286CF3E17e7B677ea9583e60a000324 "zkSyncDiamond" \
   "getStoredBatchHash(uint256)" 123 --rpc-url $ZKSYNC_RPC
 
 # Compare with the actual L2 state root
@@ -639,7 +639,7 @@ Polygon PoS is a sidechain (technically a "commit chain") with its own validator
 
 ```bash
 # Polygon PoS: validator set on the stake manager contract (L1)
-cast call 0x5e3Ef299fDDf15eAa483AE762359C841972A5eC2 (StakeManager) \
+cast call 0x5e3Ef299fDDf15eAa483AE762359C841972A5eC2 "StakeManager" \
   "getCurrentValidatorSet()" --rpc-url $L1_RPC
 
 # Compute Nakamoto coefficient
@@ -701,7 +701,7 @@ cat /var/lib/bor/genesis.json | jq -r .hash
 
 ```bash
 # Heimdall submits checkpoints to L1 (RootChainManager)
-cast call 0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287 (RootChainManager) \
+cast call 0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287 "RootChainManager" \
   "getCurrentCheckpoint()" --rpc-url $L1_RPC
 
 # Each checkpoint commits to a Bor block range
@@ -718,7 +718,7 @@ cast call 0x...ValidatorAuction "isValidator(address)" 0xValidator --rpc-url $GC
 cast call 0x...ValidatorAuction "validatorCount()" --rpc-url $GC_RPC
 
 # Audit the bridge contracts (xDai bridge)
-cast call 0x88ad09518695c6c3712AC10a214bE5109a655671 (ForeignBridge) \
+cast call 0x88ad09518695c6c3712AC10a214bE5109a655671 "ForeignBridge" \
   "requiredSignatures()" --rpc-url $L1_RPC
 # Should be > N/2
 ```
@@ -916,7 +916,7 @@ contract NomadPoC is Test {
 anvil --fork-url $MAINNET_RPC --fork-block-number 14377441 --port 8545 &
 
 # Examine the validator set
-cast call 0xA0c68C638235ee32673e8E824d339D52B2Bf2E54 (RoninGateway) \
+cast call 0xA0c68C638235ee32673e8E824d339D52B2Bf2E54 "RoninGateway" \
   "getSigners()" --rpc-url http://localhost:8545
 ```
 
@@ -967,7 +967,7 @@ contract RoninPoC is Test {
 anvil --fork-url $MAINNET_RPC --fork-block-number 12975000 --port 8545 &
 
 # Examine the keeper role
-cast call 0x8388f7F72B33CaacC5DB5d0bcF022CF0158E2FA5 (EthCrossChainManager) \
+cast call 0x8388f7F72B33CaacC5DB5d0bcF022CF0158E2FA5 "EthCrossChainManager" \
   "owner()" --rpc-url http://localhost:8545
 ```
 

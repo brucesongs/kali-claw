@@ -130,8 +130,10 @@ az keyvault key encrypt --name hndl-target --value "$(echo -n decade | base64)" 
 ```bash
 # Capture Signal protocol messages via Frida (for own account)
 frida -U -l signal-hook.js -f org.thoughtcrime.securesms
+```
 
-# signal-hook.js
+```javascript
+// signal-hook.js
 Java.perform(function() {
     var Signal = Java.use("org.thoughtcrime.securesms.crypto.SignalProtocolLogger");
     Signal.log.overload('java.lang.String').implementation = function(msg) {

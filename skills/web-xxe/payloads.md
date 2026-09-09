@@ -819,7 +819,7 @@ PYEOF
 
 ## 13. XXE via Burp Suite Collaborator
 
-```bash
+```text
 # Generate Collaborator payload in Burp Suite
 # Right-click -> Insert Collaborator payload
 

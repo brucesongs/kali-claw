@@ -270,7 +270,7 @@ grep -oP '\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b' report.txt | sort -u
 grep -oP 'CVE-\d{4}-\d{4,}' report.txt | sort -u
 
 # Extract URLs
-grep -oP 'https?://[^\s<>"\']+' report.txt | sort -u
+grep -oP "https?://[^\s<>\"']+" report.txt | sort -u
 ```
 
 ---
@@ -1873,7 +1873,7 @@ def extract_iocs_from_document(filepath):
 
 ### Automated Report Generation
 
-```bash
+```python
 #!/bin/bash
 # document-triage-report.sh — Generate triage report for suspicious documents
 DOC_DIR="$1"

@@ -1027,7 +1027,7 @@ python3 loki.py \
 
 ### 7.4 Common Loki Flags
 
-```bash
+```text
 --path <path>               # Target directory or file
 --rules <dir>               # Custom YARA rules directory
 --results <file>            # Output file

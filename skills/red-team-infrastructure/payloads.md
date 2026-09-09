@@ -102,7 +102,7 @@ linode-cli linodes create --label c2-1 --type g6-nanode-1 --region us-east --ima
 
 ### 3.2 Compartmentalization rules
 
-```bash
+```text
 # Per-team hosting
 Team-A (C2 backend):    DigitalOcean, prepaid card 1234
 Team-B (Redirector 1):  Vultr, crypto Monero
@@ -801,7 +801,7 @@ sliver > http --domain c2.example.com \
 
 ### 19.2 Mythic HTTP profile
 
-```bash
+```text
 # Custom HTTP profile that mimics legitimate API
 {
   "GET": [

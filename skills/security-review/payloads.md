@@ -164,7 +164,7 @@ curl -s http://target/actuator/health
 ### 2.2 Command Injection Payloads
 
 **Basic command injection:**
-```bash
+```text
 ; id
 | id
 `id`

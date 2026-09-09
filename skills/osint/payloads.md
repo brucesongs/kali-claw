@@ -497,26 +497,26 @@ spiderfoot -l 127.0.0.1:5001
 ```bash
 # startandcreateworkworkzone
 recon-ng
-[recon-ng] > workspaces create target_recon
+# [recon-ng] > workspaces create target_recon
 
 # addtargetdomain name
-[recon-ng] > add domains example.com
+# [recon-ng] > add domains example.com
 
 # subdomain enumerationmodulechain
-[recon-ng] > use recon/domains-hosts/brute_hosts
-[recon-ng] > run
-[recon-ng] > use recon/hosts-hosts/resolve
-[recon-ng] > run
+# [recon-ng] > use recon/domains-hosts/brute_hosts
+# [recon-ng] > run
+# [recon-ng] > use recon/hosts-hosts/resolve
+# [recon-ng] > run
 
 # email addresscollect
-[recon-ng] > use recon/domains-contacts/email-harvester
-[recon-ng] > set source example.com
-[recon-ng] > run
+# [recon-ng] > use recon/domains-contacts/email-harvester
+# [recon-ng] > set source example.com
+# [recon-ng] > run
 
 # exportresult
-[recon-ng] > show hosts
-[recon-ng] > show contacts
-[recon-ng] > export csv /tmp/recon_results.csv
+# [recon-ng] > show hosts
+# [recon-ng] > show contacts
+# [recon-ng] > export csv /tmp/recon_results.csv
 ```
 
 ---

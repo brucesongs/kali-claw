@@ -777,18 +777,18 @@ flashrom -p ch341a_spi:spispeed=128k -r /tmp/slow_dump.bin
 ```bash
 # Connect GDB to OpenOCD debug server
 arm-none-eabi-gdb
-(gdb) target remote localhost:3333
-(gdb) monitor halt
+# (gdb) target remote localhost:3333
+# (gdb) monitor halt
 
 # Dump all flash memory
-(gdb) dump binary memory /tmp/flash_dump.bin 0x08000000 0x08100000
+# (gdb) dump binary memory /tmp/flash_dump.bin 0x08000000 0x08100000
 
 # Dump RAM contents
-(gdb) dump binary memory /tmp/ram_dump.bin 0x20000000 0x20020000
+# (gdb) dump binary memory /tmp/ram_dump.bin 0x20000000 0x20020000
 
 # Search for strings in memory
-(gdb) find 0x20000000, 0x20020000, "password"
-(gdb) find 0x20000000, 0x20020000, "secret"
+# (gdb) find 0x20000000, 0x20020000, "password"
+# (gdb) find 0x20000000, 0x20020000, "secret"
 ```
 
 ---
@@ -814,13 +814,13 @@ echo "wp 0x20000000 4 w" | telnet localhost 4444
 ```bash
 # Full GDB hardware debugging session
 arm-none-eabi-gdb /tmp/firmware.elf
-(gdb) target remote :3333
-(gdb) monitor reset halt
-(gdb) break main
-(gdb) continue
-(gdb) print security_flag
-(gdb) set {int}0x20000004 = 1
-(gdb) continue
+# (gdb) target remote :3333
+# (gdb) monitor reset halt
+# (gdb) break main
+# (gdb) continue
+# (gdb) print security_flag
+# (gdb) set {int}0x20000004 = 1
+# (gdb) continue
 ```
 
 ---

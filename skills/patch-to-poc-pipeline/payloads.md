@@ -1711,7 +1711,7 @@ for cve in /work/cybergym-subset/*.json; do
     success=$((success + 1))
   fi
 done
-echo "success_rate: $success / $total ($(awk "BEGIN {printf \"%.1f\", $success / $total * 100}%) )"
+echo "success_rate: $success / $total ($(awk "BEGIN {printf \"%.1f\", $success / $total * 100}")%)"
 ```
 
 ---

