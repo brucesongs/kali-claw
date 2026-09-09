@@ -1,3 +1,16 @@
+# kali-claw v0.3.5 — 全量验证与完整性排序 🏅
+
+*Generated: 2026-09-09 | Version: v0.3.4 → v0.3.5 | Focus: Repo-wide validation, ranking & mechanical zeroing*
+
+---
+
+139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；
+公网链接抽查发现 5 个真死链（入报告）。排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md ✅
+
+详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)
+
+---
+
 # kali-claw v0.3.4 — Q4 工具基线提前 🧰
 
 *Generated: 2026-09-09 | Version: v0.3.3 → v0.3.4 | Focus: Early Q4 tool baseline + drift automation*

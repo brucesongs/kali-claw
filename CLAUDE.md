@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.3.4 (early Q4 tool baseline: KALI_TOOLS_BASELINE_2026_09 + check-tool-versions.py automation). See [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md) for the latest milestone.
+> **Current Version**: v0.3.5 (repo-wide skill validation & completeness ranking; report at docs/SKILL_VALIDATION_RANKING_2026-09-09.md). See [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md) for the latest milestone.
 
 ## Architecture
 

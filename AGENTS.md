@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.4 (2026-09-09) — **Q4 工具基线提前**（2026_09 基线：0 新 MAJOR；Trivy 行动项关闭；check-tool-versions.py；skill-lint 0/0/139）。详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)。
+> **Current Version**: v0.3.5 (2026-09-09) — **全量验证与完整性排序**（139 技能三轴验证；机械问题三清零；排名报告上线；skill-lint 0/0/139）。详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)。
 
 ---
 

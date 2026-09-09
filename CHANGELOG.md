@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.5 (2026-09-09) — 全量验证与完整性排序 🏅
+
+### 139 技能三轴验证 + 机械问题清零 + 排名报告
+
+- 完整性主排序：均分 81.1（65-92），Excellent 57 / Good 76 / Fair 6，无 Poor
+- 可用性：bash 语法错误块 **102 → 0**（围栏错标/会话转录/真实 shell 缺陷/嵌套围栏四类）；占位桩 3 → 0；过时模式 6 → 0
+- 可靠性：审查龄全员 ≤2 天；Top 30 公网链接抽查 55 个（死链 5，入报告）
+- 报告：`docs/SKILL_VALIDATION_RANKING_2026-09-09.md`（全 139 排名表 + findings register）
+- lint 0/0/139 全程无回归
+
+详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)
+
+---
+
 ## v0.3.4 (2026-09-09) — Q4 工具基线提前 🧰
 
 ### KALI_TOOLS_BASELINE_2026_09 + 漂移检查自动化
