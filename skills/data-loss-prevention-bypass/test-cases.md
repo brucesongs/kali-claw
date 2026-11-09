@@ -1,132 +1,163 @@
 # Test Cases — data-loss-prevention-bypass
 
-> Structured test cases for data-loss-prevention-bypass.
+> Structured test cases for data-loss-prevention-bypass (authorized lab / DLP coverage validation).
 
 ## TC-001: DNS Tunneling Detection
 
-**Objective**: Verify DLP detects DNS tunneling.
+**Objective**: Verify DLP/NDR detects DNS tunneling.
 
-**Arrange**: Run dnscat2 over DNS.
+**Arrange**: Run dnscat2 or iodine against an authorized lab domain.
 
-**Act**: Transfer 10MB of data via DNS tunnel.
+**Act**: Transfer 10MB of marked data via DNS TXT tunnel.
 
-**Assert**: DLP alert within 5 minutes; tunnel blocked.
+**Assert**: Alert within 5 minutes (label entropy / NXDOMAIN ratio); tunnel blocked or flagged.
 
 ---
 
 ## TC-002: Image Steganography Detection
 
-**Objective**: Verify DLP detects LSB steganography.
+**Objective**: Verify DLP flags LSB steganography carriers.
 
-**Arrange**: Embed sensitive data in image via steghide.
+**Arrange**: Embed marked data in cover.jpg via steghide (§5 of payloads).
 
-**Act**: Upload image to cloud storage.
+**Act**: Upload image through sanctioned cloud sync.
 
-**Assert**: DLP flags image for steganography inspection.
+**Assert**: DLP flags for stego inspection or content-classification review; silent pass = coverage gap.
 
 ---
 
 ## TC-003: Cloud Sync Exfil Detection
 
-**Objective**: Verify CASB detects cloud sync exfil.
+**Objective**: Verify CASB detects bulk cloud sync exfil.
 
-**Arrange**: Upload sensitive data to OneDrive.
+**Arrange**: CASB integrated with tenant; marked PII dataset (100MB).
 
-**Act**: Upload 100MB of PII to OneDrive.
+**Act**: Upload dataset to personal OneDrive via sync client and Graph API.
 
-**Assert**: CASB alert; upload rate limited.
+**Assert**: CASB alert + rate-limit/quarantine on both paths.
 
 ---
 
 ## TC-004: ICMP Tunneling Detection
 
-**Objective**: Verify network monitoring detects ICMP tunneling.
+**Objective**: Verify network monitoring detects ICMP tunnels.
 
-**Arrange**: Run ICMP tunnel.
+**Arrange**: pingtunnel/icmpsh lab against authorized egress.
 
-**Act**: Transfer data via ICMP.
+**Act**: Transfer 1MB via ICMP echo payloads at 1 pkt/s.
 
-**Assert**: Network monitoring alert on large ICMP packets.
+**Assert**: Alert on oversized/monotonous ICMP payloads or timing baseline deviation.
 
 ---
 
 ## TC-005: Slow Exfiltration Detection
 
-**Objective**: Verify behavioral analytics detect slow exfil.
+**Objective**: Verify UEBA catches slow-drip egress.
 
-**Arrange**: Exfil data at 100KB/hr.
+**Arrange**: Marked 10MB dataset; business-hours trickle profile (§13).
 
-**Act**: Spread 10MB over 100 hours.
+**Act**: Spread transfer over 100 hours at ~100KB/hr.
 
-**Assert**: UEBA alert on anomalous egress pattern.
-
-
----
-
-## TC-004: Reconnaissance Detection
-
-**Objective**: Verify monitoring detects reconnaissance.
-
-**Arrange**: Run scanning tools.
-
-**Act**: Execute scan against target.
-
-**Assert**: Monitoring alert within 5 minutes.
+**Assert**: UEBA volume-anomaly alert on cumulative egress; document detection latency.
 
 ---
 
-## TC-005: Defense Bypass
+## TC-006: Egress Recon Detection
 
-**Objective**: Verify defense bypass is detected.
+**Objective**: Detect DLP agent fingerprinting attempts (§2 of payloads).
 
-**Arrange**: Attempt to bypass primary control.
+**Arrange**: Endpoint DLP deployed; SIEM agent logs wired.
 
-**Act**: Execute bypass technique.
+**Act**: Enumerate agent services/processes and query policy registry keys.
 
-**Assert**: Secondary control catches attempt.
+**Assert**: Tamper or recon alert on enumeration; silent pass = visibility gap.
+
+---
+
+## TC-007: Layered Evasion Fallback
+
+**Objective**: Verify secondary controls when primary channel is blocked.
+
+**Arrange**: Block DNS tunnel (TC-001 alert path).
+
+**Act**: Switch to DoH relay (§6) then ICMP (§7); repeat marked transfer.
+
+**Assert**: Fallback channels independently alerted; complete bypass matrix recorded.
+
+---
+
+## TC-008: SaaS API Masquerade Detection
+
+**Objective**: Verify DLP covers exfil over allowed SaaS APIs.
+
+**Arrange**: DLP/CASB with SaaS integration; personal-drive account under tester control.
+
+**Act**: Upload marked 10MB dataset via official sync client and API (renamed extension, polyglot carrier §4).
+
+**Assert**: Upload alerted/blocked or flagged; silent success on any variant = finding.
+
+---
+
+## TC-009: Covert Timing Channel Baseline
+
+**Objective**: Detect data-encoded inter-request timing (§11).
+
+**Arrange**: Lab egress with timing capture; scripted bit-delay encoder.
+
+**Act**: Exfil 1KB marker via request-timing over 10 min, then 60 min.
+
+**Assert**: Timing-anomaly detection fires on fast channel, or gap documented for tuning.
+
+---
+
+## TC-010: Endpoint DLP Agent Bypass Verification
+
+**Objective**: Verify endpoint DLP covers unmonitored paths (§2/§4).
+
+**Arrange**: Endpoint agent deployed; standard user privileges.
+
+**Act**: Attempt transfers via ADS, guest-session SMB, novel browser profile, portable app.
+
+**Assert**: Each path blocked/alarmed or confirmed unmonitored — full bypass matrix recorded.
+
+---
+
+## TC-011: Polyglot & Encrypted-Archive Evasion
+
+**Objective**: Verify inspection of dual-nature/encrypted containers (§4).
+
+**Arrange**: GIF/ZIP polyglot + header-encrypted 7z carrying marked data.
+
+**Act**: Transfer both through proxy and upload lanes.
+
+**Assert**: Polyglot flagged by structural analysis; encrypted archive quarantined by policy; gaps documented.
+
+---
+
+## TC-012: DoH Covert Channel Coverage
+
+**Objective**: Verify coverage when DNS rides HTTPS (§6 DoH variant).
+
+**Arrange**: DNS-inspecting proxy + HTTPS egress logging.
+
+**Act**: Relay marked chunks via public DoH resolver POST/GET patterns.
+
+**Assert**: DoH endpoint volume/entropy alert fires, or coverage gap recorded.
+
+---
+
+## TC-013: Presigned-URL & SAS Exfil Detection
+
+**Objective**: Verify detection of object-store credential abuse (§9).
+
+**Arrange**: Cloud SIEM with S3/blob data-plane logs; leaked-test presigned URL + SAS token.
+
+**Act**: Upload marked data via presigned URL and SAS token to tester-controlled storage.
+
+**Assert**: Anomalous write (new object prefix/pattern) alerted; token scope abuse flagged.
 
 ---
 
 ## Test Suite Summary
 
-5 test cases covering reconnaissance, exploitation, persistence, detection, and defense bypass.
-"""
-
----
-
-## TC-006: SaaS API Masquerade Detection
-
-**Objective**: Verify DLP covers exfiltration over allowed SaaS APIs (file upload to personal cloud)
-
-**Arrange**: DLP with SaaS/CASB integration enabled in lab; personal-drive account under tester control
-
-**Act**: Upload a marked 10MB dataset to personal cloud storage via the official sync client and API
-
-**Assert**: Upload alerted/blocked or flagged for review; silent success = coverage gap finding
-
----
-
-## TC-007: Covert Timing Channel Baseline
-
-**Objective**: Verify anomalous inter-request timing patterns (data-encoded delays) raise detection
-
-**Arrange**: Lab egress with timing capture; scripted encoder mapping bits to request delays
-
-**Act**: Exfiltrate a 1KB marker via request-timing encoding over 10 minutes, then 60 minutes
-
-**Assert**: Timing-anomaly detection fires on the fast channel, or both rates pass undetected and the gap is documented
-
----
-
-## TC-008: Endpoint DLP Agent Bypass Verification
-
-**Objective**: Verify endpoint DLP cannot be sidestepped by unmonitored processes and paths
-
-**Arrange**: Endpoint DLP agent deployed on lab host; standard user privileges
-
-**Act**: Attempt transfers via paths commonly unmonitored: alternate data streams, guest-session SMB, novel browser profile, portable app
-
-**Assert**: Each path either blocked/alarmed or confirmed unmonitored — complete bypass matrix recorded for tuning
-
----
-
+13 test cases: channels (DNS/ICMP/DoH/SaaS/cloud/timing/stego/polyglot), endpoint agent coverage, layered fallback, and credential-abuse exfil — maps to payloads §2–§13.

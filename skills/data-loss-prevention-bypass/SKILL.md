@@ -20,8 +20,8 @@ metadata:
   category: dlp-evasion
   tool_count: 7
   guide_count: 0
-  mitre: "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol"
-  last_reviewed: "2026-09-04"
+  mitre: "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol, T1048.003-Unencrypted Non-C2 Protocol, T1008-Fallback Channels, T1567.002-Exfiltration to Cloud Storage, T1001-Data Obfuscation, T1132-Data Encoding, T1030-Data Transfer Size Limits"
+  last_reviewed: "2026-11-09"
   keywords: ["DLP", "exfiltration", "steganography", "DNS tunneling", "ICMP tunneling", "data loss prevention"]
 ---
 
@@ -222,4 +222,3 @@ Ensure proper authorization before testing. Document scope in engagement letter.
 - [OWASP Top 10](https://owasp.org/Top10/)
 - [MITRE ATT&CK](https://attack.mitre.org/)
 - Industry-specific compliance frameworks
-

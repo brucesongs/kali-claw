@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.6** (2026-11-09) — **第 4 次月度审查 + 死链清偿**（lint 0/0/139 无回归；R3-1 死链 5→0；SKILL_HANDBOOK/INDEX 自动化重建）。详见 [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md)。
+> **Current Version**: **v0.3.7** (2026-11-09) — **Bottom 技术孪生加深**（DLP-bypass / edge-computing-security 双双 65→78；+11 NVD 核验 CVE；lint 0/0/139）。详见 [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md)。
 
 ---
 
@@ -397,6 +397,7 @@ TOOLS.md:
 | **v0.3.4** | **2026-09-09** | **Q4 工具基线提前** 🧰 | KALI_TOOLS_BASELINE_2026_09（0 新 MAJOR、上次 6 个复查 0 回归、11 MINOR/PATCH）；Trivy 行动项关闭（3 处 @master 固定，CVE-2026-33634）；新增 validation/check-tool-versions.py（08 改进项 #1）；lint 0/0/139 ✅. See [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md) |
 | **v0.3.5** | **2026-09-09** | **全量验证与完整性排序** 🏅 | 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；Top30 公网链接抽查（死链 5 入报告）；排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md；lint 0/0/139 ✅. See [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md) |
 | **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md) |
+| **v0.3.7** | **2026-11-09** | **Bottom 技术孪生加深** 📈 | DLP-bypass / edge-computing-security 双双 65→78（Good）：payloads 109→319 / 88→245 行重建、CVE 0→6 / 3→8（NVD 核验）、TC 去重规范化 13/13、MITRE 1→8 / 1→7；bash -n 门 0 错；lint 0/0/139 ✅. See [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

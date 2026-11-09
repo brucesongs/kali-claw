@@ -2,6 +2,18 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.7 (2026-11-09) — Bottom 技术孪生加深 📈
+
+### v0.3.5/v0.3.6 P1 backlog 清偿（Bottom 双子 65→78）
+
+- data-loss-prevention-bypass：payloads 109→319 行（18 节：通道矩阵/端点侦察/变换规避/stego/DNS+DoH/ICMP/SaaS 伪装/云凭证/WSS-H2-H3/时序/AI 语义/慢滴/拟态/检测）；CVE 0→6（NVD 核验）；TC 去重 13；MITRE 1→8；重评 **78（Good）**
+- edge-computing-security：payloads 88→245 行（14 节：边缘指纹/源站发现/直连绕过/WAF/缓存投毒/缓存欺骗/h2 走私/边缘函数/shield DoS/控制面/检测）；CVE 3→8（+ATS×3/Envoy/Varnish，NVD 核验）；TC 去重 13；MITRE 1→7；重评 **78（Good）**
+- 新增 bash -n 门验证（重建 payloads 全部 bash 块 0 错误）；lint 0/0/139 保持
+
+详见 [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md)
+
+---
+
 ## v0.3.6 (2026-11-09) — 第 4 次月度审查 + 死链清偿 🧹
 
 ### 逾期补做月度审查（原定 2026-10-05）+ R3-1 清零 + 手册重建

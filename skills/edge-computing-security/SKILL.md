@@ -20,8 +20,8 @@ metadata:
   category: cdn-edge
   tool_count: 7
   guide_count: 0
-  mitre: "TA0001-Initial Access, T1190-Exploit Public-Facing App"
-  last_reviewed: "2026-07-26"
+  mitre: "TA0001-Initial Access, T1190-Exploit Public-Facing App, T1592-Gather Victim Host Info, T1557-Adversary-in-the-Middle, T1505.003-Web Shell, T1499-Endpoint Denial of Service, T1595.002-Vulnerability Scanning"
+  last_reviewed: "2026-11-09"
   keywords: ["CDN", "Cloudflare", "Lambda@Edge", "cache poisoning", "origin IP", "WAF bypass"]
 ---
 
@@ -190,4 +190,3 @@ Ensure proper authorization before testing. Document scope in engagement letter.
 - [OWASP Top 10](https://owasp.org/Top10/)
 - [MITRE ATT&CK](https://attack.mitre.org/)
 - Industry-specific compliance frameworks
-

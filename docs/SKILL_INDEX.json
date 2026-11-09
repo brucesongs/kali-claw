@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "generated_at": "2026-11-09T00:50:44+00:00",
-    "kali_claw_version": "0.3.6",
+    "generated_at": "2026-11-09T01:01:35+00:00",
+    "kali_claw_version": "0.3.7",
     "total_skills": 139,
     "total_domains": 83,
     "skill_version": "0.2.0.2",
@@ -1304,9 +1304,9 @@
       "version": "0.2.0.2",
       "domain": "data-protection",
       "category": "dlp-evasion",
-      "mitre": "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol",
+      "mitre": "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol, T1048.003-Unencrypted Non-C2 Protocol, T1008-Fallback Channels, T1567.002-Exfiltration to Cloud Storage, T1001-Data Obfuscation, T1132-Data Encoding, T1030-Data Transfer Size Limits",
       "owasp": "",
-      "last_reviewed": "2026-09-04",
+      "last_reviewed": "2026-11-09",
       "files": [
         "SKILL.md",
         "guides/usage-and-assessment.md",
@@ -1566,9 +1566,9 @@
       "version": "0.2.0.2",
       "domain": "edge",
       "category": "cdn-edge",
-      "mitre": "TA0001-Initial Access, T1190-Exploit Public-Facing App",
+      "mitre": "TA0001-Initial Access, T1190-Exploit Public-Facing App, T1592-Gather Victim Host Info, T1557-Adversary-in-the-Middle, T1505.003-Web Shell, T1499-Endpoint Denial of Service, T1595.002-Vulnerability Scanning",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-09",
       "files": [
         "SKILL.md",
         "guides/usage-and-assessment.md",

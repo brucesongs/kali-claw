@@ -1,6 +1,6 @@
 # kali-claw SKILL 使用手册
 
-> **版本**: 0.3.6 | **生成日期**: 2026-11-09 | **SKILL 总数**: 139 / **域数**: 83
+> **版本**: 0.3.7 | **生成日期**: 2026-11-09 | **SKILL 总数**: 139 / **域数**: 83
 > 本文件由 `validation/gen-skill-handbook.py` 自动生成（以 skills/ frontmatter 为权威源），请勿手工编辑。
 
 ---
@@ -581,7 +581,7 @@
 
 ### data-loss-prevention-bypass
 
-**版本**: 0.2.0.2 | **域**: data-protection | **MITRE**: TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol | reviewed 2026-09-04
+**版本**: 0.2.0.2 | **域**: data-protection | **MITRE**: TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol, T1048.003-Unencrypted Non-C2 Protocol, T1008-Fallback Channels, T1567.002-Exfiltration to Cloud Storage, T1001-Data Obfuscation, T1132-Data Encoding, T1030-Data Transfer Size Limits | reviewed 2026-11-09
 
 > DLP bypass techniques covering steganography (LSB, audio, video), DNS tunneling, ICMP tunneling, cloud sync abuse (Dropbox, OneDrive), WebSocket/HTTP3 exfil, AI-augmented exfil (semantic chunking), and modern DLP evasion patterns.
 
@@ -697,7 +697,7 @@
 
 ### edge-computing-security
 
-**版本**: 0.2.0.2 | **域**: edge | **MITRE**: TA0001-Initial Access, T1190-Exploit Public-Facing App | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: edge | **MITRE**: TA0001-Initial Access, T1190-Exploit Public-Facing App, T1592-Gather Victim Host Info, T1557-Adversary-in-the-Middle, T1505.003-Web Shell, T1499-Endpoint Denial of Service, T1595.002-Vulnerability Scanning | reviewed 2026-11-09
 
 > Edge computing security testing covering CDN bypass, Cloudflare Workers abuse, AWS Lambda@Edge attacks, cache poisoning, origin IP discovery, WAF bypass, and edge function injection.
 
