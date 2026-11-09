@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.5** (2026-09-09) — **全量验证与完整性排序**（139 技能三轴验证；语法错误块 102→0；排名报告上线；skill-lint 0/0/139）。详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)。
+> **Current Version**: **v0.3.6** (2026-11-09) — **第 4 次月度审查 + 死链清偿**（lint 0/0/139 无回归；R3-1 死链 5→0；SKILL_HANDBOOK/INDEX 自动化重建）。详见 [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md)。
 
 ---
 
@@ -396,6 +396,7 @@ TOOLS.md:
 | **v0.3.3** | **2026-09-08** | **TC 清偿 & backlog 归零** 🧪🏁 | 88 条新 TC（34 技能补齐至 10 + command-injection 计数修复 + council 修正）；9 豁免 meta 策略关闭；全仓 139 评估文档 truth-sync 重算（清除 ~85 行陈旧 finding）——**非策略 open findings = 0**；lint 0/0/139 ✅. See [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md) |
 | **v0.3.4** | **2026-09-09** | **Q4 工具基线提前** 🧰 | KALI_TOOLS_BASELINE_2026_09（0 新 MAJOR、上次 6 个复查 0 回归、11 MINOR/PATCH）；Trivy 行动项关闭（3 处 @master 固定，CVE-2026-33634）；新增 validation/check-tool-versions.py（08 改进项 #1）；lint 0/0/139 ✅. See [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md) |
 | **v0.3.5** | **2026-09-09** | **全量验证与完整性排序** 🏅 | 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；Top30 公网链接抽查（死链 5 入报告）；排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md；lint 0/0/139 ✅. See [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md) |
+| **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

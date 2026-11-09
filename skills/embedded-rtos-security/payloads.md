@@ -1577,13 +1577,16 @@ def uvisor_bypass_via_hardfault(vtor_addr=0x0, fake_handler=0x20005001):
 ### Pelion Device Management client
 
 ```bash
-# Pelion client (now deprecated) uses mbedTLS for HTTPS to the Pelion Cloud
-# Default endpoint: https://api.us-east-1.mbedcloud.com
+# Pelion client (service EOL — Arm retired mbed Cloud/Pelion Device Management)
+# uses mbedTLS for HTTPS to the Pelion Cloud. Legacy firmware still ships these
+# endpoints, so they remain valid firmware-hunting signatures.
+# Historical endpoint (dead service, signature-only): api.us-east-1.mbedcloud.com
 # (or eu-west-1 / ap-northeast-1 region variants)
+# Current product reference: https://www.arm.com/products/iot/pelion-iot-platform
 
 # Identify the Pelion endpoint in firmware:
 strings firmware.bin | grep -E "mbedcloud|pelion|api\.[a-z-]+\.mbedcloud"
-#   https://api.us-east-1.mbedcloud.com/v2/device-requests/
+#   api.us-east-1.mbedcloud.com/v2/device-requests/ (historical signature)
 
 # Extract the device's LwM2M endpoint name and bootstrap certificate:
 strings firmware.bin | grep -E "endpoint=|bootstrap|lwm2m"

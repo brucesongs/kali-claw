@@ -2,6 +2,21 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.6 (2026-11-09) — 第 4 次月度审查 + 死链清偿 🧹
+
+### 逾期补做月度审查（原定 2026-10-05）+ R3-1 清零 + 手册重建
+
+- 月度审查：lint **0/0/139 无回归**；validators 0 错；TC 1,841；pqi（pqc-implementation-attack）9 周稳定；v0.2.4 双子稳定
+- R3-1 死链 **5 → 0**：Osmocom gitea 路径迁移 ×2、Hermez trusted-setup-mpc 仓库消失、mbedcloud EOL ×2、bluepill 失联 — 替换链 5/5 活性 200
+- `docs/SKILL_HANDBOOK.md` 重建：137 手写快照 → **139 技能 / 83 域分组 / 自动生成**（1,928 行）
+- `docs/SKILL_INDEX.json` 重建：metadata 陈旧（v0.3.0）→ frontmatter 权威源全量对账
+- 新增 `validation/gen-skill-handbook.py`（`--check` drift gate，建议入月度审查 SOP）
+- 工作区清理：删除 `skills.zip`（tracked 9MB 冗余快照）+ `skills/5g-6g-telecom-attack-advanced.zip`（含 __MACOSX 垃圾），均 trash 可恢复
+
+详见 [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md)
+
+---
+
 ## v0.3.5 (2026-09-09) — 全量验证与完整性排序 🏅
 
 ### 139 技能三轴验证 + 机械问题清零 + 排名报告

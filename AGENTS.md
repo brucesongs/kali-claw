@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.5 (2026-09-09) — **全量验证与完整性排序**（139 技能三轴验证；机械问题三清零；排名报告上线；skill-lint 0/0/139）。详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)。
+> **Current Version**: v0.3.6 (2026-11-09) — **第 4 次月度审查 + 死链清偿**（lint 0/0/139 无回归；R3-1 死链 5→0；手册/索引自动化重建）。详见 [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md)。
 
 ---
 

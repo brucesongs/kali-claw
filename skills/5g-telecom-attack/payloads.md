@@ -1173,7 +1173,7 @@ make
 
 ```bash
 # Closed-lab reproduction: YateUCN or OsmoHLR/OsmoMSC with SS7/M3UA
-git clone https://gitea.osmocom.org/osmo-hlr /opt/osmo-hlr
+git clone https://gitea.osmocom.org/cellular-infrastructure/osmo-hlr /opt/osmo-hlr
 cd /opt/osmo-hlr
 autoreconf -fi
 ./configure
@@ -1181,7 +1181,7 @@ make
 ./src/osmo-hlr -c /etc/osmocom/osmo-hlr.cfg &
 
 # OsmoMSC for SS7 MAP peer
-git clone https://gitea.osmocom.org/osmo-msc /opt/osmo-msc
+git clone https://gitea.osmocom.org/cellular-infrastructure/osmo-msc /opt/osmo-msc
 cd /opt/osmo-msc
 autoreconf -fi && ./configure && make
 ./src/osmo-msc -c /etc/osmocom/osmo-msc.cfg &

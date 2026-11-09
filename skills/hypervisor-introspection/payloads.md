@@ -1200,8 +1200,11 @@ sc start HyperPlatform
 
 # Reproduce (lab):
 # - Linux kernel module that does SVM init (root required)
-# - Reference: https://theinvisiblethings.blogspot.com/2006/06/introducing-bluepill.html
-# - Code sample: http://www.invisiblethings.org/bluepill.html (archived)
+# - Reference (canonical mirror of the 2006 announcement, original blogspot
+#   and invisiblethings.org pages are dead):
+#   https://blog.invisiblethings.org/2006/06/22/introducing-blue-pill.html
+# - Original Black Hat 2006 paper (includes SVM code walkthrough):
+#   https://www.blackhat.com/presentations/bh-usa-06/BH-US-06-Rutkowska.pdf
 
 # Detection (paranoid):
 #   - Time in VMRUN vs RDTSC differs (SVM traps RDTSC)

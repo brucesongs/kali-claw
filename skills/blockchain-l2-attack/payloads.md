@@ -610,10 +610,13 @@ cast call 0x...StarkNet "verifyProof(bytes,bytes)" --rpc-url $L1_RPC
 ```bash
 # Polygon zkEVM uses a Groth16 proof system with a trusted setup
 # Verify the trusted setup ceremony transcript
-git clone https://github.com/0xPolygonHermez/trusted-setup-mpc
-cd trusted-setup-mpc
-cargo build --release
-./target/release/verify --transcript transcript.json
+# NOTE: the original 0xPolygonHermez/trusted-setup-mpc repository was removed
+# when the Hermez org was consolidated into 0xPolygon (repo dead as of 2026-09).
+# Use an archived ceremony-tooling mirror if available, and verify on-chain
+# commitments directly — docs: https://docs.polygon.technology/zkEVM/
+#   git clone <archived-mirror>/trusted-setup-mpc
+#   cd trusted-setup-mpc && cargo build --release
+#   ./target/release/verify --transcript transcript.json
 
 # Check the verifier contract matches the trusted setup
 cast call 0x...PolygonZkEVM "trustedSetupHash()" --rpc-url $POLYGON_RPC

@@ -1,10 +1,11 @@
 {
   "metadata": {
-    "generated_at": "2026-09-04T14:55:38.953712",
-    "kali_claw_version": "v0.3.0",
+    "generated_at": "2026-11-09T00:50:44+00:00",
+    "kali_claw_version": "0.3.6",
     "total_skills": 139,
     "total_domains": 83,
-    "skill_version": "0.2.0.2"
+    "skill_version": "0.2.0.2",
+    "source": "regenerated from skills/ frontmatter by validation/gen-skill-handbook.py"
   },
   "domains": {
     "ad-cs-abuse": [
@@ -23,6 +24,9 @@
     "ai-agent-framework-attack": [
       "ai-agent-framework-attack"
     ],
+    "ai-compliance": [
+      "eu-ai-act-compliance-redteam"
+    ],
     "ai-emerging": [
       "ai-agent-security"
     ],
@@ -34,6 +38,9 @@
     ],
     "ai-safety": [
       "ai-safety-redteam-advanced"
+    ],
+    "ai-supply-chain": [
+      "ai-agent-supply-chain-attack"
     ],
     "analysis": [
       "council"
@@ -305,12 +312,6 @@
       "search-first",
       "terminal-ops",
       "verification-loop"
-    ],
-    "ai-supply-chain": [
-      "ai-agent-supply-chain-attack"
-    ],
-    "ai-compliance": [
-      "eu-ai-act-compliance-redteam"
     ]
   },
   "skills": {
@@ -322,15 +323,17 @@
       "category": "telecom-advanced",
       "mitre": "TA0001-Initial Access, T1557-Adversary-in-the-Middle",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
         "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "5g-telecom-attack": {
       "name": "5g-telecom-attack",
@@ -342,15 +345,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/5g-telecom-attack-deep-dive.md",
         "guides/5g-telecom-attack-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ad-cs-abuse": {
       "name": "ad-cs-abuse",
@@ -362,15 +367,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-24",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ad-cs-abuse-detection-and-hardening.md",
         "guides/ad-cs-abuse-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ad-ldap-attack": {
       "name": "ad-ldap-attack",
@@ -382,16 +389,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-24",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ad-lateral-movement-guide.md",
         "guides/ad-recon-enumeration-guide.md",
         "guides/kerberos-attack-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "agentic-pentest": {
       "name": "agentic-pentest",
@@ -403,16 +412,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/agent-orchestration-patterns-playbook.md",
         "guides/agentic-pentest-deep-dive.md",
         "guides/agentic-pentest-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ai-agent-framework-attack": {
       "name": "ai-agent-framework-attack",
@@ -424,15 +435,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-24",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ai-agent-framework-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ai-agent-security": {
       "name": "ai-agent-security",
@@ -444,15 +457,38 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ai-agent-security-playbook.md",
         "guides/mcp-server-red-team-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
+    },
+    "ai-agent-supply-chain-attack": {
+      "name": "ai-agent-supply-chain-attack",
+      "description": "AI/ML supply chain attacks — model poisoning, Pickle RCE, Hugging Face / Ollama registry compromise, LangChain plugin backdoors, OpenClaw / ClawHub ecosystem threats. Distinguishes from ci-cd-supply-chain-attack by focusing on model weights, training data, and serialization formats. Anchored by the 2026-07 Hugging Face incident (the 'Chernobyl moment' of software supply chain security).",
+      "version": "0.2.0.2",
+      "domain": "ai-supply-chain",
+      "category": "ai",
+      "mitre": "T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain",
+      "owasp": "A08:2021-Software and Data Integrity Failures",
+      "last_reviewed": "2026-08-09",
+      "files": [
+        "SKILL.md",
+        "guides/hugging-face-2026-07-incident-case-study.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
+        "test-cases.md"
+      ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
+      "has_detection": true,
+      "has_evasion": true
     },
     "ai-fuzzing": {
       "name": "ai-fuzzing",
@@ -460,24 +496,26 @@
       "version": "0.2.0.2",
       "domain": "ai",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1203-Exploitation for Client Execution, T1068-Exploitation for Privilege Escalation, T1610-Deploy Container",
       "owasp": "",
-      "last_reviewed": "2026-07-24",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/coverage-guided-fuzzing.md",
         "guides/crash-triage-automation-guide.md",
         "guides/crash-triage-guide.md",
         "guides/grammar-based-fuzzing-guide.md",
         "guides/protocol-fuzzing.md",
+        "guides/usage-and-assessment.md",
         "guides/web-api-fuzzing-guide.md",
         "guides/web-api-fuzzing.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ai-safety-redteam-advanced": {
       "name": "ai-safety-redteam-advanced",
@@ -489,14 +527,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/owasp-llm-top10-complete-guide.md",
         "SKILL.md",
+        "guides/owasp-llm-top10-complete-guide.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ai-security": {
       "name": "ai-security",
@@ -504,11 +544,11 @@
       "version": "0.2.0.2",
       "domain": "ai",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1566-Phishing, T1589-Gather Victim Identity Information",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/adversarial-ml-testing-guide.md",
         "guides/ai-model-security-testing-guide.md",
         "guides/ai-red-team-guide.md",
@@ -517,12 +557,14 @@
         "guides/model-extraction-attack-guide.md",
         "guides/prompt-injection-defense-guide.md",
         "guides/prompt-injection-lab-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "anti-forensics": {
       "name": "anti-forensics",
@@ -532,18 +574,20 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion",
       "owasp": "",
-      "last_reviewed": "2026-07-24",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/crypto-hide-data-destruction.md",
         "guides/filesystem-anti-forensics.md",
         "guides/log-tamper-timestamp.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "api-security": {
       "name": "api-security",
@@ -551,24 +595,26 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1528-Steal Application Access Token, T1539-Steal Web Session Cookie, T1552.001-Credentials In Files",
       "owasp": "API Security Top 10",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "api-security-guide.md",
         "guides/api-authentication-bypass-guide.md",
         "guides/api-rate-limiting-bypass-guide.md",
         "guides/api-security-complete-guide.md",
         "guides/graphql-security-testing-guide.md",
         "guides/graphql-security-testing.md",
+        "guides/usage-and-assessment.md",
         "guides/websocket-security-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "article-writing": {
       "name": "article-writing",
@@ -576,11 +622,11 @@
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cve-advisory-writing-guide.md",
         "guides/cvss-scoring.md",
         "guides/penetration-test-report-guide.md",
@@ -588,13 +634,15 @@
         "guides/report-structure.md",
         "guides/security-advisory-writing-guide.md",
         "guides/security-blog-writing-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/vulnerability-writing.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "automotive-vehicle-security": {
       "name": "automotive-vehicle-security",
@@ -604,35 +652,39 @@
       "category": "automotive",
       "mitre": "TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-16",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/automotive-ecu-firmware-and-uds-deep-dive.md",
         "guides/automotive-security-testing-tools-guide.md",
         "guides/automotive-vehicle-security-playbook.md",
         "guides/can-bus-reverse-engineering-guide.md",
         "guides/coordinated-disclosure-and-cvd-guide.md",
         "guides/lab-setup-and-development-mule-guide.md",
+        "guides/practical-validation-2026-08-15.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "autonomous-loops": {
       "name": "autonomous-loops",
-      "description": "Performing repetitive enumeration across many targets - Running batch vulnerability scans on multiple hosts - Monitoring for changes in target environment - Executing attack chains that require iterative steps - User says \\\"loop\\\", \\\"automate\\\", \\\"batch\\\", \\\"repeat.",
+      "description": "Performing repetitive enumeration across many targets - Running batch vulnerability scans on multiple hosts - Monitoring for changes in target environment - Executing attack chains that require iterative steps - User says \"loop\", \"automate\", \"batch\", \"repeat.",
       "version": "0.2.0.2",
       "domain": "infrastructure",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/autonomous-decision-making-guide.md",
         "guides/autonomous-pentest-orchestration-guide.md",
         "guides/batch-processing-guide.md",
@@ -640,13 +692,15 @@
         "guides/feedback-loop-design-guide.md",
         "guides/resource-bounded-execution-guide.md",
         "guides/safe-autonomous-pentest.md",
+        "guides/usage-and-assessment.md",
         "guides/watch-loop-patterns-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "av-edr-evasion": {
       "name": "av-edr-evasion",
@@ -658,7 +712,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/av-edr-evasion-edr-rules-evasion-deep.md",
         "guides/av-edr-evasion-kernel-bypass-deep.md",
         "guides/av-edr-evasion-living-off-the-land-deep.md",
@@ -668,12 +722,14 @@
         "guides/payload-obfuscation-av-bypass-guide.md",
         "guides/process-injection-techniques-guide.md",
         "guides/shellcode-encoding-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "binary-reverse": {
       "name": "binary-reverse",
@@ -681,22 +737,24 @@
       "version": "0.2.0.2",
       "domain": "binary-analysis",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1027-Obfuscated Files or Information, T1027.002-Software Packing, T1027.007-Dynamic API Resolution, T1027.011-Fileless Storage",
       "owasp": "",
-      "last_reviewed": "2026-07-22",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-reverse-engineering-tools.md",
         "guides/Binary_Analysis_Reverse_Engineering_Story.md",
         "guides/anti-reversing-bypass-guide.md",
         "guides/reverse-engineering-cli-reference.md",
+        "guides/usage-and-assessment.md",
         "guides/vulnerability-discovery-binary-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "blockchain-l2-attack": {
       "name": "blockchain-l2-attack",
@@ -706,16 +764,18 @@
       "category": "blockchain-l2",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
-        "guides/blockchain-l2-attack-playbook.md",
         "SKILL.md",
+        "guides/blockchain-l2-attack-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "blockchain-web3": {
       "name": "blockchain-web3",
@@ -725,20 +785,24 @@
       "category": "general",
       "mitre": "N/A (application-layer; maps loosely to TA0001-Initial Access via compromise)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-16",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/blockchain-web3-bridge-oracle-exploit-deep.md",
         "guides/blockchain-web3-defi-reentrancy-deep.md",
         "guides/blockchain-web3-real-world-incident-case-studies.md",
         "guides/defi-exploit-testing-playbook.md",
+        "guides/practical-validation-2026-08-13.md",
         "guides/smart-contract-audit-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "bluetooth-rfid-nfc": {
       "name": "bluetooth-rfid-nfc",
@@ -750,16 +814,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ble-gatt-attack.md",
         "guides/bluetooth-device-recon.md",
         "guides/rfid-nfc-clone.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "browser-qa": {
       "name": "browser-qa",
@@ -767,22 +833,24 @@
       "version": "0.2.0.2",
       "domain": "testing",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/browser-fingerprint-analysis-guide.md",
         "guides/headless-browser-security-testing-guide.md",
         "guides/network-interception-guide.md",
         "guides/playwright-auth-testing-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/web-automation-evidence-capture-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "chronicle": {
       "name": "chronicle",
@@ -790,24 +858,25 @@
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
-        ".DS_Store",
+        "SKILL.md",
         "chronicle-template.py",
         "guides/cross-session-continuity-guide.md",
         "guides/event-recording-best-practices.md",
         "guides/event-timeline-construction-guide.md",
         "guides/knowledge-distillation-guide.md",
         "guides/milestone-tracking-methodology-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "ci-cd-supply-chain-attack": {
       "name": "ci-cd-supply-chain-attack",
@@ -819,18 +888,20 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ci-cd-supply-chain-attack-playbook.md",
         "guides/ci-cd-supply-chain-dependency-confusion-deep.md",
         "guides/ci-cd-supply-chain-github-actions-deep.md",
         "guides/ci-cd-supply-chain-real-world-incident-case-studies.md",
         "guides/ci-cd-supply-chain-sbom-provenance-deep.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cloud-identity-attack": {
       "name": "cloud-identity-attack",
@@ -842,7 +913,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cloud-identity-attack-device-code-phishing-deep.md",
         "guides/cloud-identity-attack-entra-id-deep.md",
         "guides/cloud-identity-attack-federation-abuse-deep.md",
@@ -850,12 +921,14 @@
         "guides/cloud-identity-attack-playbook.md",
         "guides/cloud-identity-attack-privilege-escalation-deep.md",
         "guides/cloud-identity-attack-real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cloud-native-vuln-research": {
       "name": "cloud-native-vuln-research",
@@ -867,14 +940,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/cloud-native-vuln-research-playbook.md",
         "SKILL.md",
+        "guides/cloud-native-vuln-research-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cloud-security": {
       "name": "cloud-security",
@@ -884,10 +959,9 @@
       "category": "general",
       "mitre": "TA0008-Lateral Movement",
       "owasp": "",
-      "last_reviewed": "2026-07-21",
+      "last_reviewed": "2026-08-19",
       "files": [
-        "payloads.md",
-        ".DS_Store",
+        "SKILL.md",
         "guides/aws-pentest-lab-guide.md",
         "guides/azure-privilege-escalation-guide.md",
         "guides/cloud-post-exploitation-guide.md",
@@ -896,12 +970,14 @@
         "guides/infrastructure-as-code-security.md",
         "guides/kubernetes-security-deep-dive.md",
         "guides/serverless-security.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cms-framework-attack": {
       "name": "cms-framework-attack",
@@ -909,20 +985,22 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1195.002-Compromise Software Supply Chain, T1505.003-Web Shell, T1078-Valid Accounts",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cms-identification-enumeration-guide.md",
         "guides/joomla-drupal-cms-attack-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/wordpress-pentest-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "codebase-onboarding": {
       "name": "codebase-onboarding",
@@ -930,22 +1008,24 @@
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/architecture-pattern-recognition.md",
         "guides/dependency-supply-chain-analysis-guide.md",
         "guides/legacy-codebase-onboarding.md",
         "guides/microservice-onboarding.md",
+        "guides/usage-and-assessment.md",
         "guides/web-framework-onboarding.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "command-injection-advanced": {
       "name": "command-injection-advanced",
@@ -955,19 +1035,21 @@
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "A03:2021-Injection",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/blind-injection-techniques.md",
         "guides/command-injection-filter-bypass.md",
         "guides/ldap-nosql-injection-guide.md",
         "guides/ssti-exploitation-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "concurrency-exploitation": {
       "name": "concurrency-exploitation",
@@ -977,19 +1059,21 @@
       "category": "general",
       "mitre": "TA0003-Execution",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/race-window-amplification.md",
         "guides/signal-handler-race-exploitation.md",
         "guides/threadsanitizer-guide.md",
         "guides/toctou-exploitation-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "has_evasion": true
     },
     "confidential-computing-attack": {
       "name": "confidential-computing-attack",
@@ -1001,15 +1085,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/confidential-computing-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "container-security": {
       "name": "container-security",
@@ -1019,9 +1105,9 @@
       "category": "general",
       "mitre": "TA0008-Lateral Movement",
       "owasp": "",
-      "last_reviewed": "2026-07-22",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-container-security-tools.md",
         "guides/container-escape-techniques-guide.md",
         "guides/container-network-segmentation-guide.md",
@@ -1030,35 +1116,39 @@
         "guides/container-supply-chain-attack-guide.md",
         "guides/docker-breakout-escape-guide.md",
         "guides/kubernetes-attack-surface-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "continuous-learning": {
       "name": "continuous-learning",
-      "description": "After completing a penetration test engagement - When encountering a novel attack technique or defense - After a tool produces unexpected results - When identifying recurring patterns across targets - User says \\\"learn\\\", \\\"remember this\\\", \\\"pattern.",
+      "description": "After completing a penetration test engagement - When encountering a novel attack technique or defense - After a tool produces unexpected results - When identifying recurring patterns across targets - User says \"learn\", \"remember this\", \"pattern.",
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/adaptive-learning-strategies-guide.md",
         "guides/cross-domain-knowledge-transfer-guide.md",
         "guides/cross-session-knowledge-aggregation-guide.md",
         "guides/knowledge-decay-detection-guide.md",
         "guides/knowledge-extraction-workflow.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "council": {
       "name": "council",
@@ -1066,11 +1156,11 @@
       "version": "0.2.0.2",
       "domain": "analysis",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1078-Valid Accounts",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/automated-consensus-scoring-guide.md",
         "guides/council-consensus-building-guide.md",
         "guides/multi-agent-escalation-guide.md",
@@ -1078,12 +1168,14 @@
         "guides/multi-perspective-analysis.md",
         "guides/risk-prioritization-matrix-guide.md",
         "guides/security-decision-framework.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cps-attack": {
       "name": "cps-attack",
@@ -1095,15 +1187,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cps-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "crypto-attacks": {
       "name": "crypto-attacks",
@@ -1111,24 +1205,26 @@
       "version": "0.2.0.2",
       "domain": "cryptography",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle",
       "owasp": "A04:2021-Cryptographic Failures",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/crypto-attacks-pqc-migration-side-channel.md",
         "guides/crypto_failures_scanner.py",
         "guides/cryptographic_failures_complete_guide.md",
         "guides/hash-length-extension-guide.md",
         "guides/padding-oracle-attack-guide.md",
         "guides/tls-ssl-misconfiguration-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/weak-random-number-exploitation-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "cspm-casb-attack": {
       "name": "cspm-casb-attack",
@@ -1140,16 +1236,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cspm-casb-attack-playbook.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "darkweb-intel": {
       "name": "darkweb-intel",
@@ -1161,7 +1259,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/dark-web-investigation-playbook.md",
         "guides/darkweb-intel-forum-attribution-deep.md",
         "guides/darkweb-intel-i2p-freenet-monitoring-deep.md",
@@ -1169,12 +1267,14 @@
         "guides/darkweb-intel-monero-tracing-deep.md",
         "guides/darkweb-intel-real-world-incident-case-studies.md",
         "guides/tor-onion-crawl-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "data-exfiltration-attack": {
       "name": "data-exfiltration-attack",
@@ -1186,15 +1286,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/data-exfiltration-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "data-loss-prevention-bypass": {
       "name": "data-loss-prevention-bypass",
@@ -1204,15 +1306,17 @@
       "category": "dlp-evasion",
       "mitre": "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
         "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "data-platform-attack": {
       "name": "data-platform-attack",
@@ -1224,15 +1328,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/data-platform-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "data-scraper-agent": {
       "name": "data-scraper-agent",
@@ -1240,22 +1346,24 @@
       "version": "0.2.0.2",
       "domain": "research",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/anti-bot-bypass-guide.md",
         "guides/data-extraction-patterns-guide.md",
         "guides/nvd-api-scraping-guide.md",
         "guides/rate-limiting-and-stealth-guide.md",
         "guides/structured-data-extraction-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "database-attack": {
       "name": "database-attack",
@@ -1265,20 +1373,22 @@
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/database-bruteforce.md",
         "guides/database-lateral-movement-guide.md",
         "guides/nosql-attack-guide.md",
         "guides/oracle-database-attack.md",
         "guides/redis-mongodb-unauth.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "deception-honeypot": {
       "name": "deception-honeypot",
@@ -1288,17 +1398,19 @@
       "category": "general",
       "mitre": "TA0040-Detection (deception), maps to MITRE Engage framework",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/canary-deployment-playbook.md",
         "guides/deception-honeypot-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "deep-research": {
       "name": "deep-research",
@@ -1306,23 +1418,25 @@
       "version": "0.2.0.2",
       "domain": "research",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1592-Gather Victim Host Info, T1593-Search Open Websites/Domains, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/continuous-monitoring.md",
         "guides/intelligence-correlation.md",
         "guides/iterative-search-patterns.md",
         "guides/mcp-integration.md",
         "guides/multi-source-synthesis-guide.md",
         "guides/source-validation-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "detection-engineering": {
       "name": "detection-engineering",
@@ -1334,15 +1448,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/detection-engineering-playbook.md",
         "guides/soc-playbook-mapping-to-nist-csf-2-0.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "digital-forensics": {
       "name": "digital-forensics",
@@ -1350,22 +1466,24 @@
       "version": "0.2.0.2",
       "domain": "forensics",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1070.006-Timestomp, T1562-Impair Defenses, T1547.001-Registry Run Keys / Startup Folder, T1055-Process Injection",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-digital-forensics-tools.md",
         "guides/digital-forensics-cli-reference.md",
         "guides/disk-image-analysis-guide.md",
         "guides/memory-forensics-volatility-guide.md",
         "guides/network-forensics-pcap-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "dns-attacks": {
       "name": "dns-attacks",
@@ -1375,9 +1493,9 @@
       "category": "general",
       "mitre": "TA0011-Command and Control",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/dns-attacks-real-world-incident-case-studies.md",
         "guides/dns-attacks-rebinding-tunneling-modern.md",
         "guides/dns-enumeration-reconnaissance-guide.md",
@@ -1386,35 +1504,39 @@
         "guides/dns-spoofing-cache-poisoning-guide.md",
         "guides/dns-tunnel-exfiltration-guide.md",
         "guides/dns-tunneling-exfiltration-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "docker-patterns": {
       "name": "docker-patterns",
-      "description": "Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says \\\"lab\\\", \\\"docker lab.",
+      "description": "Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says \"lab\", \"docker lab.",
       "version": "0.2.0.2",
       "domain": "infrastructure",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/container-escape-techniques-guide.md",
         "guides/docker-network-security-guide.md",
         "guides/docker-security-scanning-guide.md",
         "guides/docker-vulnerability-patterns-guide.md",
         "guides/lab-environment-management.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "edge-computing-attack": {
       "name": "edge-computing-attack",
@@ -1426,15 +1548,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/edge-computing-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "edge-computing-security": {
       "name": "edge-computing-security",
@@ -1446,13 +1570,15 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
         "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "email-protocol-attack": {
       "name": "email-protocol-attack",
@@ -1464,16 +1590,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/email-forgery-spf-dkim-dmarc-guide.md",
         "guides/imap-exchange-attack-guide.md",
         "guides/smtp-enumeration-relay-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "email-security-deep": {
       "name": "email-security-deep",
@@ -1485,16 +1613,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/email-security-deep-deep-dive.md",
         "guides/email-security-deep-evasion-deep.md",
         "guides/email-security-deep-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "embedded-rtos-security": {
       "name": "embedded-rtos-security",
@@ -1504,18 +1634,22 @@
       "category": "rtos",
       "mitre": "T1548-Abuse Elevation Control Mechanism",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-16",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/embedded-rtos-security-deep-dive.md",
         "guides/embedded-rtos-security-playbook.md",
         "guides/freertos-tcp-vulnerability-research.md",
-        "SKILL.md",
+        "guides/practical-validation-2026-08-16.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "engagement-manager": {
       "name": "engagement-manager",
@@ -1523,20 +1657,43 @@
       "version": "0.2.0.2",
       "domain": "management",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/engagement-lifecycle-guide.md",
         "guides/evidence-chain-guide.md",
         "guides/scope-management-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
+    },
+    "eu-ai-act-compliance-redteam": {
+      "name": "eu-ai-act-compliance-redteam",
+      "description": "EU AI Act (Regulation (EU) 2024/1689) compliance-focused red team testing for high-risk AI systems — Article 9 adversarial testing, Annex III classification, Annex IV technical documentation, conformity assessment, and Notified Body audit preparation. Enforceable since 2 August 2026 with fines up to €35M or 7% global turnover.",
+      "version": "0.2.0.2",
+      "domain": "ai-compliance",
+      "category": "ai",
+      "mitre": "EUAI-Article-9, TA0040-Impact",
+      "owasp": "N/A — regulatory framework, not vulnerability class",
+      "last_reviewed": "2026-09-04",
+      "files": [
+        "SKILL.md",
+        "guides/eu-ai-act-article-9-deep-dive.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
+        "test-cases.md"
+      ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
+      "has_detection": true,
+      "has_evasion": true
     },
     "exa-search": {
       "name": "exa-search",
@@ -1544,22 +1701,24 @@
       "version": "0.2.0.2",
       "domain": "research",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/advanced-query-construction-guide.md",
         "guides/competitive-intelligence-gathering-guide.md",
         "guides/exa-api-configuration-guide.md",
         "guides/search-result-enrichment-guide.md",
         "guides/semantic-search-query-design-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "exploit-development": {
       "name": "exploit-development",
@@ -1569,20 +1728,22 @@
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "",
-      "last_reviewed": "2026-07-22",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/buffer-overflow-to-rop-chain-guide.md",
         "guides/heap-exploitation-guide.md",
         "guides/kernel-exploit-guide.md",
         "guides/pwntools-exploit-development-guide.md",
         "guides/shellcode-writing-encoding-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "file-inclusion": {
       "name": "file-inclusion",
@@ -1590,20 +1751,22 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services, T1505.003-Web Shell",
       "owasp": "A01:2021-Broken Access Control",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/lfi-to-rce-exploitation-guide.md",
         "guides/path-traversal-bypass-guide.md",
         "guides/rfi-remote-code-execution-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "firmware-reverse": {
       "name": "firmware-reverse",
@@ -1613,18 +1776,20 @@
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/firmadyne-emulation.md",
         "guides/firmware-extraction-filesystem.md",
         "guides/firmware-vuln-backdoor.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "game-anticheat-bypass": {
       "name": "game-anticheat-bypass",
@@ -1636,14 +1801,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/game-anticheat-bypass-playbook.md",
         "SKILL.md",
+        "guides/game-anticheat-bypass-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "gitops-security": {
       "name": "gitops-security",
@@ -1653,17 +1820,19 @@
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/gitops-security-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "hardware-security": {
       "name": "hardware-security",
@@ -1671,22 +1840,24 @@
       "version": "0.2.0.2",
       "domain": "hardware",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/embedded-firmware-analysis.md",
         "guides/firmware-extraction-analysis-guide.md",
         "guides/hardware-exploitation-patterns-guide.md",
         "guides/jtag-swd-debugging-guide.md",
         "guides/side-channel-attack-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "has_evasion": true
     },
     "hardware-side-channel-advanced": {
       "name": "hardware-side-channel-advanced",
@@ -1696,15 +1867,17 @@
       "category": "side-channel",
       "mitre": "T1041-Physical Attacks; emerging hardware-specific",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
         "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "hf-vhf-radio-attack": {
       "name": "hf-vhf-radio-attack",
@@ -1716,15 +1889,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/hf-vhf-radio-attack-deep-dive.md",
         "guides/hf-vhf-radio-attack-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "hsm-attack": {
       "name": "hsm-attack",
@@ -1736,15 +1912,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/hsm-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "hypervisor-introspection": {
       "name": "hypervisor-introspection",
@@ -1756,14 +1934,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/hypervisor-introspection-playbook.md",
         "SKILL.md",
+        "guides/hypervisor-introspection-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "ics-fieldbus-attack": {
       "name": "ics-fieldbus-attack",
@@ -1773,18 +1953,26 @@
       "category": "fieldbus",
       "mitre": "T0817-Program Logic Controller Software",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-12",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ics-fieldbus-attack-playbook.md",
+        "guides/practical-validation-2026-08-10-zh.md",
+        "guides/practical-validation-2026-08-10.md",
+        "guides/practical-validation-grficsv3-2026-08-10-zh.md",
+        "guides/practical-validation-grficsv3-2026-08-10.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "guides/validation-walkthrough-zh.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "identity-provider-attack": {
       "name": "identity-provider-attack",
@@ -1796,13 +1984,15 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
         "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "insecure-design": {
       "name": "insecure-design",
@@ -1810,11 +2000,11 @@
       "version": "0.2.0.2",
       "domain": "design",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools",
       "owasp": "A06:2025-Insecure Design",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/abuse-case-development-guide.md",
         "guides/business-logic-attack-patterns-guide.md",
         "guides/insecure_design_complete_guide.md",
@@ -1822,12 +2012,14 @@
         "guides/secure-design-patterns-guide.md",
         "guides/state-machine-abuse-guide.md",
         "guides/threat-modeling-for-design-flaws-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "iot-pentest": {
       "name": "iot-pentest",
@@ -1839,15 +2031,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/iot-pentest-playbook.md",
         "guides/radio-and-firmware-iot-testing-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "knowledge-ops": {
       "name": "knowledge-ops",
@@ -1855,22 +2049,24 @@
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cross-session-intelligence-aggregation.md",
         "guides/entity-extraction-and-tagging.md",
         "guides/information-retrieval-optimization-guide.md",
         "guides/knowledge-graph-construction-guide.md",
         "guides/knowledge-graph-visualization-and-querying.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "kubernetes-attack": {
       "name": "kubernetes-attack",
@@ -1882,7 +2078,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/k8s-escape-and-lateral-movement-playbook.md",
         "guides/kubernetes-attack-detection-evasion-deep.md",
         "guides/kubernetes-attack-playbook.md",
@@ -1890,12 +2086,14 @@
         "guides/kubernetes-attack-real-world-incident-case-studies.md",
         "guides/kubernetes-attack-runtime-escape.md",
         "guides/kubernetes-attack-supply-chain-deep.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "llm-red-team": {
       "name": "llm-red-team",
@@ -1905,17 +2103,19 @@
       "category": "general",
       "mitre": "LLM-ATT&CK (promptfoo/garak taxonomy), maps to OWASP LLM Top 10 (LLM01-LLM10) and TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/llm-jailbreak-arsenal-playbook.md",
         "guides/llm-red-team-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "logging-monitoring": {
       "name": "logging-monitoring",
@@ -1923,22 +2123,24 @@
       "version": "0.2.0.2",
       "domain": "defense",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter",
       "owasp": "A09:2021-Logging Failures",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/alert-fatigue-reduction-guide.md",
         "guides/forensic-logging-requirements-guide.md",
         "guides/log-tampering-detection-guide.md",
         "guides/logging_monitoring_complete_guide.md",
         "guides/siem-log-analysis-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "macos-security": {
       "name": "macos-security",
@@ -1950,15 +2152,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/macos-security-deep-dive.md",
         "guides/macos-security-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "mainframe-security": {
       "name": "mainframe-security",
@@ -1970,17 +2174,19 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/lab-driven-walkthrough.md",
         "guides/mainframe-security-playbook.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "malware-analysis-advanced": {
       "name": "malware-analysis-advanced",
@@ -1992,15 +2198,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/malware-analysis-advanced-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "mcp-server-patterns": {
       "name": "mcp-server-patterns",
@@ -2008,22 +2216,24 @@
       "version": "0.2.0.2",
       "domain": "infrastructure",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/mcp-protocol-debugging-guide.md",
         "guides/mcp-server-deployment-guide.md",
         "guides/mcp-tool-implementation-guide.md",
         "guides/mcp-tool-security-patterns-guide.md",
         "guides/security-mcp-server-design.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "mobile-app-instrumentation": {
       "name": "mobile-app-instrumentation",
@@ -2035,15 +2245,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/mobile-app-instrumentation-ios-android-deep.md",
         "guides/mobile-app-instrumentation-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "mobile-security": {
       "name": "mobile-security",
@@ -2051,23 +2263,24 @@
       "version": "0.2.0.2",
       "domain": "mobile",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1203-Exploitation for Client Execution, T1204.002-User Execution: Malicious File, T1518.001-Software Discovery: Security Software, T1552.001-Credentials In Files",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
-        ".DS_Store",
+        "SKILL.md",
         "guides/integrity_failures_complete_guide.md",
         "guides/mobile-api-security-testing.md",
         "guides/mobile-cloud-integration.md",
         "guides/mobile_security_complete_guide.md",
         "guides/react-native-flutter-security.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "multi-agent-collaboration": {
       "name": "multi-agent-collaboration",
@@ -2075,26 +2288,28 @@
       "version": "0.2.0.2",
       "domain": "infrastructure",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/agent-communication-protocols-guide.md",
         "guides/agent-failure-handling-and-recovery-guide.md",
         "guides/conflict-resolution-consensus-guide.md",
         "guides/coordinated-pentest-playbook.md",
         "guides/task-decomposition-delegation-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "multi-agent-runtime-engineering": {
       "name": "multi-agent-runtime-engineering",
-      "description": "Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three招 (扫地僧, CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.",
+      "description": "Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three-layer harness (Chinese press nickname *扫地僧* — CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.",
       "version": "0.2.0.2",
       "domain": "agent-runtime",
       "category": "general",
@@ -2102,16 +2317,19 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/multi-agent-runtime-engineering-playbook.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "network-pentest": {
       "name": "network-pentest",
@@ -2121,9 +2339,9 @@
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-22-reporting-tools.md",
         "guides/2026-03-22-sniffing-spoofing-tools.md",
         "guides/2026-03-22-system-services-tools.md",
@@ -2132,13 +2350,15 @@
         "guides/lateral-movement-techniques-guide.md",
         "guides/network-pivot-guide.md",
         "guides/pivoting-tunneling-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/wireless-network-attack-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "network-sniffing-mitm": {
       "name": "network-sniffing-mitm",
@@ -2150,16 +2370,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ettercap-bettercap-mitm-attack-guide.md",
         "guides/responder-mitm6-credential-harvesting-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/wireshark-tshark-protocol-analysis-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "network-tunneling-proxy": {
       "name": "network-tunneling-proxy",
@@ -2171,7 +2393,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/dns-icmp-covert-tunnel-deep-dive.md",
         "guides/dns-icmp-covert-tunnel.md",
         "guides/ipv6-tunneling-guide.md",
@@ -2180,12 +2402,14 @@
         "guides/socks-proxy-chain-traffic.md",
         "guides/ssh-http-tunneling-pivoting.md",
         "guides/tunnel-detection-evasion-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "open-banking-attack": {
       "name": "open-banking-attack",
@@ -2197,15 +2421,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/open-banking-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "osint": {
       "name": "osint",
@@ -2215,9 +2441,9 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-21",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-information-gathering-tools.md",
         "guides/OSINT-Enterprise-Pentest-Case-Study.md",
         "guides/OSINT_TOOLS_GUIDE.md",
@@ -2226,12 +2452,14 @@
         "guides/dark-web-intelligence-guide.md",
         "guides/data-aggregation-analysis-guide.md",
         "guides/information-gathering-cli-reference.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "pam-privilege-attack": {
       "name": "pam-privilege-attack",
@@ -2241,16 +2469,20 @@
       "category": "privileged-access-management",
       "mitre": "T1552-Unsecured Credentials",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-16",
       "files": [
-        "payloads.md",
-        "guides/pam-privilege-attack-playbook.md",
         "SKILL.md",
+        "guides/pam-privilege-attack-playbook.md",
+        "guides/practical-validation-2026-08-15.md",
+        "guides/usage-and-assessment-zh.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "password-attack": {
       "name": "password-attack",
@@ -2262,7 +2494,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-password-attack-tools.md",
         "guides/credential-stuffing-automation-guide.md",
         "guides/hash-identification-cracking-guide.md",
@@ -2270,12 +2502,14 @@
         "guides/password-attack-cli-reference.md",
         "guides/password-policy-audit-guide.md",
         "guides/password-spray-techniques-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "patch-to-poc-pipeline": {
       "name": "patch-to-poc-pipeline",
@@ -2285,17 +2519,19 @@
       "category": "general",
       "mitre": "TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/patch-to-poc-pipeline-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "payload-generation": {
       "name": "payload-generation",
@@ -2307,7 +2543,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cross-platform-payload-guide.md",
         "guides/msfvenom-payload-generation-guide.md",
         "guides/payload-delivery-evasion-guide.md",
@@ -2315,13 +2551,15 @@
         "guides/payload-encoding-encryption-guide.md",
         "guides/payload-testing-validation-guide.md",
         "guides/reverse-shell-complete-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/web-shell-generation-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "payment-security": {
       "name": "payment-security",
@@ -2333,15 +2571,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/p2pe-hardware-assessment-playbook.md",
         "guides/payment-pentest-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "pentest-reporting": {
       "name": "pentest-reporting",
@@ -2349,20 +2589,22 @@
       "version": "0.2.0.2",
       "domain": "reporting",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1059.004-Unix Shell, T1078-Valid Accounts, T1562.001-Impair Defenses: Disable Tools",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/dradis-faraday-reporting.md",
         "guides/evidence-collection.md",
         "guides/password-audit-reporting.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "physical-security-testing": {
       "name": "physical-security-testing",
@@ -2374,14 +2616,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/physical-security-testing-playbook.md",
         "SKILL.md",
+        "guides/physical-security-testing-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "post-exploitation": {
       "name": "post-exploitation",
@@ -2393,7 +2637,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-post-exploitation-tools.md",
         "guides/data-exfiltration-guide.md",
         "guides/lateral-movement-practical-guide.md",
@@ -2401,12 +2645,14 @@
         "guides/persistence-mechanisms-guide.md",
         "guides/persistence-techniques-guide.md",
         "guides/post-exploitation-cli-reference.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "post-quantum-migration-attack": {
       "name": "post-quantum-migration-attack",
@@ -2416,17 +2662,40 @@
       "category": "general",
       "mitre": "TA0006-Credential Access, TA0010-Exfiltration, TA0040-Impact, T1552, T1041, T1565, T1020",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/post-quantum-migration-attack-playbook.md",
         "guides/real-world-incident-case-studies.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
+    },
+    "pqc-implementation-attack": {
+      "name": "pqc-implementation-attack",
+      "description": "Post-quantum cryptography implementation-layer attacks — ML-KEM/Kyber side channels (KyberSlash-class timing, single-trace power/EM, template and deep-learning SCA), fault injection on decapsulation, RNG/keygen weaknesses in liboqs/oqs-provider/PQClean/pqm4, hybrid KEM combiner implementation flaws, and Kyber ransomware sample triage with implementation-defect recovery paths.",
+      "version": "0.2.0.2",
+      "domain": "crypto",
+      "category": "post-quantum",
+      "mitre": "T1600-Weaken Encryption, T1600.001-Reduce Key Space, T1110.002-Password Cracking, T1486-Data Encrypted for Impact, T1040-Network Sniffing",
+      "owasp": "N/A — cryptographic implementation class (A02:2021 Cryptographic Failures adjacent)",
+      "last_reviewed": "2026-09-04",
+      "files": [
+        "SKILL.md",
+        "guides/kyber-ransomware-retrospective.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
+        "test-cases.md"
+      ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
+      "has_detection": true,
+      "has_evasion": true
     },
     "privilege-escalation": {
       "name": "privilege-escalation",
@@ -2438,16 +2707,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-21",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/kernel-exploit-safety-guide.md",
         "guides/linux-privilege-escalation-enumeration-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/windows-privilege-escalation-attack-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "protocol-state-exploitation": {
       "name": "protocol-state-exploitation",
@@ -2457,19 +2728,21 @@
       "category": "general",
       "mitre": "TA0011-Command and Control",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/http2-rapid-reset-guide.md",
         "guides/scapy-packet-crafting.md",
         "guides/ssh-protocol-state-exploitation.md",
         "guides/stateful-protocol-fuzzing.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "quantum-crypto-attack": {
       "name": "quantum-crypto-attack",
@@ -2479,18 +2752,20 @@
       "category": "general",
       "mitre": "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/pqc-migration-assessment-playbook.md",
         "guides/quantum-crypto-attack-deep-dive.md",
         "guides/quantum-crypto-attack-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "recon-osint": {
       "name": "recon-osint",
@@ -2500,9 +2775,9 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-information-gathering-tools.md",
         "guides/WPScan_Learning_Guide.md",
         "guides/ffuf-advanced-guide.md",
@@ -2513,13 +2788,15 @@
         "guides/osint-tools-check-20260328.md",
         "guides/photon.md",
         "guides/recon-ng.md",
+        "guides/usage-and-assessment.md",
         "guides/wpscan-advanced-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "red-team-infrastructure": {
       "name": "red-team-infrastructure",
@@ -2531,15 +2808,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/real-world-incident-case-studies.md",
         "guides/red-team-infrastructure-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "repo-scan": {
       "name": "repo-scan",
@@ -2547,22 +2826,24 @@
       "version": "0.2.0.2",
       "domain": "assessment",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1595.002-Vulnerability Scanning, T1195.002-Compromise Software Supply Chain, T1552.001-Credentials In Files, T1083-File and Directory Discovery",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/codebase-security-audit-workflow.md",
         "guides/dependency-vulnerability-scanning-guide.md",
         "guides/git-history-security-analysis-guide.md",
         "guides/sast-integration-guide.md",
         "guides/secret-detection-patterns-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "reverse-engineering-advanced": {
       "name": "reverse-engineering-advanced",
@@ -2572,40 +2853,44 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/real-world-incident-case-studies.md",
         "guides/reverse-engineering-advanced-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "safety-guard": {
       "name": "safety-guard",
-      "description": "Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says \\\"safe?",
+      "description": "Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says \"safe?",
       "version": "0.2.0.2",
       "domain": "defense",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/error-handling-security-guide.md",
         "guides/input-sanitization-patterns-guide.md",
         "guides/rate-limiting-implementation-guide.md",
         "guides/scope-enforcement-operations.md",
         "guides/security-headers-configuration-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "sase-sse-attack": {
       "name": "sase-sse-attack",
@@ -2615,23 +2900,25 @@
       "category": "sase-sse",
       "mitre": "T1557-Adversary-in-the-Middle, T1027-Obfuscated Files or Information, T1078-Valid Accounts, T1550-Use Alternate Authentication Material, T1572-Protocol Tunneling, T1573-Encrypted Channel",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/netskope-security-cloud-bypass-guide.md",
         "guides/quick-reference-card.md",
         "guides/real-world-incident-case-studies.md",
         "guides/sase-sse-attack-playbook.md",
         "guides/sase-sse-detection-avoidance-guide.md",
         "guides/sase-sse-tls-inspection-evasion-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/zscaler-zia-zpa-bypass-guide.md",
         "guides/ztna-client-connector-reverse-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "satellite-leo-security": {
       "name": "satellite-leo-security",
@@ -2643,14 +2930,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/satellite-leo-security-playbook.md",
         "SKILL.md",
+        "guides/satellite-leo-security-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "scada-ics-security": {
       "name": "scada-ics-security",
@@ -2662,7 +2951,7 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ics-honeypot-detection-guide.md",
         "guides/ics-incident-response-guide.md",
         "guides/ics-network-assessment.md",
@@ -2670,12 +2959,14 @@
         "guides/modbus-s7comm-attack.md",
         "guides/purdue-model-attack-paths-guide.md",
         "guides/scada-network-monitoring-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "sdr-rf-attack": {
       "name": "sdr-rf-attack",
@@ -2683,11 +2974,11 @@
       "version": "0.2.0.2",
       "domain": "security",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/gps-spoofing-guide.md",
         "guides/gsm-lte-basestation-attack-guide.md",
         "guides/rf-fingerprinting-device-identification-guide.md",
@@ -2696,36 +2987,40 @@
         "guides/satellite-signal-analysis-guide.md",
         "guides/sdr-signal-capture-analysis-guide.md",
         "guides/sub-ghz-iot-attack-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/zigbee-ble-sdr-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "search-first": {
       "name": "search-first",
-      "description": "Systematizes the \\\"search for existing tools, exploits, and techniques before writing custom ones\\\" workflow.",
+      "description": "Systematizes the \"search for existing tools, exploits, and techniques before writing custom ones\" workflow.",
       "version": "0.2.0.2",
       "domain": "workflow",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/exploit-research-methodology.md",
         "guides/multi-source-intelligence-correlation-guide.md",
         "guides/search-query-optimization-guide.md",
         "guides/search-result-validation-guide.md",
         "guides/tool-evaluation-and-selection-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "secret-management-attack": {
       "name": "secret-management-attack",
@@ -2737,16 +3032,18 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cicd-secret-sprawl-and-sast-rule-deep-dive.md",
         "guides/secret-management-attack-playbook.md",
+        "guides/usage-and-assessment.md",
         "guides/vault-and-cloud-kms-attack-playbook.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "security-bounty-hunter": {
       "name": "security-bounty-hunter",
@@ -2754,11 +3051,11 @@
       "version": "0.2.0.2",
       "domain": "assessment",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1595.002-Vulnerability Scanning, T1210-Exploitation of Remote Services, T1203-Exploitation for Client Execution",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/attack-surface-discovery-guide.md",
         "guides/bounty-hunting-methodology.md",
         "guides/bug-bounty-automation.md",
@@ -2767,12 +3064,14 @@
         "guides/report-writing-bounty-guide.md",
         "guides/responsible-disclosure-workflow.md",
         "guides/scope-recon-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "security-misconfiguration": {
       "name": "security-misconfiguration",
@@ -2780,25 +3079,27 @@
       "version": "0.2.0.2",
       "domain": "defense",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1210-Exploitation of Remote Services, T1078.004-Valid Accounts: Cloud Accounts, T1552.001-Credentials In Files",
       "owasp": "A02:2025-Misconfiguration",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cloud-misconfiguration-audit-guide.md",
         "guides/cloud-misconfiguration-checklist-guide.md",
         "guides/debug-endpoint-discovery-guide.md",
         "guides/default-credential-audit-guide.md",
         "guides/default-credential-scanning-guide.md",
         "guides/security_misconfiguration_complete_guide.md",
+        "guides/usage-and-assessment.md",
         "guides/web-server-hardening-guide.md",
         "guides/web-server-hardening-lab-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "security-review": {
       "name": "security-review",
@@ -2806,22 +3107,24 @@
       "version": "0.2.0.2",
       "domain": "assessment",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses: Disable Tools, T1070-Indicator Removal",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/code-review-security-patterns-guide.md",
         "guides/dependency-audit-guide.md",
         "guides/owasp-audit-methodology.md",
         "guides/sast-tool-comparison-guide.md",
         "guides/secure-code-review-checklist-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "social-engineering": {
       "name": "social-engineering",
@@ -2833,18 +3136,20 @@
       "owasp": "",
       "last_reviewed": "2026-07-21",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-21-social-engineering-tools.md",
         "guides/phishing-campaign-design-guide.md",
         "guides/pretexting-techniques-guide.md",
         "guides/social-engineering-cli-reference.md",
         "guides/social-engineering-defense-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "social-intelligence": {
       "name": "social-intelligence",
@@ -2854,9 +3159,9 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/community-monitoring-guide.md",
         "guides/osint-automation-pipeline-guide.md",
         "guides/reddit-hackernews-osint.md",
@@ -2865,12 +3170,14 @@
         "guides/social-network-mapping-guide.md",
         "guides/target-profiling-guide.md",
         "guides/twitter-youtube-osint.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "steganography": {
       "name": "steganography",
@@ -2878,22 +3185,24 @@
       "version": "0.2.0.2",
       "domain": "forensics",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1001.002-Data Obfuscation Steganography, T1027-Obfuscated Files or Information, T1560-Archive Collected Data, T1105-Ingress Tool Transfer",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/audio-video-steganography-guide.md",
         "guides/ctf-steganography-challenge-guide.md",
         "guides/network-protocol-steganography-guide.md",
         "guides/steganography-techniques-detection-guide.md",
         "guides/steghide-stegcracker-practical-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "storage-san-attack": {
       "name": "storage-san-attack",
@@ -2901,20 +3210,28 @@
       "version": "0.2.0.2",
       "domain": "storage-san-attack",
       "category": "storage",
-      "mitre": "",
+      "mitre": [
+        "T1552-Unsecured Credentials",
+        "T1021-Remote Services",
+        "T1486-Data Encrypted for Impact",
+        "T1530-Data from Cloud Storage Object",
+        "T1213-Data from Information Repositories"
+      ],
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/storage-san-attack-playbook.md",
         "guides/storage-san-attack-real-world-incident-case-studies.md",
         "guides/storage-san-attack-vendor-deep.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "supply-chain-security": {
       "name": "supply-chain-security",
@@ -2922,23 +3239,25 @@
       "version": "0.2.0.2",
       "domain": "supply-chain",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies and Development Tools, T1195.002-Compromise Software Supply Chain, T1199-Trusted Relationship",
       "owasp": "A08:2021-Software Integrity",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/build-pipeline-security-guide.md",
         "guides/dependency-confusion-attack-guide.md",
         "guides/package-integrity-verification-guide.md",
         "guides/software-bill-of-materials-guide.md",
         "guides/software_supply_chain_complete_guide.md",
         "guides/supply_chain_scanner.py",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "terminal-ops": {
       "name": "terminal-ops",
@@ -2946,22 +3265,24 @@
       "version": "0.2.0.2",
       "domain": "workflow",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1059-Command and Scripting Interpreter, T1059.004-Unix Shell, T1021.004-Remote Services: SSH, T1518-Software Discovery",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/evidence-first-execution.md",
         "guides/terminal-automation-scripting-guide.md",
         "guides/terminal-forensics-evidence-guide.md",
         "guides/terminal-network-operations-guide.md",
         "guides/terminal-session-management-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "threat-hunting": {
       "name": "threat-hunting",
@@ -2973,15 +3294,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/hunt-hypothesis-playbook.md",
         "guides/sigma-rule-development-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "threat-intel-platform-attack": {
       "name": "threat-intel-platform-attack",
@@ -2993,15 +3316,17 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/real-world-incident-case-studies.md",
         "guides/threat-intel-platform-attack-playbook.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "tool-mastery": {
       "name": "tool-mastery",
@@ -3009,20 +3334,22 @@
       "version": "0.2.0.2",
       "domain": "knowledge",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1046-Network Service Scanning, T1190-Exploit Public-Facing Application, T1110-Brute Force, T1003-OS Credential Dumping",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/tool-combination-guide.md",
         "guides/tool-proficiency-framework-guide.md",
         "guides/tool-selection-by-phase-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "uav-drone-security": {
       "name": "uav-drone-security",
@@ -3034,14 +3361,16 @@
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
-        "guides/uav-drone-security-playbook.md",
         "SKILL.md",
+        "guides/uav-drone-security-playbook.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "username-profiling": {
       "name": "username-profiling",
@@ -3051,30 +3380,32 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/maigret-username-dossier.md",
         "guides/maigret-username-workshop.md",
+        "guides/usage-and-assessment.md",
         "guides/username-profiling-deep-dive.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "verification-loop": {
       "name": "verification-loop",
-      "description": "After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says \\\"verify\\\", \\\"confirm\\\", \\\"validate.",
+      "description": "After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says \"verify\", \"confirm\", \"validate.",
       "version": "0.2.0.2",
       "domain": "workflow",
       "category": "general",
-      "mitre": "",
+      "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/automated-exploit-verification-guide.md",
         "guides/continuous-security-validation-guide.md",
         "guides/cross-tool-verification-guide.md",
@@ -3083,12 +3414,14 @@
         "guides/finding-verification-methodology.md",
         "guides/regression-testing-security-guide.md",
         "guides/remediation-verification-patterns-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
-      "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": false
+      "defense_triple_required": false,
+      "has_defense_perspective": false,
+      "has_detection": false,
+      "has_evasion": false
     },
     "voip-sip-attack": {
       "name": "voip-sip-attack",
@@ -3098,18 +3431,20 @@
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/sip-device-recon.md",
+        "guides/usage-and-assessment.md",
         "guides/voip-denial-of-service.md",
         "guides/voip-eavesdropping-spoofing.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "vpn-attack": {
       "name": "vpn-attack",
@@ -3117,25 +3452,27 @@
       "version": "0.2.0.2",
       "domain": "security",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning",
       "owasp": "",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/ipsec-vpn-enumeration-fingerprinting-guide.md",
         "guides/openvpn-attack-guide.md",
         "guides/ssl-vpn-exploitation-deep-dive-guide.md",
         "guides/ssl-vpn-exploitation-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/vpn-credential-brute-force-guide.md",
         "guides/vpn-credential-tunnel-attack-guide.md",
         "guides/vpn-pivoting-lateral-guide.md",
         "guides/wireguard-attack-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "vulnerability-assessment": {
       "name": "vulnerability-assessment",
@@ -3143,25 +3480,27 @@
       "version": "0.2.0.2",
       "domain": "assessment",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1046-Network Service Scanning, T1595-Active Scanning, T1592-Gather Victim Host Info, T1087-Account Discovery, T1613-Container and Resource Discovery",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-08-17",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/2026-03-22-vulnerability-analysis-tools.md",
         "guides/2026-03-22-web-app-analysis-advanced.md",
         "guides/2026-03-22-web-application-analysis-tools.md",
         "guides/automated-scanning-pipeline-guide.md",
         "guides/manual-testing-techniques-guide.md",
         "guides/risk-rating-methodology-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/vulnerability-prioritization-guide.md",
         "guides/vulnerability-scanning-network-protocol-cli-reference.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-access-control": {
       "name": "web-access-control",
@@ -3169,11 +3508,11 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1098-Account Manipulation, T1539-Steal Web Session Cookie",
       "owasp": "A01:2021-Broken Access Control",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "access-control-guide.md",
         "guides/access_control_scanner.py",
         "guides/broken_access_control_complete_guide.md",
@@ -3182,12 +3521,14 @@
         "guides/idor-exploitation-guide.md",
         "guides/multi-tenancy-isolation-testing-guide.md",
         "guides/privilege-escalation-web-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-auth-bypass": {
       "name": "web-auth-bypass",
@@ -3195,23 +3536,25 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1078-Valid Accounts, T1110.003-Password Spraying, T1552.001-Credentials In Files, T1187-Forced Authentication",
       "owasp": "A07:2021-Identification",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
+        "auth-bypass-guide.md",
         "guides/auth-bypass-complete-guide.md",
         "guides/jwt-attack-methodology.md",
         "guides/mfa-bypass-techniques-guide.md",
         "guides/oauth-vulnerability-testing-guide.md",
         "guides/session-management-attacks-guide.md",
-        "SKILL.md",
-        "test-cases.md",
-        "auth-bypass-guide.md"
+        "guides/usage-and-assessment.md",
+        "payloads.md",
+        "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-deserialization": {
       "name": "web-deserialization",
@@ -3223,18 +3566,20 @@
       "owasp": "A08:2021-Software Integrity Failures",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/cross-platform-deserialization-guide.md",
         "guides/dotnet-deserialization-guide.md",
         "guides/java-deserialization-ysoserial-guide.md",
         "guides/nodejs-deserialization-guide.md",
         "guides/php-deserialization-phpggc-guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-sqli": {
       "name": "web-sqli",
@@ -3246,9 +3591,7 @@
       "owasp": "A03:2021-Injection",
       "last_reviewed": "2026-07-19",
       "files": [
-        "payloads.md",
-        "sqli-cross-db-guide.md",
-        "sqli-double-query-guide.md",
+        "SKILL.md",
         "guides/bug_bounty_sqli_scanner.py",
         "guides/comprehensive_double_query_test.py",
         "guides/cross_database_sqli_guide.md",
@@ -3273,13 +3616,17 @@
         "guides/sqli-labs-milestone-20.md",
         "guides/sqli-labs-milestone-30.md",
         "guides/sqli-labs-progress.md",
+        "guides/usage-and-assessment.md",
         "guides/waf-bypass-sqli-guide.md",
-        "SKILL.md",
+        "payloads.md",
+        "sqli-cross-db-guide.md",
+        "sqli-double-query-guide.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-ssrf": {
       "name": "web-ssrf",
@@ -3291,19 +3638,21 @@
       "owasp": "A10:2021-SSRF",
       "last_reviewed": "2026-07-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/blind-ssrf-detection-guide.md",
         "guides/cloud-metadata-ssrf-guide.md",
         "guides/ssrf-filter-bypass-guide.md",
         "guides/ssrf-post-exploitation-guide.md",
         "guides/ssrf-to-rce-escalation-guide.md",
         "guides/ssrf_complete_guide.md",
-        "SKILL.md",
+        "guides/usage-and-assessment.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-xss": {
       "name": "web-xss",
@@ -3315,21 +3664,23 @@
       "owasp": "A03:2021-Injection",
       "last_reviewed": "2026-07-19",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/csp-bypass-techniques-guide.md",
         "guides/dom-xss-source-sink-analysis-guide.md",
         "guides/ssti-attack-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/waf-bypass-xss-guide.md",
         "guides/web-application-security-cli-reference.md",
         "guides/web_security_advanced_plan.md",
         "guides/xss-filter-evasion-guide.md",
         "guides/xss-to-rce-escalation-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "web-xxe": {
       "name": "web-xxe",
@@ -3337,20 +3688,22 @@
       "version": "0.2.0.2",
       "domain": "web-attack",
       "category": "general",
-      "mitre": "",
+      "mitre": "T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services",
       "owasp": "A05:2021-Security Misconfiguration",
       "last_reviewed": "2026-07-26",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/blind-xxe-exfiltration-guide.md",
         "guides/oxml-xxe-social-engineering-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/xxe-attack-techniques-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
+      "has_evasion": true
     },
     "wifi-pentest": {
       "name": "wifi-pentest",
@@ -3360,44 +3713,22 @@
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-09-04",
       "files": [
-        "payloads.md",
+        "SKILL.md",
         "guides/CRACK_MONITOR.md",
         "guides/evil-twin-attack-guide.md",
+        "guides/usage-and-assessment.md",
         "guides/wifi-cracking-complete-learning.md",
         "guides/wifi-cracking-course.md",
         "guides/wifi-resume-guide.md",
-        "SKILL.md",
+        "payloads.md",
         "test-cases.md"
       ],
+      "defense_triple_required": true,
+      "has_defense_perspective": true,
       "has_detection": true,
-      "has_evasion": true,
-      "has_defense_perspective": true
-    },
-    "ai-agent-supply-chain-attack": {
-      "name": "ai-agent-supply-chain-attack",
-      "description": "AI/ML supply chain attacks — model poisoning, Pickle RCE, Hugging Face / Ollama registry compromise, LangChain plugin backdoors, OpenClaw / ClawHub ecosystem threats. Distinguishes from ci-cd-supply-chain-attack by focusing on model weights, training data, and serialization formats. Anchored by the 2026-07 Hugging Face incident (the 'Chernobyl moment' of software supply chain security).",
-      "version": "0.2.0.2",
-      "domain": "ai-supply-chain",
-      "category": "ai",
-      "mitre": "T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain"
-    },
-    "eu-ai-act-compliance-redteam": {
-      "name": "eu-ai-act-compliance-redteam",
-      "description": "EU AI Act (Regulation (EU) 2024/1689) compliance-focused red team testing for high-risk AI systems — Article 9 adversarial testing, Annex III classification, Annex IV technical documentation, conformity assessment, and Notified Body audit preparation. Enforceable since 2 August 2026 with fines up to €35M or 7% global turnover.",
-      "version": "0.2.0.2",
-      "domain": "ai-compliance",
-      "category": "ai",
-      "mitre": "EUAI-Article-9, TA0040-Impact"
-    },
-    "pqc-implementation-attack": {
-      "name": "pqc-implementation-attack",
-      "description": "Post-quantum cryptography implementation-layer attacks — ML-KEM/Kyber side channels (KyberSlash-class timing, single-trace power/EM, template and deep-learning SCA), fault injection on decapsulation, RNG/keygen weaknesses in liboqs/oqs-provider/PQClean/pqm4, hybrid KEM combiner implementation flaws, and Kyber ransomware sample triage with implementation-defect recovery paths.",
-      "version": "0.2.0.2",
-      "domain": "crypto",
-      "category": "post-quantum",
-      "mitre": "T1600-Weaken Encryption, T1600.001-Reduce Key Space, T1110.002-Password Cracking, T1486-Data Encrypted for Impact, T1040-Network Sniffing"
+      "has_evasion": true
     }
   }
 }

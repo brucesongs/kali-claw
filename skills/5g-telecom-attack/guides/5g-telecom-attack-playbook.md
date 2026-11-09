@@ -496,8 +496,8 @@ For each validated attack vector, scope and execute the exploitation:
 | srsRAN 4G | github.com/srsran/srsRAN_4G | AGPL-3.0 |
 | free5GC | github.com/free5gc/free5gc | Apache-2.0 |
 | PacketRusher | github.com/HewlettPackard/PacketRusher | Apache-2.0 |
-| OsmoHLR | gitea.osmocom.org/osmo-hlr | AGPL-3.0 |
-| OsmoMSC | gitea.osmocom.org/osmo-msc | AGPL-3.0 |
+| OsmoHLR | gitea.osmocom.org/cellular-infrastructure/osmo-hlr | AGPL-3.0 |
+| OsmoMSC | gitea.osmocom.org/cellular-infrastructure/osmo-msc | AGPL-3.0 |
 | ss7MAPer | github.com/ernw/ss7MAPer | Research |
 | sctpscan | github.com/philippeINSAsly/sctpscan | GPL |
 | Seagull | github.com/nickvdp/seagull | GPL-2.0 |
