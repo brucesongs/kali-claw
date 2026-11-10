@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.8 (2026-11-10) — 验证器沉淀 + 11 月排名基线 🛠️
+
+### P2 backlog 清偿：/tmp 三轴验证器正式沉淀
+
+- 新增 `validation/check-skill-usability.py`（~470 行）：完整性六维加权分 + 可用性（占位符感知 bash -n + 结构门）+ 可靠性（注释剥离的过时模式 grep + freshness）；TOC 白名单吸收 TOOLS.md（U3-1 部分清偿）；`--skill/--json/--ranking/--urls` CLI
+- 工程化改进：块级分类（payload 展示 79 / 多语言混合 179 / 分段容忍 39 与 shell 意图块分离）、hashcat -O 跨行假阳性修复、TC 双格式计数（`##`/`###`）
+- 新基线 `docs/SKILL_VALIDATION_RANKING_2026-11-10.md`：均分 **89.8**（72.3-95.4），Excellent 130 / Good 9 / **无 Fair/Poor**；Usability 125/1/13；过时模式 0
+- 新 findings：F-1 语法残留 16 块/13 技能；F-2 freshness 落后 >90d 77 技能；F-3 relabel 候选 179 块（信息级）；F-4 automotive 占位符 15（信息级）
+- 第 5 次月度审查自此可一条命令复跑
+
+详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)
+
+---
+
 ## v0.3.7 (2026-11-09) — Bottom 技术孪生加深 📈
 
 ### v0.3.5/v0.3.6 P1 backlog 清偿（Bottom 双子 65→78）

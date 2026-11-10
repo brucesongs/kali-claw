@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.7** (2026-11-09) — **Bottom 技术孪生加深**（DLP-bypass / edge-computing-security 双双 65→78；+11 NVD 核验 CVE；lint 0/0/139）。详见 [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md)。
+> **Current Version**: **v0.3.8** (2026-11-10) — **验证器沉淀 + 11 月排名基线**（check-skill-usability.py 三轴验证器；新基线均分 89.8 无 Fair/Poor；lint 0/0/139）。详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)。
 
 ---
 
@@ -398,6 +398,7 @@ TOOLS.md:
 | **v0.3.5** | **2026-09-09** | **全量验证与完整性排序** 🏅 | 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；Top30 公网链接抽查（死链 5 入报告）；排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md；lint 0/0/139 ✅. See [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md) |
 | **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md) |
 | **v0.3.7** | **2026-11-09** | **Bottom 技术孪生加深** 📈 | DLP-bypass / edge-computing-security 双双 65→78（Good）：payloads 109→319 / 88→245 行重建、CVE 0→6 / 3→8（NVD 核验）、TC 去重规范化 13/13、MITRE 1→8 / 1→7；bash -n 门 0 错；lint 0/0/139 ✅. See [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md) |
+| **v0.3.8** | **2026-11-10** | **验证器沉淀 + 排名基线** 🛠️ | /tmp 三轴验证器正式沉淀为 validation/check-skill-usability.py（块级分类 payload/mixed/tolerated、注释剥离防假阳性、TOC 白名单、--ranking 报告生成）；新基线 docs/SKILL_VALIDATION_RANKING_2026-11-10.md：均分 89.8（无 Fair/Poor）、Usability 125/1/13、过时 0；新 findings 16 语法残留 + 77 freshness ✅. See [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

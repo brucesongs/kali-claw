@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.7 (2026-11-09) — **Bottom 技术孪生加深**（DLP-bypass / edge-computing-security 65→78；+11 NVD CVE；lint 0/0/139）。详见 [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md)。
+> **Current Version**: v0.3.8 (2026-11-10) — **验证器沉淀 + 11 月排名基线**（check-skill-usability.py；均分 89.8 无 Fair/Poor；lint 0/0/139）。详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)。
 
 ---
 

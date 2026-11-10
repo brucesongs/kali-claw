@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.3.7 (bottom technical-twin deepening; DLP-bypass & edge-computing-security 65→78, +11 NVD-verified CVEs, lint 0/0/139). See [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md) for the latest milestone.
+> **Current Version**: v0.3.8 (validator sedimentation + Nov ranking baseline; new tool validation/check-skill-usability.py, baseline avg 89.8 with no Fair/Poor, lint 0/0/139). See [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md) for the latest milestone.
 
 ## Architecture
 

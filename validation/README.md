@@ -6,6 +6,18 @@
 
 ## Quick Start
 
+### Run Three-Axis Skill Validation (v0.3.8+)
+
+```bash
+python3 validation/check-skill-usability.py --ranking docs/SKILL_VALIDATION_RANKING_$(date +%F).md
+```
+
+Validates all 139 skills on three axes (completeness six-dimension score /
+usability bash-syntax + structure gates / reliability outdated-patterns +
+freshness) and writes a full ranking report. Exit 0 = clean, 2 = findings
+listed in the report. Single skill: `--skill NAME`. Optional URL liveness:
+`--urls 30`.
+
 ### Run Quality Scoring
 
 ```bash
@@ -24,6 +36,11 @@ Check `validation/QUALITY-SCORE-TRACKER.md` for the latest tier distribution and
 
 | File | Purpose |
 |------|---------|
+| `check-skill-usability.py` | Three-axis validator + ranking generator (v0.3.5 methodology, formalized) |
+| `gen-skill-handbook.py` | Regenerates SKILL_INDEX.json + SKILL_HANDBOOK.md from frontmatter |
+| `check-tool-versions.py` | Kali tool baseline drift checker |
+| `skill-lint.py` | SKILL.md structural linter (Defense Triple, frontmatter, translation residue) |
+| `validate-payloads.py` / `validate-testcases.py` | Payload/TC existence and pattern validators |
 | `SCORE.sh` | Automated scoring script (7 metrics, 4 components) |
 | `SCORING-METHODOLOGY.md` | Formal scoring methodology reference |
 | `QUALITY-SCORE-TRACKER.md` | Per-skill scores and tier distribution |
