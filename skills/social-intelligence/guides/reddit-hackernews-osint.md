@@ -50,7 +50,7 @@ curl -s "https://oauth.reddit.com/search?q=<query>&sort=new&t=month&limit=100" \
 
 #### Technology Stack Discovery
 
-```bash
+```text
 # Infrastructure discussions
 "<company>" (AWS OR Azure OR GCP OR "on-prem") subreddit:devops
 "<company>" (Kubernetes OR Docker OR Terraform) subreddit:devops

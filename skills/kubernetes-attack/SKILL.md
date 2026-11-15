@@ -17,7 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

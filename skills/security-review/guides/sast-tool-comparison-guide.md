@@ -220,23 +220,28 @@ jobs:
 
 ## 7. Comparing Results and Reducing False Positives
 
-```bash
+```python
 # Semgrep — inline suppression
 def process_query(user_input):
     # nosemgrep: raw-sql-format-string
     cursor.execute(f"SELECT * FROM safe_table WHERE id={validated_id}")
+```
 
+```python
 # Bandit — inline suppression
 subprocess.call(cmd, shell=True)  # nosec B602
+```
 
+```yaml
 # CodeQL — query filters in qlpack.yml
 # Exclude test files from analysis
 exclude:
   - "**/test_*.py"
   - "**/tests/**"
+```
 
+```python
 # Compare tool outputs — find consensus vulnerabilities
-python3 -c "
 import json
 
 with open('semgrep_results.json') as f:
@@ -251,7 +256,6 @@ consensus = semgrep_files & bandit_files
 print(f'Files flagged by both tools: {len(consensus)}')
 for f in sorted(consensus):
     print(f'  {f}')
-"
 ```
 
 ## 8. Rule Development Workflow

@@ -26,7 +26,7 @@ metadata:
     - DVB-S
     - VSAT
     - GNSS
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

@@ -17,7 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 1
   mitre: "T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

@@ -54,7 +54,8 @@ URL_RE = re.compile(r"https?://[^\s\)\]\"'<>]+")
 CVE_RE = re.compile(r"\bCVE-\d{4}-\d{4,7}\b")
 TCODE_RE = re.compile(r"\b(T\d{4}(?:\.\d{3})?)\b")
 PLACEHOLDER_RE = re.compile(r"\b(TODO|FIXME|XXX|PLACEHOLDER|<your|YOUR_KEY)\b")
-SESSION_PREFIX_RE = re.compile(r"^(gdb\)|msf\d>|meterpreter>|irb\()", re.IGNORECASE)
+SESSION_PREFIX_RE = re.compile(
+    r"^\((gdb|qemu|lldb|pdb)\)\s|^msf[^>\n]*>\s|^meterpreter>\s|^irb\(", re.IGNORECASE)
 ANGLE_PH_RE = re.compile(r"<[A-Za-z0-9_.$@/:-]{1,48}>")
 # tool-output transcript lines embedded in bash blocks (commented out pre-check)
 OUTPUT_LINE_RE = re.compile(

@@ -29,7 +29,7 @@ metadata:
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Threat Intel Platform Attack

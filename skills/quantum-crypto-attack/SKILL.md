@@ -54,7 +54,7 @@ metadata:
     - ROCA
     - XMSS
     - LMS
-  last_reviewed: "2026-08-17"
+  last_reviewed: "2026-11-16"
 ---
 
 

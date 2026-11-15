@@ -49,7 +49,7 @@ metadata:
     - policy-as-code
     - opa
     - kyverno
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: CSPM / CASB / CNAPP Attack and Evasion

@@ -21,7 +21,7 @@ metadata:
   guide_count: 5
   owasp: "A08:2021-Software Integrity Failures"
   mitre: "T1190-Exploit Public-Facing App"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

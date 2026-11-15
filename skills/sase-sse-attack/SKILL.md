@@ -50,7 +50,7 @@ metadata:
     - v2ray
     - obfs4
     - trojan-proxy
-  last_reviewed: "2026-08-17"
+  last_reviewed: "2026-11-16"
 ---
 
 

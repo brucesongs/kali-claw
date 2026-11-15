@@ -21,7 +21,7 @@ metadata:
   tool_count: 5
   guide_count: 8
   mitre: "T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

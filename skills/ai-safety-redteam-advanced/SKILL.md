@@ -21,7 +21,7 @@ metadata:
   tool_count: 12
   guide_count: 4
   mitre: "Emerging (LLM-specific); overlaps T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via LLM abuse"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
   keywords:
     - LLM red team
     - prompt injection

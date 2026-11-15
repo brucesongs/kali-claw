@@ -30,7 +30,7 @@ metadata:
     - verifone
     - ingenico
     - fips-140
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

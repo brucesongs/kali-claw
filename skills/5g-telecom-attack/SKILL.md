@@ -17,7 +17,7 @@ metadata:
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
   keywords: [5g, telecom, srsran, open5gs, pfcp, gtp, diameter, ss7, imsi-catcher, oran, roaming, sms-interception]
 ---
 

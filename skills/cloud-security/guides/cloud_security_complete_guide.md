@@ -31,7 +31,7 @@ Cloud SecurityispointprotectcloudcalculateEnvironmentin Data、Applicationandbas
 **Vulnerability**: AWS S3 storage bucketConfigurationaspublicAccess
 
 **Detection Tools**:
-```bash
+```python
 #!/usr/bin/env python3
 """
 AWS S3 Bucket 公开AccessDetection Tools
@@ -281,7 +281,7 @@ fi
 **Vulnerability**: overatlenient RBAC rule
 
 **Detection Tools**:
-```bash
+```python
 #!/usr/bin/env python3
 """
 Kubernetes RBAC 审计Tool

@@ -20,7 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Data Platform Attack

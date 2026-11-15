@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "generated_at": "2026-11-10T04:27:40+00:00",
-    "kali_claw_version": "0.3.8",
+    "generated_at": "2026-11-15T18:38:46+00:00",
+    "kali_claw_version": "0.3.9",
     "total_skills": 139,
     "total_domains": 83,
     "skill_version": "0.2.0.2",
@@ -343,7 +343,7 @@
       "category": "telecom",
       "mitre": "TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/5g-telecom-attack-deep-dive.md",
@@ -365,7 +365,7 @@
       "category": "enterprise-cloud",
       "mitre": "T1552-Unsecured Credentials",
       "owasp": "",
-      "last_reviewed": "2026-07-24",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ad-cs-abuse-detection-and-hardening.md",
@@ -387,7 +387,7 @@
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-07-24",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ad-lateral-movement-guide.md",
@@ -410,7 +410,7 @@
       "category": "general",
       "mitre": "Meta-skill (no direct MITRE mapping); orchestrates coverage across all ATT&CK tactics via framework delegation",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/agent-orchestration-patterns-playbook.md",
@@ -433,7 +433,7 @@
       "category": "ai-agent-framework",
       "mitre": "T1195-Supply Chain Compromise",
       "owasp": "",
-      "last_reviewed": "2026-07-24",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ai-agent-framework-attack-playbook.md",
@@ -455,7 +455,7 @@
       "category": "general",
       "mitre": "Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ai-agent-security-playbook.md",
@@ -477,7 +477,7 @@
       "category": "ai",
       "mitre": "T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain",
       "owasp": "A08:2021-Software and Data Integrity Failures",
-      "last_reviewed": "2026-08-09",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/hugging-face-2026-07-incident-case-study.md",
@@ -525,7 +525,7 @@
       "category": "ai-emerging",
       "mitre": "Emerging (LLM-specific); overlaps T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via LLM abuse",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/owasp-llm-top10-complete-guide.md",
@@ -624,7 +624,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cve-advisory-writing-guide.md",
@@ -652,7 +652,7 @@
       "category": "automotive",
       "mitre": "TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle",
       "owasp": "",
-      "last_reviewed": "2026-08-16",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/automotive-ecu-firmware-and-uds-deep-dive.md",
@@ -682,7 +682,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/autonomous-decision-making-guide.md",
@@ -710,7 +710,7 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/av-edr-evasion-edr-rules-evasion-deep.md",
@@ -764,7 +764,7 @@
       "category": "blockchain-l2",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/blockchain-l2-attack-playbook.md",
@@ -785,7 +785,7 @@
       "category": "general",
       "mitre": "N/A (application-layer; maps loosely to TA0001-Initial Access via compromise)",
       "owasp": "",
-      "last_reviewed": "2026-08-16",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/blockchain-web3-bridge-oracle-exploit-deep.md",
@@ -812,7 +812,7 @@
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ble-gatt-attack.md",
@@ -835,7 +835,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/browser-fingerprint-analysis-guide.md",
@@ -886,7 +886,7 @@
       "category": "supply-chain-continuous-delivery",
       "mitre": "T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies, T1195.002-Compromise Software Supply Chain, T1195.003-Hardware Compromise, T1199-Trusted Relationship, T1078-Valid Accounts",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ci-cd-supply-chain-attack-playbook.md",
@@ -911,7 +911,7 @@
       "category": "general",
       "mitre": "T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cloud-identity-attack-device-code-phishing-deep.md",
@@ -938,7 +938,7 @@
       "category": "cloud-native",
       "mitre": "T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cloud-native-vuln-research-playbook.md",
@@ -1010,7 +1010,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/architecture-pattern-recognition.md",
@@ -1083,7 +1083,7 @@
       "category": "general",
       "mitre": "T1046-Network Service Discovery, T1602-Data from Configuration Repository",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/confidential-computing-attack-playbook.md",
@@ -1185,7 +1185,7 @@
       "category": "general",
       "mitre": "TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cps-attack-playbook.md",
@@ -1234,7 +1234,7 @@
       "category": "cloud-posture-casb",
       "mitre": "T1068-Exploitation for Privilege Escalation, T1565-Adversary-Inhibited-Response-System, T1611-Escape to Host",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cspm-casb-attack-playbook.md",
@@ -1257,7 +1257,7 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/dark-web-investigation-playbook.md",
@@ -1284,7 +1284,7 @@
       "category": "general",
       "mitre": "TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/data-exfiltration-attack-playbook.md",
@@ -1326,7 +1326,7 @@
       "category": "general",
       "mitre": "TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/data-platform-attack-playbook.md",
@@ -1348,7 +1348,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/anti-bot-bypass-guide.md",
@@ -1446,7 +1446,7 @@
       "category": "general",
       "mitre": "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/detection-engineering-playbook.md",
@@ -1493,7 +1493,7 @@
       "category": "general",
       "mitre": "TA0011-Command and Control",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/dns-attacks-real-world-incident-case-studies.md",
@@ -1521,7 +1521,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/container-escape-techniques-guide.md",
@@ -1546,7 +1546,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/edge-computing-attack-playbook.md",
@@ -1588,7 +1588,7 @@
       "category": "general",
       "mitre": "T1114-Email Collection",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/email-forgery-spf-dkim-dmarc-guide.md",
@@ -1611,7 +1611,7 @@
       "category": "general",
       "mitre": "T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/email-security-deep-deep-dive.md",
@@ -1634,7 +1634,7 @@
       "category": "rtos",
       "mitre": "T1548-Abuse Elevation Control Mechanism",
       "owasp": "",
-      "last_reviewed": "2026-08-16",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/embedded-rtos-security-deep-dive.md",
@@ -1703,7 +1703,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/advanced-query-construction-guide.md",
@@ -1799,7 +1799,7 @@
       "category": "game-security",
       "mitre": "TA0005-Defense Evasion, T1068-Exploitation for Privilege Escalation, T1547-Boot or Logon Autostart",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/game-anticheat-bypass-playbook.md",
@@ -1820,7 +1820,7 @@
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/gitops-security-playbook.md",
@@ -1842,7 +1842,7 @@
       "category": "general",
       "mitre": "T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/embedded-firmware-analysis.md",
@@ -1887,7 +1887,7 @@
       "category": "lowfreq-radio",
       "mitre": "T1557-Adversary-in-the-Middle",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/hf-vhf-radio-attack-deep-dive.md",
@@ -1910,7 +1910,7 @@
       "category": "general",
       "mitre": "TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/hsm-attack-playbook.md",
@@ -1932,7 +1932,7 @@
       "category": "virtualization",
       "mitre": "T1068-Exploitation for Privilege Escalation",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/hypervisor-introspection-playbook.md",
@@ -1953,7 +1953,7 @@
       "category": "fieldbus",
       "mitre": "T0817-Program Logic Controller Software",
       "owasp": "",
-      "last_reviewed": "2026-08-12",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ics-fieldbus-attack-playbook.md",
@@ -1982,7 +1982,7 @@
       "category": "cloud-identity",
       "mitre": "TA0006-Credential Access, T1556-Modify Authentication Process",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/usage-and-assessment.md",
@@ -2002,7 +2002,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools",
       "owasp": "A06:2025-Insecure Design",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/abuse-case-development-guide.md",
@@ -2029,7 +2029,7 @@
       "category": "general",
       "mitre": "TA0007-Discovery (IoT device recon), T1021-Remote Services (MQTT/CoAP), T1190-Exploit Public-Facing App",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/iot-pentest-playbook.md",
@@ -2051,7 +2051,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cross-session-intelligence-aggregation.md",
@@ -2076,7 +2076,7 @@
       "category": "general",
       "mitre": "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/k8s-escape-and-lateral-movement-playbook.md",
@@ -2125,7 +2125,7 @@
       "category": "general",
       "mitre": "T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter",
       "owasp": "A09:2021-Logging Failures",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/alert-fatigue-reduction-guide.md",
@@ -2150,7 +2150,7 @@
       "category": "macos",
       "mitre": "TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/macos-security-deep-dive.md",
@@ -2172,7 +2172,7 @@
       "category": "mainframe",
       "mitre": "TA0006-Credential Access, T1078-Valid Accounts, T1003-OS Credential Dumping",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/lab-driven-walkthrough.md",
@@ -2196,7 +2196,7 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion, TA0010-Exfiltration, T1027-Obfuscated Files, T1497-Virtualization/Sandbox Evasion, T1562-Impair Defenses, T1014-Hidden Processes, T1547-Boot/Logon Autostart",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/malware-analysis-advanced-playbook.md",
@@ -2218,7 +2218,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/mcp-protocol-debugging-guide.md",
@@ -2243,7 +2243,7 @@
       "category": "mobile-deep",
       "mitre": "T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/mobile-app-instrumentation-ios-android-deep.md",
@@ -2290,7 +2290,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/agent-communication-protocols-guide.md",
@@ -2315,7 +2315,7 @@
       "category": "general",
       "mitre": "N/A — meta-skill (runtime engineering, not a specific ATT&CK technique)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/multi-agent-runtime-engineering-playbook.md",
@@ -2368,7 +2368,7 @@
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ettercap-bettercap-mitm-attack-guide.md",
@@ -2391,7 +2391,7 @@
       "category": "general",
       "mitre": "TA0008-Lateral Movement",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/dns-icmp-covert-tunnel-deep-dive.md",
@@ -2419,7 +2419,7 @@
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/open-banking-attack-playbook.md",
@@ -2469,7 +2469,7 @@
       "category": "privileged-access-management",
       "mitre": "T1552-Unsecured Credentials",
       "owasp": "",
-      "last_reviewed": "2026-08-16",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/pam-privilege-attack-playbook.md",
@@ -2492,7 +2492,7 @@
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/2026-03-21-password-attack-tools.md",
@@ -2519,7 +2519,7 @@
       "category": "general",
       "mitre": "TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/patch-to-poc-pipeline-playbook.md",
@@ -2541,7 +2541,7 @@
       "category": "general",
       "mitre": "TA0007-Command and Control",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cross-platform-payload-guide.md",
@@ -2569,7 +2569,7 @@
       "category": "general",
       "mitre": "T1566-Phishing (credential harvesting) + domain-specific",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/p2pe-hardware-assessment-playbook.md",
@@ -2614,7 +2614,7 @@
       "category": "general",
       "mitre": "TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/physical-security-testing-playbook.md",
@@ -2635,7 +2635,7 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion",
       "owasp": "",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/2026-03-21-post-exploitation-tools.md",
@@ -2705,7 +2705,7 @@
       "category": "general",
       "mitre": "TA0004-Privilege Escalation",
       "owasp": "",
-      "last_reviewed": "2026-07-21",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/kernel-exploit-safety-guide.md",
@@ -2752,7 +2752,7 @@
       "category": "general",
       "mitre": "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/pqc-migration-assessment-playbook.md",
@@ -2806,7 +2806,7 @@
       "category": "general",
       "mitre": "TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/real-world-incident-case-studies.md",
@@ -2853,7 +2853,7 @@
       "category": "general",
       "mitre": "TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/real-world-incident-case-studies.md",
@@ -2875,7 +2875,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/error-handling-security-guide.md",
@@ -2900,7 +2900,7 @@
       "category": "sase-sse",
       "mitre": "T1557-Adversary-in-the-Middle, T1027-Obfuscated Files or Information, T1078-Valid Accounts, T1550-Use Alternate Authentication Material, T1572-Protocol Tunneling, T1573-Encrypted Channel",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/netskope-security-cloud-bypass-guide.md",
@@ -2928,7 +2928,7 @@
       "category": "satellite",
       "mitre": "T1557-Adversary-in-the-Middle",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/satellite-leo-security-playbook.md",
@@ -2949,7 +2949,7 @@
       "category": "general",
       "mitre": "TA0100-ICS Attack",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ics-honeypot-detection-guide.md",
@@ -2976,7 +2976,7 @@
       "category": "general",
       "mitre": "T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/gps-spoofing-guide.md",
@@ -3005,7 +3005,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/exploit-research-methodology.md",
@@ -3030,7 +3030,7 @@
       "category": "general",
       "mitre": "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cicd-secret-sprawl-and-sast-rule-deep-dive.md",
@@ -3134,7 +3134,7 @@
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-07-21",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/2026-03-21-social-engineering-tools.md",
@@ -3187,7 +3187,7 @@
       "category": "general",
       "mitre": "T1001.002-Data Obfuscation Steganography, T1027-Obfuscated Files or Information, T1560-Archive Collected Data, T1105-Ingress Tool Transfer",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/audio-video-steganography-guide.md",
@@ -3218,7 +3218,7 @@
         "T1213-Data from Information Repositories"
       ],
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/storage-san-attack-playbook.md",
@@ -3292,7 +3292,7 @@
       "category": "general",
       "mitre": "TA0040-Detection",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/hunt-hypothesis-playbook.md",
@@ -3314,7 +3314,7 @@
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/real-world-incident-case-studies.md",
@@ -3359,7 +3359,7 @@
       "category": "aerial",
       "mitre": "TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/uav-drone-security-playbook.md",
@@ -3403,7 +3403,7 @@
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/automated-exploit-verification-guide.md",
@@ -3454,7 +3454,7 @@
       "category": "general",
       "mitre": "T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning",
       "owasp": "",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/ipsec-vpn-enumeration-fingerprinting-guide.md",
@@ -3482,7 +3482,7 @@
       "category": "general",
       "mitre": "T1046-Network Service Scanning, T1595-Active Scanning, T1592-Gather Victim Host Info, T1087-Account Discovery, T1613-Container and Resource Discovery",
       "owasp": "",
-      "last_reviewed": "2026-08-17",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/2026-03-22-vulnerability-analysis-tools.md",
@@ -3564,7 +3564,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A08:2021-Software Integrity Failures",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/cross-platform-deserialization-guide.md",
@@ -3589,7 +3589,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A03:2021-Injection",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/bug_bounty_sqli_scanner.py",
@@ -3636,7 +3636,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A10:2021-SSRF",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/blind-ssrf-detection-guide.md",
@@ -3662,7 +3662,7 @@
       "category": "general",
       "mitre": "T1189-Drive-by Compromise",
       "owasp": "A03:2021-Injection",
-      "last_reviewed": "2026-07-19",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/csp-bypass-techniques-guide.md",
@@ -3690,7 +3690,7 @@
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services",
       "owasp": "A05:2021-Security Misconfiguration",
-      "last_reviewed": "2026-07-26",
+      "last_reviewed": "2026-11-16",
       "files": [
         "SKILL.md",
         "guides/blind-xxe-exfiltration-guide.md",

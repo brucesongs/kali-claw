@@ -17,7 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 1
   mitre: "TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

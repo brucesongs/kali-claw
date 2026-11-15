@@ -17,7 +17,7 @@ metadata:
   tool_count: 12
   guide_count: 2
   mitre: "Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

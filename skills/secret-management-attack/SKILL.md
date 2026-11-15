@@ -17,7 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 3
   mitre: "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

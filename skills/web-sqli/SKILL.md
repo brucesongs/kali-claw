@@ -21,7 +21,7 @@ metadata:
   guide_count: 14
   owasp: "A03:2021-Injection"
   mitre: "T1190-Exploit Public-Facing App"
-  last_reviewed: "2026-07-19"
+  last_reviewed: "2026-11-16"
 ---
 
 

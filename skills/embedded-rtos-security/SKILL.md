@@ -23,7 +23,7 @@ metadata:
     - Zephyr
     - embedded
     - microkernel
-  last_reviewed: "2026-08-16"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: Embedded RTOS Security

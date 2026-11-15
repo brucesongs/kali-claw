@@ -20,7 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "T1046-Network Service Discovery, T1602-Data from Configuration Repository"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Confidential Computing Attack

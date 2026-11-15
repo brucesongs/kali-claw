@@ -12,7 +12,7 @@ metadata:
   guide_count: 1
   mitre: TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access
   keywords: [drone, uav, px4, ardupilot, mavlink, hackrf, dronesploit, djid, gps-spoofing, counter-uas, fpv, 5.8ghz]
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: UAV & Drone Security

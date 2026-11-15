@@ -20,7 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   mitre: "T1001.002-Data Obfuscation Steganography, T1027-Obfuscated Files or Information, T1560-Archive Collected Data, T1105-Ingress Tool Transfer"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

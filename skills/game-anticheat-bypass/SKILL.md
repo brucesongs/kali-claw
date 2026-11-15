@@ -33,7 +33,7 @@ metadata:
     - cheat-engine
     - scyllahide
     - reclass
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: Game Anti-Cheat Bypass (Security Research)

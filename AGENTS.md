@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.8 (2026-11-10) — **验证器沉淀 + 11 月排名基线**（check-skill-usability.py；均分 89.8 无 Fair/Poor；lint 0/0/139）。详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)。
+> **Current Version**: v0.3.9 (2026-11-16) — **P1 清偿：三轴全绿**（语法残留 16→0；freshness 90→0；lint 0/0/139）。详见 [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md)。
 
 ---
 

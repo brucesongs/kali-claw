@@ -22,7 +22,7 @@ metadata:
   tool_count: 14
   guide_count: 1
   mitre: "T1195-Supply Chain Compromise"
-  last_reviewed: "2026-07-24"
+  last_reviewed: "2026-11-16"
   keywords:
     - AI agent
     - LLM agent

@@ -21,7 +21,7 @@ metadata:
   tool_count: 7
   guide_count: 0
   mitre: "TA0006-Credential Access, T1556-Modify Authentication Process"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
   keywords: ["OAuth", "OIDC", "SAML", "JWT", "IdP", "Azure AD", "Okta", "Auth0", "Keycloak", "MFA fatigue", "token theft"]
 ---
 

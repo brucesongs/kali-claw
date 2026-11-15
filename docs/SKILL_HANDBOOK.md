@@ -1,6 +1,6 @@
 # kali-claw SKILL 使用手册
 
-> **版本**: 0.3.8 | **生成日期**: 2026-11-10 | **SKILL 总数**: 139 / **域数**: 83
+> **版本**: 0.3.9 | **生成日期**: 2026-11-15 | **SKILL 总数**: 139 / **域数**: 83
 > 本文件由 `validation/gen-skill-handbook.py` 自动生成（以 skills/ frontmatter 为权威源），请勿手工编辑。
 
 ---
@@ -97,7 +97,7 @@
 
 ### ad-cs-abuse
 
-**版本**: 0.2.0.2 | **域**: ad-cs-abuse | **MITRE**: T1552-Unsecured Credentials | reviewed 2026-07-24
+**版本**: 0.2.0.2 | **域**: ad-cs-abuse | **MITRE**: T1552-Unsecured Credentials | reviewed 2026-11-16
 
 > Active Directory Certificate Services (AD CS) abuse — ESC1-ESC15 attack patterns, PKINIT, PetitPotam to AD CS to Domain Admin chains, CVE-2022-26923 (Certifried), Shadow Credentials, Golden Certificate, certificate template ACL abuse, NTLM relay to web enrollment.
 
@@ -111,7 +111,7 @@
 
 ### uav-drone-security
 
-**版本**: 0.2.0.2 | **域**: aerial | **MITRE**: TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: aerial | **MITRE**: TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access | reviewed 2026-11-16
 
 > UAV/drone security testing — PX4/ArduPilot autopilot attacks, MAVLink protocol fuzzing, RF link hijacking (2.4GHz control / 5.8GHz video), GPS spoofing/jamming, DroneSploit framework, DJI hardware reversing, and counter-UAS methodologies.
 
@@ -125,7 +125,7 @@
 
 ### multi-agent-runtime-engineering
 
-**版本**: 0.2.0.2 | **域**: agent-runtime | **MITRE**: N/A — meta-skill (runtime engineering, not a specific ATT&CK technique) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: agent-runtime | **MITRE**: N/A — meta-skill (runtime engineering, not a specific ATT&CK technique) | reviewed 2026-11-16
 
 > Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three-layer harness (Chinese press nickname *扫地僧* — CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.
 
@@ -165,7 +165,7 @@
 
 ### ai-agent-framework-attack
 
-**版本**: 0.2.0.2 | **域**: ai-agent-framework-attack | **MITRE**: T1195-Supply Chain Compromise | reviewed 2026-07-24
+**版本**: 0.2.0.2 | **域**: ai-agent-framework-attack | **MITRE**: T1195-Supply Chain Compromise | reviewed 2026-11-16
 
 > AI agent framework attack surface — orchestration-layer compromise of LangChain (Python/JS), LangGraph, CrewAI, Microsoft AutoGen, OpenAI Assistants API v2, Anthropic Claude Agent SDK, LlamaIndex, Microsoft Semantic Kernel, Google ADK, SmolAgents, and MCP-integrated agent runtimes. Covers tool poisoning (Simon Willison 2025 research), indirect prompt injection via untrusted tool outputs, tool rug-pull attacks (npm/PyPI dependency confusion in agent toolkits), LangChain SSRF via RequestsTool / SqlQueryTool / PythonREPLTool (CVE-2024-21514 area, CVE-2024-43480 area), CrewAI tool RCE via decorators (CVE-2024-10231 area), AutoGen code executor escape (Docker/code execution services), OpenAI Assistants API code_interpreter abuse, Claude Agent SDK MCP injection, LangGraph state injection via checkpoint poisoning, LlamaIndex query engine injection, MCP server poisoning (Anthropic/rug-pull.com research Nov 2024), tool description injection, agent memory poisoning, Retrieval-Augmented Generation (RAG) corpus poisoning, agent-in-the-middle attacks, shadow tools, and recent APT actor abuse of agentic AI systems (UNC5812, STAC-0050).
 
@@ -193,7 +193,7 @@
 
 ### ai-agent-security
 
-**版本**: 0.2.0.2 | **域**: ai-emerging | **MITRE**: Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: ai-emerging | **MITRE**: Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse | reviewed 2026-11-16
 
 > Offensive security testing of AI agent systems covering MCP server attacks, tool poisoning, indirect prompt injection against agents, RAG knowledge base poisoning, agent sandbox escape, multi-agent compromise chains, and autonomous agent hijacking — using MCP security testers, HexStrike AI, AI-Infra-Guard, custom agent harness probes, and prompt injection toolkits.
 
@@ -207,7 +207,7 @@
 
 ### agentic-pentest
 
-**版本**: 0.2.0.2 | **域**: ai-meta | **MITRE**: Meta-skill (no direct MITRE mapping); orchestrates coverage across all ATT&CK tactics via framework delegation | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: ai-meta | **MITRE**: Meta-skill (no direct MITRE mapping); orchestrates coverage across all ATT&CK tactics via framework delegation | reviewed 2026-11-16
 
 > LLM-driven autonomous penetration testing framework operations covering PentestGPT, HexStrike AI, Viper, PentestAgent, AI-Infra-Guard, AutoPWN, and custom agent harness patterns — including reasoning chain orchestration, tool delegation, context window management, output validation, multi-agent pentest team coordination, and human-in-the-loop checkpoints.
 
@@ -235,7 +235,7 @@
 
 ### ai-safety-redteam-advanced
 
-**版本**: 0.2.0.2 | **域**: ai-safety | **MITRE**: Emerging (LLM-specific); overlaps T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via LLM abuse | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: ai-safety | **MITRE**: Emerging (LLM-specific); overlaps T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via LLM abuse | reviewed 2026-11-16
 
 > Advanced AI safety red team operations covering OWASP LLM Top 10 (2025), prompt injection (direct/indirect/multi-turn), jailbreak techniques (DAN, cognitive hacking, persona-based), data poisoning detection, model inversion attacks, adversarial examples (evasion), model extraction, and AI supply chain attacks against LLM-integrated applications, agent frameworks, and RAG systems.
 
@@ -249,7 +249,7 @@
 
 ### ai-agent-supply-chain-attack
 
-**版本**: 0.2.0.2 | **域**: ai-supply-chain | **MITRE**: T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain | **OWASP**: A08:2021-Software and Data Integrity Failures | reviewed 2026-08-09
+**版本**: 0.2.0.2 | **域**: ai-supply-chain | **MITRE**: T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain | **OWASP**: A08:2021-Software and Data Integrity Failures | reviewed 2026-11-16
 
 > AI/ML supply chain attacks — model poisoning, Pickle RCE, Hugging Face / Ollama registry compromise, LangChain plugin backdoors, OpenClaw / ClawHub ecosystem threats. Distinguishes from ci-cd-supply-chain-attack by focusing on model weights, training data, and serialization formats. Anchored by the 2026-07 Hugging Face incident (the 'Chernobyl moment' of software supply chain security).
 
@@ -277,7 +277,7 @@
 
 ### ci-cd-supply-chain-attack
 
-**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies, T1195.002-Compromise Software Supply Chain, T1195.003-Hardware Compromise, T1199-Trusted Relationship, T1078-Valid Accounts | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies, T1195.002-Compromise Software Supply Chain, T1195.003-Hardware Compromise, T1199-Trusted Relationship, T1078-Valid Accounts | reviewed 2026-11-16
 
 > CI/CD pipeline and software supply chain compromise covering Jenkins (script console, Jenkinsfile injection, shared library abuse, CVE-2024-23897 args4j), GitLab CI/CD (runner abuse, .gitlab-ci.yml injection, self-hosted runner takeover, CVE-2022-1162, OmniAuth CVE-2024-9653), GitHub Actions (self-hosted runner abuse, pull_request_target trap, workflow injection via issue/PR title, secrets exfiltration via cache/artifact, GITHUB_TOKEN scope), CircleCI (context theft, OIDC abuse), Argo CD (CVE-2022-24348, default app creds), Flux CD (GitRepository CRD abuse), Tekton, Buildkite, Drone CI, software supply chain attacks (dependency confusion, typosquatting, brandjacking, malicious npm/PyPI packages, SBOM/SLSA, Sigstore/cosign, in-toto, S2C2F), notable incidents (SolarWinds SUNBURST, 3CX, Codecov, xz-utils CVE-2024-3094, event-stream, ua-parser-js), and detection/defense tooling (StepSecurity Harden-Runner, OpenSSF Scorecard, Socket, Sonatype Nexus, Snyk, Anchore Syft/Grype, KICS, Checkov, semgrep).
 
@@ -289,7 +289,7 @@
 
 ### email-security-deep
 
-**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload | reviewed 2026-11-16
 
 > Phishing infrastructure and email gateway bypass covering AiTM MFA interception (evilginx2/modlishka/evilgophish), campaign platforms (gophish/King-Phisher), enterprise gateway evasion (Proofpoint/Mimecast/Cisco ESA/Microsoft Defender for Office), email bombing/DoS, sender reputation engineering, and full-stack campaign operations including landing pages, payload staging, and post-click telemetry — complementary to email-protocol-attack which handles protocol-level forgery.
 
@@ -301,7 +301,7 @@
 
 ### secret-management-attack
 
-**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: appsec | **MITRE**: T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud | reviewed 2026-11-16
 
 > Secret discovery, SAST code audit, and secrets-management platform attack covering gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, and cariddi — including HashiCorp Vault exploitation (auth methods, secrets engines, policies, response-wrap hijacking, SSRF), AWS KMS key policy abuse, GCP KMS IAM escalation, Azure Key Vault access policy review, BYOK/HYOK attacks, Kyverno/external-secrets/secrets-store-csi-driver misconfig hunting, hardcoded credential discovery, secret rotation abuse, and CI/CD pipeline secret theft.
 
@@ -351,7 +351,7 @@
 
 ### vulnerability-assessment
 
-**版本**: 0.2.0.2 | **域**: assessment | **MITRE**: T1046-Network Service Scanning, T1595-Active Scanning, T1592-Gather Victim Host Info, T1087-Account Discovery, T1613-Container and Resource Discovery | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: assessment | **MITRE**: T1046-Network Service Scanning, T1595-Active Scanning, T1592-Gather Victim Host Info, T1087-Account Discovery, T1613-Container and Resource Discovery | reviewed 2026-11-16
 
 > Vulnerability assessment is the process of systematically identifying and quantifying security weaknesses in information systems through automated scanning, CVE analysis, and risk scoring.
 
@@ -365,7 +365,7 @@
 
 ### automotive-vehicle-security
 
-**版本**: 0.2.0.2 | **域**: automotive | **MITRE**: TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle | reviewed 2026-08-16
+**版本**: 0.2.0.2 | **域**: automotive | **MITRE**: TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle | reviewed 2026-11-16
 
 > CAN/CAN-FD bus analysis, UDS diagnostics, IVI pentest, OBD-II exploitation, key fob replay/relay attacks, GNSS spoofing, EV charging station (ISO 15118), and connected vehicle red team operations.
 
@@ -393,7 +393,7 @@
 
 ### blockchain-web3
 
-**版本**: 0.2.0.2 | **域**: blockchain | **MITRE**: N/A (application-layer; maps loosely to TA0001-Initial Access via compromise) | reviewed 2026-08-16
+**版本**: 0.2.0.2 | **域**: blockchain | **MITRE**: N/A (application-layer; maps loosely to TA0001-Initial Access via compromise) | reviewed 2026-11-16
 
 > Blockchain & Web3 security — Solidity/Vyper smart contract auditing, DeFi attack vectors (flash loans, MEV, oracle manipulation), bridge attacks, wallet security, with tooling from Slither/Mythril/Foundry.
 
@@ -407,7 +407,7 @@
 
 ### blockchain-l2-attack
 
-**版本**: 0.2.0.2 | **域**: blockchain-l2-attack | **MITRE**: TA0006-Credential Access | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: blockchain-l2-attack | **MITRE**: TA0006-Credential Access | reviewed 2026-11-16
 
 > Layer-2 blockchain attack — Lightning Network (BOLT, HTLC), Optimistic Rollups (Optimism/Arbitrum/Boba/Base), ZK Rollups (zkSync/StarkNet/Polygon zkEVM/Scroll/Linea), Polygon PoS, Gnosis sidechain, cross-chain bridges (Wormhole/Nomad/Ronin/Poly Network/Multichain/Horizon), state channels, ERC-4337 account abstraction, and DA layers (Celestia/EigenDA/Avail).
 
@@ -445,7 +445,7 @@
 
 ### cspm-casb-attack
 
-**版本**: 0.2.0.2 | **域**: cloud | **MITRE**: T1068-Exploitation for Privilege Escalation, T1565-Adversary-Inhibited-Response-System, T1611-Escape to Host | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: cloud | **MITRE**: T1068-Exploitation for Privilege Escalation, T1565-Adversary-Inhibited-Response-System, T1611-Escape to Host | reviewed 2026-11-16
 
 > CSPM/CASB/CNAPP platform bypass and abuse — rule suppression exploitation, IaC state manipulation, CASB proxy evasion, SaaS shadow discovery, Wiz/Prisma/Lacework/Defender coverage gap identification, and tag-tampering attacks against cloud posture management tools.
 
@@ -459,7 +459,7 @@
 
 ### cloud-native-vuln-research
 
-**版本**: 0.2.0.2 | **域**: cloud-native | **MITRE**: T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: cloud-native | **MITRE**: T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App | reviewed 2026-11-16
 
 > CVE research methodology, PoC reproduction, patch gap analysis, and exploit chain composition across container/k8s/cloud-native surfaces; SBOM-driven vuln management and nuclei template authoring.
 
@@ -471,7 +471,7 @@
 
 ### kubernetes-attack
 
-**版本**: 0.2.0.2 | **域**: cloud-native | **MITRE**: TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: cloud-native | **MITRE**: TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers | reviewed 2026-11-16
 
 > Kubernetes cluster attack and red team covering RBAC abuse, pod escape (privileged pods, hostPath, capabilities, hostPID/hostIPC, container runtime sockets, kernel CVEs), kubelet API abuse (10250/10255), etcd direct access, service account token theft (legacy and projected), RBAC privilege escalation chains, cloud-managed K8s (EKS/GKE/AKS) pivoting, and kubectl plugin ecosystem (peirates, CDK, kube-hunter, BOtB, kubeletctl, kubescape, stratus-red-team, kubernetes-goat).
 
@@ -485,7 +485,7 @@
 
 ### confidential-computing-attack
 
-**版本**: 0.2.0.2 | **域**: confidential-computing | **MITRE**: T1046-Network Service Discovery, T1602-Data from Configuration Repository | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: confidential-computing | **MITRE**: T1046-Network Service Discovery, T1602-Data from Configuration Repository | reviewed 2026-11-16
 
 > Attacks against Trusted Execution Environments (TEEs) and confidential computing platforms — Intel SGX (Foreshadow/SGAxe/LVI/ÆPIC Leak), Intel TDX, AMD SEV/SEV-ES/SEV-SNP (CrossLine/BadRAM), Azure CCF, Marblerun, and Gramine/Occlum libos enclaves. Covers side-channel leakage, attestation forgery, ABI misuse, host-to-enclave breakout, enclave-to-host escape, and recovery of sealed secrets. Distinct from hardware-security (broad hardware attacks) and firmware-reverse (UEFI/BIOS).
 
@@ -499,7 +499,7 @@
 
 ### password-attack
 
-**版本**: 0.2.0.2 | **域**: credential-access | **MITRE**: TA0006-Credential Access | reviewed 2026-07-19
+**版本**: 0.2.0.2 | **域**: credential-access | **MITRE**: TA0006-Credential Access | reviewed 2026-11-16
 
 > Password attacks encompass the complete attack chain from hash extraction, hash type identification, dictionary attacks, rule-based attacks, and bruteforcing to online service brute forcing.
 
@@ -539,7 +539,7 @@
 
 ### quantum-crypto-attack
 
-**版本**: 0.2.0.2 | **域**: cryptography | **MITRE**: T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet) | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: cryptography | **MITRE**: T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet) | reviewed 2026-11-16
 
 > Post-quantum and modern national cryptography attack surface testing covering NIST PQC candidates (ML-KEM/ML-DSA/SLH-DSA), hybrid TLS analysis, QKD/BB84 protocol attacks, Chinese national crypto (SM2/SM3/SM4/SM9) implementation flaws, lattice/hashing signature probing, and quantum-vulnerable RSA/ECC asset discovery using liboqs, GmSSL, cloudflare/circl, OQS-OpenSSL, and PQCrypto-Break.
 
@@ -553,7 +553,7 @@
 
 ### data-exfiltration-attack
 
-**版本**: 0.2.0.2 | **域**: data-exfiltration | **MITRE**: TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573 | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: data-exfiltration | **MITRE**: TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573 | reviewed 2026-11-16
 
 > Attacks for exfiltrating data from compromised networks and bypassing DLP/egress controls. Covers DNS tunneling, ICMP/HTTPS tunneling, protocol smuggling, steganographic exfil, cloud-native exfil (S3/OpenSearch/BigQuery), and DLP bypass. Use when testing egress monitoring, validating DLP controls, or simulating APT exfiltration campaigns.
 
@@ -567,7 +567,7 @@
 
 ### data-platform-attack
 
-**版本**: 0.2.0.2 | **域**: data-platform | **MITRE**: TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: data-platform | **MITRE**: TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories | reviewed 2026-11-16
 
 > Attacks against cloud data platforms and analytics pipelines — Snowflake, Databricks, BigQuery, Redshift, dbt, Apache Airflow, and lakehouse architectures. Covers identity-based breaches (no perimeter), warehouse SQL injection at scale, IAM privilege escalation, secrets in DAGs, notebook code injection, and cross-tenant data exfiltration. Distinct from database-attack (protocol-level RDBMS) and cloud-security (broader CSP control plane).
 
@@ -621,7 +621,7 @@
 
 ### detection-engineering
 
-**版本**: 0.2.0.2 | **域**: defense | **MITRE**: TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: defense | **MITRE**: TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy | reviewed 2026-11-16
 
 > Detection-as-code engineering covering Sigma rule authoring, YARA signature development, Splunk SPL / Kusto KQL / Elastic EQL queries, MITRE ATT&CK mapping, detection CI/CD pipelines, false-positive tuning, and rule testing against EVTX-ATTACK-SAMPLES — using SigmaHQ, Yara-Rules, Loki, yarGen, hayabusa, SigmaCLI, and zircollo.
 
@@ -633,7 +633,7 @@
 
 ### logging-monitoring
 
-**版本**: 0.2.0.2 | **域**: defense | **MITRE**: T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter | **OWASP**: A09:2021-Logging Failures | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: defense | **MITRE**: T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter | **OWASP**: A09:2021-Logging Failures | reviewed 2026-11-16
 
 > Security logging and monitoring deficiencies (OWASP A09:2021) refer to applications failing to properly record security events or lacking effective monitoring, resulting in attacks going undetected, malicious activities being untraceable.
 
@@ -645,7 +645,7 @@
 
 ### safety-guard
 
-**版本**: 0.2.0.2 | **域**: defense | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: defense | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says "safe?
 
@@ -669,7 +669,7 @@
 
 ### threat-hunting
 
-**版本**: 0.2.0.2 | **域**: defense | **MITRE**: TA0040-Detection | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: defense | **MITRE**: TA0040-Detection | reviewed 2026-11-16
 
 > Proactive threat hunting — MITRE ATT&CK-mapped hunt hypotheses, Sigma detection engineering, SIEM query authoring (Splunk SPL, KQL, Lucene), and SOC workflow integration.
 
@@ -683,7 +683,7 @@
 
 ### insecure-design
 
-**版本**: 0.2.0.2 | **域**: design | **MITRE**: T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools | **OWASP**: A06:2025-Insecure Design | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: design | **MITRE**: T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools | **OWASP**: A06:2025-Insecure Design | reviewed 2026-11-16
 
 > Insecure Design (OWASP A06:2025) focuses on security flaws in system architecture and design phases, rather than code implementation-level bugs.
 
@@ -711,7 +711,7 @@
 
 ### edge-computing-attack
 
-**版本**: 0.2.0.2 | **域**: edge-computing | **MITRE**: T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: edge-computing | **MITRE**: T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API | reviewed 2026-11-16
 
 > Attacks against edge computing platforms — Cloudflare Workers (V8 isolate), Fastly Compute@Edge (WASM/Wasmtime), AWS Lambda@Edge and CloudFront Functions, Akamai EdgeWorkers, Vercel Edge Functions, and Deno Deploy. Covers V8 isolate escape, WASM sandbox bypass, request smuggling at the edge, edge KV store abuse, secret leakage via edge logs, and bypass of origin WAF via edge script injection. Distinct from cloud-security (broader CSP control plane), container-security (Linux namespaces), and web-ssrf (origin-side issues).
 
@@ -725,7 +725,7 @@
 
 ### embedded-rtos-security
 
-**版本**: 0.2.0.2 | **域**: embedded-rtos-security | **MITRE**: T1548-Abuse Elevation Control Mechanism | reviewed 2026-08-16
+**版本**: 0.2.0.2 | **域**: embedded-rtos-security | **MITRE**: T1548-Abuse Elevation Control Mechanism | reviewed 2026-11-16
 
 > RTOS penetration testing — VxWorks WDB debug agent (Urgent/11), QNX microkernel, FreeRTOS+TCP CVEs, ThreadX/Azure RTOS, Zephyr, Mbed OS, TI-RTOS, MicroC/OS, NuttX, RIOT, Contiki
 
@@ -739,7 +739,7 @@
 
 ### ad-ldap-attack
 
-**版本**: 0.2.0.2 | **域**: enterprise | **MITRE**: TA0006-Credential Access | reviewed 2026-07-24
+**版本**: 0.2.0.2 | **域**: enterprise | **MITRE**: TA0006-Credential Access | reviewed 2026-11-16
 
 > Active Directory is the backbone of enterprise identity and access management, making it a primary target during internal network penetration tests.
 
@@ -753,7 +753,7 @@
 
 ### cloud-identity-attack
 
-**版本**: 0.2.0.2 | **域**: enterprise-cloud | **MITRE**: T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: enterprise-cloud | **MITRE**: T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials | reviewed 2026-11-16
 
 > Cloud identity provider attacks covering Azure AD/Entra ID, Okta, Auth0, Ping, AWS IAM Identity Center, and Google Workspace — including OAuth 2.0 token theft, OIDC redirect abuse, SAML response forgery, conditional access bypass, MFA fatigue, federation compromise (AD FS, Ping), app registration abuse, and JIT access exploitation using ROADtools, AADInternals, MicroBurst, MFASweep, TokenTactics, and Okta API probing tools.
 
@@ -767,7 +767,7 @@
 
 ### av-edr-evasion
 
-**版本**: 0.2.0.2 | **域**: exploitation | **MITRE**: TA0005-Defense Evasion | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: exploitation | **MITRE**: TA0005-Defense Evasion | reviewed 2026-11-16
 
 > AV/EDR evasion covers techniques for bypassing antivirus (AV) and Endpoint Detection/Response (EDR) solutions during payload delivery, execution, and post-exploitation.
 
@@ -803,7 +803,7 @@
 
 ### payload-generation
 
-**版本**: 0.2.0.2 | **域**: exploitation | **MITRE**: TA0007-Command and Control | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: exploitation | **MITRE**: TA0007-Command and Control | reviewed 2026-11-16
 
 > Payload generation covers the creation, encoding, and delivery of shellcode and executable payloads for initial access and command-and-control (C2) communication.
 
@@ -829,7 +829,7 @@
 
 ### payment-security
 
-**版本**: 0.2.0.2 | **域**: financial | **MITRE**: T1566-Phishing (credential harvesting) + domain-specific | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: financial | **MITRE**: T1566-Phishing (credential harvesting) + domain-specific | reviewed 2026-11-16
 
 > Payment systems security — PCI-DSS compliance testing, payment API security (Stripe/Adyen/PayPal), EMV chip/PIN, 3-D Secure, mobile wallets (Apple Pay/Google Pay), and fraud system assessment.
 
@@ -843,7 +843,7 @@
 
 ### open-banking-attack
 
-**版本**: 0.2.0.2 | **域**: fintech-banking | **MITRE**: TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: fintech-banking | **MITRE**: TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser | reviewed 2026-11-16
 
 > Open Banking / PSD2 / Open Finance attacks — FAPI (Financial-grade API), OpenID Connect for Financial APIs, OAuth2 PKCE, Strong Customer Authentication (SCA) bypass, AIS/PIS/CBPII API abuse, payment redirection, consent manipulation. Covers UK Open Banking, US FDX, Brazil Open Finance, India Account Aggregator, Singapore MAS APIX, Australia CDR. Includes 2024-2025 incidents (Token Hijacking, IdOR on AIS endpoints, PIS redirect manipulation).
 
@@ -895,7 +895,7 @@
 
 ### steganography
 
-**版本**: 0.2.0.2 | **域**: forensics | **MITRE**: T1001.002-Data Obfuscation Steganography, T1027-Obfuscated Files or Information, T1560-Archive Collected Data, T1105-Ingress Tool Transfer | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: forensics | **MITRE**: T1001.002-Data Obfuscation Steganography, T1027-Obfuscated Files or Information, T1560-Archive Collected Data, T1105-Ingress Tool Transfer | reviewed 2026-11-16
 
 > Steganography is the practice of concealing data within non-secret carrier files such as images, audio, video, and documents. Unlike encryption, which makes data unreadable but visibly present, steganography hides the very existence of the hidden data.
 
@@ -909,7 +909,7 @@
 
 ### game-anticheat-bypass
 
-**版本**: 0.2.0.2 | **域**: game-security | **MITRE**: TA0005-Defense Evasion, T1068-Exploitation for Privilege Escalation, T1547-Boot or Logon Autostart | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: game-security | **MITRE**: TA0005-Defense Evasion, T1068-Exploitation for Privilege Escalation, T1547-Boot or Logon Autostart | reviewed 2026-11-16
 
 > Security research on game anti-cheat systems (EAC/BattlEye/Vanguard/Ricochet) — kernel-mode driver architecture, BYOVD attacks, memory access interception, integrity check evasion, and defense-side anti-cheat engineering.
 
@@ -923,7 +923,7 @@
 
 ### gitops-security
 
-**版本**: 0.2.0.2 | **域**: gitops | **MITRE**: TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: gitops | **MITRE**: TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host | reviewed 2026-11-16
 
 > Attacks against GitOps control planes (Argo CD, FluxCD, Jenkins X, Tekton, Fleet, Rancher) — repo impersonation, manifest tampering, RBAC bypass, sync-wave abuse, secret management compromise (Sealed Secrets / SOPS / External Secrets / Vault), cluster privilege escalation via Application/CRDs, and post-exploitation persistence through CRD backdoors. Covers 2024-2025 Argo CD CVEs (CVE-2022-24348, CVE-2024-21626, CVE-2024-32564), FluxCD CVE-2024-37286, and the Akuukam/Code Catalyst supply chain incidents.
 
@@ -937,7 +937,7 @@
 
 ### hardware-security
 
-**版本**: 0.2.0.2 | **域**: hardware | **MITRE**: T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: hardware | **MITRE**: T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation | reviewed 2026-11-16
 
 > Hardware and embedded system security testing covering physical interface exploitation, firmware extraction and analysis, side-channel attacks, RFID/NFC cloning, and fault injection.
 
@@ -963,7 +963,7 @@
 
 ### hsm-attack
 
-**版本**: 0.2.0.2 | **域**: hardware-security | **MITRE**: TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: hardware-security | **MITRE**: TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel | reviewed 2026-11-16
 
 > Hardware Security Module attacks — physical (side-channel, fault injection, decapping) and logical (PKCS#11 API abuse, key extraction, M-of-N quorum bypass, RDP, firmware exploitation). Covers Thales Luna (SafeNet), Utimaco SecurityServer, nCipher nShield, YubiHSM, AWS CloudHSM, Azure Dedicated HSM, Google Cloud HSM. Includes 2024-2025 CVEs (CVE-2024-47787 Thales Luna, CVE-2024-45294 Utimaco), HSM-as-a-Service tenant isolation attacks, and quorum-spoofing scenarios. Distinct from crypto-attacks (algorithm-level) and pam-privilege-attack (credential management).
 
@@ -977,7 +977,7 @@
 
 ### hf-vhf-radio-attack
 
-**版本**: 0.2.0.2 | **域**: hf-vhf-radio-attack | **MITRE**: T1557-Adversary-in-the-Middle | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: hf-vhf-radio-attack | **MITRE**: T1557-Adversary-in-the-Middle | reviewed 2026-11-16
 
 > Licensed HF/VHF/UHF radio attack — ADS-B 1090 MHz, AIS, ACARS, VDL Mode 2, POCSAG/FLEX pagers, APRS, NDB, ATC/maritime VHF, DSC, weather fax, MLAT
 
@@ -991,7 +991,7 @@
 
 ### hypervisor-introspection
 
-**版本**: 0.2.0.2 | **域**: hypervisor-introspection | **MITRE**: T1068-Exploitation for Privilege Escalation | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: hypervisor-introspection | **MITRE**: T1068-Exploitation for Privilege Escalation | reviewed 2026-11-16
 
 > Hypervisor introspection (VMI) and virtualization escape attacks — VMware ESXi, Hyper-V, KVM/QEMU, Xen, Proxmox, VirtualBox, LibVMI, DRAKVUF, VENOM CVE-2015-3456, hardware-assisted VT-x/EPT/AMD-V
 
@@ -1005,7 +1005,7 @@
 
 ### scada-ics-security
 
-**版本**: 0.2.0.2 | **域**: ics | **MITRE**: TA0100-ICS Attack | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: ics | **MITRE**: TA0100-ICS Attack | reviewed 2026-11-16
 
 > SCADA/ICS security assessment covering industrial control system protocols including Modbus TCP, S7comm (Siemens), DNP3, EtherNet/IP (CIP), OPC UA, BACnet, and GOOSE.
 
@@ -1019,7 +1019,7 @@
 
 ### ics-fieldbus-attack
 
-**版本**: 0.2.0.2 | **域**: ics-fieldbus-attack | **MITRE**: T0817-Program Logic Controller Software | reviewed 2026-08-12
+**版本**: 0.2.0.2 | **域**: ics-fieldbus-attack | **MITRE**: T0817-Program Logic Controller Software | reviewed 2026-11-16
 
 > Industrial fieldbus protocol penetration testing beyond Modbus — Profibus/PROFINET, EtherCAT, DNP3, IEC 61850 (GOOSE/SV/MMS), IEC 60870-5-101/104, Foundation Fieldbus, HART, CC-Link, BACnet deep dive. Covers power utility, process automation, building automation, and automotive fieldbus attack surfaces.
 
@@ -1033,7 +1033,7 @@
 
 ### identity-provider-attack
 
-**版本**: 0.2.0.2 | **域**: identity | **MITRE**: TA0006-Credential Access, T1556-Modify Authentication Process | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: identity | **MITRE**: TA0006-Credential Access, T1556-Modify Authentication Process | reviewed 2026-11-16
 
 > Identity Provider (IdP) attack patterns covering OAuth 2.0/OIDC, SAML, JWT, token theft/replay, MFA fatigue, service principal abuse (Azure AD/Entra ID), Okta, Auth0, Keycloak, and modern identity-based attacks.
 
@@ -1047,7 +1047,7 @@
 
 ### cps-attack
 
-**版本**: 0.2.0.2 | **域**: industrial-control-systems | **MITRE**: TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: industrial-control-systems | **MITRE**: TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode | reviewed 2026-11-16
 
 > Cyber-Physical Systems (CPS) attacks — PLCs (Siemens S7, Rockwell ControlLogix, Schneider Modicon, Mitsubishi MELSEC), ICS protocols (Modbus, DNP3, Profinet, EtherNet/IP, IEC 61850, OPC UA), HMIs, SCADA historians, OT-to-IT pivot, SIS bypass. Distinct from scada-ics-security (broader ICS overview) — this skill goes deep on protocol-level PLC exploitation, packet replay/injection, and field-device firmware attacks. Covers 2024-2025 incidents (Unitronics PLC attack, Pipedream/Incontroller, multi-vendor PLC CVEs).
 
@@ -1061,7 +1061,7 @@
 
 ### autonomous-loops
 
-**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Performing repetitive enumeration across many targets - Running batch vulnerability scans on multiple hosts - Monitoring for changes in target environment - Executing attack chains that require iterative steps - User says "loop", "automate", "batch", "repeat.
 
@@ -1073,7 +1073,7 @@
 
 ### docker-patterns
 
-**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says "lab", "docker lab.
 
@@ -1085,7 +1085,7 @@
 
 ### mcp-server-patterns
 
-**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Building and security-testing MCP (Model Context Protocol) servers for Kali Linux security tools.
 
@@ -1097,7 +1097,7 @@
 
 ### multi-agent-collaboration
 
-**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: infrastructure | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Coordinating multiple specialized agents to conduct complex penetration testing engagements through task decomposition, parallel execution, result aggregation, and conflict resolution.
 
@@ -1111,7 +1111,7 @@
 
 ### iot-pentest
 
-**版本**: 0.2.0.2 | **域**: iot | **MITRE**: TA0007-Discovery (IoT device recon), T1021-Remote Services (MQTT/CoAP), T1190-Exploit Public-Facing App | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: iot | **MITRE**: TA0007-Discovery (IoT device recon), T1021-Remote Services (MQTT/CoAP), T1190-Exploit Public-Facing App | reviewed 2026-11-16
 
 > IoT application-layer penetration testing covering MQTT broker abuse, CoAP server attacks, AMQP exploitation, OT/cloud IoT gateways (AWS IoT, Azure IoT Hub), device management platforms, mobile companion apps, embedded web services, and proprietary IoT protocol reverse engineering using mosquitto, MQTT-Pwn, IoT-Goat, EMQX, CoAP testing tools, and IoT-Goat lab environments.
 
@@ -1125,7 +1125,7 @@
 
 ### article-writing
 
-**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Transform technical findings into clear, structured written content: penetration test reports, vulnerability disclosures, security blog posts, and technical documentation.
 
@@ -1149,7 +1149,7 @@
 
 ### codebase-onboarding
 
-**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Rapidly acquire a mental model of any unfamiliar codebase — from a 500-line script to a 100M+ line monorepo. This skill transforms raw code into structured intelligence: architecture maps, entry points, data flows, security surfaces, and onboarding confidence scores.
 
@@ -1173,7 +1173,7 @@
 
 ### knowledge-ops
 
-**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: knowledge | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Build and maintain structured, persistent knowledge graphs across sessions. Knowledge-ops transforms ephemeral session findings into reusable intelligence — connecting entities, tracking confidence over time, and enabling recall across engagements.
 
@@ -1199,7 +1199,7 @@
 
 ### macos-security
 
-**版本**: 0.2.0.2 | **域**: macos | **MITRE**: TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: macos | **MITRE**: TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores | reviewed 2026-11-16
 
 > macOS red team and security assessment — SIP/TCC bypass, Endpoint Security framework, Apple Silicon/T2/M-series attacks, Mach-O analysis, Keychain extraction, MDM bypass, LaunchAgents/Daemons persistence, and macOS-native malware analysis.
 
@@ -1213,7 +1213,7 @@
 
 ### mainframe-security
 
-**版本**: 0.2.0.2 | **域**: mainframe | **MITRE**: TA0006-Credential Access, T1078-Valid Accounts, T1003-OS Credential Dumping | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: mainframe | **MITRE**: TA0006-Credential Access, T1078-Valid Accounts, T1003-OS Credential Dumping | reviewed 2026-11-16
 
 > IBM z/OS, RACF (Resource Access Control Facility), CICS, DB2, JES2, TSO/ISPF penetration testing; APF library abuse, dataset access control, SNA/Appc attacks, and legacy mainframe security assessment for financial/government environments.
 
@@ -1227,7 +1227,7 @@
 
 ### malware-analysis-advanced
 
-**版本**: 0.2.0.2 | **域**: malware-analysis | **MITRE**: TA0005-Defense Evasion, TA0010-Exfiltration, T1027-Obfuscated Files, T1497-Virtualization/Sandbox Evasion, T1562-Impair Defenses, T1014-Hidden Processes, T1547-Boot/Logon Autostart | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: malware-analysis | **MITRE**: TA0005-Defense Evasion, TA0010-Exfiltration, T1027-Obfuscated Files, T1497-Virtualization/Sandbox Evasion, T1562-Impair Defenses, T1014-Hidden Processes, T1547-Boot/Logon Autostart | reviewed 2026-11-16
 
 > Advanced malware analysis covering unpacking (UPX, VMProtect, Themida, Enigma, custom packers), sandbox-evasion detection (anti-VM, anti-debug, anti-analysis), rootkit analysis (user-mode, kernel-mode, bootkits, UEFI), YARA rule authoring and optimization, and IDA Pro / Ghidra / Binary Ninja workflows. Distinct from foundational `binary-reverse` — focuses on dynamic unpacking, evasion triage, rootkit techniques, and analyst workflow automation. Use when analyzing modern packed malware (Emotet, TrickBot, Conti, LockBit, BlackCat/ALPHV, REvil), authoring detection rules, or building automated malware triage pipelines.
 
@@ -1269,7 +1269,7 @@
 
 ### mobile-app-instrumentation
 
-**版本**: 0.2.0.2 | **域**: mobile-deep | **MITRE**: T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: mobile-deep | **MITRE**: T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol | reviewed 2026-11-16
 
 > Dynamic instrumentation of iOS/Android apps via Frida, Objection, r2frida, and Introspy; runtime SSL pinning bypass, jailbreak/root detection bypass, native library hooking, and runtime secrets extraction.
 
@@ -1283,7 +1283,7 @@
 
 ### dns-attacks
 
-**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0011-Command and Control | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0011-Command and Control | reviewed 2026-11-16
 
 > DNS Attacks exploit the Domain Name System protocol for reconnaissance, spoofing, tunneling, and data exfiltration. DNS is a foundational infrastructure service that is frequently misconfigured, poorly monitored, and trusted by default -- making it an ideal attack vector.
 
@@ -1295,7 +1295,7 @@
 
 ### email-protocol-attack
 
-**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: T1114-Email Collection | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: T1114-Email Collection | reviewed 2026-11-16
 
 > Email protocol attacks targeting mail infrastructure at the protocol level.
 
@@ -1319,7 +1319,7 @@
 
 ### network-sniffing-mitm
 
-**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0006-Credential Access | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0006-Credential Access | reviewed 2026-11-16
 
 > Network Sniffing and MITM attacks focus on intercepting, analyzing, and manipulating network traffic between two communicating parties.
 
@@ -1331,7 +1331,7 @@
 
 ### network-tunneling-proxy
 
-**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0008-Lateral Movement | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: network-attack | **MITRE**: TA0008-Lateral Movement | reviewed 2026-11-16
 
 > Network tunneling encapsulates one protocol inside another to bypass firewalls, evade detection, and route traffic through restricted networks.
 
@@ -1357,7 +1357,7 @@
 
 ### sase-sse-attack
 
-**版本**: 0.2.0.2 | **域**: network-security | **MITRE**: T1557-Adversary-in-the-Middle, T1027-Obfuscated Files or Information, T1078-Valid Accounts, T1550-Use Alternate Authentication Material, T1572-Protocol Tunneling, T1573-Encrypted Channel | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: network-security | **MITRE**: T1557-Adversary-in-the-Middle, T1027-Obfuscated Files or Information, T1078-Valid Accounts, T1550-Use Alternate Authentication Material, T1572-Protocol Tunneling, T1573-Encrypted Channel | reviewed 2026-11-16
 
 > Secure Access Service Edge (SASE) and Security Service Edge (SSE) platform compromise covering Zscaler (ZIA/ZPA/ZDX/Client Connector), Netskope (Security Cloud, SWG, CASB, Private Access), Palo Alto Prisma Access, Cisco Umbrella, CATO Networks SASE, Cloudflare One (WARP, Gateway, Access), and Microsoft Entra Global Secure Access — including client connector reverse engineering, TLS inspection bypass via certificate pinning and ESNI/ECH, split-tunnel race conditions, BYOD vs managed device bypass, stolen SSO token replay through SSE proxy, anonymizer proxy evasion (Shadowsocks/V2Ray/Obfs4/Trojan), and detection avoidance using Wireshark, Frida, mitmproxy, JA3/JA4 fingerprint spoofing.
 
@@ -1371,7 +1371,7 @@
 
 ### darkweb-intel
 
-**版本**: 0.2.0.2 | **域**: osint | **MITRE**: TA0043-Reconnaissance | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: osint | **MITRE**: TA0043-Reconnaissance | reviewed 2026-11-16
 
 > Dark web intelligence gathering — Tor/onion service reconnaissance, marketplace monitoring, breach data markets, threat actor profiling, with strict OPSEC for investigators.
 
@@ -1433,7 +1433,7 @@
 
 ### pam-privilege-attack
 
-**版本**: 0.2.0.2 | **域**: pam-privilege-attack | **MITRE**: T1552-Unsecured Credentials | reviewed 2026-08-16
+**版本**: 0.2.0.2 | **域**: pam-privilege-attack | **MITRE**: T1552-Unsecured Credentials | reviewed 2026-11-16
 
 > Privileged Access Management (PAM) vendor abuse — CyberArk PVWA/PSM/EPV/AIM/CFE, BeyondTrust PRA/Password Safe/Identity Security Insights, Delinea Secret Server/Privilege Manager, One Identity Safeguard, ManageEngine Password Manager Pro, WALLIX Bastion, Devolutions Server, Xton Core. Covers PVWA auth bypass (CVE-2025-32564 area), CyberArk safe enumeration via WebSocket, credential file (.cue) theft and decryption, PSM session hijacking, AIM/CCP provider abuse, master key escrow analysis, BeyondTrust SAML account injection (CVE-2022-2451), Password Safe API abuse, session recording tampering, Delinea OAuth token theft, DPAPI-protected agent config extraction, distributed engine lateral movement, One Identity Safeguard SSL pinning bypass, ManageEngine PMP API key enumeration, PostgreSQL backend extraction (CVE-2022-28226 area), pass-the-hash in PAM contexts, golden ticket interaction with PAM credential rotation, and modern ransomware operator TTPs targeting PAM (BlackCat/ALPHV, LockBit, Royal/BlackSuit).
 
@@ -1447,7 +1447,7 @@
 
 ### physical-security-testing
 
-**版本**: 0.2.0.2 | **域**: physical | **MITRE**: TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: physical | **MITRE**: TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass | reviewed 2026-11-16
 
 > Physical penetration testing covering mechanical lock bypass (pin-tubular/wafer), RFID/NFC badge cloning (Proxmark3/ESP-RFID-Tool/Walrus), HID iCLASS/Mifare duplication, drop box deployment (LAN Turtle/Packet Squirrel), USB weapons (Rubber Ducky/Bash Bunny), hidden camera placement, and on-site engagement operations including tailgating pretext preparation and physical-docs legal templates.
 
@@ -1461,7 +1461,7 @@
 
 ### post-exploitation
 
-**版本**: 0.2.0.2 | **域**: post-exploitation | **MITRE**: TA0005-Defense Evasion | reviewed 2026-07-19
+**版本**: 0.2.0.2 | **域**: post-exploitation | **MITRE**: TA0005-Defense Evasion | reviewed 2026-11-16
 
 > Post-exploitation covers the complete attack chain after obtaining initial access: privilege escalation, persistence, lateral movement, data collection and exfiltration, and covering tracks.
 
@@ -1473,7 +1473,7 @@
 
 ### privilege-escalation
 
-**版本**: 0.2.0.2 | **域**: post-exploitation | **MITRE**: TA0004-Privilege Escalation | reviewed 2026-07-21
+**版本**: 0.2.0.2 | **域**: post-exploitation | **MITRE**: TA0004-Privilege Escalation | reviewed 2026-11-16
 
 > Privilege escalation is the process of elevating access from a low-privileged user context (standard user, service account, or limited shell) to root on Linux or SYSTEM/Administrator on Windows.
 
@@ -1501,7 +1501,7 @@
 
 ### red-team-infrastructure
 
-**版本**: 0.2.0.2 | **域**: red-team-infrastructure | **MITRE**: TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573 | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: red-team-infrastructure | **MITRE**: TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573 | reviewed 2026-11-16
 
 > Building, deploying, and operating stealthy C2 infrastructure for red team engagements. Covers Mythic, Havoc, Sliver, Covenant, PoshC2, Brute Ratel, and Cobalt Strike; redirector chains (Nginx mTLS, Cloudflare workers, CDN domain fronting); dead-drop resolvers; infrastructure OPSEC (compartmentalized servers, auto-rotated certs, decoupled domains); AMIS/GoDaddy API for automated rotation. Use when deploying dedicated adversary emulation infrastructure, planning redirector chains, or testing OPSEC resilience of red team operators.
 
@@ -1529,7 +1529,7 @@
 
 ### data-scraper-agent
 
-**版本**: 0.2.0.2 | **域**: research | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: research | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Automated data collection from structured sources: CVE databases, threat intelligence feeds, exploit databases, and security advisories. Transform unstructured web data into structured knowledge units.
 
@@ -1553,7 +1553,7 @@
 
 ### exa-search
 
-**版本**: 0.2.0.2 | **域**: research | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: research | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Semantic search using Exa API for security research queries. Unlike keyword-based search, Exa understands context and retrieves high-quality, relevant results for technical research.
 
@@ -1567,7 +1567,7 @@
 
 ### reverse-engineering-advanced
 
-**版本**: 0.2.0.2 | **域**: reverse-engineering | **MITRE**: TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: reverse-engineering | **MITRE**: TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode | reviewed 2026-11-16
 
 > Advanced reverse engineering covering symbolic execution (angr, KLEE, manticore), decompiler confusion (Hex-Rays, Ghidra deobfuscation), binary diffing (BinDiff, Diaphora, Kam1n0), firmware RE workflow (binwalk, FACT, EMBA), and obfuscated code analysis (LLVM obfuscation, OLLVM, Tigress). Distinct from foundational `binary-reverse` — focuses on advanced program analysis, automated RE techniques, and firmware / obfuscation workflows. Use when analyzing obfuscated or packed binaries, automating RE pipelines, analyzing firmware, or studying APT-grade obfuscation (Equation Group, Pegasus).
 
@@ -1581,7 +1581,7 @@
 
 ### satellite-leo-security
 
-**版本**: 0.2.0.2 | **域**: satellite-leo-security | **MITRE**: T1557-Adversary-in-the-Middle | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: satellite-leo-security | **MITRE**: T1557-Adversary-in-the-Middle | reviewed 2026-11-16
 
 > Satellite and LEO communication security — Starlink, Kuiper, OneWeb, Iridium, Inmarsat, Viasat KA-SAT, HughesNet, DVB-S/S2, VSAT (iDirect/Hughes), GNSS receiver attacks, AcidRain wiper (Viasat 2022)
 
@@ -1595,7 +1595,7 @@
 
 ### sdr-rf-attack
 
-**版本**: 0.2.0.2 | **域**: security | **MITRE**: T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: security | **MITRE**: T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol | reviewed 2026-11-16
 
 > Software Defined Radio and RF signal attacks encompass a broad range of offensive techniques targeting wireless communication systems.
 
@@ -1607,7 +1607,7 @@
 
 ### vpn-attack
 
-**版本**: 0.2.0.2 | **域**: security | **MITRE**: T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: security | **MITRE**: T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning | reviewed 2026-11-16
 
 > Virtual Private Networks (VPNs) are a critical component of enterprise network security, providing encrypted tunnels for remote access and site-to-site connectivity.
 
@@ -1621,7 +1621,7 @@
 
 ### social-engineering
 
-**版本**: 0.2.0.2 | **域**: social | **MITRE**: TA0043-Reconnaissance | reviewed 2026-07-21
+**版本**: 0.2.0.2 | **域**: social | **MITRE**: TA0043-Reconnaissance | reviewed 2026-11-16
 
 > Social engineering is the art of exploiting human psychological weaknesses rather than technical vulnerabilities to execute attacks. Attack vectors encompass Phishing, Pretexting, Baiting, Tailgating, Vishing, and other techniques.
 
@@ -1635,7 +1635,7 @@
 
 ### storage-san-attack
 
-**版本**: 0.2.0.2 | **域**: storage-san-attack | **MITRE**: ['T1552-Unsecured Credentials', 'T1021-Remote Services', 'T1486-Data Encrypted for Impact', 'T1530-Data from Cloud Storage Object', 'T1213-Data from Information Repositories'] | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: storage-san-attack | **MITRE**: ['T1552-Unsecured Credentials', 'T1021-Remote Services', 'T1486-Data Encrypted for Impact', 'T1530-Data from Cloud Storage Object', 'T1213-Data from Information Repositories'] | reviewed 2026-11-16
 
 > Storage/SAN/NAS/Object storage penetration testing — iSCSI, Fibre Channel, NFSv3/v4, SMB3, S3-compatible APIs, NetApp ONTAP, Dell EMC, Pure Storage, QNAP, Synology, TrueNAS, NDMP backup tape pilfering, and ransomware patterns targeting storage appliances. Distinct from database-attack (which targets RDBMS/NoSQL query protocols) and cloud-native-vuln-research (which focuses on CVE research rather than storage fabric and appliance pentest).
 
@@ -1675,7 +1675,7 @@
 
 ### 5g-telecom-attack
 
-**版本**: 0.2.0.2 | **域**: telecom | **MITRE**: TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: telecom | **MITRE**: TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration | reviewed 2026-11-16
 
 > 5G core (AMF/SMF/UPF), RAN, signaling (PFCP/GTP/Diameter/SS7), IMSI catchers, O-RAN security, roaming abuse, SMS interception, and telecom infrastructure red team operations.
 
@@ -1689,7 +1689,7 @@
 
 ### browser-qa
 
-**版本**: 0.2.0.2 | **域**: testing | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: testing | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Automated browser-based security testing using Playwright and browser devtools. Interact with web applications as a user would — click, type, navigate — while monitoring network traffic, JavaScript execution, and DOM changes for security issues.
 
@@ -1703,7 +1703,7 @@
 
 ### threat-intel-platform-attack
 
-**版本**: 0.2.0.2 | **域**: threat-intel-platforms | **MITRE**: TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: threat-intel-platforms | **MITRE**: TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing | reviewed 2026-11-16
 
 > Attacking threat intelligence platforms (MISP, OpenCTI, Anomali ThreatStream, ThreatQuotient, ThreatConnect, IBM Threat Intel, Palo Alto AutoFocus, Mandiant Advantage). Covers platform CVEs (MISP CVE-2022-29527, OpenCTI vulnerabilities), API abuse, sharing-group trust abuse, false-positive IOC injection, STIX/TAXII feed manipulation, and supply-chain attacks via poisoned TI feeds. Use when testing threat-intel platform security, validating IOC sharing trust models, or simulating APT feed-poisoning campaigns.
 
@@ -1731,7 +1731,7 @@
 
 ### patch-to-poc-pipeline
 
-**版本**: 0.2.0.2 | **域**: vuln-research | **MITRE**: TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal | reviewed 2026-08-17
+**版本**: 0.2.0.2 | **域**: vuln-research | **MITRE**: TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal | reviewed 2026-11-16
 
 > The end-to-end patch-diff vulnerability reproduction workflow — patch analysis (read diff, identify protective pattern, hypothesize bug class), source or binary-only code path walking (Ghidra + BinDiff), PoC generation (manual craft OR AFL++/libFuzzer harness with ASan/UBSan), CyberGym-style differential verification (vuln crashes, patched clean) as the deterministic stop condition, and YARA + Sigma detection rule authoring tested against both versions. Covers 2024-2026 CVEs (libwebp, xz-utils, runc, glibc Looney Tuner, regreSSHion, MOVEit, Jenkins, Confluence, TeamCity, OFBiz). Solidifies validation/scenarios/SCEN-008.md into a reusable knowledge base and wires in Schema 3 reproduction memory for memory-driven convergence.
 
@@ -1817,7 +1817,7 @@
 
 ### web-deserialization
 
-**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A08:2021-Software Integrity Failures | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A08:2021-Software Integrity Failures | reviewed 2026-11-16
 
 > Deserialization vulnerabilities arise when an application reconstructs objects from byte streams (Java), serialized strings (PHP), Base64 blobs (.NET), or pickle data (Python) supplied by the client.
 
@@ -1829,7 +1829,7 @@
 
 ### web-sqli
 
-**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A03:2021-Injection | reviewed 2026-07-19
+**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A03:2021-Injection | reviewed 2026-11-16
 
 > SQL injection attacks and defense - covering all major SQLi types including error-based, union-based, blind (boolean/time), double query (error-based), stacked queries, and out-of-band injection.
 
@@ -1841,7 +1841,7 @@
 
 ### web-ssrf
 
-**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A10:2021-SSRF | reviewed 2026-07-19
+**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing App | **OWASP**: A10:2021-SSRF | reviewed 2026-11-16
 
 > Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced bypass techniques, internal port scanning, cloud metadata extraction (AWS/GCP/Azure), protocol smuggling (gopher://, dict://, file://), and chained RCE exploitation.
 
@@ -1853,7 +1853,7 @@
 
 ### web-xss
 
-**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1189-Drive-by Compromise | **OWASP**: A03:2021-Injection | reviewed 2026-07-19
+**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1189-Drive-by Compromise | **OWASP**: A03:2021-Injection | reviewed 2026-11-16
 
 > XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites.
 
@@ -1865,7 +1865,7 @@
 
 ### web-xxe
 
-**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services | **OWASP**: A05:2021-Security Misconfiguration | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: web-attack | **MITRE**: T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services | **OWASP**: A05:2021-Security Misconfiguration | reviewed 2026-11-16
 
 > XML External Entity (XXE) injection exploits vulnerable XML parsers to read local files, initiate SSRF attacks, exfiltrate data through out-of-band channels, and cause denial of service.
 
@@ -1879,7 +1879,7 @@
 
 ### bluetooth-rfid-nfc
 
-**版本**: 0.2.0.2 | **域**: wireless | **MITRE**: TA0046-Initial Access | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: wireless | **MITRE**: TA0046-Initial Access | reviewed 2026-11-16
 
 > Near-field wireless penetration testing skills covering Bluetooth Classic device enumeration and exploitation, BLE GATT service attacks against IoT devices, RFID card cloning (MIFARE Classic/DESFire), NFC tag manipulation, and contactless payment probing.
 
@@ -1893,7 +1893,7 @@
 
 ### search-first
 
-**版本**: 0.2.0.2 | **域**: workflow | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: workflow | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > Systematizes the "search for existing tools, exploits, and techniques before writing custom ones" workflow.
 
@@ -1917,7 +1917,7 @@
 
 ### verification-loop
 
-**版本**: 0.2.0.2 | **域**: workflow | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-07-26
+**版本**: 0.2.0.2 | **域**: workflow | **MITRE**: N/A (non-attack meta skill) | reviewed 2026-11-16
 
 > After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says "verify", "confirm", "validate.
 

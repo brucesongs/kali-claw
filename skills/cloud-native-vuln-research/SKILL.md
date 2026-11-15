@@ -12,7 +12,7 @@ metadata:
   guide_count: 1
   mitre: T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App
   keywords: [cve, poc, nuclei, trivy, grype, sbom, log4shell, spring4shell, chaos-db, omigod, patch-gap, exploit-chain]
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: Cloud-Native Vulnerability Research

@@ -20,7 +20,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Edge Computing Attack

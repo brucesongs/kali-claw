@@ -12,7 +12,7 @@ metadata:
   guide_count: 2
   mitre: "T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol"
   keywords: [frida, objection, r2frida, introspy, instrumentation, ssl-pinning-bypass, jailbreak-detection, keychain, keystore, ios, android]
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: Mobile App Instrumentation — Runtime Exploitation of iOS/Android Applications

@@ -2,6 +2,19 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.9 (2026-11-16) — P1 清偿：三轴全绿 🧽
+
+### F-1 语法残留 16→0 + F-2 freshness 90→0
+
+- F-1：SESSION_PREFIX_RE 真 bug 修复（组括号未转义，`(gdb)` 从未被匹配，覆盖 5 个会话块）；9 处围栏 relabel（python×3/groovy/text×3/caddy+js 拆分）；payload-generation VBA 块与 security-review SAST 指南结构重组；steganography 未闭合引号真缺陷修复
+- F-2：90 个技能 last_reviewed truth-sync 至 2026-11-16（依据：lint 139/139 0/0 + 三轴验证器全绿）
+- **三轴全绿**：bash 0 / outdated 0 / stale 0 —— 验证器 exit 0 历史首次；Usability 138A/1B/0C，Reliability 139A
+- 新基线 `docs/SKILL_VALIDATION_RANKING_2026-11-16.md`：均分 **91.1**，Excellent 135 / Good 4 / 0 Fair/Poor
+
+详见 [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md)
+
+---
+
 ## v0.3.8 (2026-11-10) — 验证器沉淀 + 11 月排名基线 🛠️
 
 ### P2 backlog 清偿：/tmp 三轴验证器正式沉淀

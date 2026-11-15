@@ -21,7 +21,7 @@ metadata:
   guide_count: 7
   owasp: "A06:2025-Insecure Design"
   mitre: "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

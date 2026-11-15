@@ -22,7 +22,7 @@ metadata:
   tool_count: 5
   guide_count: 5
   mitre: "N/A (non-attack meta skill)"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

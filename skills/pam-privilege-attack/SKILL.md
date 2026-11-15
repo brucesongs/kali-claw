@@ -59,7 +59,7 @@ metadata:
     - BlackCat
     - ALPHV
     - LockBit
-  last_reviewed: "2026-08-16"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: Privileged Access Management (PAM) Privilege Attack

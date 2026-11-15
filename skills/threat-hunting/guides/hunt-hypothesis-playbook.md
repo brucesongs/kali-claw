@@ -114,7 +114,7 @@ For each (data source, field) the hypothesis needs:
 
 ### 4.2 Inventory Commands
 
-```bash
+```text
 # Splunk — does index=win contain Sysmon EID 1 in the last 24h?
 index=win source="*Sysmon*" EventCode=1 earliest=-24h | stats count
 

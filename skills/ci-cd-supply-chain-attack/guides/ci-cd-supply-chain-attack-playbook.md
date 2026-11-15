@@ -195,7 +195,7 @@ Once you have a foothold on a runner or in a workflow with secret access, the bu
 
 The pattern: modify the build process so the artifact shipped to production is *not* the artifact the developer committed. Detection is hard because the source code looks clean.
 
-```bash
+```groovy
 # In a malicious Jenkins shared library (vars/build.groovy)
 def call() {
   sh "make build"

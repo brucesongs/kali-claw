@@ -29,7 +29,7 @@ metadata:
     - elastic-lucene
     - mitre-attack
     - false-positive-tuning
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 
@@ -168,7 +168,7 @@ Confidence if hit:   HIGH — comsvcs MiniDump is not used by legitimate softwar
 
 Verify the data exists. Hunting a hypothesis against absent data wastes everyone's time.
 
-```bash
+```text
 # Splunk: does index=win contain EventCode=1 from Sysmon in the last 24h?
 index=win source="*Sysmon*" EventCode=1 earliest=-24h | stats count
 

@@ -21,7 +21,7 @@ metadata:
   guide_count: 6
   owasp: "A10:2021-SSRF"
   mitre: "T1190-Exploit Public-Facing App"
-  last_reviewed: "2026-07-19"
+  last_reviewed: "2026-11-16"
 ---
 
 

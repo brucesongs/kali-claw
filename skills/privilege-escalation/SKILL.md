@@ -20,7 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 3
   mitre: "TA0004-Privilege Escalation"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-11-16"
 ---
 
 

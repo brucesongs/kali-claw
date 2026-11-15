@@ -20,7 +20,7 @@ metadata:
   tool_count: 7
   guide_count: 8
   mitre: "TA0007-Command and Control"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

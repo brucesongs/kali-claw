@@ -17,7 +17,7 @@ metadata:
   tool_count: 14
   guide_count: 2
   mitre: "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

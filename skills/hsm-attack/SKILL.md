@@ -31,7 +31,7 @@ metadata:
   tool_count: 16
   guide_count: 2
   mitre: "TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # HSM (Hardware Security Module) Attack Skill

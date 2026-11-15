@@ -12,7 +12,7 @@ metadata:
   guide_count: 2
   mitre: TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores
   keywords: [macos, sip, tcc, endpoint-security, mach-o, keychain, apple-silicon, m2, launchd, mdm, knockknock, lulu]
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 # Skill: macOS Security Assessment

@@ -10,9 +10,8 @@ Audio steganography leverages the psychoacoustic model — humans cannot perceiv
 
 ### 1. LSB Audio Steganography with WAV Files
 
-```bash
+```python
 # Embed secret message in WAV audio using LSB encoding
-python3 -c "
 import wave
 import struct
 

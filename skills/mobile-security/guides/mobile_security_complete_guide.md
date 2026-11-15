@@ -247,7 +247,7 @@ if (ObjC.available) {
 **Vulnerability**: sensitiveDataplaintextstorage
 
 **Detection Tools**:
-```bash
+```python
 #!/usr/bin/env python3
 """
 移动ApplicationData存储SecurityDetection

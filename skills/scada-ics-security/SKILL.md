@@ -20,7 +20,7 @@ metadata:
   tool_count: 8
   guide_count: 7
   mitre: "TA0100-ICS Attack"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 

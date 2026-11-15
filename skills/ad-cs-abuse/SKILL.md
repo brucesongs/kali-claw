@@ -22,7 +22,7 @@ metadata:
   tool_count: 13
   guide_count: 1
   mitre: "T1552-Unsecured Credentials"
-  last_reviewed: "2026-07-24"
+  last_reviewed: "2026-11-16"
   keywords:
     - AD CS
     - PKI

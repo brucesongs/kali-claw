@@ -454,7 +454,7 @@ done
 
 Ship Dionaea's logs to your SIEM:
 
-```bash
+```text
 # /etc/rsyslog.d/30-dionaea.conf
 if $programname == 'dionaea' then /var/log/dionaea/dionaea.log
 & stop

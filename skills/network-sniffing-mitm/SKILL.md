@@ -20,7 +20,7 @@ metadata:
   tool_count: 10
   guide_count: 3
   mitre: "TA0006-Credential Access"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-11-16"
 ---
 
 
