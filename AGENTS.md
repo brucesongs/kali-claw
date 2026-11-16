@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.9 (2026-11-16) — **P1 清偿：三轴全绿**（语法残留 16→0；freshness 90→0；lint 0/0/139）。详见 [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md)。
+> **Current Version**: v0.3.9.1 (2026-11-16) — **F-4 清偿：Usability 满分 139A**（占位符 15→0；lint 0/0/139）。详见 [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md)。
 
 ---
 

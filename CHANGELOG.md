@@ -2,6 +2,15 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.3.9.1 (2026-11-16) — F-4 清偿：Usability 满分 139A 🏁
+
+- automotive-vehicle-security 占位符 **15→0**：12 处为 DBC `XXX` sender 字段误报（验证器新增 DBC 语法感知）；4 处真实修复（Toyota 包名通配、3 个伪 CVE 改类别描述——CVE 纪律：不确定的不编号）
+- **Usability 139/139 A（满分，历史首次）** + Reliability 139A；bash/outdated/placeholder/stale 全 0；验证器 exit 0
+
+详见 [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md)
+
+---
+
 ## v0.3.9 (2026-11-16) — P1 清偿：三轴全绿 🧽
 
 ### F-1 语法残留 16→0 + F-2 freshness 90→0

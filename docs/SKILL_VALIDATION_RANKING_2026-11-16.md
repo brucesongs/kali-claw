@@ -19,7 +19,7 @@
 | Skills validated | 139 |
 | Completeness avg / min / max | 91.1 / 72.3 / 95.4 |
 | Excellent / Good / Fair / Poor | 135 / 4 / 0 / 0 |
-| Usability A / B / C | 138 / 1 / 0 |
+| Usability A / B / C | 139 / 0 / 0 |
 | Reliability A / B / C (offline) | 139 / 0 / 0 |
 | bash blocks with syntax errors | 0 |
 | payload-showcase blocks (gate N/A) | 79 |
@@ -35,7 +35,7 @@
 | 2 | ad-cs-abuse | 95.4 | Excellent | A | A |
 | 3 | ai-agent-framework-attack | 95.4 | Excellent | A | A |
 | 4 | ai-security | 95.4 | Excellent | A | A |
-| 5 | automotive-vehicle-security | 95.4 | Excellent | B | A |
+| 5 | automotive-vehicle-security | 95.4 | Excellent | A | A |
 | 6 | blockchain-l2-attack | 95.4 | Excellent | A | A |
 | 7 | ci-cd-supply-chain-attack | 95.4 | Excellent | A | A |
 | 8 | cloud-identity-attack | 95.4 | Excellent | A | A |
@@ -75,7 +75,7 @@
 | 2 | ad-cs-abuse | 95.4 | Excellent | A | A | 15 | 3 | 95 | 37 | 8 | 7 | 0 | 23 |
 | 3 | ai-agent-framework-attack | 95.4 | Excellent | A | A | 18 | 3 | 97 | 35 | 3 | 8 | 0 | 14 |
 | 4 | ai-security | 95.4 | Excellent | A | A | 10 | 9 | 123 | 53 | 6 | 9 | 0 | 68 |
-| 5 | automotive-vehicle-security | 95.4 | Excellent | B | A | 12 | 11 | 177 | 31 | 15 | 32 | 0 | 139 |
+| 5 | automotive-vehicle-security | 95.4 | Excellent | A | A | 12 | 11 | 177 | 31 | 15 | 32 | 0 | 139 |
 | 6 | blockchain-l2-attack | 95.4 | Excellent | A | A | 12 | 2 | 60 | 43 | 1 | 8 | 0 | 35 |
 | 7 | ci-cd-supply-chain-attack | 95.4 | Excellent | A | A | 12 | 6 | 114 | 151 | 10 | 6 | 0 | 129 |
 | 8 | cloud-identity-attack | 95.4 | Excellent | A | A | 12 | 8 | 135 | 299 | 11 | 15 | 0 | 71 |
@@ -213,7 +213,7 @@
 
 ## 6. Findings Register
 
-- **automotive-vehicle-security**: 15 placeholder markers
+- None — all gates green.
 
 ## 7. Reproduce
 

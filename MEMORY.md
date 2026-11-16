@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **139** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.3.9 已发布（P1 清偿：F-1 语法残留 16→0——其中 SESSION_PREFIX_RE 组括号未转义致 (gdb) 从未匹配的真 bug；F-2 freshness 90→0 truth-sync 2026-11-16；三轴全绿 bash 0/outdated 0/stale 0，验证器 exit 0 历史首次；新基线 2026-11-16 均分 91.1、135 Excellent）— 剩余：automotive 占位符（F-4，最后一个 Usability B，~30min）、域归并 83→~20（P3）、季度工具基线 2026-12、第 5 次月度审查 2026-12-07
+- **Current Focus**: v0.3.9.1 已发布（F-4 清偿：automotive 占位符 15→0——DBC `XXX` 是 Vector 规范 sender 字段，12 处为验证器误报（已加 DBC 感知），4 处真实修复含 3 个伪 CVE 改类别描述；**Usability+Reliability 双 139A 满分**，bash/outdated/placeholder/stale 全 0；此前 v0.3.9 同日完成 F-1/F-2 三轴全绿）— 剩余：域归并 83→~20（P3，下次 minor）、季度工具基线 2026-12、第 5 次月度审查 2026-12-07
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)

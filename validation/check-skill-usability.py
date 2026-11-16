@@ -54,6 +54,8 @@ URL_RE = re.compile(r"https?://[^\s\)\]\"'<>]+")
 CVE_RE = re.compile(r"\bCVE-\d{4}-\d{4,7}\b")
 TCODE_RE = re.compile(r"\b(T\d{4}(?:\.\d{3})?)\b")
 PLACEHOLDER_RE = re.compile(r"\b(TODO|FIXME|XXX|PLACEHOLDER|<your|YOUR_KEY)\b")
+# DBC grammar: XXX is the standard sender/unknown-node field, not a placeholder
+DBC_LINE_RE = re.compile(r"^\s*(?:#\s*)*(BU_|BO_|SG_|CM_|VAL_|BA_)")
 SESSION_PREFIX_RE = re.compile(
     r"^\((gdb|qemu|lldb|pdb)\)\s|^msf[^>\n]*>\s|^meterpreter>\s|^irb\(", re.IGNORECASE)
 ANGLE_PH_RE = re.compile(r"<[A-Za-z0-9_.$@/:-]{1,48}>")
@@ -313,7 +315,9 @@ def analyze_skill(skill_dir: Path, whitelist: set):
     r.urls = len(urls)
     r.cves = len(set(CVE_RE.findall(files_text)))
     r.tcodes = len(set(TCODE_RE.findall(files_text)))
-    r.placeholders = len(PLACEHOLDER_RE.findall(files_text))
+    r.placeholders = sum(
+        len(PLACEHOLDER_RE.findall(ln)) for ln in files_text.splitlines()
+        if not DBC_LINE_RE.match(ln))
     # strip full/trailing comments so explanatory prose ("# -O removed in...")
     # is not flagged as live usage
     decommented = "\n".join(re.sub(r"#.*$", "", ln) for ln in files_text.splitlines())
