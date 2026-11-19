@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: data-platform
+  domain: data-attack
   tool_count: 14
   guide_count: 2
   mitre: "TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories"

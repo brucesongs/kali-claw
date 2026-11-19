@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Python
 metadata:
-  domain: ai-compliance
+  domain: ai-security
   category: ai
   tool_count: 8
   guide_count: 1

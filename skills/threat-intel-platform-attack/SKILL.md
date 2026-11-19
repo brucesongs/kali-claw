@@ -25,7 +25,7 @@ allowed-tools:
   - gh
   - mitre-attack-python
 metadata:
-  domain: threat-intel-platforms
+  domain: osint-recon
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing"

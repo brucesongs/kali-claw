@@ -23,7 +23,7 @@ allowed-tools:
   - metasploit
   - gamma
 metadata:
-  domain: industrial-control-systems
+  domain: hardware-ot
   tool_count: 15
   guide_count: 2
   mitre: "TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode"

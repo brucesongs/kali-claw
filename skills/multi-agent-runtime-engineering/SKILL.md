@@ -22,7 +22,7 @@ allowed-tools:
   - Grep
   - Agent
 metadata:
-  domain: agent-runtime
+  domain: agent-meta
   tool_count: 12
   guide_count: 2
   mitre: "N/A — meta-skill (runtime engineering, not a specific ATT&CK technique)"

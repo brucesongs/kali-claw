@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: telecom
+  domain: wireless-telecom
   category: telecom-advanced
   tool_count: 7
   guide_count: 0

@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ai
+  domain: ai-security
   tool_count: 6
   guide_count: 7
   mitre: "T1190-Exploit Public-Facing Application, T1203-Exploitation for Client Execution, T1068-Exploitation for Privilege Escalation, T1610-Deploy Container"

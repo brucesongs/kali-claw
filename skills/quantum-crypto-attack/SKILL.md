@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: cryptography
+  domain: crypto-attack
   tool_count: 12
   guide_count: 3
   mitre: "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)"

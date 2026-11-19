@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: defense
+  domain: defense-detection
   tool_count: 6
   guide_count: 5
   owasp: "A09:2021-Logging Failures"

@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ai-agent-framework-attack
+  domain: ai-security
   category: ai-agent-framework
   tool_count: 14
   guide_count: 1

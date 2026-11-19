@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: web-attack
+  domain: web-appsec
   tool_count: 6
   guide_count: 6
   owasp: "A10:2021-SSRF"

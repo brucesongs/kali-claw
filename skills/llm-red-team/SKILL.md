@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: ai-red-team
+  domain: ai-security
   tool_count: 12
   guide_count: 2
   mitre: "LLM-ATT&CK (promptfoo/garak taxonomy), maps to OWASP LLM Top 10 (LLM01-LLM10) and TA0043-Reconnaissance"

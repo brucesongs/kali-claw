@@ -19,7 +19,7 @@ allowed-tools:
   - postman
   - gh
 metadata:
-  domain: fintech-banking
+  domain: fintech-blockchain
   tool_count: 13
   guide_count: 2
   mitre: "TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser"

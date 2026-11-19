@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: game-security
+  domain: post-exploit-evasion
   category: game-security
   tool_count: 13
   guide_count: 1

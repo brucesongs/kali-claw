@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: edge-computing
+  domain: cloud-container
   tool_count: 14
   guide_count: 2
   mitre: "T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API"

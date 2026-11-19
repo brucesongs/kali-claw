@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: crypto
+  domain: crypto-attack
   category: post-quantum
   tool_count: 10
   guide_count: 2

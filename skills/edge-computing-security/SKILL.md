@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: edge
+  domain: cloud-container
   category: cdn-edge
   tool_count: 7
   guide_count: 0

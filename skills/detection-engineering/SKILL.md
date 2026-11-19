@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: defense
+  domain: defense-detection
   tool_count: 14
   guide_count: 2
   mitre: "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy"

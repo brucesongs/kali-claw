@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: firmware
+  domain: hardware-ot
   tool_count: 18
   guide_count: 3
   mitre: "TA0002-Execution"

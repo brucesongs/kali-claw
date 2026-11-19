@@ -10,7 +10,7 @@ allowed-tools:
   - Write
   - Edit
 metadata:
-  domain: satellite-leo-security
+  domain: wireless-telecom
   category: satellite
   tool_count: 13
   guide_count: 1

@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: exploitation
+  domain: post-exploit-evasion
   tool_count: 7
   guide_count: 8
   mitre: "TA0007-Command and Control"

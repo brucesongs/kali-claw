@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: cloud
+  domain: cloud-container
   category: cloud-posture-casb
   tool_count: 18
   guide_count: 1

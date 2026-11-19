@@ -17,11 +17,11 @@ allowed-tools:
   - WebFetch
   - Agent
 metadata:
-  domain: research
+  domain: research-meta
   tool_count: 0
   guide_count: 6
   mitre: "T1592-Gather Victim Host Info, T1593-Search Open Websites/Domains, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information"
-  last_reviewed: "2026-08-19"
+  last_reviewed: "2026-11-19"
 ---
 
 

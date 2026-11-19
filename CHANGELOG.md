@@ -2,6 +2,20 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.4.0 (2026-11-19) — 域归并：83 → 22 🗂️
+
+### Taxonomy v2（结构性元数据变更，SKILL 内容零改动）
+
+- 139 技能显式映射至 **22 主题域**（web-appsec 13 / assessment-workflow 11 / cloud-container 11 / ai·agent·hardware-ot·network 各 8 / …最小域 3 技能）；消除 47 个单技能域碎片
+- `gen-skill-handbook.py` 扩展为**三产物生成器**：SKILL_INDEX / SKILL_HANDBOOK（1,745 行）/ **DOMAIN_MATRIX（新自动生成**，含 Defense Triple 完整率+豁免+清单）；`--check` 覆盖三产物，新增 `--matrix-only`
+- `docs/QUICK_REFERENCE.md` 标记 SUPERSEDED（v0.2.0.8 陈旧快照 → 指向 HANDBOOK/MATRIX）
+- 顺带：5 个技能 last_reviewed 跨 90 天线 → truth-sync 2026-11-19
+- 质量保持：lint 0/0/139；验证器 exit 0；**Usability+Reliability 双 139A**；均分 91.1 不变
+
+详见 [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)
+
+---
+
 ## v0.3.9.1 (2026-11-16) — F-4 清偿：Usability 满分 139A 🏁
 
 - automotive-vehicle-security 占位符 **15→0**：12 处为 DBC `XXX` sender 字段误报（验证器新增 DBC 语法感知）；4 处真实修复（Toyota 包名通配、3 个伪 CVE 改类别描述——CVE 纪律：不确定的不编号）

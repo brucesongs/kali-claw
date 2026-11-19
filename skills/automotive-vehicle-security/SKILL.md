@@ -6,7 +6,7 @@ version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
-  domain: automotive
+  domain: mobility-vehicle
   category: automotive
   tool_count: 13
   guide_count: 2

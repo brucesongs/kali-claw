@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: design
+  domain: web-appsec
   tool_count: 2
   guide_count: 7
   owasp: "A06:2025-Insecure Design"

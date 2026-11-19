@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: appsec
+  domain: supply-chain-attack
   category: supply-chain-continuous-delivery
   tool_count: 22
   guide_count: 1

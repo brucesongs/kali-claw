@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: wireless
+  domain: wireless-telecom
   tool_count: 13
   guide_count: 3
   mitre: "TA0046-Initial Access"

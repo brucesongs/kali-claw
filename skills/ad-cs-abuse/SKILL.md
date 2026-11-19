@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ad-cs-abuse
+  domain: identity-attack
   category: enterprise-cloud
   tool_count: 13
   guide_count: 1

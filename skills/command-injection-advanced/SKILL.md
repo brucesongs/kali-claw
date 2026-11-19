@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: web-attack
+  domain: web-appsec
   tool_count: 10
   guide_count: 4
   owasp: "A03:2021-Injection"

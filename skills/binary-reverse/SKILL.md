@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: binary-analysis
+  domain: exploit-development
   tool_count: 10
   guide_count: 5
   mitre: "T1027-Obfuscated Files or Information, T1027.002-Software Packing, T1027.007-Dynamic API Resolution, T1027.011-Fileless Storage"

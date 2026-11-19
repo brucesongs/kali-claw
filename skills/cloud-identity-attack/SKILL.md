@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: enterprise-cloud
+  domain: cloud-container
   tool_count: 14
   guide_count: 1
   mitre: "T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials"

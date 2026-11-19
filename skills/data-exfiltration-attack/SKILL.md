@@ -33,7 +33,7 @@ allowed-tools:
   - curl
   - python3
 metadata:
-  domain: data-exfiltration
+  domain: data-attack
   tool_count: 19
   guide_count: 2
   mitre: "TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573"

@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: cloud-native
+  domain: cloud-container
   tool_count: 14
   guide_count: 2
   mitre: "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers"

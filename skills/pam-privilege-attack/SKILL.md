@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: pam-privilege-attack
+  domain: identity-attack
   category: privileged-access-management
   tool_count: 18
   guide_count: 1

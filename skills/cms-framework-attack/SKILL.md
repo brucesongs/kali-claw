@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: web-attack
+  domain: web-appsec
   tool_count: 7
   guide_count: 3
   mitre: "T1190-Exploit Public-Facing Application, T1195.002-Compromise Software Supply Chain, T1505.003-Web Shell, T1078-Valid Accounts"

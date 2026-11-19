@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.3.9.1 (2026-11-16) — **F-4 清偿：Usability 满分 139A**（占位符 15→0；lint 0/0/139）。详见 [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md)。
+> **Current Version**: v0.4.0 (2026-11-19) — **域归并 83 → 22**（taxonomy v2；三产物文档生成；lint 0/0/139）。详见 [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)。
 
 ---
 

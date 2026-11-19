@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Agent
 metadata:
-  domain: knowledge
+  domain: assessment-workflow
   tool_count: 0
   guide_count: 2
   mitre: "T1046-Network Service Scanning, T1190-Exploit Public-Facing Application, T1110-Brute Force, T1003-OS Credential Dumping"

@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: identity
+  domain: identity-attack
   category: cloud-identity
   tool_count: 7
   guide_count: 0

@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: financial
+  domain: fintech-blockchain
   tool_count: 12
   guide_count: 2
   mitre: "T1566-Phishing (credential harvesting) + domain-specific"

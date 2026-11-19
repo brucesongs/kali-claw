@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: supply-chain
+  domain: supply-chain-attack
   tool_count: 6
   guide_count: 5
   owasp: "A08:2021-Software Integrity"

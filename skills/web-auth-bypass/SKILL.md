@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: web-attack
+  domain: web-appsec
   tool_count: 5
   guide_count: 5
   owasp: "A07:2021-Identification"

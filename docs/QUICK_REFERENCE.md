@@ -1,6 +1,8 @@
 # kali-claw SKILL 速查表
 
-> **版本**: v0.2.0.8 | **生成日期**: 2026-07-26 | **SKILL 总数**: 137
+> ⚠️ **SUPERSEDED (2026-11-19)**：本文件为 v0.2.0.8 手写快照（137 技能），已停止更新。
+> 权威按域速查请用 [SKILL_HANDBOOK.md](SKILL_HANDBOOK.md)（自动生成，139 技能 / 22 域），
+> 域覆盖统计见 [DOMAIN_MATRIX.md](DOMAIN_MATRIX.md)。以下内容保留作历史参考。
 
 按渗透测试场景分类的快速参考。每个场景列出对应的 SKILL。
 

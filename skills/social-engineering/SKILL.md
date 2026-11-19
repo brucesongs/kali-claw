@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: social
+  domain: red-team-ops
   tool_count: 6
   guide_count: 5
   mitre: "TA0043-Reconnaissance"

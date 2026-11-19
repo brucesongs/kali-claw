@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: blockchain
+  domain: fintech-blockchain
   tool_count: 14
   guide_count: 2
   mitre: "N/A (application-layer; maps loosely to TA0001-Initial Access via compromise)"

@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Agent
 metadata:
-  domain: assessment
+  domain: assessment-workflow
   tool_count: 0
   guide_count: 5
   mitre: "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses: Disable Tools, T1070-Indicator Removal"

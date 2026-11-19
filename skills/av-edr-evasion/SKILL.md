@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: exploitation
+  domain: post-exploit-evasion
   tool_count: 7
   guide_count: 5
   mitre: "TA0005-Defense Evasion"

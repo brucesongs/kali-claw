@@ -13,11 +13,11 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: defense
+  domain: defense-detection
   tool_count: 12
   guide_count: 2
   mitre: "TA0040-Detection (deception), maps to MITRE Engage framework"
-  last_reviewed: "2026-08-19"
+  last_reviewed: "2026-11-19"
 ---
 
 

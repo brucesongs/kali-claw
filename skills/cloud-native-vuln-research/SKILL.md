@@ -6,7 +6,7 @@ version: "0.2.0.2"
 compatibility: Claude Code, Claude Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
-  domain: cloud-native
+  domain: cloud-container
   category: cloud-native
   tool_count: 13
   guide_count: 1

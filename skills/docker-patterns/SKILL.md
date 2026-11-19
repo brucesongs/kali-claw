@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
 defense_triple_required: false
 metadata:
-  domain: infrastructure
+  domain: assessment-workflow
   tool_count: 0
   guide_count: 5
   mitre: "N/A (non-attack meta skill)"

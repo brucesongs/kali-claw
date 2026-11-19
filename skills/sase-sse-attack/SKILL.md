@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: network-security
+  domain: cloud-container
   category: sase-sse
   tool_count: 11
   guide_count: 1

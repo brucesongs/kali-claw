@@ -15,7 +15,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ics-fieldbus-attack
+  domain: hardware-ot
   category: fieldbus
   tool_count: 13
   guide_count: 1

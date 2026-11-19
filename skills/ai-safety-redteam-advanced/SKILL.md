@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ai-safety
+  domain: ai-security
   category: ai-emerging
   tool_count: 12
   guide_count: 4

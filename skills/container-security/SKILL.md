@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: cloud
+  domain: cloud-container
   tool_count: 6
   guide_count: 5
   mitre: "TA0008-Lateral Movement"

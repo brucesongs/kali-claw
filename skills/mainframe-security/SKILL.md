@@ -16,7 +16,7 @@ allowed-tools:
   - Glob
   - Grep
 metadata:
-  domain: mainframe
+  domain: platform-attack
   category: mainframe
   tool_count: 13
   guide_count: 4

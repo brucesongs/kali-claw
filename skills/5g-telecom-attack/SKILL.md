@@ -12,7 +12,7 @@ allowed-tools:
   - Glob
   - Grep
 metadata:
-  domain: telecom
+  domain: wireless-telecom
   category: telecom
   tool_count: 13
   guide_count: 2

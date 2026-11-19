@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: post-exploitation
+  domain: post-exploit-evasion
   tool_count: 8
   guide_count: 3
   mitre: "TA0004-Privilege Escalation"

@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: database
+  domain: data-attack
   tool_count: 8
   guide_count: 5
   mitre: "TA0006-Credential Access"

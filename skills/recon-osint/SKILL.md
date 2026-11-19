@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: osint
+  domain: osint-recon
   tool_count: 0
   guide_count: 11
   mitre: "TA0043-Reconnaissance"

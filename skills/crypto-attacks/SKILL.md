@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: cryptography
+  domain: crypto-attack
   tool_count: 7
   guide_count: 6
   owasp: "A04:2021-Cryptographic Failures"

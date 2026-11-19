@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: hardware
+  domain: hardware-ot
   tool_count: 0
   guide_count: 5
   mitre: "T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation"

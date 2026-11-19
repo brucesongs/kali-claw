@@ -8,6 +8,7 @@ gate for monthly reviews / CI.
 Outputs:
   docs/SKILL_INDEX.json    — machine-readable index (schema-compatible with v0.3.0)
   docs/SKILL_HANDBOOK.md   — human-readable handbook, grouped by domain
+  docs/DOMAIN_MATRIX.md    — domain coverage matrix (skill counts + Defense Triple)
 
 Usage:
   python3 validation/gen-skill-handbook.py             # regenerate both
@@ -29,6 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
 INDEX_PATH = ROOT / "docs" / "SKILL_INDEX.json"
 HANDBOOK_PATH = ROOT / "docs" / "SKILL_HANDBOOK.md"
+MATRIX_PATH = ROOT / "docs" / "DOMAIN_MATRIX.md"
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 DEFENSE_TRIPLE_STRICT = {
@@ -182,6 +184,38 @@ def render_handbook(index: dict) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+
+def render_matrix(index: dict) -> str:
+    meta = index["metadata"]
+    skills = index["skills"]
+    domains = index["domains"]
+    lines = [
+        "# kali-claw 域覆盖矩阵",
+        "",
+        f"> **版本**: {meta['kali_claw_version']} | **生成日期**: {meta['generated_at'][:10]} | "
+        f"**SKILL 总数**: {meta['total_skills']} / **域数**: {meta['total_domains']}",
+        "> 本文件由 `validation/gen-skill-handbook.py` 自动生成（以 skills/ frontmatter 为权威源），请勿手工编辑。",
+        "",
+        "| 域 | SKILL 数 | Defense Triple 完整 | 豁免 | SKILL 清单 |",
+        "|------|---------|--------------------|------|-----------|",
+    ]
+    for domain, names in sorted(domains.items(), key=lambda x: (-len(x[1]), x[0])):
+        full, exempt = 0, 0
+        for n in names:
+            s = skills[n]
+            if s["defense_triple_required"]:
+                if s["has_defense_perspective"] and s["has_detection"] and s["has_evasion"]:
+                    full += 1
+            else:
+                exempt += 1
+        pct = f"{full}/{len(names) - exempt} (100%)" if full == len(names) - exempt \
+            else f"{full}/{len(names) - exempt}"
+        lines.append(f"| {domain} | {len(names)} | {pct} | {exempt or '—'} | "
+                     f"{', '.join(sorted(names))} |")
+    lines += ["", "---", ""]
+    return "\n".join(lines)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -189,6 +223,7 @@ def main() -> int:
                     help="compare generated output with on-disk files; exit 1 on drift")
     ap.add_argument("--index-only", action="store_true", help="only regenerate SKILL_INDEX.json")
     ap.add_argument("--handbook-only", action="store_true", help="only regenerate SKILL_HANDBOOK.md")
+    ap.add_argument("--matrix-only", action="store_true", help="only regenerate DOMAIN_MATRIX.md")
     args = ap.parse_args()
 
     skills = scan_skills()
@@ -220,6 +255,18 @@ def main() -> int:
         else:
             HANDBOOK_PATH.write_text(handbook, encoding="utf-8")
             print(f"wrote {HANDBOOK_PATH.relative_to(ROOT)} ({len(handbook.splitlines())} lines)")
+
+    if not (args.index_only or args.handbook_only):
+        matrix = render_matrix(index)
+        if args.check:
+            if MATRIX_PATH.exists() and MATRIX_PATH.read_text(encoding="utf-8") != matrix:
+                print("DRIFT: docs/DOMAIN_MATRIX.md is stale", file=sys.stderr)
+                drift = True
+            else:
+                print("OK: docs/DOMAIN_MATRIX.md is fresh")
+        else:
+            MATRIX_PATH.write_text(matrix, encoding="utf-8")
+            print(f"wrote {MATRIX_PATH.relative_to(ROOT)} ({len(matrix.splitlines())} lines)")
 
     return 1 if drift else 0
 

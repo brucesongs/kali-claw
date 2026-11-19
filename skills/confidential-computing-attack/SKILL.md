@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: confidential-computing
+  domain: cloud-container
   tool_count: 14
   guide_count: 2
   mitre: "T1046-Network Service Discovery, T1602-Data from Configuration Repository"

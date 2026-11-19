@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: defense
+  domain: web-appsec
   tool_count: 5
   guide_count: 8
   owasp: "A02:2025-Misconfiguration"

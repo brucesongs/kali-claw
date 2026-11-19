@@ -6,7 +6,7 @@ version: "0.2.0.2"
 compatibility: Claude Code, Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
-  domain: macos
+  domain: platform-attack
   category: macos
   tool_count: 13
   guide_count: 2

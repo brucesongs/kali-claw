@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: appsec
+  domain: identity-attack
   tool_count: 14
   guide_count: 3
   mitre: "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud"

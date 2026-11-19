@@ -10,7 +10,7 @@ allowed-tools:
   - Write
   - Edit
 metadata:
-  domain: embedded-rtos-security
+  domain: hardware-ot
   category: rtos
   tool_count: 13
   guide_count: 3

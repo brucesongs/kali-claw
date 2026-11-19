@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Agent
 metadata:
-  domain: security
+  domain: wireless-telecom
   tool_count: 7
   guide_count: 8
   mitre: "T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol"

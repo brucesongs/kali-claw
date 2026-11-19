@@ -37,7 +37,7 @@ Check `validation/QUALITY-SCORE-TRACKER.md` for the latest tier distribution and
 | File | Purpose |
 |------|---------|
 | `check-skill-usability.py` | Three-axis validator + ranking generator (v0.3.5 methodology, formalized) |
-| `gen-skill-handbook.py` | Regenerates SKILL_INDEX.json + SKILL_HANDBOOK.md from frontmatter |
+| `gen-skill-handbook.py` | Regenerates SKILL_INDEX.json + SKILL_HANDBOOK.md + DOMAIN_MATRIX.md from frontmatter (v0.4.0: 22-domain taxonomy) |
 | `check-tool-versions.py` | Kali tool baseline drift checker |
 | `skill-lint.py` | SKILL.md structural linter (Defense Triple, frontmatter, translation residue) |
 | `validate-payloads.py` / `validate-testcases.py` | Payload/TC existence and pattern validators |

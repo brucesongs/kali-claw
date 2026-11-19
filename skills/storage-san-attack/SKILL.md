@@ -15,7 +15,7 @@ allowed-tools:
   - Write
   - Edit
 metadata:
-  domain: storage-san-attack
+  domain: platform-attack
   category: storage
   tool_count: 13
   guide_count: 1

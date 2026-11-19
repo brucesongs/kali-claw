@@ -15,7 +15,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: hypervisor-introspection
+  domain: platform-attack
   category: virtualization
   tool_count: 13
   guide_count: 1

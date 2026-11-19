@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: mobile
+  domain: mobility-vehicle
   tool_count: 6
   guide_count: 5
   mitre: "T1203-Exploitation for Client Execution, T1204.002-User Execution: Malicious File, T1518.001-Software Discovery: Security Software, T1552.001-Credentials In Files"

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.3.9.1 (F-4 clearance: perfect Usability 139A — placeholders 15→0, all gates zero, lint 0/0/139). See [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md) for the latest milestone.
+> **Current Version**: v0.4.0 (domain consolidation 83 → 22 thematic domains — taxonomy v2, triple-artifact doc generation, lint 0/0/139, dual 139A maintained). See [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md) for the latest milestone.
 
 ## Architecture
 

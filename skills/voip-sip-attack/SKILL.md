@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: voip
+  domain: network-attack
   tool_count: 8
   guide_count: 3
   mitre: "TA0046-Initial Access"

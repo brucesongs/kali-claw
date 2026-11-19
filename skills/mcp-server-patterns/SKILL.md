@@ -18,7 +18,7 @@ allowed-tools:
   - Agent
 defense_triple_required: false
 metadata:
-  domain: infrastructure
+  domain: agent-meta
   tool_count: 5
   guide_count: 5
   mitre: "N/A (non-attack meta skill)"

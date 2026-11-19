@@ -17,7 +17,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: hf-vhf-radio-attack
+  domain: wireless-telecom
   category: lowfreq-radio
   tool_count: 13
   guide_count: 2

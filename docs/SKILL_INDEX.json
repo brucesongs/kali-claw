@@ -1,219 +1,120 @@
 {
   "metadata": {
-    "generated_at": "2026-11-16T00:15:09+00:00",
-    "kali_claw_version": "0.3.9.1",
+    "generated_at": "2026-11-19T13:53:26+00:00",
+    "kali_claw_version": "0.4.0",
     "total_skills": 139,
-    "total_domains": 83,
+    "total_domains": 22,
     "skill_version": "0.2.0.2",
     "source": "regenerated from skills/ frontmatter by validation/gen-skill-handbook.py"
   },
   "domains": {
-    "ad-cs-abuse": [
-      "ad-cs-abuse"
+    "agent-meta": [
+      "autonomous-loops",
+      "continuous-learning",
+      "council",
+      "mcp-server-patterns",
+      "multi-agent-collaboration",
+      "multi-agent-runtime-engineering",
+      "safety-guard",
+      "verification-loop"
     ],
-    "aerial": [
-      "uav-drone-security"
-    ],
-    "agent-runtime": [
-      "multi-agent-runtime-engineering"
-    ],
-    "ai": [
+    "ai-security": [
+      "agentic-pentest",
+      "ai-agent-framework-attack",
+      "ai-agent-security",
       "ai-fuzzing",
-      "ai-security"
-    ],
-    "ai-agent-framework-attack": [
-      "ai-agent-framework-attack"
-    ],
-    "ai-compliance": [
-      "eu-ai-act-compliance-redteam"
-    ],
-    "ai-emerging": [
-      "ai-agent-security"
-    ],
-    "ai-meta": [
-      "agentic-pentest"
-    ],
-    "ai-red-team": [
+      "ai-safety-redteam-advanced",
+      "ai-security",
+      "eu-ai-act-compliance-redteam",
       "llm-red-team"
     ],
-    "ai-safety": [
-      "ai-safety-redteam-advanced"
-    ],
-    "ai-supply-chain": [
-      "ai-agent-supply-chain-attack"
-    ],
-    "analysis": [
-      "council"
-    ],
-    "appsec": [
-      "ci-cd-supply-chain-attack",
-      "email-security-deep",
-      "secret-management-attack"
-    ],
-    "assessment": [
+    "assessment-workflow": [
+      "browser-qa",
+      "docker-patterns",
+      "engagement-manager",
+      "pentest-reporting",
       "repo-scan",
+      "search-first",
       "security-bounty-hunter",
       "security-review",
+      "terminal-ops",
+      "tool-mastery",
       "vulnerability-assessment"
     ],
-    "automotive": [
-      "automotive-vehicle-security"
-    ],
-    "binary-analysis": [
-      "binary-reverse"
-    ],
-    "blockchain": [
-      "blockchain-web3"
-    ],
-    "blockchain-l2-attack": [
-      "blockchain-l2-attack"
-    ],
-    "cloud": [
-      "cloud-security",
-      "container-security",
-      "cspm-casb-attack"
-    ],
-    "cloud-native": [
+    "cloud-container": [
+      "cloud-identity-attack",
       "cloud-native-vuln-research",
-      "kubernetes-attack"
+      "cloud-security",
+      "confidential-computing-attack",
+      "container-security",
+      "cspm-casb-attack",
+      "edge-computing-attack",
+      "edge-computing-security",
+      "gitops-security",
+      "kubernetes-attack",
+      "sase-sse-attack"
     ],
-    "confidential-computing": [
-      "confidential-computing-attack"
-    ],
-    "credential-access": [
-      "password-attack"
-    ],
-    "crypto": [
-      "pqc-implementation-attack"
-    ],
-    "cryptography": [
+    "crypto-attack": [
       "crypto-attacks",
+      "post-quantum-migration-attack",
+      "pqc-implementation-attack",
       "quantum-crypto-attack"
     ],
-    "data-exfiltration": [
-      "data-exfiltration-attack"
-    ],
-    "data-platform": [
-      "data-platform-attack"
-    ],
-    "data-protection": [
-      "data-loss-prevention-bypass"
-    ],
-    "database": [
+    "data-attack": [
+      "data-exfiltration-attack",
+      "data-loss-prevention-bypass",
+      "data-platform-attack",
       "database-attack"
     ],
-    "defense": [
+    "defense-detection": [
       "deception-honeypot",
       "detection-engineering",
       "logging-monitoring",
-      "safety-guard",
-      "security-misconfiguration",
       "threat-hunting"
     ],
-    "design": [
-      "insecure-design"
-    ],
-    "edge": [
-      "edge-computing-security"
-    ],
-    "edge-computing": [
-      "edge-computing-attack"
-    ],
-    "embedded-rtos-security": [
-      "embedded-rtos-security"
-    ],
-    "enterprise": [
-      "ad-ldap-attack"
-    ],
-    "enterprise-cloud": [
-      "cloud-identity-attack"
-    ],
-    "exploitation": [
-      "av-edr-evasion",
+    "exploit-development": [
+      "binary-reverse",
       "concurrency-exploitation",
       "exploit-development",
-      "payload-generation",
-      "protocol-state-exploitation"
+      "malware-analysis-advanced",
+      "patch-to-poc-pipeline",
+      "reverse-engineering-advanced"
     ],
-    "financial": [
+    "fintech-blockchain": [
+      "blockchain-l2-attack",
+      "blockchain-web3",
+      "open-banking-attack",
       "payment-security"
-    ],
-    "fintech-banking": [
-      "open-banking-attack"
-    ],
-    "firmware": [
-      "firmware-reverse"
     ],
     "forensics": [
       "anti-forensics",
       "digital-forensics",
       "steganography"
     ],
-    "game-security": [
-      "game-anticheat-bypass"
-    ],
-    "gitops": [
-      "gitops-security"
-    ],
-    "hardware": [
+    "hardware-ot": [
+      "cps-attack",
+      "embedded-rtos-security",
+      "firmware-reverse",
       "hardware-security",
-      "hardware-side-channel-advanced"
-    ],
-    "hardware-security": [
-      "hsm-attack"
-    ],
-    "hf-vhf-radio-attack": [
-      "hf-vhf-radio-attack"
-    ],
-    "hypervisor-introspection": [
-      "hypervisor-introspection"
-    ],
-    "ics": [
+      "hardware-side-channel-advanced",
+      "ics-fieldbus-attack",
+      "iot-pentest",
       "scada-ics-security"
     ],
-    "ics-fieldbus-attack": [
-      "ics-fieldbus-attack"
+    "identity-attack": [
+      "ad-cs-abuse",
+      "ad-ldap-attack",
+      "hsm-attack",
+      "identity-provider-attack",
+      "pam-privilege-attack",
+      "password-attack",
+      "secret-management-attack"
     ],
-    "identity": [
-      "identity-provider-attack"
-    ],
-    "industrial-control-systems": [
-      "cps-attack"
-    ],
-    "infrastructure": [
-      "autonomous-loops",
-      "docker-patterns",
-      "mcp-server-patterns",
-      "multi-agent-collaboration"
-    ],
-    "iot": [
-      "iot-pentest"
-    ],
-    "knowledge": [
-      "article-writing",
-      "chronicle",
-      "codebase-onboarding",
-      "continuous-learning",
-      "knowledge-ops",
-      "tool-mastery"
-    ],
-    "macos": [
-      "macos-security"
-    ],
-    "mainframe": [
-      "mainframe-security"
-    ],
-    "malware-analysis": [
-      "malware-analysis-advanced"
-    ],
-    "management": [
-      "engagement-manager"
-    ],
-    "mobile": [
-      "mobile-security"
-    ],
-    "mobile-deep": [
-      "mobile-app-instrumentation"
+    "mobility-vehicle": [
+      "automotive-vehicle-security",
+      "mobile-app-instrumentation",
+      "mobile-security",
+      "uav-drone-security"
     ],
     "network-attack": [
       "dns-attacks",
@@ -221,82 +122,58 @@
       "network-pentest",
       "network-sniffing-mitm",
       "network-tunneling-proxy",
-      "wifi-pentest"
+      "protocol-state-exploitation",
+      "voip-sip-attack",
+      "vpn-attack"
     ],
-    "network-security": [
-      "sase-sse-attack"
-    ],
-    "osint": [
+    "osint-recon": [
       "darkweb-intel",
       "osint",
       "recon-osint",
       "social-intelligence",
+      "threat-intel-platform-attack",
       "username-profiling"
     ],
-    "pam-privilege-attack": [
-      "pam-privilege-attack"
+    "platform-attack": [
+      "hypervisor-introspection",
+      "macos-security",
+      "mainframe-security",
+      "storage-san-attack"
     ],
-    "physical": [
-      "physical-security-testing"
-    ],
-    "post-exploitation": [
+    "post-exploit-evasion": [
+      "av-edr-evasion",
+      "game-anticheat-bypass",
+      "payload-generation",
       "post-exploitation",
       "privilege-escalation"
     ],
-    "post-quantum-cryptography": [
-      "post-quantum-migration-attack"
-    ],
-    "red-team-infrastructure": [
-      "red-team-infrastructure"
-    ],
-    "reporting": [
-      "pentest-reporting"
-    ],
-    "research": [
-      "data-scraper-agent",
-      "deep-research",
-      "exa-search"
-    ],
-    "reverse-engineering": [
-      "reverse-engineering-advanced"
-    ],
-    "satellite-leo-security": [
-      "satellite-leo-security"
-    ],
-    "security": [
-      "sdr-rf-attack",
-      "vpn-attack"
-    ],
-    "social": [
+    "red-team-ops": [
+      "email-security-deep",
+      "physical-security-testing",
+      "red-team-infrastructure",
       "social-engineering"
     ],
-    "storage-san-attack": [
-      "storage-san-attack"
+    "research-meta": [
+      "article-writing",
+      "chronicle",
+      "codebase-onboarding",
+      "data-scraper-agent",
+      "deep-research",
+      "exa-search",
+      "knowledge-ops"
     ],
-    "supply-chain": [
+    "supply-chain-attack": [
+      "ai-agent-supply-chain-attack",
+      "ci-cd-supply-chain-attack",
       "supply-chain-security"
     ],
-    "telecom": [
-      "5g-6g-telecom-attack-advanced",
-      "5g-telecom-attack"
-    ],
-    "testing": [
-      "browser-qa"
-    ],
-    "threat-intel-platforms": [
-      "threat-intel-platform-attack"
-    ],
-    "voip": [
-      "voip-sip-attack"
-    ],
-    "vuln-research": [
-      "patch-to-poc-pipeline"
-    ],
-    "web-attack": [
+    "web-appsec": [
       "api-security",
       "cms-framework-attack",
       "command-injection-advanced",
       "file-inclusion",
+      "insecure-design",
+      "security-misconfiguration",
       "web-access-control",
       "web-auth-bypass",
       "web-deserialization",
@@ -305,13 +182,14 @@
       "web-xss",
       "web-xxe"
     ],
-    "wireless": [
-      "bluetooth-rfid-nfc"
-    ],
-    "workflow": [
-      "search-first",
-      "terminal-ops",
-      "verification-loop"
+    "wireless-telecom": [
+      "5g-6g-telecom-attack-advanced",
+      "5g-telecom-attack",
+      "bluetooth-rfid-nfc",
+      "hf-vhf-radio-attack",
+      "satellite-leo-security",
+      "sdr-rf-attack",
+      "wifi-pentest"
     ]
   },
   "skills": {
@@ -319,7 +197,7 @@
       "name": "5g-6g-telecom-attack-advanced",
       "description": "Advanced 5G/6G telecom attacks covering 5G Core (SBA) exploitation, IMSI catcher evolution (5G Stingray), SIP/Diameter protocol attacks, Open RAN vulnerabilities, network slicing abuse, and early 6G research vectors (THz comms, AI-native air interface).",
       "version": "0.2.0.2",
-      "domain": "telecom",
+      "domain": "wireless-telecom",
       "category": "telecom-advanced",
       "mitre": "TA0001-Initial Access, T1557-Adversary-in-the-Middle",
       "owasp": "",
@@ -339,7 +217,7 @@
       "name": "5g-telecom-attack",
       "description": "5G core (AMF/SMF/UPF), RAN, signaling (PFCP/GTP/Diameter/SS7), IMSI catchers, O-RAN security, roaming abuse, SMS interception, and telecom infrastructure red team operations.",
       "version": "0.2.0.2",
-      "domain": "telecom",
+      "domain": "wireless-telecom",
       "category": "telecom",
       "mitre": "TA0001-Initial Access, T1557-Adversary-in-the-Middle, T1565-Exfiltration",
       "owasp": "",
@@ -361,7 +239,7 @@
       "name": "ad-cs-abuse",
       "description": "Active Directory Certificate Services (AD CS) abuse — ESC1-ESC15 attack patterns, PKINIT, PetitPotam to AD CS to Domain Admin chains, CVE-2022-26923 (Certifried), Shadow Credentials, Golden Certificate, certificate template ACL abuse, NTLM relay to web enrollment.",
       "version": "0.2.0.2",
-      "domain": "ad-cs-abuse",
+      "domain": "identity-attack",
       "category": "enterprise-cloud",
       "mitre": "T1552-Unsecured Credentials",
       "owasp": "",
@@ -383,7 +261,7 @@
       "name": "ad-ldap-attack",
       "description": "Active Directory is the backbone of enterprise identity and access management, making it a primary target during internal network penetration tests.",
       "version": "0.2.0.2",
-      "domain": "enterprise",
+      "domain": "identity-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
@@ -406,7 +284,7 @@
       "name": "agentic-pentest",
       "description": "LLM-driven autonomous penetration testing framework operations covering PentestGPT, HexStrike AI, Viper, PentestAgent, AI-Infra-Guard, AutoPWN, and custom agent harness patterns — including reasoning chain orchestration, tool delegation, context window management, output validation, multi-agent pentest team coordination, and human-in-the-loop checkpoints.",
       "version": "0.2.0.2",
-      "domain": "ai-meta",
+      "domain": "ai-security",
       "category": "general",
       "mitre": "Meta-skill (no direct MITRE mapping); orchestrates coverage across all ATT&CK tactics via framework delegation",
       "owasp": "",
@@ -429,7 +307,7 @@
       "name": "ai-agent-framework-attack",
       "description": "AI agent framework attack surface — orchestration-layer compromise of LangChain (Python/JS), LangGraph, CrewAI, Microsoft AutoGen, OpenAI Assistants API v2, Anthropic Claude Agent SDK, LlamaIndex, Microsoft Semantic Kernel, Google ADK, SmolAgents, and MCP-integrated agent runtimes. Covers tool poisoning (Simon Willison 2025 research), indirect prompt injection via untrusted tool outputs, tool rug-pull attacks (npm/PyPI dependency confusion in agent toolkits), LangChain SSRF via RequestsTool / SqlQueryTool / PythonREPLTool (CVE-2024-21514 area, CVE-2024-43480 area), CrewAI tool RCE via decorators (CVE-2024-10231 area), AutoGen code executor escape (Docker/code execution services), OpenAI Assistants API code_interpreter abuse, Claude Agent SDK MCP injection, LangGraph state injection via checkpoint poisoning, LlamaIndex query engine injection, MCP server poisoning (Anthropic/rug-pull.com research Nov 2024), tool description injection, agent memory poisoning, Retrieval-Augmented Generation (RAG) corpus poisoning, agent-in-the-middle attacks, shadow tools, and recent APT actor abuse of agentic AI systems (UNC5812, STAC-0050).",
       "version": "0.2.0.2",
-      "domain": "ai-agent-framework-attack",
+      "domain": "ai-security",
       "category": "ai-agent-framework",
       "mitre": "T1195-Supply Chain Compromise",
       "owasp": "",
@@ -451,7 +329,7 @@
       "name": "ai-agent-security",
       "description": "Offensive security testing of AI agent systems covering MCP server attacks, tool poisoning, indirect prompt injection against agents, RAG knowledge base poisoning, agent sandbox escape, multi-agent compromise chains, and autonomous agent hijacking — using MCP security testers, HexStrike AI, AI-Infra-Guard, custom agent harness probes, and prompt injection toolkits.",
       "version": "0.2.0.2",
-      "domain": "ai-emerging",
+      "domain": "ai-security",
       "category": "general",
       "mitre": "Emerging (no canonical MITRE mapping); overlaps with T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via tool abuse",
       "owasp": "",
@@ -473,7 +351,7 @@
       "name": "ai-agent-supply-chain-attack",
       "description": "AI/ML supply chain attacks — model poisoning, Pickle RCE, Hugging Face / Ollama registry compromise, LangChain plugin backdoors, OpenClaw / ClawHub ecosystem threats. Distinguishes from ci-cd-supply-chain-attack by focusing on model weights, training data, and serialization formats. Anchored by the 2026-07 Hugging Face incident (the 'Chernobyl moment' of software supply chain security).",
       "version": "0.2.0.2",
-      "domain": "ai-supply-chain",
+      "domain": "supply-chain-attack",
       "category": "ai",
       "mitre": "T1195-Supply Chain Compromise, T1195.002-Compromise Software Supply Chain",
       "owasp": "A08:2021-Software and Data Integrity Failures",
@@ -494,7 +372,7 @@
       "name": "ai-fuzzing",
       "description": "AI-assisted fuzzing for automated vulnerability discovery. Coverage-guided fuzzing engines, AI-driven seed generation, intelligent mutation strategies, and systematic crash triage.",
       "version": "0.2.0.2",
-      "domain": "ai",
+      "domain": "ai-security",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1203-Exploitation for Client Execution, T1068-Exploitation for Privilege Escalation, T1610-Deploy Container",
       "owasp": "",
@@ -521,7 +399,7 @@
       "name": "ai-safety-redteam-advanced",
       "description": "Advanced AI safety red team operations covering OWASP LLM Top 10 (2025), prompt injection (direct/indirect/multi-turn), jailbreak techniques (DAN, cognitive hacking, persona-based), data poisoning detection, model inversion attacks, adversarial examples (evasion), model extraction, and AI supply chain attacks against LLM-integrated applications, agent frameworks, and RAG systems.",
       "version": "0.2.0.2",
-      "domain": "ai-safety",
+      "domain": "ai-security",
       "category": "ai-emerging",
       "mitre": "Emerging (LLM-specific); overlaps T1059-Automated Command Execution, T1566-Phishing via prompt injection, T1190-Exploit Public-Facing App via LLM abuse",
       "owasp": "",
@@ -542,11 +420,11 @@
       "name": "ai-security",
       "description": "Semantic-layer attack testing against AI systems and LLM-integrated applications.",
       "version": "0.2.0.2",
-      "domain": "ai",
+      "domain": "ai-security",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1566-Phishing, T1589-Gather Victim Identity Information",
       "owasp": "",
-      "last_reviewed": "2026-08-19",
+      "last_reviewed": "2026-11-19",
       "files": [
         "SKILL.md",
         "guides/adversarial-ml-testing-guide.md",
@@ -593,7 +471,7 @@
       "name": "api-security",
       "description": "API Security Testing covers security assessment across three major API architectures: REST, GraphQL, and gRPC, focusing on the OWASP API Security Top 10 core risks: Broken Authentication, Broken Object Level Authorization (BOLA), Excessive Data Exposure, Rate Limiting Bypass.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1528-Steal Application Access Token, T1539-Steal Web Session Cookie, T1552.001-Credentials In Files",
       "owasp": "API Security Top 10",
@@ -620,7 +498,7 @@
       "name": "article-writing",
       "description": "Transform technical findings into clear, structured written content: penetration test reports, vulnerability disclosures, security blog posts, and technical documentation.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -648,7 +526,7 @@
       "name": "automotive-vehicle-security",
       "description": "CAN/CAN-FD bus analysis, UDS diagnostics, IVI pentest, OBD-II exploitation, key fob replay/relay attacks, GNSS spoofing, EV charging station (ISO 15118), and connected vehicle red team operations.",
       "version": "0.2.0.2",
-      "domain": "automotive",
+      "domain": "mobility-vehicle",
       "category": "automotive",
       "mitre": "TA0001-Initial Access, TA0040-Detection, T1557-Adversary-in-the-Middle",
       "owasp": "",
@@ -678,7 +556,7 @@
       "name": "autonomous-loops",
       "description": "Performing repetitive enumeration across many targets - Running batch vulnerability scans on multiple hosts - Monitoring for changes in target environment - Executing attack chains that require iterative steps - User says \"loop\", \"automate\", \"batch\", \"repeat.",
       "version": "0.2.0.2",
-      "domain": "infrastructure",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -706,7 +584,7 @@
       "name": "av-edr-evasion",
       "description": "AV/EDR evasion covers techniques for bypassing antivirus (AV) and Endpoint Detection/Response (EDR) solutions during payload delivery, execution, and post-exploitation.",
       "version": "0.2.0.2",
-      "domain": "exploitation",
+      "domain": "post-exploit-evasion",
       "category": "general",
       "mitre": "TA0005-Defense Evasion",
       "owasp": "",
@@ -735,7 +613,7 @@
       "name": "binary-reverse",
       "description": "Binary reverse engineering covers the complete chain from static analysis, dynamic debugging, to vulnerability discovery, exploit development, and malware analysis.",
       "version": "0.2.0.2",
-      "domain": "binary-analysis",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "T1027-Obfuscated Files or Information, T1027.002-Software Packing, T1027.007-Dynamic API Resolution, T1027.011-Fileless Storage",
       "owasp": "",
@@ -760,7 +638,7 @@
       "name": "blockchain-l2-attack",
       "description": "Layer-2 blockchain attack — Lightning Network (BOLT, HTLC), Optimistic Rollups (Optimism/Arbitrum/Boba/Base), ZK Rollups (zkSync/StarkNet/Polygon zkEVM/Scroll/Linea), Polygon PoS, Gnosis sidechain, cross-chain bridges (Wormhole/Nomad/Ronin/Poly Network/Multichain/Horizon), state channels, ERC-4337 account abstraction, and DA layers (Celestia/EigenDA/Avail).",
       "version": "0.2.0.2",
-      "domain": "blockchain-l2-attack",
+      "domain": "fintech-blockchain",
       "category": "blockchain-l2",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
@@ -781,7 +659,7 @@
       "name": "blockchain-web3",
       "description": "Blockchain & Web3 security — Solidity/Vyper smart contract auditing, DeFi attack vectors (flash loans, MEV, oracle manipulation), bridge attacks, wallet security, with tooling from Slither/Mythril/Foundry.",
       "version": "0.2.0.2",
-      "domain": "blockchain",
+      "domain": "fintech-blockchain",
       "category": "general",
       "mitre": "N/A (application-layer; maps loosely to TA0001-Initial Access via compromise)",
       "owasp": "",
@@ -808,7 +686,7 @@
       "name": "bluetooth-rfid-nfc",
       "description": "Near-field wireless penetration testing skills covering Bluetooth Classic device enumeration and exploitation, BLE GATT service attacks against IoT devices, RFID card cloning (MIFARE Classic/DESFire), NFC tag manipulation, and contactless payment probing.",
       "version": "0.2.0.2",
-      "domain": "wireless",
+      "domain": "wireless-telecom",
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
@@ -831,7 +709,7 @@
       "name": "browser-qa",
       "description": "Automated browser-based security testing using Playwright and browser devtools. Interact with web applications as a user would — click, type, navigate — while monitoring network traffic, JavaScript execution, and DOM changes for security issues.",
       "version": "0.2.0.2",
-      "domain": "testing",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -856,7 +734,7 @@
       "name": "chronicle",
       "description": "A system for recording, indexing, and distilling knowledge from agent lifecycle events. Through a three-layer document system (overview -> detailed records -> knowledge distillation), raw conversation events are transformed into reusable experience.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -882,7 +760,7 @@
       "name": "ci-cd-supply-chain-attack",
       "description": "CI/CD pipeline and software supply chain compromise covering Jenkins (script console, Jenkinsfile injection, shared library abuse, CVE-2024-23897 args4j), GitLab CI/CD (runner abuse, .gitlab-ci.yml injection, self-hosted runner takeover, CVE-2022-1162, OmniAuth CVE-2024-9653), GitHub Actions (self-hosted runner abuse, pull_request_target trap, workflow injection via issue/PR title, secrets exfiltration via cache/artifact, GITHUB_TOKEN scope), CircleCI (context theft, OIDC abuse), Argo CD (CVE-2022-24348, default app creds), Flux CD (GitRepository CRD abuse), Tekton, Buildkite, Drone CI, software supply chain attacks (dependency confusion, typosquatting, brandjacking, malicious npm/PyPI packages, SBOM/SLSA, Sigstore/cosign, in-toto, S2C2F), notable incidents (SolarWinds SUNBURST, 3CX, Codecov, xz-utils CVE-2024-3094, event-stream, ua-parser-js), and detection/defense tooling (StepSecurity Harden-Runner, OpenSSF Scorecard, Socket, Sonatype Nexus, Snyk, Anchore Syft/Grype, KICS, Checkov, semgrep).",
       "version": "0.2.0.2",
-      "domain": "appsec",
+      "domain": "supply-chain-attack",
       "category": "supply-chain-continuous-delivery",
       "mitre": "T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies, T1195.002-Compromise Software Supply Chain, T1195.003-Hardware Compromise, T1199-Trusted Relationship, T1078-Valid Accounts",
       "owasp": "",
@@ -907,7 +785,7 @@
       "name": "cloud-identity-attack",
       "description": "Cloud identity provider attacks covering Azure AD/Entra ID, Okta, Auth0, Ping, AWS IAM Identity Center, and Google Workspace — including OAuth 2.0 token theft, OIDC redirect abuse, SAML response forgery, conditional access bypass, MFA fatigue, federation compromise (AD FS, Ping), app registration abuse, and JIT access exploitation using ROADtools, AADInternals, MicroBurst, MFASweep, TokenTactics, and Okta API probing tools.",
       "version": "0.2.0.2",
-      "domain": "enterprise-cloud",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "T1078-Valid Accounts (cloud), T1550-Use Alternate Authentication Material (token reuse), T1606-Forge Web Credentials",
       "owasp": "",
@@ -934,7 +812,7 @@
       "name": "cloud-native-vuln-research",
       "description": "CVE research methodology, PoC reproduction, patch gap analysis, and exploit chain composition across container/k8s/cloud-native surfaces; SBOM-driven vuln management and nuclei template authoring.",
       "version": "0.2.0.2",
-      "domain": "cloud-native",
+      "domain": "cloud-container",
       "category": "cloud-native",
       "mitre": "T1068-Exploitation for Privilege Escalation, T1210-Exploitation of Remote Services, T1190-Exploit Public-Facing App",
       "owasp": "",
@@ -955,11 +833,11 @@
       "name": "cloud-security",
       "description": "Cloud security covers security assessment for major cloud platforms including AWS, Azure, and GCP, with core focus on IAM misconfiguration detection, storage bucket exposure scanning, metadata service attacks, container escape, and Kubernetes RBAC auditing.",
       "version": "0.2.0.2",
-      "domain": "cloud",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "TA0008-Lateral Movement",
       "owasp": "",
-      "last_reviewed": "2026-08-19",
+      "last_reviewed": "2026-11-19",
       "files": [
         "SKILL.md",
         "guides/aws-pentest-lab-guide.md",
@@ -983,7 +861,7 @@
       "name": "cms-framework-attack",
       "description": "Targeted security assessment of Content Management Systems (WordPress, Joomla, Drupal) using specialized scanners and exploit techniques.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1195.002-Compromise Software Supply Chain, T1505.003-Web Shell, T1078-Valid Accounts",
       "owasp": "",
@@ -1006,7 +884,7 @@
       "name": "codebase-onboarding",
       "description": "Rapidly acquire a mental model of any unfamiliar codebase — from a 500-line script to a 100M+ line monorepo. This skill transforms raw code into structured intelligence: architecture maps, entry points, data flows, security surfaces, and onboarding confidence scores.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -1031,7 +909,7 @@
       "name": "command-injection-advanced",
       "description": "Advanced injection attacks beyond SQL - covering OS command injection, LDAP injection, NoSQL injection, template injection (SSTI), XPath injection, and comprehensive filter bypass techniques.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "A03:2021-Injection",
@@ -1055,7 +933,7 @@
       "name": "concurrency-exploitation",
       "description": "Concurrency exploitation covers race condition vulnerabilities including TOCTOU, signal handler races, thread synchronization bypasses, and timing attacks.",
       "version": "0.2.0.2",
-      "domain": "exploitation",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "TA0003-Execution",
       "owasp": "",
@@ -1079,7 +957,7 @@
       "name": "confidential-computing-attack",
       "description": "Attacks against Trusted Execution Environments (TEEs) and confidential computing platforms — Intel SGX (Foreshadow/SGAxe/LVI/ÆPIC Leak), Intel TDX, AMD SEV/SEV-ES/SEV-SNP (CrossLine/BadRAM), Azure CCF, Marblerun, and Gramine/Occlum libos enclaves. Covers side-channel leakage, attestation forgery, ABI misuse, host-to-enclave breakout, enclave-to-host escape, and recovery of sealed secrets. Distinct from hardware-security (broad hardware attacks) and firmware-reverse (UEFI/BIOS).",
       "version": "0.2.0.2",
-      "domain": "confidential-computing",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "T1046-Network Service Discovery, T1602-Data from Configuration Repository",
       "owasp": "",
@@ -1101,7 +979,7 @@
       "name": "container-security",
       "description": "Container security covers the complete lifecycle from image building, registry management, runtime protection, to orchestration platform (Kubernetes) security.",
       "version": "0.2.0.2",
-      "domain": "cloud",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "TA0008-Lateral Movement",
       "owasp": "",
@@ -1129,7 +1007,7 @@
       "name": "continuous-learning",
       "description": "After completing a penetration test engagement - When encountering a novel attack technique or defense - After a tool produces unexpected results - When identifying recurring patterns across targets - User says \"learn\", \"remember this\", \"pattern.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -1154,7 +1032,7 @@
       "name": "council",
       "description": "Council provides a structured framework for analyzing security questions from multiple adversarial and defensive perspectives simultaneously.",
       "version": "0.2.0.2",
-      "domain": "analysis",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1078-Valid Accounts",
       "owasp": "",
@@ -1181,7 +1059,7 @@
       "name": "cps-attack",
       "description": "Cyber-Physical Systems (CPS) attacks — PLCs (Siemens S7, Rockwell ControlLogix, Schneider Modicon, Mitsubishi MELSEC), ICS protocols (Modbus, DNP3, Profinet, EtherNet/IP, IEC 61850, OPC UA), HMIs, SCADA historians, OT-to-IT pivot, SIS bypass. Distinct from scada-ics-security (broader ICS overview) — this skill goes deep on protocol-level PLC exploitation, packet replay/injection, and field-device firmware attacks. Covers 2024-2025 incidents (Unitronics PLC attack, Pipedream/Incontroller, multi-vendor PLC CVEs).",
       "version": "0.2.0.2",
-      "domain": "industrial-control-systems",
+      "domain": "hardware-ot",
       "category": "general",
       "mitre": "TA0040-Impact, TA0008-Lateral Movement, TA0009-Collection, T0817-Drive-by Compromise, T0859-Valid Accounts, T0886-Exploitation of Remote Services, T0890-Exploitation for Privilege Escalation, T0808-Activate Firmware, T0884-Connection Proxy, T0858-Change Operating Mode",
       "owasp": "",
@@ -1203,7 +1081,7 @@
       "name": "crypto-attacks",
       "description": "Cryptographic Attacks target implementation flaws and algorithm weaknesses in encryption systems, covering OWASP A04: Cryptographic Failures.",
       "version": "0.2.0.2",
-      "domain": "cryptography",
+      "domain": "crypto-attack",
       "category": "general",
       "mitre": "T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle",
       "owasp": "A04:2021-Cryptographic Failures",
@@ -1230,7 +1108,7 @@
       "name": "cspm-casb-attack",
       "description": "CSPM/CASB/CNAPP platform bypass and abuse — rule suppression exploitation, IaC state manipulation, CASB proxy evasion, SaaS shadow discovery, Wiz/Prisma/Lacework/Defender coverage gap identification, and tag-tampering attacks against cloud posture management tools.",
       "version": "0.2.0.2",
-      "domain": "cloud",
+      "domain": "cloud-container",
       "category": "cloud-posture-casb",
       "mitre": "T1068-Exploitation for Privilege Escalation, T1565-Adversary-Inhibited-Response-System, T1611-Escape to Host",
       "owasp": "",
@@ -1253,7 +1131,7 @@
       "name": "darkweb-intel",
       "description": "Dark web intelligence gathering — Tor/onion service reconnaissance, marketplace monitoring, breach data markets, threat actor profiling, with strict OPSEC for investigators.",
       "version": "0.2.0.2",
-      "domain": "osint",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
@@ -1280,7 +1158,7 @@
       "name": "data-exfiltration-attack",
       "description": "Attacks for exfiltrating data from compromised networks and bypassing DLP/egress controls. Covers DNS tunneling, ICMP/HTTPS tunneling, protocol smuggling, steganographic exfil, cloud-native exfil (S3/OpenSearch/BigQuery), and DLP bypass. Use when testing egress monitoring, validating DLP controls, or simulating APT exfiltration campaigns.",
       "version": "0.2.0.2",
-      "domain": "data-exfiltration",
+      "domain": "data-attack",
       "category": "general",
       "mitre": "TA0010-Exfiltration, TA0011-Command and Control, T1041, T1048, T1048.002, T1053, T1071, T1071.001, T1071.004, T1090, T1104, T1132, T1567, T1567.002, T1571, T1572, T1573",
       "owasp": "",
@@ -1302,7 +1180,7 @@
       "name": "data-loss-prevention-bypass",
       "description": "DLP bypass techniques covering steganography (LSB, audio, video), DNS tunneling, ICMP tunneling, cloud sync abuse (Dropbox, OneDrive), WebSocket/HTTP3 exfil, AI-augmented exfil (semantic chunking), and modern DLP evasion patterns.",
       "version": "0.2.0.2",
-      "domain": "data-protection",
+      "domain": "data-attack",
       "category": "dlp-evasion",
       "mitre": "TA0010-Exfiltration, T1048-Exfiltration Over Alternative Protocol, T1048.003-Unencrypted Non-C2 Protocol, T1008-Fallback Channels, T1567.002-Exfiltration to Cloud Storage, T1001-Data Obfuscation, T1132-Data Encoding, T1030-Data Transfer Size Limits",
       "owasp": "",
@@ -1322,7 +1200,7 @@
       "name": "data-platform-attack",
       "description": "Attacks against cloud data platforms and analytics pipelines — Snowflake, Databricks, BigQuery, Redshift, dbt, Apache Airflow, and lakehouse architectures. Covers identity-based breaches (no perimeter), warehouse SQL injection at scale, IAM privilege escalation, secrets in DAGs, notebook code injection, and cross-tenant data exfiltration. Distinct from database-attack (protocol-level RDBMS) and cloud-security (broader CSP control plane).",
       "version": "0.2.0.2",
-      "domain": "data-platform",
+      "domain": "data-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access, T1078-Valid Accounts, T1213-Data from Information Repositories",
       "owasp": "",
@@ -1344,7 +1222,7 @@
       "name": "data-scraper-agent",
       "description": "Automated data collection from structured sources: CVE databases, threat intelligence feeds, exploit databases, and security advisories. Transform unstructured web data into structured knowledge units.",
       "version": "0.2.0.2",
-      "domain": "research",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -1369,7 +1247,7 @@
       "name": "database-attack",
       "description": "Direct attacks against database servers at the protocol level — distinct from web-based SQL injection (covered by web-sqli). This skill targets database listeners, authentication mechanisms, stored procedures, and protocol-level misconfigurations.",
       "version": "0.2.0.2",
-      "domain": "database",
+      "domain": "data-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
@@ -1394,11 +1272,11 @@
       "name": "deception-honeypot",
       "description": "Defensive deception and honeypot deployment covering SSH/Telnet (Cowrie), web (OpenCanary), enterprise (HFish), ICS/SCADA (Conpot), all-in-one (T-Pot), AI-driven deception (Beelzebub), Thinkst Canarytokens (DNS, HTTP, file, AWS API key, SQL), Dionaea multi-protocol honeypot, notification pipelines (Slack/Teams webhooks), false positive tuning, and attacker engagement — including lure design, deployment OPSEC, IOC extraction, and attacker attribution.",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "defense-detection",
       "category": "general",
       "mitre": "TA0040-Detection (deception), maps to MITRE Engage framework",
       "owasp": "",
-      "last_reviewed": "2026-08-19",
+      "last_reviewed": "2026-11-19",
       "files": [
         "SKILL.md",
         "guides/canary-deployment-playbook.md",
@@ -1416,11 +1294,11 @@
       "name": "deep-research",
       "description": "Multi-source intelligence gathering through systematic web research — producing thorough, cited reports from diverse sources.",
       "version": "0.2.0.2",
-      "domain": "research",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "T1592-Gather Victim Host Info, T1593-Search Open Websites/Domains, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information",
       "owasp": "",
-      "last_reviewed": "2026-08-19",
+      "last_reviewed": "2026-11-19",
       "files": [
         "SKILL.md",
         "guides/continuous-monitoring.md",
@@ -1442,7 +1320,7 @@
       "name": "detection-engineering",
       "description": "Detection-as-code engineering covering Sigma rule authoring, YARA signature development, Splunk SPL / Kusto KQL / Elastic EQL queries, MITRE ATT&CK mapping, detection CI/CD pipelines, false-positive tuning, and rule testing against EVTX-ATTACK-SAMPLES — using SigmaHQ, Yara-Rules, Loki, yarGen, hayabusa, SigmaCLI, and zircollo.",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "defense-detection",
       "category": "general",
       "mitre": "TA0040-Detection (detection engineering discipline); provides coverage across all ATT&CK techniques via Sigma rule taxonomy",
       "owasp": "",
@@ -1517,7 +1395,7 @@
       "name": "docker-patterns",
       "description": "Setting up a practice lab for penetration testing techniques - Creating isolated environments for exploit development and testing - Building vulnerable application targets for training - Testing tools against known-vulnerable configurations - User says \"lab\", \"docker lab.",
       "version": "0.2.0.2",
-      "domain": "infrastructure",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -1542,7 +1420,7 @@
       "name": "edge-computing-attack",
       "description": "Attacks against edge computing platforms — Cloudflare Workers (V8 isolate), Fastly Compute@Edge (WASM/Wasmtime), AWS Lambda@Edge and CloudFront Functions, Akamai EdgeWorkers, Vercel Edge Functions, and Deno Deploy. Covers V8 isolate escape, WASM sandbox bypass, request smuggling at the edge, edge KV store abuse, secret leakage via edge logs, and bypass of origin WAF via edge script injection. Distinct from cloud-security (broader CSP control plane), container-security (Linux namespaces), and web-ssrf (origin-side issues).",
       "version": "0.2.0.2",
-      "domain": "edge-computing",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1552.007-Container and Cloud Instance Credentials API",
       "owasp": "",
@@ -1564,7 +1442,7 @@
       "name": "edge-computing-security",
       "description": "Edge computing security testing covering CDN bypass, Cloudflare Workers abuse, AWS Lambda@Edge attacks, cache poisoning, origin IP discovery, WAF bypass, and edge function injection.",
       "version": "0.2.0.2",
-      "domain": "edge",
+      "domain": "cloud-container",
       "category": "cdn-edge",
       "mitre": "TA0001-Initial Access, T1190-Exploit Public-Facing App, T1592-Gather Victim Host Info, T1557-Adversary-in-the-Middle, T1505.003-Web Shell, T1499-Endpoint Denial of Service, T1595.002-Vulnerability Scanning",
       "owasp": "",
@@ -1607,7 +1485,7 @@
       "name": "email-security-deep",
       "description": "Phishing infrastructure and email gateway bypass covering AiTM MFA interception (evilginx2/modlishka/evilgophish), campaign platforms (gophish/King-Phisher), enterprise gateway evasion (Proofpoint/Mimecast/Cisco ESA/Microsoft Defender for Office), email bombing/DoS, sender reputation engineering, and full-stack campaign operations including landing pages, payload staging, and post-click telemetry — complementary to email-protocol-attack which handles protocol-level forgery.",
       "version": "0.2.0.2",
-      "domain": "appsec",
+      "domain": "red-team-ops",
       "category": "general",
       "mitre": "T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload",
       "owasp": "",
@@ -1630,7 +1508,7 @@
       "name": "embedded-rtos-security",
       "description": "RTOS penetration testing — VxWorks WDB debug agent (Urgent/11), QNX microkernel, FreeRTOS+TCP CVEs, ThreadX/Azure RTOS, Zephyr, Mbed OS, TI-RTOS, MicroC/OS, NuttX, RIOT, Contiki",
       "version": "0.2.0.2",
-      "domain": "embedded-rtos-security",
+      "domain": "hardware-ot",
       "category": "rtos",
       "mitre": "T1548-Abuse Elevation Control Mechanism",
       "owasp": "",
@@ -1655,7 +1533,7 @@
       "name": "engagement-manager",
       "description": "End-to-end penetration test project management skill. Orchestrates the full engagement lifecycle from scoping through reporting, managing skill composition, evidence chains, and phase transitions.",
       "version": "0.2.0.2",
-      "domain": "management",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1595-Active Scanning, T1592-Gather Victim Host Info, T1590-Gather Victim Network Info, T1589-Gather Victim Identity Information",
       "owasp": "",
@@ -1678,7 +1556,7 @@
       "name": "eu-ai-act-compliance-redteam",
       "description": "EU AI Act (Regulation (EU) 2024/1689) compliance-focused red team testing for high-risk AI systems — Article 9 adversarial testing, Annex III classification, Annex IV technical documentation, conformity assessment, and Notified Body audit preparation. Enforceable since 2 August 2026 with fines up to €35M or 7% global turnover.",
       "version": "0.2.0.2",
-      "domain": "ai-compliance",
+      "domain": "ai-security",
       "category": "ai",
       "mitre": "EUAI-Article-9, TA0040-Impact",
       "owasp": "N/A — regulatory framework, not vulnerability class",
@@ -1699,7 +1577,7 @@
       "name": "exa-search",
       "description": "Semantic search using Exa API for security research queries. Unlike keyword-based search, Exa understands context and retrieves high-quality, relevant results for technical research.",
       "version": "0.2.0.2",
-      "domain": "research",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -1724,7 +1602,7 @@
       "name": "exploit-development",
       "description": "Exploit development covers the full chain from vulnerability discovery through crash analysis to working exploit code, spanning buffer overflows, ROP chains, format string bugs, and shellcode injection across x86 and ARM architectures.",
       "version": "0.2.0.2",
-      "domain": "exploitation",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "",
@@ -1749,7 +1627,7 @@
       "name": "file-inclusion",
       "description": "Local File Inclusion (LFI) and Remote File Inclusion (RFI) attack techniques covering path traversal, PHP wrapper abuse, log poisoning, session file inclusion, and remote payload hosting for code execution.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services, T1505.003-Web Shell",
       "owasp": "A01:2021-Broken Access Control",
@@ -1772,7 +1650,7 @@
       "name": "firmware-reverse",
       "description": "Firmware reverse engineering covers the full pipeline from raw firmware image acquisition through filesystem extraction, static and dynamic analysis, full-system emulation, and vulnerability/backdoor detection.",
       "version": "0.2.0.2",
-      "domain": "firmware",
+      "domain": "hardware-ot",
       "category": "general",
       "mitre": "TA0002-Execution",
       "owasp": "",
@@ -1795,7 +1673,7 @@
       "name": "game-anticheat-bypass",
       "description": "Security research on game anti-cheat systems (EAC/BattlEye/Vanguard/Ricochet) — kernel-mode driver architecture, BYOVD attacks, memory access interception, integrity check evasion, and defense-side anti-cheat engineering.",
       "version": "0.2.0.2",
-      "domain": "game-security",
+      "domain": "post-exploit-evasion",
       "category": "game-security",
       "mitre": "TA0005-Defense Evasion, T1068-Exploitation for Privilege Escalation, T1547-Boot or Logon Autostart",
       "owasp": "",
@@ -1816,7 +1694,7 @@
       "name": "gitops-security",
       "description": "Attacks against GitOps control planes (Argo CD, FluxCD, Jenkins X, Tekton, Fleet, Rancher) — repo impersonation, manifest tampering, RBAC bypass, sync-wave abuse, secret management compromise (Sealed Secrets / SOPS / External Secrets / Vault), cluster privilege escalation via Application/CRDs, and post-exploitation persistence through CRD backdoors. Covers 2024-2025 Argo CD CVEs (CVE-2022-24348, CVE-2024-21626, CVE-2024-32564), FluxCD CVE-2024-37286, and the Akuukam/Code Catalyst supply chain incidents.",
       "version": "0.2.0.2",
-      "domain": "gitops",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0003-Persistence, TA0004-Privilege Escalation, TA0005-Defense Evasion, TA0006-Credential Access, TA0009-Collection, T1190-Exploit Public-Facing Application, T1611-Escape to Host, T1525-Implant Internal Image, T1609-Container and Resource Discovery, T1613-Container and Resource Discovery, T1610-Deploy Container, T1611-Escape to Host",
       "owasp": "",
@@ -1838,7 +1716,7 @@
       "name": "hardware-security",
       "description": "Hardware and embedded system security testing covering physical interface exploitation, firmware extraction and analysis, side-channel attacks, RFID/NFC cloning, and fault injection.",
       "version": "0.2.0.2",
-      "domain": "hardware",
+      "domain": "hardware-ot",
       "category": "general",
       "mitre": "T1200-Hardware Additions, T1195.002-Compromise Software Supply Chain, T1040-Network Sniffing, T1068-Exploitation for Privilege Escalation",
       "owasp": "",
@@ -1863,7 +1741,7 @@
       "name": "hardware-side-channel-advanced",
       "description": "Advanced hardware side-channel attacks covering power analysis (SPA/DPA), electromagnetic emanation, timing attacks, cache-timing attacks (Spectre/Meltdown variants), glitching (voltage/clock), optical fault injection, and countermeasure evaluation.",
       "version": "0.2.0.2",
-      "domain": "hardware",
+      "domain": "hardware-ot",
       "category": "side-channel",
       "mitre": "T1041-Physical Attacks; emerging hardware-specific",
       "owasp": "",
@@ -1883,7 +1761,7 @@
       "name": "hf-vhf-radio-attack",
       "description": "Licensed HF/VHF/UHF radio attack — ADS-B 1090 MHz, AIS, ACARS, VDL Mode 2, POCSAG/FLEX pagers, APRS, NDB, ATC/maritime VHF, DSC, weather fax, MLAT",
       "version": "0.2.0.2",
-      "domain": "hf-vhf-radio-attack",
+      "domain": "wireless-telecom",
       "category": "lowfreq-radio",
       "mitre": "T1557-Adversary-in-the-Middle",
       "owasp": "",
@@ -1906,7 +1784,7 @@
       "name": "hsm-attack",
       "description": "Hardware Security Module attacks — physical (side-channel, fault injection, decapping) and logical (PKCS#11 API abuse, key extraction, M-of-N quorum bypass, RDP, firmware exploitation). Covers Thales Luna (SafeNet), Utimaco SecurityServer, nCipher nShield, YubiHSM, AWS CloudHSM, Azure Dedicated HSM, Google Cloud HSM. Includes 2024-2025 CVEs (CVE-2024-47787 Thales Luna, CVE-2024-45294 Utimaco), HSM-as-a-Service tenant isolation attacks, and quorum-spoofing scenarios. Distinct from crypto-attacks (algorithm-level) and pam-privilege-attack (credential management).",
       "version": "0.2.0.2",
-      "domain": "hardware-security",
+      "domain": "identity-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access, TA0010-Exfiltration, T1552-Unsecured Credentials, T1552.007 Container and Cloud Instance Credentials API, T1041-Exfiltration Over C2 Channel",
       "owasp": "",
@@ -1928,7 +1806,7 @@
       "name": "hypervisor-introspection",
       "description": "Hypervisor introspection (VMI) and virtualization escape attacks — VMware ESXi, Hyper-V, KVM/QEMU, Xen, Proxmox, VirtualBox, LibVMI, DRAKVUF, VENOM CVE-2015-3456, hardware-assisted VT-x/EPT/AMD-V",
       "version": "0.2.0.2",
-      "domain": "hypervisor-introspection",
+      "domain": "platform-attack",
       "category": "virtualization",
       "mitre": "T1068-Exploitation for Privilege Escalation",
       "owasp": "",
@@ -1949,7 +1827,7 @@
       "name": "ics-fieldbus-attack",
       "description": "Industrial fieldbus protocol penetration testing beyond Modbus — Profibus/PROFINET, EtherCAT, DNP3, IEC 61850 (GOOSE/SV/MMS), IEC 60870-5-101/104, Foundation Fieldbus, HART, CC-Link, BACnet deep dive. Covers power utility, process automation, building automation, and automotive fieldbus attack surfaces.",
       "version": "0.2.0.2",
-      "domain": "ics-fieldbus-attack",
+      "domain": "hardware-ot",
       "category": "fieldbus",
       "mitre": "T0817-Program Logic Controller Software",
       "owasp": "",
@@ -1978,7 +1856,7 @@
       "name": "identity-provider-attack",
       "description": "Identity Provider (IdP) attack patterns covering OAuth 2.0/OIDC, SAML, JWT, token theft/replay, MFA fatigue, service principal abuse (Azure AD/Entra ID), Okta, Auth0, Keycloak, and modern identity-based attacks.",
       "version": "0.2.0.2",
-      "domain": "identity",
+      "domain": "identity-attack",
       "category": "cloud-identity",
       "mitre": "TA0006-Credential Access, T1556-Modify Authentication Process",
       "owasp": "",
@@ -1998,7 +1876,7 @@
       "name": "insecure-design",
       "description": "Insecure Design (OWASP A06:2025) focuses on security flaws in system architecture and design phases, rather than code implementation-level bugs.",
       "version": "0.2.0.2",
-      "domain": "design",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses Disable Tools",
       "owasp": "A06:2025-Insecure Design",
@@ -2025,7 +1903,7 @@
       "name": "iot-pentest",
       "description": "IoT application-layer penetration testing covering MQTT broker abuse, CoAP server attacks, AMQP exploitation, OT/cloud IoT gateways (AWS IoT, Azure IoT Hub), device management platforms, mobile companion apps, embedded web services, and proprietary IoT protocol reverse engineering using mosquitto, MQTT-Pwn, IoT-Goat, EMQX, CoAP testing tools, and IoT-Goat lab environments.",
       "version": "0.2.0.2",
-      "domain": "iot",
+      "domain": "hardware-ot",
       "category": "general",
       "mitre": "TA0007-Discovery (IoT device recon), T1021-Remote Services (MQTT/CoAP), T1190-Exploit Public-Facing App",
       "owasp": "",
@@ -2047,7 +1925,7 @@
       "name": "knowledge-ops",
       "description": "Build and maintain structured, persistent knowledge graphs across sessions. Knowledge-ops transforms ephemeral session findings into reusable intelligence — connecting entities, tracking confidence over time, and enabling recall across engagements.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "research-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -2072,7 +1950,7 @@
       "name": "kubernetes-attack",
       "description": "Kubernetes cluster attack and red team covering RBAC abuse, pod escape (privileged pods, hostPath, capabilities, hostPID/hostIPC, container runtime sockets, kernel CVEs), kubelet API abuse (10250/10255), etcd direct access, service account token theft (legacy and projected), RBAC privilege escalation chains, cloud-managed K8s (EKS/GKE/AKS) pivoting, and kubectl plugin ecosystem (peirates, CDK, kube-hunter, BOtB, kubeletctl, kubescape, stratus-red-team, kubernetes-goat).",
       "version": "0.2.0.2",
-      "domain": "cloud-native",
+      "domain": "cloud-container",
       "category": "general",
       "mitre": "TA0008-Lateral Movement (containers), maps to MITRE ATT&CK for Containers",
       "owasp": "",
@@ -2099,7 +1977,7 @@
       "name": "llm-red-team",
       "description": "LLM and generative AI red team testing covering prompt injection, jailbreaking (DAN, many-shot, Crescendo, PAIR/TAP, GCG suffix, persona modulation, prefix injection, payload smuggling), model extraction, RAG poisoning, agentic tool abuse, and safety policy bypass using promptfoo, garak, PyRIT, PurpleLlama, AI-Infra-Guard and llm-guard — plus Constitutional AI, Llama Guard, NeMo Guardrails, and Azure AI Content Filter evasion.",
       "version": "0.2.0.2",
-      "domain": "ai-red-team",
+      "domain": "ai-security",
       "category": "general",
       "mitre": "LLM-ATT&CK (promptfoo/garak taxonomy), maps to OWASP LLM Top 10 (LLM01-LLM10) and TA0043-Reconnaissance",
       "owasp": "",
@@ -2121,7 +1999,7 @@
       "name": "logging-monitoring",
       "description": "Security logging and monitoring deficiencies (OWASP A09:2021) refer to applications failing to properly record security events or lacking effective monitoring, resulting in attacks going undetected, malicious activities being untraceable.",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "defense-detection",
       "category": "general",
       "mitre": "T1070-Indicator Removal, T1562-Impair Defenses, T1027-Obfuscated Files or Information, T1059-Command and Scripting Interpreter",
       "owasp": "A09:2021-Logging Failures",
@@ -2146,7 +2024,7 @@
       "name": "macos-security",
       "description": "macOS red team and security assessment — SIP/TCC bypass, Endpoint Security framework, Apple Silicon/T2/M-series attacks, Mach-O analysis, Keychain extraction, MDM bypass, LaunchAgents/Daemons persistence, and macOS-native malware analysis.",
       "version": "0.2.0.2",
-      "domain": "macos",
+      "domain": "platform-attack",
       "category": "macos",
       "mitre": "TA0005-Defense Evasion, T1547-Boot or Logon Autostart, T1555-Credentials from Password Stores",
       "owasp": "",
@@ -2168,7 +2046,7 @@
       "name": "mainframe-security",
       "description": "IBM z/OS, RACF (Resource Access Control Facility), CICS, DB2, JES2, TSO/ISPF penetration testing; APF library abuse, dataset access control, SNA/Appc attacks, and legacy mainframe security assessment for financial/government environments.",
       "version": "0.2.0.2",
-      "domain": "mainframe",
+      "domain": "platform-attack",
       "category": "mainframe",
       "mitre": "TA0006-Credential Access, T1078-Valid Accounts, T1003-OS Credential Dumping",
       "owasp": "",
@@ -2192,7 +2070,7 @@
       "name": "malware-analysis-advanced",
       "description": "Advanced malware analysis covering unpacking (UPX, VMProtect, Themida, Enigma, custom packers), sandbox-evasion detection (anti-VM, anti-debug, anti-analysis), rootkit analysis (user-mode, kernel-mode, bootkits, UEFI), YARA rule authoring and optimization, and IDA Pro / Ghidra / Binary Ninja workflows. Distinct from foundational `binary-reverse` — focuses on dynamic unpacking, evasion triage, rootkit techniques, and analyst workflow automation. Use when analyzing modern packed malware (Emotet, TrickBot, Conti, LockBit, BlackCat/ALPHV, REvil), authoring detection rules, or building automated malware triage pipelines.",
       "version": "0.2.0.2",
-      "domain": "malware-analysis",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "TA0005-Defense Evasion, TA0010-Exfiltration, T1027-Obfuscated Files, T1497-Virtualization/Sandbox Evasion, T1562-Impair Defenses, T1014-Hidden Processes, T1547-Boot/Logon Autostart",
       "owasp": "",
@@ -2214,7 +2092,7 @@
       "name": "mcp-server-patterns",
       "description": "Building and security-testing MCP (Model Context Protocol) servers for Kali Linux security tools.",
       "version": "0.2.0.2",
-      "domain": "infrastructure",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -2239,7 +2117,7 @@
       "name": "mobile-app-instrumentation",
       "description": "Dynamic instrumentation of iOS/Android apps via Frida, Objection, r2frida, and Introspy; runtime SSL pinning bypass, jailbreak/root detection bypass, native library hooking, and runtime secrets extraction.",
       "version": "0.2.0.2",
-      "domain": "mobile-deep",
+      "domain": "mobility-vehicle",
       "category": "mobile-deep",
       "mitre": "T1623-Mobile Adware, T1518-Software Discovery, T1406-Defacement, T1627.001-Adversary-in-the-Mobile-Device, T1437-Application Layer Protocol",
       "owasp": "",
@@ -2261,7 +2139,7 @@
       "name": "mobile-security",
       "description": "Mobile security covers the complete attack/defense chain of Android/iOS application security testing, APK/IPA reverse engineering, runtime manipulation, certificate pinning bypass, and mobile data protection.",
       "version": "0.2.0.2",
-      "domain": "mobile",
+      "domain": "mobility-vehicle",
       "category": "general",
       "mitre": "T1203-Exploitation for Client Execution, T1204.002-User Execution: Malicious File, T1518.001-Software Discovery: Security Software, T1552.001-Credentials In Files",
       "owasp": "",
@@ -2286,7 +2164,7 @@
       "name": "multi-agent-collaboration",
       "description": "Coordinating multiple specialized agents to conduct complex penetration testing engagements through task decomposition, parallel execution, result aggregation, and conflict resolution.",
       "version": "0.2.0.2",
-      "domain": "infrastructure",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -2311,7 +2189,7 @@
       "name": "multi-agent-runtime-engineering",
       "description": "Runtime engineering discipline for agent systems — structured JSON memory schemas, memory-driven convergence rules, shared-memory multi-agent coordination via POSIX flock + atomic write + version vector, anti-pattern prevention, and topology selection. Solidifies the engineering patterns of SCEN-007 (shared-memory multi-agent exploit dev) and SCEN-MEMORY-SCHEMA (structured memory foundation) into a reusable knowledge base. Inspired by MopMonk Agent three-layer harness (Chinese press nickname *扫地僧* — CyberGym 73.1%, China #1) — proving that harness engineering beats base-model parameter scaling.",
       "version": "0.2.0.2",
-      "domain": "agent-runtime",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A — meta-skill (runtime engineering, not a specific ATT&CK technique)",
       "owasp": "",
@@ -2415,7 +2293,7 @@
       "name": "open-banking-attack",
       "description": "Open Banking / PSD2 / Open Finance attacks — FAPI (Financial-grade API), OpenID Connect for Financial APIs, OAuth2 PKCE, Strong Customer Authentication (SCA) bypass, AIS/PIS/CBPII API abuse, payment redirection, consent manipulation. Covers UK Open Banking, US FDX, Brazil Open Finance, India Account Aggregator, Singapore MAS APIX, Australia CDR. Includes 2024-2025 incidents (Token Hijacking, IdOR on AIS endpoints, PIS redirect manipulation).",
       "version": "0.2.0.2",
-      "domain": "fintech-banking",
+      "domain": "fintech-blockchain",
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0006-Credential Access, TA0009-Collection, T1552-Unsecured Credentials, T1550-Use Alternate Authentication Material, T1185-Man in the Browser",
       "owasp": "",
@@ -2437,7 +2315,7 @@
       "name": "osint",
       "description": "A specialized skill for intelligence gathering using publicly available sources.",
       "version": "0.2.0.2",
-      "domain": "osint",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
@@ -2465,7 +2343,7 @@
       "name": "pam-privilege-attack",
       "description": "Privileged Access Management (PAM) vendor abuse — CyberArk PVWA/PSM/EPV/AIM/CFE, BeyondTrust PRA/Password Safe/Identity Security Insights, Delinea Secret Server/Privilege Manager, One Identity Safeguard, ManageEngine Password Manager Pro, WALLIX Bastion, Devolutions Server, Xton Core. Covers PVWA auth bypass (CVE-2025-32564 area), CyberArk safe enumeration via WebSocket, credential file (.cue) theft and decryption, PSM session hijacking, AIM/CCP provider abuse, master key escrow analysis, BeyondTrust SAML account injection (CVE-2022-2451), Password Safe API abuse, session recording tampering, Delinea OAuth token theft, DPAPI-protected agent config extraction, distributed engine lateral movement, One Identity Safeguard SSL pinning bypass, ManageEngine PMP API key enumeration, PostgreSQL backend extraction (CVE-2022-28226 area), pass-the-hash in PAM contexts, golden ticket interaction with PAM credential rotation, and modern ransomware operator TTPs targeting PAM (BlackCat/ALPHV, LockBit, Royal/BlackSuit).",
       "version": "0.2.0.2",
-      "domain": "pam-privilege-attack",
+      "domain": "identity-attack",
       "category": "privileged-access-management",
       "mitre": "T1552-Unsecured Credentials",
       "owasp": "",
@@ -2488,7 +2366,7 @@
       "name": "password-attack",
       "description": "Password attacks encompass the complete attack chain from hash extraction, hash type identification, dictionary attacks, rule-based attacks, and bruteforcing to online service brute forcing.",
       "version": "0.2.0.2",
-      "domain": "credential-access",
+      "domain": "identity-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access",
       "owasp": "",
@@ -2515,7 +2393,7 @@
       "name": "patch-to-poc-pipeline",
       "description": "The end-to-end patch-diff vulnerability reproduction workflow — patch analysis (read diff, identify protective pattern, hypothesize bug class), source or binary-only code path walking (Ghidra + BinDiff), PoC generation (manual craft OR AFL++/libFuzzer harness with ASan/UBSan), CyberGym-style differential verification (vuln crashes, patched clean) as the deterministic stop condition, and YARA + Sigma detection rule authoring tested against both versions. Covers 2024-2026 CVEs (libwebp, xz-utils, runc, glibc Looney Tuner, regreSSHion, MOVEit, Jenkins, Confluence, TeamCity, OFBiz). Solidifies validation/scenarios/SCEN-008.md into a reusable knowledge base and wires in Schema 3 reproduction memory for memory-driven convergence.",
       "version": "0.2.0.2",
-      "domain": "vuln-research",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "TA0040-Detection; CWE-787 Out-of-Bounds Write, CWE-125 OOB Read, CWE-190 Integer Overflow, CWE-416 Use-After-Free, CWE-119 Buffer Overflow, CWE-94 Code Injection, CWE-89 SQLi, CWE-22 Path Traversal",
       "owasp": "",
@@ -2537,7 +2415,7 @@
       "name": "payload-generation",
       "description": "Payload generation covers the creation, encoding, and delivery of shellcode and executable payloads for initial access and command-and-control (C2) communication.",
       "version": "0.2.0.2",
-      "domain": "exploitation",
+      "domain": "post-exploit-evasion",
       "category": "general",
       "mitre": "TA0007-Command and Control",
       "owasp": "",
@@ -2565,7 +2443,7 @@
       "name": "payment-security",
       "description": "Payment systems security — PCI-DSS compliance testing, payment API security (Stripe/Adyen/PayPal), EMV chip/PIN, 3-D Secure, mobile wallets (Apple Pay/Google Pay), and fraud system assessment.",
       "version": "0.2.0.2",
-      "domain": "financial",
+      "domain": "fintech-blockchain",
       "category": "general",
       "mitre": "T1566-Phishing (credential harvesting) + domain-specific",
       "owasp": "",
@@ -2587,7 +2465,7 @@
       "name": "pentest-reporting",
       "description": "Initialize Dradis for collaborative report authoring and Faraday for vulnerability correlation before testing begins.",
       "version": "0.2.0.2",
-      "domain": "reporting",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1059.004-Unix Shell, T1078-Valid Accounts, T1562.001-Impair Defenses: Disable Tools",
       "owasp": "",
@@ -2610,7 +2488,7 @@
       "name": "physical-security-testing",
       "description": "Physical penetration testing covering mechanical lock bypass (pin-tubular/wafer), RFID/NFC badge cloning (Proxmark3/ESP-RFID-Tool/Walrus), HID iCLASS/Mifare duplication, drop box deployment (LAN Turtle/Packet Squirrel), USB weapons (Rubber Ducky/Bash Bunny), hidden camera placement, and on-site engagement operations including tailgating pretext preparation and physical-docs legal templates.",
       "version": "0.2.0.2",
-      "domain": "physical",
+      "domain": "red-team-ops",
       "category": "general",
       "mitre": "TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass",
       "owasp": "",
@@ -2631,7 +2509,7 @@
       "name": "post-exploitation",
       "description": "Post-exploitation covers the complete attack chain after obtaining initial access: privilege escalation, persistence, lateral movement, data collection and exfiltration, and covering tracks.",
       "version": "0.2.0.2",
-      "domain": "post-exploitation",
+      "domain": "post-exploit-evasion",
       "category": "general",
       "mitre": "TA0005-Defense Evasion",
       "owasp": "",
@@ -2658,7 +2536,7 @@
       "name": "post-quantum-migration-attack",
       "description": "Attacks against cryptographic systems during the PQC migration period. Covers Harvest-Now-Decrypt-Later (SNDL/HNDL), hybrid PQC downgrade abuse, KEM combiner flaws, mixed-protocol failures, NIST PQC standard implementations (ML-KEM/Kyber, ML-DSA/Dilithium, SLH-DSA/SPHINCS+), and QKD infrastructure attacks. Use when reviewing cryptographic agility, hybrid deployments, or preparing for quantum threat readiness.",
       "version": "0.2.0.2",
-      "domain": "post-quantum-cryptography",
+      "domain": "crypto-attack",
       "category": "general",
       "mitre": "TA0006-Credential Access, TA0010-Exfiltration, TA0040-Impact, T1552, T1041, T1565, T1020",
       "owasp": "",
@@ -2680,7 +2558,7 @@
       "name": "pqc-implementation-attack",
       "description": "Post-quantum cryptography implementation-layer attacks — ML-KEM/Kyber side channels (KyberSlash-class timing, single-trace power/EM, template and deep-learning SCA), fault injection on decapsulation, RNG/keygen weaknesses in liboqs/oqs-provider/PQClean/pqm4, hybrid KEM combiner implementation flaws, and Kyber ransomware sample triage with implementation-defect recovery paths.",
       "version": "0.2.0.2",
-      "domain": "crypto",
+      "domain": "crypto-attack",
       "category": "post-quantum",
       "mitre": "T1600-Weaken Encryption, T1600.001-Reduce Key Space, T1110.002-Password Cracking, T1486-Data Encrypted for Impact, T1040-Network Sniffing",
       "owasp": "N/A — cryptographic implementation class (A02:2021 Cryptographic Failures adjacent)",
@@ -2701,7 +2579,7 @@
       "name": "privilege-escalation",
       "description": "Privilege escalation is the process of elevating access from a low-privileged user context (standard user, service account, or limited shell) to root on Linux or SYSTEM/Administrator on Windows.",
       "version": "0.2.0.2",
-      "domain": "post-exploitation",
+      "domain": "post-exploit-evasion",
       "category": "general",
       "mitre": "TA0004-Privilege Escalation",
       "owasp": "",
@@ -2724,7 +2602,7 @@
       "name": "protocol-state-exploitation",
       "description": "Protocol state exploitation targets vulnerabilities in network protocol state machines including SSH/TLS/HTTP2/DNS, covering illegal state transitions, stateful fuzzing, and protocol-level race conditions.",
       "version": "0.2.0.2",
-      "domain": "exploitation",
+      "domain": "network-attack",
       "category": "general",
       "mitre": "TA0011-Command and Control",
       "owasp": "",
@@ -2748,7 +2626,7 @@
       "name": "quantum-crypto-attack",
       "description": "Post-quantum and modern national cryptography attack surface testing covering NIST PQC candidates (ML-KEM/ML-DSA/SLH-DSA), hybrid TLS analysis, QKD/BB84 protocol attacks, Chinese national crypto (SM2/SM3/SM4/SM9) implementation flaws, lattice/hashing signature probing, and quantum-vulnerable RSA/ECC asset discovery using liboqs, GmSSL, cloudflare/circl, OQS-OpenSSL, and PQCrypto-Break.",
       "version": "0.2.0.2",
-      "domain": "cryptography",
+      "domain": "crypto-attack",
       "category": "general",
       "mitre": "T1040-Network Sniffing (crypto layer), T1573-Encrypted Channel (PQC analysis), forward-looking (no canonical MITRE mapping yet)",
       "owasp": "",
@@ -2771,7 +2649,7 @@
       "name": "recon-osint",
       "description": "The most critical first step in penetration testing. Information gathering determines the precision and efficiency of subsequent attacks.",
       "version": "0.2.0.2",
-      "domain": "osint",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
@@ -2802,7 +2680,7 @@
       "name": "red-team-infrastructure",
       "description": "Building, deploying, and operating stealthy C2 infrastructure for red team engagements. Covers Mythic, Havoc, Sliver, Covenant, PoshC2, Brute Ratel, and Cobalt Strike; redirector chains (Nginx mTLS, Cloudflare workers, CDN domain fronting); dead-drop resolvers; infrastructure OPSEC (compartmentalized servers, auto-rotated certs, decoupled domains); AMIS/GoDaddy API for automated rotation. Use when deploying dedicated adversary emulation infrastructure, planning redirector chains, or testing OPSEC resilience of red team operators.",
       "version": "0.2.0.2",
-      "domain": "red-team-infrastructure",
+      "domain": "red-team-ops",
       "category": "general",
       "mitre": "TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573",
       "owasp": "",
@@ -2824,7 +2702,7 @@
       "name": "repo-scan",
       "description": "Cross-stack source code asset audit that classifies every file, detects embedded third-party libraries, and delivers actionable verdicts per module.",
       "version": "0.2.0.2",
-      "domain": "assessment",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1595.002-Vulnerability Scanning, T1195.002-Compromise Software Supply Chain, T1552.001-Credentials In Files, T1083-File and Directory Discovery",
       "owasp": "",
@@ -2849,7 +2727,7 @@
       "name": "reverse-engineering-advanced",
       "description": "Advanced reverse engineering covering symbolic execution (angr, KLEE, manticore), decompiler confusion (Hex-Rays, Ghidra deobfuscation), binary diffing (BinDiff, Diaphora, Kam1n0), firmware RE workflow (binwalk, FACT, EMBA), and obfuscated code analysis (LLVM obfuscation, OLLVM, Tigress). Distinct from foundational `binary-reverse` — focuses on advanced program analysis, automated RE techniques, and firmware / obfuscation workflows. Use when analyzing obfuscated or packed binaries, automating RE pipelines, analyzing firmware, or studying APT-grade obfuscation (Equation Group, Pegasus).",
       "version": "0.2.0.2",
-      "domain": "reverse-engineering",
+      "domain": "exploit-development",
       "category": "general",
       "mitre": "TA0005-Defense Evasion, T1027-Obfuscated Files, T1027.002-Binary Padding, T1027.010-Command Obfuscation, T1140-Deobfuscate/Decode",
       "owasp": "",
@@ -2871,7 +2749,7 @@
       "name": "safety-guard",
       "description": "Before executing ANY potentially destructive or irreversible command - When a command targets production or critical infrastructure - When operating under a defined rules of engagement (ROE) - When a loop or automated sequence is about to start - User says \"safe?",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -2896,7 +2774,7 @@
       "name": "sase-sse-attack",
       "description": "Secure Access Service Edge (SASE) and Security Service Edge (SSE) platform compromise covering Zscaler (ZIA/ZPA/ZDX/Client Connector), Netskope (Security Cloud, SWG, CASB, Private Access), Palo Alto Prisma Access, Cisco Umbrella, CATO Networks SASE, Cloudflare One (WARP, Gateway, Access), and Microsoft Entra Global Secure Access — including client connector reverse engineering, TLS inspection bypass via certificate pinning and ESNI/ECH, split-tunnel race conditions, BYOD vs managed device bypass, stolen SSO token replay through SSE proxy, anonymizer proxy evasion (Shadowsocks/V2Ray/Obfs4/Trojan), and detection avoidance using Wireshark, Frida, mitmproxy, JA3/JA4 fingerprint spoofing.",
       "version": "0.2.0.2",
-      "domain": "network-security",
+      "domain": "cloud-container",
       "category": "sase-sse",
       "mitre": "T1557-Adversary-in-the-Middle, T1027-Obfuscated Files or Information, T1078-Valid Accounts, T1550-Use Alternate Authentication Material, T1572-Protocol Tunneling, T1573-Encrypted Channel",
       "owasp": "",
@@ -2924,7 +2802,7 @@
       "name": "satellite-leo-security",
       "description": "Satellite and LEO communication security — Starlink, Kuiper, OneWeb, Iridium, Inmarsat, Viasat KA-SAT, HughesNet, DVB-S/S2, VSAT (iDirect/Hughes), GNSS receiver attacks, AcidRain wiper (Viasat 2022)",
       "version": "0.2.0.2",
-      "domain": "satellite-leo-security",
+      "domain": "wireless-telecom",
       "category": "satellite",
       "mitre": "T1557-Adversary-in-the-Middle",
       "owasp": "",
@@ -2945,7 +2823,7 @@
       "name": "scada-ics-security",
       "description": "SCADA/ICS security assessment covering industrial control system protocols including Modbus TCP, S7comm (Siemens), DNP3, EtherNet/IP (CIP), OPC UA, BACnet, and GOOSE.",
       "version": "0.2.0.2",
-      "domain": "ics",
+      "domain": "hardware-ot",
       "category": "general",
       "mitre": "TA0100-ICS Attack",
       "owasp": "",
@@ -2972,7 +2850,7 @@
       "name": "sdr-rf-attack",
       "description": "Software Defined Radio and RF signal attacks encompass a broad range of offensive techniques targeting wireless communication systems.",
       "version": "0.2.0.2",
-      "domain": "security",
+      "domain": "wireless-telecom",
       "category": "general",
       "mitre": "T1557-Adversary-in-the-Middle, T1040-Network Sniffing, T1200-Hardware Additions, T1095-Non-Application Layer Protocol",
       "owasp": "",
@@ -3001,7 +2879,7 @@
       "name": "search-first",
       "description": "Systematizes the \"search for existing tools, exploits, and techniques before writing custom ones\" workflow.",
       "version": "0.2.0.2",
-      "domain": "workflow",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -3026,7 +2904,7 @@
       "name": "secret-management-attack",
       "description": "Secret discovery, SAST code audit, and secrets-management platform attack covering gitleaks, semgrep, trufflehog, infisical, bearer, DeepAudit, apkleaks, and cariddi — including HashiCorp Vault exploitation (auth methods, secrets engines, policies, response-wrap hijacking, SSRF), AWS KMS key policy abuse, GCP KMS IAM escalation, Azure Key Vault access policy review, BYOK/HYOK attacks, Kyverno/external-secrets/secrets-store-csi-driver misconfig hunting, hardcoded credential discovery, secret rotation abuse, and CI/CD pipeline secret theft.",
       "version": "0.2.0.2",
-      "domain": "appsec",
+      "domain": "identity-attack",
       "category": "general",
       "mitre": "T1552-Unsecured Credentials, T1552.001-Credentials In Files, T1552.004-Private Keys, T1552.007-Container and Cloud",
       "owasp": "",
@@ -3049,7 +2927,7 @@
       "name": "security-bounty-hunter",
       "description": "Hunt for exploitable, bounty-worthy security issues in target systems. Focuses on remotely reachable vulnerabilities that qualify for real reports and responsible disclosure, not broad best-practices reviews or theoretical findings.",
       "version": "0.2.0.2",
-      "domain": "assessment",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1595.002-Vulnerability Scanning, T1210-Exploitation of Remote Services, T1203-Exploitation for Client Execution",
       "owasp": "",
@@ -3077,7 +2955,7 @@
       "name": "security-misconfiguration",
       "description": "Security misconfiguration detection (OWASP A02:2025) covering default credentials, unnecessary services, verbose errors, missing security headers, and directory listing exposures across deployed systems.",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1210-Exploitation of Remote Services, T1078.004-Valid Accounts: Cloud Accounts, T1552.001-Credentials In Files",
       "owasp": "A02:2025-Misconfiguration",
@@ -3105,7 +2983,7 @@
       "name": "security-review",
       "description": "Comprehensive security checklist and review patterns for analyzing applications, configurations, and infrastructure. This skill provides structured review methodology to identify vulnerabilities across OWASP Top 10 categories during penetration testing.",
       "version": "0.2.0.2",
-      "domain": "assessment",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1059-Command and Scripting Interpreter, T1562.001-Impair Defenses: Disable Tools, T1070-Indicator Removal",
       "owasp": "",
@@ -3130,7 +3008,7 @@
       "name": "social-engineering",
       "description": "Social engineering is the art of exploiting human psychological weaknesses rather than technical vulnerabilities to execute attacks. Attack vectors encompass Phishing, Pretexting, Baiting, Tailgating, Vishing, and other techniques.",
       "version": "0.2.0.2",
-      "domain": "social",
+      "domain": "red-team-ops",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
@@ -3155,11 +3033,11 @@
       "name": "social-intelligence",
       "description": "Real-time intelligence gathering from social platforms and community discussions — capturing what people are saying, sharing, and leaking right now.",
       "version": "0.2.0.2",
-      "domain": "osint",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
-      "last_reviewed": "2026-08-19",
+      "last_reviewed": "2026-11-19",
       "files": [
         "SKILL.md",
         "guides/community-monitoring-guide.md",
@@ -3208,7 +3086,7 @@
       "name": "storage-san-attack",
       "description": "Storage/SAN/NAS/Object storage penetration testing — iSCSI, Fibre Channel, NFSv3/v4, SMB3, S3-compatible APIs, NetApp ONTAP, Dell EMC, Pure Storage, QNAP, Synology, TrueNAS, NDMP backup tape pilfering, and ransomware patterns targeting storage appliances. Distinct from database-attack (which targets RDBMS/NoSQL query protocols) and cloud-native-vuln-research (which focuses on CVE research rather than storage fabric and appliance pentest).",
       "version": "0.2.0.2",
-      "domain": "storage-san-attack",
+      "domain": "platform-attack",
       "category": "storage",
       "mitre": [
         "T1552-Unsecured Credentials",
@@ -3237,7 +3115,7 @@
       "name": "supply-chain-security",
       "description": "Software supply chain security covering the entire lifecycle from code development to deployment: dependency vulnerabilities (known-vulnerable third-party packages), malicious packages (injection and typosquatting.",
       "version": "0.2.0.2",
-      "domain": "supply-chain",
+      "domain": "supply-chain-attack",
       "category": "general",
       "mitre": "T1195-Supply Chain Compromise, T1195.001-Compromise Software Dependencies and Development Tools, T1195.002-Compromise Software Supply Chain, T1199-Trusted Relationship",
       "owasp": "A08:2021-Software Integrity",
@@ -3263,7 +3141,7 @@
       "name": "terminal-ops",
       "description": "Evidence-first execution workflow for running security commands, inspecting system state, debugging tool failures, and making verified changes. This skill enforces a disciplined approach: inspect before acting, keep changes narrow, and report exact execution state.",
       "version": "0.2.0.2",
-      "domain": "workflow",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1059-Command and Scripting Interpreter, T1059.004-Unix Shell, T1021.004-Remote Services: SSH, T1518-Software Discovery",
       "owasp": "",
@@ -3288,7 +3166,7 @@
       "name": "threat-hunting",
       "description": "Proactive threat hunting — MITRE ATT&CK-mapped hunt hypotheses, Sigma detection engineering, SIEM query authoring (Splunk SPL, KQL, Lucene), and SOC workflow integration.",
       "version": "0.2.0.2",
-      "domain": "defense",
+      "domain": "defense-detection",
       "category": "general",
       "mitre": "TA0040-Detection",
       "owasp": "",
@@ -3310,7 +3188,7 @@
       "name": "threat-intel-platform-attack",
       "description": "Attacking threat intelligence platforms (MISP, OpenCTI, Anomali ThreatStream, ThreatQuotient, ThreatConnect, IBM Threat Intel, Palo Alto AutoFocus, Mandiant Advantage). Covers platform CVEs (MISP CVE-2022-29527, OpenCTI vulnerabilities), API abuse, sharing-group trust abuse, false-positive IOC injection, STIX/TAXII feed manipulation, and supply-chain attacks via poisoned TI feeds. Use when testing threat-intel platform security, validating IOC sharing trust models, or simulating APT feed-poisoning campaigns.",
       "version": "0.2.0.2",
-      "domain": "threat-intel-platforms",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0001-Initial Access, TA0006-Credential Access, T1078-Valid Accounts, T1190-Exploit Public-Facing App, T1552-Unsecured Credentials, T1566-Phishing",
       "owasp": "",
@@ -3332,7 +3210,7 @@
       "name": "tool-mastery",
       "description": "Verification and assessment of practical proficiency with Kali Linux security tools. Covers tool classification, proficiency levels, verification methods, and combination strategies across the 518-tool Kali arsenal.",
       "version": "0.2.0.2",
-      "domain": "knowledge",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1046-Network Service Scanning, T1190-Exploit Public-Facing Application, T1110-Brute Force, T1003-OS Credential Dumping",
       "owasp": "",
@@ -3355,7 +3233,7 @@
       "name": "uav-drone-security",
       "description": "UAV/drone security testing — PX4/ArduPilot autopilot attacks, MAVLink protocol fuzzing, RF link hijacking (2.4GHz control / 5.8GHz video), GPS spoofing/jamming, DroneSploit framework, DJI hardware reversing, and counter-UAS methodologies.",
       "version": "0.2.0.2",
-      "domain": "aerial",
+      "domain": "mobility-vehicle",
       "category": "aerial",
       "mitre": "TA0040-Detection, T1557-Adversary-in-the-Middle, TA0001-Initial Access",
       "owasp": "",
@@ -3376,7 +3254,7 @@
       "name": "username-profiling",
       "description": "Build a complete dossier on a person using only a username.",
       "version": "0.2.0.2",
-      "domain": "osint",
+      "domain": "osint-recon",
       "category": "general",
       "mitre": "TA0043-Reconnaissance",
       "owasp": "",
@@ -3399,7 +3277,7 @@
       "name": "verification-loop",
       "description": "After discovering a potential vulnerability or exploit - Before submitting any finding to a report or bounty platform - When verifying that a remediation or patch is effective - When cross-checking automated scanner results - User says \"verify\", \"confirm\", \"validate.",
       "version": "0.2.0.2",
-      "domain": "workflow",
+      "domain": "agent-meta",
       "category": "general",
       "mitre": "N/A (non-attack meta skill)",
       "owasp": "",
@@ -3427,7 +3305,7 @@
       "name": "voip-sip-attack",
       "description": "Voice over IP (VoIP) systems use the Session Initiation Protocol (SIP) for call signaling, the Real-time Transport Protocol (RTP) for media streaming, and the Inter-Asterisk eXchange protocol (IAX2) for alternative VoIP communication.",
       "version": "0.2.0.2",
-      "domain": "voip",
+      "domain": "network-attack",
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",
@@ -3450,7 +3328,7 @@
       "name": "vpn-attack",
       "description": "Virtual Private Networks (VPNs) are a critical component of enterprise network security, providing encrypted tunnels for remote access and site-to-site connectivity.",
       "version": "0.2.0.2",
-      "domain": "security",
+      "domain": "network-attack",
       "category": "general",
       "mitre": "T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning",
       "owasp": "",
@@ -3478,7 +3356,7 @@
       "name": "vulnerability-assessment",
       "description": "Vulnerability assessment is the process of systematically identifying and quantifying security weaknesses in information systems through automated scanning, CVE analysis, and risk scoring.",
       "version": "0.2.0.2",
-      "domain": "assessment",
+      "domain": "assessment-workflow",
       "category": "general",
       "mitre": "T1046-Network Service Scanning, T1595-Active Scanning, T1592-Gather Victim Host Info, T1087-Account Discovery, T1613-Container and Resource Discovery",
       "owasp": "",
@@ -3506,7 +3384,7 @@
       "name": "web-access-control",
       "description": "Broken Access Control (OWASP Top 10 2025 - A01) attacks and defense — covering core attack surfaces including IDOR (Insecure Direct Object Reference), vertical/horizontal privilege escalation, path traversal, and permission bypass.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1098-Account Manipulation, T1539-Steal Web Session Cookie",
       "owasp": "A01:2021-Broken Access Control",
@@ -3534,7 +3412,7 @@
       "name": "web-auth-bypass",
       "description": "Authentication Bypass refers to attackers exploiting design flaws or implementation vulnerabilities in authentication mechanisms to bypass the normal authentication process and gain unauthorized access.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1078-Valid Accounts, T1110.003-Password Spraying, T1552.001-Credentials In Files, T1187-Forced Authentication",
       "owasp": "A07:2021-Identification",
@@ -3560,7 +3438,7 @@
       "name": "web-deserialization",
       "description": "Deserialization vulnerabilities arise when an application reconstructs objects from byte streams (Java), serialized strings (PHP), Base64 blobs (.NET), or pickle data (Python) supplied by the client.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A08:2021-Software Integrity Failures",
@@ -3585,7 +3463,7 @@
       "name": "web-sqli",
       "description": "SQL injection attacks and defense - covering all major SQLi types including error-based, union-based, blind (boolean/time), double query (error-based), stacked queries, and out-of-band injection.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A03:2021-Injection",
@@ -3632,7 +3510,7 @@
       "name": "web-ssrf",
       "description": "Server-Side Request Forgery (SSRF) attacks including basic, blind, and advanced bypass techniques, internal port scanning, cloud metadata extraction (AWS/GCP/Azure), protocol smuggling (gopher://, dict://, file://), and chained RCE exploitation.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing App",
       "owasp": "A10:2021-SSRF",
@@ -3658,7 +3536,7 @@
       "name": "web-xss",
       "description": "XSS (Cross-Site Scripting) is an attack that injects malicious scripts into trusted websites.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1189-Drive-by Compromise",
       "owasp": "A03:2021-Injection",
@@ -3686,7 +3564,7 @@
       "name": "web-xxe",
       "description": "XML External Entity (XXE) injection exploits vulnerable XML parsers to read local files, initiate SSRF attacks, exfiltrate data through out-of-band channels, and cause denial of service.",
       "version": "0.2.0.2",
-      "domain": "web-attack",
+      "domain": "web-appsec",
       "category": "general",
       "mitre": "T1190-Exploit Public-Facing Application, T1005-Data from Local System, T1105-Ingress Tool Transfer, T1210-Exploitation of Remote Services",
       "owasp": "A05:2021-Security Misconfiguration",
@@ -3709,7 +3587,7 @@
       "name": "wifi-pentest",
       "description": "WiFi security assessment skills: covering wireless network reconnaissance, WPA/WPA2 handshake capture and offline cracking, WPS PIN brute forcing, Evil Twin attacks, wireless sniffing, and deauthentication attacks.",
       "version": "0.2.0.2",
-      "domain": "network-attack",
+      "domain": "wireless-telecom",
       "category": "general",
       "mitre": "TA0046-Initial Access",
       "owasp": "",

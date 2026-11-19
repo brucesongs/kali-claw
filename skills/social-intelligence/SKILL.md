@@ -16,11 +16,11 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: osint
+  domain: osint-recon
   tool_count: 10
   guide_count: 8
   mitre: "TA0043-Reconnaissance"
-  last_reviewed: "2026-08-19"
+  last_reviewed: "2026-11-19"
 ---
 
 

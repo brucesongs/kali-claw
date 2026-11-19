@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: physical
+  domain: red-team-ops
   tool_count: 12
   guide_count: 1
   mitre: "TA0001-Initial Access (physical), T1192-Hardware Additions, T1366-Physical Security Bypass"

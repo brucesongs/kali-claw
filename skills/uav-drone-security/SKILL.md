@@ -6,7 +6,7 @@ version: "0.2.0.2"
 compatibility: Claude Code, Agent SDK
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 metadata:
-  domain: aerial
+  domain: mobility-vehicle
   category: aerial
   tool_count: 13
   guide_count: 1

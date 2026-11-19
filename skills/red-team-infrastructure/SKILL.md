@@ -34,7 +34,7 @@ allowed-tools:
   - iodine
   - merlin
 metadata:
-  domain: red-team-infrastructure
+  domain: red-team-ops
   tool_count: 20
   guide_count: 2
   mitre: "TA0011-Command and Control, T1001, T1008, T1090, T1104, T1132, T1568, T1571, T1572, T1573"

@@ -27,7 +27,7 @@ allowed-tools:
   - sagemath
   - sage
 metadata:
-  domain: post-quantum-cryptography
+  domain: crypto-attack
   tool_count: 17
   guide_count: 2
   mitre: "TA0006-Credential Access, TA0010-Exfiltration, TA0040-Impact, T1552, T1041, T1565, T1020"

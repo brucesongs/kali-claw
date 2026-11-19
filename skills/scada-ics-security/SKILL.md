@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: ics
+  domain: hardware-ot
   tool_count: 8
   guide_count: 7
   mitre: "TA0100-ICS Attack"

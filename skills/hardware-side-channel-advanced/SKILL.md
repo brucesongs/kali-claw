@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: hardware
+  domain: hardware-ot
   category: side-channel
   tool_count: 7
   guide_count: 0

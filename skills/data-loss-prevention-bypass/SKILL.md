@@ -16,7 +16,7 @@ allowed-tools:
   - WebSearch
   - WebFetch
 metadata:
-  domain: data-protection
+  domain: data-attack
   category: dlp-evasion
   tool_count: 7
   guide_count: 0

@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Agent
 metadata:
-  domain: security
+  domain: network-attack
   tool_count: 5
   guide_count: 8
   mitre: "T1133-External Remote Services, T1190-Exploit Public-Facing Application, T1078-Valid Accounts, T1046-Network Service Scanning"

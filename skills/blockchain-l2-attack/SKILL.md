@@ -12,7 +12,7 @@ allowed-tools:
   - Write
   - Edit
 metadata:
-  domain: blockchain-l2-attack
+  domain: fintech-blockchain
   category: blockchain-l2
   tool_count: 13
   guide_count: 1

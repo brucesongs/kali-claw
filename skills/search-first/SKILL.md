@@ -18,7 +18,7 @@ allowed-tools:
   - Agent
 defense_triple_required: false
 metadata:
-  domain: workflow
+  domain: assessment-workflow
   tool_count: 0
   guide_count: 5
   mitre: "N/A (non-attack meta skill)"

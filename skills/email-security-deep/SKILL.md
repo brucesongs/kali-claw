@@ -13,7 +13,7 @@ allowed-tools:
   - Grep
   - WebFetch
 metadata:
-  domain: appsec
+  domain: red-team-ops
   tool_count: 14
   guide_count: 2
   mitre: "T1566-Phishing (Spearfish, Service Spearfish, Spearfish Attachment), T1114-Email Collection, T1059-Automated Command Execution via payload"

@@ -17,7 +17,7 @@ allowed-tools:
   - WebFetch
   - Python
 metadata:
-  domain: ai-supply-chain
+  domain: supply-chain-attack
   category: ai
   tool_count: 10
   guide_count: 1
