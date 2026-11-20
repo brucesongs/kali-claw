@@ -32,6 +32,12 @@ INDEX_PATH = ROOT / "docs" / "SKILL_INDEX.json"
 HANDBOOK_PATH = ROOT / "docs" / "SKILL_HANDBOOK.md"
 MATRIX_PATH = ROOT / "docs" / "DOMAIN_MATRIX.md"
 
+# volatile fields that differ between generations (timestamps); --check
+# normalizes them before comparing so freshness gates are content-only
+def _normalize_volatile(text: str) -> str:
+    text = re.sub(r'"generated_at":\s*"[^"]+"', '"generated_at": "T"', text)
+    return re.sub(r"生成日期.*?: \d{4}-\d{2}-\d{2}", "生成日期: T", text)
+
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 DEFENSE_TRIPLE_STRICT = {
     "Defense Perspective": r"^### Defense Perspective\s*$",
@@ -233,7 +239,7 @@ def main() -> int:
     if not args.handbook_only:
         rendered = json.dumps(index, ensure_ascii=False, indent=2) + "\n"
         if args.check:
-            if INDEX_PATH.exists() and INDEX_PATH.read_text(encoding="utf-8") != rendered:
+            if INDEX_PATH.exists() and _normalize_volatile(INDEX_PATH.read_text(encoding="utf-8")) != _normalize_volatile(rendered):
                 print("DRIFT: docs/SKILL_INDEX.json is stale", file=sys.stderr)
                 drift = True
             else:
@@ -247,7 +253,7 @@ def main() -> int:
     if not args.index_only:
         handbook = render_handbook(index)
         if args.check:
-            if HANDBOOK_PATH.exists() and HANDBOOK_PATH.read_text(encoding="utf-8") != handbook:
+            if HANDBOOK_PATH.exists() and _normalize_volatile(HANDBOOK_PATH.read_text(encoding="utf-8")) != _normalize_volatile(handbook):
                 print("DRIFT: docs/SKILL_HANDBOOK.md is stale", file=sys.stderr)
                 drift = True
             else:
@@ -259,7 +265,7 @@ def main() -> int:
     if not (args.index_only or args.handbook_only):
         matrix = render_matrix(index)
         if args.check:
-            if MATRIX_PATH.exists() and MATRIX_PATH.read_text(encoding="utf-8") != matrix:
+            if MATRIX_PATH.exists() and _normalize_volatile(MATRIX_PATH.read_text(encoding="utf-8")) != _normalize_volatile(matrix):
                 print("DRIFT: docs/DOMAIN_MATRIX.md is stale", file=sys.stderr)
                 drift = True
             else:
