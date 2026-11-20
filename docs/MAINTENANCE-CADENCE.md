@@ -53,7 +53,8 @@
 
 | 周 | 一 | 二 | 三 | 四 | 五 |
 |----|----|----|----|----|----|
-| 11/23 | 情报：NVD 扫描脚本化沉淀（/tmp/nvd_query.py → validation/scan-new-cves.py）| 漂移：Top10 抽查 | 深化 #1：identity-provider-attack 72.3→80 | 实战：cybergym smoke 1 题 | 收口 + 周 chronicle（计划试运行首周）|
+| 前置 11/21(六) | **前置**：NVD 扫描器沉淀（validation/scan-new-cves.py，/tmp 原稿已清理需重写）+ 3 关键词自测（Captain 指定周末加速）| — | — | — | — |
+| 11/23 | 情报：scanner 正式首扫（--since 11-10，全 Top30）+ findings 分诊 + 命中 CVE 吸收（NVD 核验门）| 漂移：Top10 抽查 | 深化 #1：identity-provider-attack 72.3→80 | 实战：cybergym smoke 1 题 | 收口 + 周 chronicle（试运行首周）|
 | 11/30 | 情报 | 漂移 | 深化 #2：codebase-onboarding 75.7→80 | 实战：cybergym 1 题 | 收口（如需 patch）|
 | **12/07** | **月度审查 #5**（三轴基线 + >80d sweep + release）| 漂移 | 深化 #3：chronicle | 实战 | 收口 |
 | 12/14 | 情报 | **季度基线 D1**：Top27 工具扫描 | 深化 #4：knowledge-ops | **季度基线 D2**：diff + MAJOR 影响 | **季度基线 D3**：引用修复 + 2026-12 minor release |
