@@ -39,6 +39,7 @@ Check `validation/QUALITY-SCORE-TRACKER.md` for the latest tier distribution and
 | `check-skill-usability.py` | Three-axis validator + ranking generator (v0.3.5 methodology, formalized) |
 | `gen-skill-handbook.py` | Regenerates SKILL_INDEX.json + SKILL_HANDBOOK.md + DOMAIN_MATRIX.md from frontmatter (v0.4.0: 22-domain taxonomy) |
 | `check-tool-versions.py` | Kali tool baseline drift checker |
+| `scan-new-cves.py` | NVD 2.0 CVE intelligence scanner (Top-N tool keywords, per-CVE cveId verification gate, evidence into `evidence/cve-scan/`) |
 | `skill-lint.py` | SKILL.md structural linter (Defense Triple, frontmatter, translation residue) |
 | `validate-payloads.py` / `validate-testcases.py` | Payload/TC existence and pattern validators |
 | `SCORE.sh` | Automated scoring script (7 metrics, 4 components) |
