@@ -20,7 +20,7 @@ metadata:
   tool_count: 6
   guide_count: 5
   mitre: "TA0008-Lateral Movement"
-  last_reviewed: "2026-09-04"
+  last_reviewed: "2026-11-23"
 ---
 
 
@@ -98,6 +98,21 @@ Image Analysis      Registry Security   Runtime Escape     Orchestration      Ho
 3. **Runtime Escape** - Exploit privileged mode, sensitive path mounts (/var/run/docker.sock), and kernel vulnerabilities to break container isolation
 4. **Orchestration Platform Attack** - Abuse overly permissive RBAC, default ServiceAccount tokens, and unprotected API Servers
 5. **Host Compromise** - Obtain host root privileges from the escaped container, completing lateral movement and persistence
+
+### Docker Ecosystem CVE Watch (NVD-verified 2026-11-23)
+
+> Source: NVD API 2.0 per-CVE `cveId` verification (`validation/evidence/cve-scan/2026-11-23-scan.json`), window 2026-11-10 → 2026-11-23. These are self-hosted platforms **deployed on Docker** (attack surface reachable during container-scope engagements), not Docker Engine itself.
+
+| Component | CVE | Attack Path | CVSS |
+|-----------|-----|-------------|------|
+| Dokploy <0.31.1 | CVE-2026-129316 | WebSocket handlers authorize on caller-controlled `serviceId` without binding `containerId`/`appName` → cross-tenant root shell via Docker terminal | 9.9 |
+| Dokploy <0.31.1 | CVE-2026-129433 | Shell metacharacters stored via `backup.create`/`backup.update` `serviceName` → OS command injection in `getComposeContainerCommand()` as root on scheduled backup | 9.9 |
+| Dokploy <0.31.1 | CVE-2026-129989 | Nixpacks `publishDirectory` interpolated into `docker cp` via `child_process.exec` → host RCE on deployment trigger | 9.9 |
+| FrankenPHP images <1.1.11 | CVE-2026-128027 | Images rebuilt only on new base tags → stale-library exploit chain (e.g., libcrypto3 CVE-2025-15467) against known fixed flaws | 9.8 |
+| mailcow: dockerized <2026-11 | CVE-2026-125757 | Domain-admin footer stores Jinja macro → SSTI/RCE in shared rspamd container; cross-tenant mail read/inject and filter disable | 9.1 |
+| Dockhand <1.0.57 | CVE-2026-134452 | Stack secret env merged unfiltered into `docker compose` spawn env → `PATH` poisoning → RCE as server process on deploy | 8.8 |
+
+**Testing notes**: Dokploy chain starts from an authenticated low-privilege org member — enumerate service scopes first; FrankenPHP case is a reminder to fingerprint image build/rebuild policy, not just image age.
 
 ### Defense Perspective
 

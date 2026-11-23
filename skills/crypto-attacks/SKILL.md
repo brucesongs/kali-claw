@@ -21,7 +21,7 @@ metadata:
   guide_count: 6
   owasp: "A04:2021-Cryptographic Failures"
   mitre: "T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle"
-  last_reviewed: "2026-09-04"
+  last_reviewed: "2026-11-23"
 ---
 
 
@@ -160,6 +160,22 @@ Crypto-agility is the ability to swap cryptographic primitives without code chan
 ```
 
 **Acceptance criterion**: a single configuration change in `crypto_policy.yaml` (e.g., `kem_group: x25519_mlkem768`) propagates to every endpoint, every library, every certificate, with no source modification -- and the change is observable in production telemetry within 24 hours. Anything less is non-agile.
+
+### OpenSSL Advisory Watch (NVD-verified 2026-11-23)
+
+> Source: NVD API 2.0 per-CVE `cveId` verification (`validation/evidence/cve-scan/2026-11-23-scan.json`), window 2026-11-10 → 2026-11-23. All seven entries below are OpenSSL project advisories, not third-party consumers.
+
+| CVE | Area | Attack Path | CVSS |
+|-----|------|-------------|------|
+| CVE-2026-95691 | QUIC client | Retransmitted CRYPTO frame frees packet storage while TLS record layer keeps a pointer → heap UAF read by malicious QUIC server | 8.1 |
+| CVE-2026-107493 | PEM API | Failed `PEM_X509_INFO_read_bio_ex()` frees every stack entry but leaves dangling pointers in caller's stack | 7.7 |
+| CVE-2026-107494 | QUIC | RETIRE_CONNECTION_ID queued for retransmitted NEW_CONNECTION_ID → unbounded queue growth (remote DoS) | 7.5 |
+| CVE-2026-107496 | CMS | Attacker-supplied recipient EC cert with group order 1 → infinite loop in `CMS_encrypt()` (CPU DoS) | 7.5 |
+| CVE-2026-124709 | QUIC server | Rejected-then-reset streams retain state for connection lifetime → unbounded server memory growth | 7.5 |
+| CVE-2026-84786 | DANE/TLSA | Unusual certificate + TLSA record combination → NULL-pointer deref, client crash | 7.5 |
+| CVE-2026-88823 | AES-GCM-SIV | Zero-length AAD fragment resets accumulated AAD → auth tag does not cover earlier fragments (integrity bypass in fragmented-AAD integrations) | 7.5 |
+
+**Testing notes**: QUIC items are remotely triggerable during handshake/stream setup — pair with `openssl s_client -quic` behavior observation; the GCM-SIV item only affects applications that feed AAD in multiple fragments.
 
 ### Defense Perspective
 
