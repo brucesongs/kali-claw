@@ -19,9 +19,9 @@ metadata:
   domain: identity-attack
   category: cloud-identity
   tool_count: 7
-  guide_count: 0
+  guide_count: 1
   mitre: "TA0006-Credential Access, T1556-Modify Authentication Process"
-  last_reviewed: "2026-11-16"
+  last_reviewed: "2026-11-25"
   keywords: ["OAuth", "OIDC", "SAML", "JWT", "IdP", "Azure AD", "Okta", "Auth0", "Keycloak", "MFA fatigue", "token theft"]
 ---
 
@@ -115,6 +115,20 @@ This skill covers the offensive side of cloud-identity security, including recon
 | **Monitoring** | Anomalous logins (geo, IP, device); token use patterns; OAuth consent grants | Detect token replay, consent phishing, MFA fatigue |
 
 ---
+
+## MITRE ATT&CK Alignment
+
+| Phase | Technique | Identity attack path | Primary evidence |
+|-------|-----------|----------------------|------------------|
+| Initial access | T1078 Valid Accounts | Phished credentials or a compromised federated account enter through the legitimate IdP flow | Sign-in log showing successful standard-flow authentication before anomalous token use |
+| Initial access | T1199 Trusted Relationship | Abuse an external IdP, managed service provider, or B2B guest trust | Guest/external-identity sign-in and cross-tenant application access |
+| Credential access | T1550.001 Application Access Token | Steal or replay OAuth/OIDC access and refresh tokens | Token use from a new client IP/device without a matching sign-in event |
+| Credential access | T1550.003 Pass the Ticket | Replay a SAML assertion or Entra ID PRT as though it belonged to the subject | Assertion/PRT use without the original device or session fingerprint |
+| Credential access | T1621 MFA Request Generation | Generate repeated push/number-matching requests until approval | Multiple MFA challenges followed by one approval and a new session |
+| Persistence | T1098.005 Device Registration | Register an attacker-controlled device after initial compromise | New device registration, compliance state change, then token issuance |
+| Defense evasion | T1556 Modify Authentication Process | Change federation claims, authorization policies, or authentication adapters | Administrator change to claim transformation, adapter, or conditional-access exclusion |
+
+Use this mapping when reporting: name the observed technique, show the IdP audit event, state the trust decision that failed, and recommend a control at both the identity tier and the application tier. Do not map a payload solely from intent; mapping requires evidence from the observed authentication path.
 
 ## Practical Steps
 

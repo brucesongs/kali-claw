@@ -1,6 +1,6 @@
 # kali-claw 域覆盖矩阵
 
-> **版本**: 0.4.0 | **生成日期**: 2026-11-19 | **SKILL 总数**: 139 / **域数**: 22
+> **版本**: 0.4.0 | **生成日期**: 2026-11-24 | **SKILL 总数**: 139 / **域数**: 22
 > 本文件由 `validation/gen-skill-handbook.py` 自动生成（以 skills/ frontmatter 为权威源），请勿手工编辑。
 
 | 域 | SKILL 数 | Defense Triple 完整 | 豁免 | SKILL 清单 |

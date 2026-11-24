@@ -1,6 +1,6 @@
 # kali-claw SKILL 使用手册
 
-> **版本**: 0.4.0 | **生成日期**: 2026-11-19 | **SKILL 总数**: 139 / **域数**: 22
+> **版本**: 0.4.0 | **生成日期**: 2026-11-24 | **SKILL 总数**: 139 / **域数**: 22
 > 本文件由 `validation/gen-skill-handbook.py` 自动生成（以 skills/ frontmatter 为权威源），请勿手工编辑。
 
 ---
@@ -414,7 +414,7 @@
 
 ### container-security
 
-**版本**: 0.2.0.2 | **域**: cloud-container | **MITRE**: TA0008-Lateral Movement | reviewed 2026-09-04
+**版本**: 0.2.0.2 | **域**: cloud-container | **MITRE**: TA0008-Lateral Movement | reviewed 2026-11-23
 
 > Container security covers the complete lifecycle from image building, registry management, runtime protection, to orchestration platform (Kubernetes) security.
 
@@ -500,7 +500,7 @@
 
 ### crypto-attacks
 
-**版本**: 0.2.0.2 | **域**: crypto-attack | **MITRE**: T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle | **OWASP**: A04:2021-Cryptographic Failures | reviewed 2026-09-04
+**版本**: 0.2.0.2 | **域**: crypto-attack | **MITRE**: T1110.002-Password Cracking, T1552.001-Credentials In Files, T1600.001-Weaken Encryption: Reduce Key Space, T1557-Adversary-in-the-Middle | **OWASP**: A04:2021-Cryptographic Failures | reviewed 2026-11-23
 
 > Cryptographic Attacks target implementation flaws and algorithm weaknesses in encryption systems, covering OWASP A04: Cryptographic Failures.
 
@@ -946,7 +946,7 @@
 
 ### identity-provider-attack
 
-**版本**: 0.2.0.2 | **域**: identity-attack | **MITRE**: TA0006-Credential Access, T1556-Modify Authentication Process | reviewed 2026-11-16
+**版本**: 0.2.0.2 | **域**: identity-attack | **MITRE**: TA0006-Credential Access, T1556-Modify Authentication Process | reviewed 2026-11-25
 
 > Identity Provider (IdP) attack patterns covering OAuth 2.0/OIDC, SAML, JWT, token theft/replay, MFA fatigue, service principal abuse (Azure AD/Entra ID), Okta, Auth0, Keycloak, and modern identity-based attacks.
 

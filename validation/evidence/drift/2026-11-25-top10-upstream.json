@@ -1,0 +1,158 @@
+{
+  "metadata": {
+    "date": "2026-11-25",
+    "timezone": "Asia/Shanghai",
+    "task": "Tuesday tool-drift rotation check",
+    "baseline": "KALI_TOOLS_BASELINE_2026_09.md",
+    "selection_rule": "Top 10 distinct tools; Wireshark source also covers tshark, so nuclei replaces the duplicate source row.",
+    "comparison_channel": "Authoritative upstream release source, not the Kali package tracker",
+    "reason": "The September baseline records upstream/release versions for several products; comparing those values directly to Kali package lag would create false drift."
+  },
+  "summary": {
+    "checked": 10,
+    "forward_version_drift": 9,
+    "baseline_contradictions": 1,
+    "first_token_major_jumps": 0,
+    "openssl_release_series_change": true,
+    "immediate_skill_changes": 0,
+    "disposition": "Record findings only; quarterly baseline update is 2026-12-14..18."
+  },
+  "tools": [
+    {
+      "rank": 1,
+      "tool": "strings",
+      "product": "GNU binutils",
+      "baseline": "2.42 (rolling)",
+      "current": "2.46.1",
+      "released": "2026-06-08",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://ftp.gnu.org/gnu/binutils/"
+    },
+    {
+      "rank": 2,
+      "tool": "nmap",
+      "product": "Nmap",
+      "baseline": "7.99",
+      "current": "7.993",
+      "released": "2026-10-23",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://nmap.org/dist/?C=M&O=D"
+    },
+    {
+      "rank": 3,
+      "tool": "docker",
+      "product": "Docker Engine",
+      "baseline": "29.8.1",
+      "current": "29.10.1",
+      "released": "2026-11-24",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline; note 29.10.1 security fixes",
+      "source": "https://docs.docker.com/engine/release-notes/29/"
+    },
+    {
+      "rank": 4,
+      "tool": "openssl",
+      "product": "OpenSSL",
+      "baseline": "4.0.2 / 3.5.8 LTS",
+      "current": "4.1.0 / 3.5.9 LTS",
+      "released": "2026-10-23",
+      "relationship": "same first token, 4.0 to 4.1 release-series change",
+      "action": "queue compatibility review in quarterly baseline D2",
+      "source": "https://www.openssl.org/source/"
+    },
+    {
+      "rank": 5,
+      "tool": "burp",
+      "product": "Burp Suite Professional / Community",
+      "baseline": "2026.9.1",
+      "current": "2026.11.2",
+      "released": "2026-11-18",
+      "relationship": "same product year",
+      "action": "defer to quarterly baseline",
+      "source": "https://portswigger.net/burp/releases/professional-community-2026-11-2"
+    },
+    {
+      "rank": 6,
+      "tool": "tcpdump",
+      "product": "tcpdump",
+      "baseline": "4.99.4",
+      "current": "4.99.7",
+      "released": "2026-09-21",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://www.tcpdump.org/"
+    },
+    {
+      "rank": 7,
+      "tool": "wireshark/tshark",
+      "product": "Wireshark",
+      "baseline": "4.6.9",
+      "current": "4.6.10",
+      "released": "2026-11 cycle",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://www.wireshark.org/download.html"
+    },
+    {
+      "rank": 8,
+      "tool": "sqlmap",
+      "product": "sqlmap",
+      "baseline": "1.10",
+      "current": "1.10.11",
+      "released": "2026-10-30",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://github.com/sqlmapproject/sqlmap/releases/tag/1.10.11"
+    },
+    {
+      "rank": 9,
+      "tool": "ffuf",
+      "product": "ffuf",
+      "baseline": "2.1.0",
+      "current": "2.2.1",
+      "released": "2026-07-13",
+      "relationship": "same major",
+      "action": "defer to quarterly baseline",
+      "source": "https://github.com/ffuf/ffuf/releases/tag/v2.2.1"
+    },
+    {
+      "rank": 10,
+      "tool": "nuclei",
+      "product": "ProjectDiscovery Nuclei",
+      "baseline": "3.16.1+",
+      "current": "3.11.1",
+      "released": "2026-08-08",
+      "relationship": "baseline is higher than the latest GitHub stable release",
+      "action": "correct the unverified baseline value during the next quarterly pass",
+      "source": "https://github.com/projectdiscovery/nuclei/releases/tag/v3.11.1"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-2026-11-25-01",
+      "priority": "P1",
+      "title": "September Nuclei baseline value is not supported by the upstream stable release",
+      "evidence": "Baseline says 3.16.1+, while the official GitHub latest stable release is v3.11.1 (2026-08-08).",
+      "impact": "A future 3.16 to 3.x comparison could hide a real compatibility change or produce a false rollback.",
+      "action": "During 2026-12-14 D1, record 3.11.1 unless a more authoritative upstream source for 3.16.1 is produced."
+    },
+    {
+      "id": "F-2026-11-25-02",
+      "priority": "P2",
+      "title": "Baseline does not explicitly distinguish upstream version from Kali package version",
+      "evidence": "Upstream Burp is 2026.11.2 while the Kali tracker still lists 2026.7; upstream Wireshark is 4.6.10 while Kali lists 4.6.9; upstream Docker Engine is 29.10.1 while Kali docker.io lists 27.5.1.",
+      "impact": "Running the local checker against a Kali host can report apparent drift that is actually distribution lag.",
+      "action": "The December baseline should add an explicit source dimension: upstream-stable versus kali-rolling."
+    },
+    {
+      "id": "F-2026-11-25-03",
+      "priority": "P2",
+      "title": "check-tool-versions.py cannot encode the Tuesday 10-tool rotation or authoritative sources",
+      "evidence": "The script parses all Top-N rows and probes local apt/binary state; it has no source manifest or rotation selector.",
+      "impact": "The cadence remains manually sourced and non-reproducible from one command.",
+      "action": "Backlog: add --tools and a source-map mode without weakening the existing local Kali-host check."
+    }
+  ]
+}
