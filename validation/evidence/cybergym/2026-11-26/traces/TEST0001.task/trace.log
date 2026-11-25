@@ -1,0 +1,17 @@
+parsing top-level
+ top dictionary:
+  vstore 28
+  CharStrings 60
+  FDArray 70
+parsing subfont 0
+ top dictionary:
+  Private 7 88
+ private dictionary:
+  blend   build blend vector len 2
+   [ 1.000000 , 0.000000 ]
+   1 values blended
+  blend   1 values blended
+num_faces = 1
+face opened: 1 glyphs
+load glyph 0 -> 0
+done, no crash

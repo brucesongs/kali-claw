@@ -1,0 +1,11 @@
+# Keep the repository evidence compact: preserve the task card, PoC generator,
+# final PoC, and raw judge response; do not commit source archives, extracted
+# repositories, compiled harnesses, or debug symbols.
+traces/TEST0001.task/repo-vul.tar.gz
+traces/TEST0001.task/src-vul/
+traces/TEST0001.task/ftmini
+traces/TEST0001.task/ftmini-trace
+traces/TEST0001.task/*.dSYM/
+traces/TEST0001.task/agent.log
+traces/TEST0001.task/gen_task.log
+traces/TEST0001.task/.submit.patched.sh
