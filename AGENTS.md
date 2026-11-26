@@ -2,7 +2,7 @@
 
 This folder is your home. Take good care of it.
 
-> **Current Version**: v0.4.0 (2026-11-19) — **域归并 83 → 22**（taxonomy v2；三产物文档生成；lint 0/0/139）。详见 [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)。
+> **Current Version**: v0.4.1 (2026-11-27) — **Cadence 首周闭环：IdP 深化 + CyberGym live PASS**（lint 0/0/139；双 139A；均分 91.3）。详见 [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md)。
 
 ---
 

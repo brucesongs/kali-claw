@@ -2,6 +2,19 @@
 
 All notable changes to kali-claw are documented in this file.
 
+## v0.4.1 (2026-11-27) — Cadence 首周闭环 + 首次 live validation 🎯
+
+### 威胁情报 / 技能深化 / 实战验证三线闭环
+
+- **NVD 首扫**：`scan-new-cves.py` 以 2026-11-10~23 窗口扫描 27 个 Top 工具关键词，产出 **88 个 verified findings**（43 个 CVSS≥7），吸收 13 个 CVE 到 `crypto-attacks` 与 `container-security`
+- **identity-provider-attack 深化**：评分 **72.3 → 90.3（Excellent）**；payloads 131→309 行、TC 135→234 行，补齐 7 个证据绑定的 MITRE 技术映射与 OAuth/OIDC、workload federation、token lifecycle 全链测试
+- **CyberGym 首次 live PASS**：`TEST0001 / arvo:368` 生成 292 字节 CFF2 PoC，本地 CyberGym server 判定 `exit_code=1` 并触发 FreeType `cff_parse_num` ASan heap-use-after-free；证据与本地运行手册归档
+- **周基线**：均分 **91.1 → 91.3**，最低分 **72.3 → 75.7**，Excellent 135→136；lint 0/0/139，Usability+Reliability 保持双 139A
+
+详见 [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md)
+
+---
+
 ## v0.4.0 (2026-11-19) — 域归并：83 → 22 🗂️
 
 ### Taxonomy v2（结构性元数据变更，SKILL 内容零改动）

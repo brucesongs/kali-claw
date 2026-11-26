@@ -2,7 +2,7 @@
 
 _Carefully selected distilled knowledge. Like human long-term memory — not raw logs, but the essence of experience._
 
-**Last Updated**: 2026-07-30 (v0.2.1 — Phase 1 完成)
+**Last Updated**: 2026-11-27 (v0.4.1 — Cadence 首周闭环)
 
 ---
 
@@ -12,7 +12,7 @@ _Carefully selected distilled knowledge. Like human long-term memory — not raw
 - **Tools Mastered**: 518/518 (100%) Kali Linux tools
 - **Skill Domains**: **139** (全部 v0.2.0.2 + Defense Triple，100% 覆盖)
 - **Uptime**: ~20 weeks (since 2026-03-14 launch)
-- **Current Focus**: v0.4.0 已发布（域归并 83→22 taxonomy v2，三产物文档生成，双 139A 保持）— **节奏已切换为可持续维护模式**：docs/MAINTENANCE-CADENCE.md 为权威排期（工作日 45-75min：周一情报/周二漂移/周三深化轮值[identity-provider-attack 72.3 起]/周四实战 cybergym/周五收口；月度审查 12-07；季度基线 12/14-18 拆 3 天）；估时校准系数见该文件 §0（工具类×3、审查类×0.5）；战略悬置：live pentest validation（周四线长线投资）
+- **Current Focus**: v0.4.1 已发布（Cadence 11/23~27 首周闭环：NVD 首扫 88 findings / 13 CVE 吸收；identity-provider-attack 72.3→90.3；CyberGym TEST0001 首次 live PASS；周基线均分 91.3 / 最低 75.7；lint 0/0 + 双 139A）— 下一步：11/30 进入第 2 周轮转（codebase-onboarding 75.7 起轮值），12-07 月度审查 #5；backlog：CyberGym runner local replay、工具漂移 source dimension、nuclei 基线 D1 修正
 - **Strategic Positioning**: kali-claw as dedicated SKILL library maintainer (v0.2.0.1 pivot); xAgent work moved to separate repo on 2026-08-06 — this repo is now single-responsibility
 
 ### Defense Triple Standard (v0.2.0.2+)

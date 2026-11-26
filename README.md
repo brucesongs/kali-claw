@@ -4,7 +4,7 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.4.0** (2026-11-19) — **域归并 83 → 22**（taxonomy v2；DOMAIN_MATRIX 自动生成；Usability+Reliability 双 139A 保持；lint 0/0/139）。详见 [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)。
+> **Current Version**: **v0.4.1** (2026-11-27) — **Cadence 首周闭环：IdP 技能 72.3→90.3 + CyberGym 首次 live PASS + 周基线 91.3**。详见 [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md)。
 
 ---
 
@@ -402,6 +402,7 @@ TOOLS.md:
 | **v0.3.9** | **2026-11-16** | **P1 清偿：三轴全绿** 🧽 | F-1 语法残留 16→0（SESSION_PREFIX_RE 真 bug 修复 + 9 relabel + 2 重组 + 1 真缺陷）；F-2 freshness 90→0（truth-sync 2026-11-16）；验证器 exit 0 历史首次；新基线 2026-11-16：均分 91.1、Usability 138/1/0、Reliability 139A ✅. See [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md) |
 | **v0.3.9.1** | **2026-11-16** | **F-4 清偿：Usability 139A** 🏁 | automotive 占位符 15→0：DBC `XXX` sender 字段 12 处误报修正（验证器 DBC 感知）+ 4 真实占位修复（包名通配、3 伪 CVE 改类别描述）；全绿矩阵 bash/outdated/placeholder/stale=0，Usability+Reliability 双 139A ✅. See [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md) |
 | **v0.4.0** | **2026-11-19** | **域归并 83 → 22** 🗂️ | taxonomy v2：139 技能显式映射至 22 主题域（消除 47 个单技能域，最小域 3 技能）；gen-skill-handbook 扩展三产物（INDEX/HANDBOOK/**DOMAIN_MATRIX 自动生成**）；QUICK_REFERENCE 标记 SUPERSEDED；SKILL 内容零改动；lint 0/0/139 + 双 139A 保持 ✅. See [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md) |
+| **v0.4.1** | **2026-11-27** | **Cadence 首周闭环 + live validation** 🎯 | NVD 首扫 88 findings / 13 CVE 吸收；identity-provider-attack 72.3→90.3；CyberGym TEST0001 生成 292B PoC 并触发 FreeType CFF2 ASan UAF（PASS）；新增本地 CyberGym runbook；周基线 91.1→91.3、最低 72.3→75.7 ✅. See [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
