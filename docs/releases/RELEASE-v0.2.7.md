@@ -118,7 +118,7 @@ Commit：1569818。
 | GitHub | 0 open issues / 0 open PRs |
 | INFO findings | NO_GUIDES **6 → 0**（Wave 4-7 副产品）|
 
-详见 [chronicle/2026-09/v0.2.7-review-2026-09-04.md](chronicle/2026-09/v0.2.7-review-2026-09-04.md)。
+详见 [chronicle/2026-09/v0.2.7-review-2026-09-04.md](../../chronicle/2026-09/v0.2.7-review-2026-09-04.md)。
 
 ---
 

@@ -9,7 +9,7 @@
 > - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
 > - **v0.2.4 关键变化**：MAJOR 工具升级修复（frida 17 / hashcat 7 / docker 29）；Defense Perspective 内容质量改进；2 个新 SKILL 落地
 > - **skill-lint 0 errors / 0 warnings, 139/139 clean pass**（v0.2.3 起）
-> - 详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
+> - 详见 [RELEASE-v0.2.4.md](docs/releases/RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](docs/releases/RELEASE-v0.2.1.md)
 >
 > 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 

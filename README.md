@@ -4,7 +4,8 @@
 
 **kali-claw** is a self-evolving security agent from the [OpenClaw](https://github.com/openclaw/openclaw.git) project. It operates 24/7 on Kali Linux, systematically learning and practicing penetration testing across **139 security domains**. It thinks like a hacker — first principles, divergent thinking, assume breach — and acts like a senior engineer: direct, hands-on, results-driven.
 
-> **Current Version**: **v0.4.1** (2026-11-27) — **Cadence 首周闭环：IdP 技能 72.3→90.3 + CyberGym 首次 live PASS + 周基线 91.3**。详见 [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md)。
+> **Current Version**: **v0.4.1** (2026-11-27) — **Cadence 首周闭环：IdP 技能 72.3→90.3 + CyberGym 首次 live PASS + 周基线 91.3**。详见 [RELEASE-v0.4.1.md](docs/releases/RELEASE-v0.4.1.md)。
+> 历史发布说明统一归档在 [docs/releases/README.md](docs/releases/README.md)。
 
 ---
 
@@ -367,42 +368,42 @@ TOOLS.md:
 | v0.1.39 | 2026-06-27 | **GitHub-trending expansion wave 8: +4 skill domains (107→111)** | +4 domains (ci-cd-supply-chain-attack, pam-privilege-attack, cspm-casb-attack, sase-sse-attack); 4 new categories (supply-chain, privileged-access, cloud-posture, sase-sse); covers modern enterprise stack (CI/CD pipelines + PAM vendors + CSPM/CASB + SASE/SSE); 3/4 new skills baselined Excellent + 1 Distinguished on baseline (pam-privilege-attack 92.0); **111/111 Excellent+ (100%)** maintained; cohort avg 89.5 (highest of all 8 waves); 111 total |
 | v0.1.40-v0.1.45 | 2026-06-28 ~ 2026-07-05 | **Wave 9-12 expansion (111→127)** | +16 domains across 4 waves: Wave 9-10 (+9 domains: red-team-infrastructure, threat-intel-platform-attack, malware-analysis-advanced, data-exfiltration-attack, reverse-engineering-advanced, patch-to-poc-pipeline, etc.); Wave 11 (+5 domains: data-exfil, red-team-infra, threat-intel, malware-RE, advanced-RE); Wave 12 (+7 domains including patch-to-poc-pipeline 16/16=100% on CyberGym validation) |
 | v0.1.46-v0.1.47.1 | 2026-07-08 ~ 2026-07-10 | **CyberGym evaluation + 3 new exploitation SKILLs** | Released 3 new SKILLs (command-injection-advanced, concurrency-exploitation, protocol-state-exploitation) targeting 0% bug classes; full CyberGym evaluation: 635/1508 instances, 1 PASS; infrastructure improvements (closed-book isolation, auto permission mode, mirror fallback) |
-| v0.2.0.1 | 2026-07-16 | **Strategic pivot: SKILL library focus** | Established kali-claw as dedicated SKILL library maintainer; new xAgent project will transform SKILLs into deliverable agents. See [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) |
+| v0.2.0.1 | 2026-07-16 | **Strategic pivot: SKILL library focus** | Established kali-claw as dedicated SKILL library maintainer; new xAgent project will transform SKILLs into deliverable agents. See [RELEASE-v0.2.0.1.md](docs/releases/RELEASE-v0.2.0.1.md) |
 | v0.2.0.2 | 2026-07-19 | **Phase 1 Day 1-2: 8 P0/P1 SKILLs upgraded** | Phase 1 Task 1.2 第一阶段启动: 3 P0 (network-pentest, post-exploitation, web-xss) + 5 P1 (web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack) all bumped to v0.2.0.2 with complete Defense Triple |
 | v0.2.0.3 | 2026-07-21 | **Phase 1 Day 3: 12/15 SKILLs (80%)** | +4 P1 SKILLs (privilege-escalation, social-engineering, osint, cloud-security) with comprehensive Detection Methods (Sigma/Splunk/Sysmon rules) and Defense Evasion sections |
-| v0.2.0.4 | 2026-07-24 | **Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%)** 🎉 | Final 3 P1 SKILLs (container-security, binary-reverse, exploit-development) standardized. **All 15 high-priority SKILLs at v0.2.0.2 with full Defense Triple**. See [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md) |
+| v0.2.0.4 | 2026-07-24 | **Phase 1 Task 1.2 Phase 1 完成 (15/15 = 100%)** 🎉 | Final 3 P1 SKILLs (container-security, binary-reverse, exploit-development) standardized. **All 15 high-priority SKILLs at v0.2.0.2 with full Defense Triple**. See [RELEASE-v0.2.0.4.md](docs/releases/RELEASE-v0.2.0.4.md) |
 | v0.2.0.5 | 2026-07-26 | **Phase 2 Batch 1-2 + 文档基线** | 20 SKILLs standardized; repository cleanup (3.7 GB → 19 MB); all core docs aligned |
 | v0.2.0.6 | 2026-07-27 | **Phase 2 半程 (50%)** | Batch 3-5 completed (30 SKILLs); cumulative 65/130 |
 | v0.2.0.7 | 2026-07-28 | **Phase 2 全部完成 (130/130 = 100%)** 🎊 | Batch 6-10 completed (55 SKILLs); **all 130 SKILLs at v0.2.0.2** |
 | v0.2.0.8 | 2026-07-29 | **Task 1.3 完成 (7 新 SKILL)** | 7 strategic new SKILLs: ai-safety-redteam-advanced, identity-provider-attack, data-loss-prevention-bypass, edge-computing-security, quantum-cryptography-transition, hardware-side-channel-advanced, 5g-6g-telecom-attack-advanced. SKILL total: 130 → **137** |
-| **v0.2.1** | **2026-07-30** | **Phase 1 全部完成 — Stable Release** 🎯 | Task 1.4 (6 docs) + Task 1.5 (5 scripts) completed. **137/137 SKILLs at v0.2.0.2, 100% Defense Triple**. See [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md) |
-| v0.2.2 | 2026-08-05 | **Defense Perspective 标准化** 🛡️ | Phase 2 Track 1 月度审查：linter 升级（严格 H3 检测 + `defense_triple_required` 字段），45 H2→H3 层级修复，4 个字面打字错误修复，2 个攻击类补写 Defense Triple，1 个翻译残留清零。See [RELEASE-v0.2.2.md](RELEASE-v0.2.2.md) |
-| **v0.2.3** | **2026-08-05** | **MISSING_SECTION 清零** 🧹 | Phase 2 Track 1 增量补丁：linter 智能化（模板适用性豁免 + Methodology≥50 启发式），56 → 0 warnings。5 个攻击类 SKILL 补 Core Tools / Practical Steps。**skill-lint 0 errors / 0 warnings**. See [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md) |
-| v0.2.3.1 | 2026-08-06 | **Q3 工具基线更新** 🔄 | 6 MAJOR 升级（hashcat/ghidra/frida/docker/openssl/radare2）+ Trivy CVE-2026-33634 供应链事件警告；新增 `KALI_TOOLS_BASELINE_2026_08.md`. See [RELEASE-v0.2.3.1.md](RELEASE-v0.2.3.1.md) |
-| v0.2.3.2 | 2026-08-06 | **Defense Perspective 抽样审查** 🔍 | 6 个高频攻击类 SKILL 内容质量审查；平均 4.2/5；2 P1 + 3 P2 + 3 P3 findings（0 P0）. See [RELEASE-v0.2.3.2.md](RELEASE-v0.2.3.2.md) |
-| v0.2.3.3 | 2026-08-06 | **新 SKILL 候选评估** 🎯 | 5 候选方向评估；2 P0（EU AI Act 合规 + AI Agent 供应链）+ 2 P1 + 1 P2；不创建（留待 v0.2.4）. See [RELEASE-v0.2.3.3.md](RELEASE-v0.2.3.3.md) |
-| **v0.2.4** | **2026-08-08** | **Minor Release：3 阶段累积发布** 🚀 | 阶段 A（MAJOR 工具修复，21 文件）+ 阶段 B（P1/P2 findings 落地，4 文件）+ 阶段 C（2 个新 P0 SKILL：`eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`，8 文件）。SKILL 137 → **139**. See [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md) |
-| **v0.2.5** | **2026-08-09** | **月度质量审查（A+B 范围）** 🔍 | 第 1 次 v0.2.4 后月度审查（提前至 8/9）：A.1 lint 全量（139/139）；A.2 2 个新 SKILL 抽样稳定；A.3 0 open Issues；B 关闭 v0.2.3.2 deferred 3 个 P3 ATT&CK 映射 findings. See [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md) |
-| **v0.2.5.1** | **2026-08-12** | **ics-fieldbus-attack 实战改进** 🛠️ | 首个基于实战验证反馈的 SKILL 改进 patch：基于 2026-08-10 GRFICSv3 OpenPLC 实战验证的 4 个 findings（F-008 P0 openplc:openplc 默认凭据 + F-009/F-010/F-011）全部应用；payloads.md 新增 §21（+119 行）. See [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md) |
-| **v0.2.5.2** | **2026-08-16** | **批量应用实战 findings** 🛠️ | 首个批量应用 patch：4 次实战验证的 14 个 findings 一次性应用到 blockchain-web3 + pam-privilege + automotive + embedded-rtos。含 P0 固件凭据提取 + PAM 后门 C 源码 + python-can 攻击脚本。18/18 实战 findings 全闭环 ✅. See [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) |
-| **v0.2.5.3** | **2026-08-17** | **Wave 1 findings 应用** 🛠️ | Wave 1 Batch 2（5 SKILL 评估 + 实战验证）发现的 11 个 findings 应用到 vulnerability-assessment + patch-to-poc + sase-sse + reverse-eng + gitops。累计 28 findings 闭环 ✅. See [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) |
-| **v0.2.5.4** | **2026-08-17** | **Wave 2 findings 应用** 🛠️ | Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）4 findings 应用。dns 补 ATT&CK + SIGRed CVE；blockchain-l2 补 7 桥攻击事件；quantum 补 Kyber 勒索软件。累计 32 findings 闭环 ✅. See [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md) |
-| **v0.2.5.5** | **2026-08-19** | **批量补 ATT&CK 映射** 🛠️ | Wave 3 的 5 个 P1（0 ATT&CK T-codes）修复：deep-research + deception-honeypot + social-intelligence + cloud-security + ai-security 各新增 5-7 行映射。累计 37 findings 闭环 ✅. See [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md) |
-| **v0.2.6** | **2026-08-29** | **第 2 次月度审查** 🔍 | 验证 v0.2.5.x 系列 5 patch 稳定性：lint 0/0/139 无回归；新 SKILL 稳定；0 Issues；35/139 评估；37 findings 0 回归 ✅. See [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md) |
-| **v0.2.7** | **2026-09-04** | **评估项目收尾** 🏁 | Wave 4-7 一次性完成（104 SKILL 批量评估）→ 139/139 闭环；46 P1/P2 findings 应用（37 ATT&CK 映射 + 9 参考扩充）；mitre frontmatter 139/139（+45）；sase-sse/vuln-assess TC 15/15；文档清理；lint 0/0/139 ✅. See [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md) |
-| **v0.3.0** | **2026-09-04** | **PQC 实现层攻击域** 🆕 | 新域 pqc-implementation-attack（77/100 出厂，0 P1/P2）：KyberSlash 时序/单迹 SCA/故障注入/RNG 缺陷/Kyber 勒索软件分诊；退役 59 分薄壳 quantum-cryptography-transition（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账；SKILL 数 139 不变 ✅. See [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md) |
-| **v0.3.1** | **2026-09-05** | **Poor 技能清偿** 📈 | P3 首批：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77 —— Poor 清零；pqi TC 5→10；两个薄 payloads 重建（87→347 / 86→313，占位垃圾清除）；20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）；lint 0/0/139 ✅. See [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md) |
-| **v0.3.2** | **2026-09-07** | **0-CVE 批量清偿** 📦 | 62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展剔除关键词噪声）、14 个 meta 域策略关闭；61 技能重评，仓库均分 74.4→**81.1**，无 Poor；Wave 1-3 评估文档统一现行格式；lint 0/0/139 ✅. See [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md) |
-| **v0.3.3** | **2026-09-08** | **TC 清偿 & backlog 归零** 🧪🏁 | 88 条新 TC（34 技能补齐至 10 + command-injection 计数修复 + council 修正）；9 豁免 meta 策略关闭；全仓 139 评估文档 truth-sync 重算（清除 ~85 行陈旧 finding）——**非策略 open findings = 0**；lint 0/0/139 ✅. See [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md) |
-| **v0.3.4** | **2026-09-09** | **Q4 工具基线提前** 🧰 | KALI_TOOLS_BASELINE_2026_09（0 新 MAJOR、上次 6 个复查 0 回归、11 MINOR/PATCH）；Trivy 行动项关闭（3 处 @master 固定，CVE-2026-33634）；新增 validation/check-tool-versions.py（08 改进项 #1）；lint 0/0/139 ✅. See [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md) |
-| **v0.3.5** | **2026-09-09** | **全量验证与完整性排序** 🏅 | 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；Top30 公网链接抽查（死链 5 入报告）；排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md；lint 0/0/139 ✅. See [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md) |
-| **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md) |
-| **v0.3.7** | **2026-11-09** | **Bottom 技术孪生加深** 📈 | DLP-bypass / edge-computing-security 双双 65→78（Good）：payloads 109→319 / 88→245 行重建、CVE 0→6 / 3→8（NVD 核验）、TC 去重规范化 13/13、MITRE 1→8 / 1→7；bash -n 门 0 错；lint 0/0/139 ✅. See [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md) |
-| **v0.3.8** | **2026-11-10** | **验证器沉淀 + 排名基线** 🛠️ | /tmp 三轴验证器正式沉淀为 validation/check-skill-usability.py（块级分类 payload/mixed/tolerated、注释剥离防假阳性、TOC 白名单、--ranking 报告生成）；新基线 docs/SKILL_VALIDATION_RANKING_2026-11-10.md：均分 89.8（无 Fair/Poor）、Usability 125/1/13、过时 0；新 findings 16 语法残留 + 77 freshness ✅. See [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md) |
-| **v0.3.9** | **2026-11-16** | **P1 清偿：三轴全绿** 🧽 | F-1 语法残留 16→0（SESSION_PREFIX_RE 真 bug 修复 + 9 relabel + 2 重组 + 1 真缺陷）；F-2 freshness 90→0（truth-sync 2026-11-16）；验证器 exit 0 历史首次；新基线 2026-11-16：均分 91.1、Usability 138/1/0、Reliability 139A ✅. See [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md) |
-| **v0.3.9.1** | **2026-11-16** | **F-4 清偿：Usability 139A** 🏁 | automotive 占位符 15→0：DBC `XXX` sender 字段 12 处误报修正（验证器 DBC 感知）+ 4 真实占位修复（包名通配、3 伪 CVE 改类别描述）；全绿矩阵 bash/outdated/placeholder/stale=0，Usability+Reliability 双 139A ✅. See [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md) |
-| **v0.4.0** | **2026-11-19** | **域归并 83 → 22** 🗂️ | taxonomy v2：139 技能显式映射至 22 主题域（消除 47 个单技能域，最小域 3 技能）；gen-skill-handbook 扩展三产物（INDEX/HANDBOOK/**DOMAIN_MATRIX 自动生成**）；QUICK_REFERENCE 标记 SUPERSEDED；SKILL 内容零改动；lint 0/0/139 + 双 139A 保持 ✅. See [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md) |
-| **v0.4.1** | **2026-11-27** | **Cadence 首周闭环 + live validation** 🎯 | NVD 首扫 88 findings / 13 CVE 吸收；identity-provider-attack 72.3→90.3；CyberGym TEST0001 生成 292B PoC 并触发 FreeType CFF2 ASan UAF（PASS）；新增本地 CyberGym runbook；周基线 91.1→91.3、最低 72.3→75.7 ✅. See [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md) |
+| **v0.2.1** | **2026-07-30** | **Phase 1 全部完成 — Stable Release** 🎯 | Task 1.4 (6 docs) + Task 1.5 (5 scripts) completed. **137/137 SKILLs at v0.2.0.2, 100% Defense Triple**. See [RELEASE-v0.2.1.md](docs/releases/RELEASE-v0.2.1.md) |
+| v0.2.2 | 2026-08-05 | **Defense Perspective 标准化** 🛡️ | Phase 2 Track 1 月度审查：linter 升级（严格 H3 检测 + `defense_triple_required` 字段），45 H2→H3 层级修复，4 个字面打字错误修复，2 个攻击类补写 Defense Triple，1 个翻译残留清零。See [RELEASE-v0.2.2.md](docs/releases/RELEASE-v0.2.2.md) |
+| **v0.2.3** | **2026-08-05** | **MISSING_SECTION 清零** 🧹 | Phase 2 Track 1 增量补丁：linter 智能化（模板适用性豁免 + Methodology≥50 启发式），56 → 0 warnings。5 个攻击类 SKILL 补 Core Tools / Practical Steps。**skill-lint 0 errors / 0 warnings**. See [RELEASE-v0.2.3.md](docs/releases/RELEASE-v0.2.3.md) |
+| v0.2.3.1 | 2026-08-06 | **Q3 工具基线更新** 🔄 | 6 MAJOR 升级（hashcat/ghidra/frida/docker/openssl/radare2）+ Trivy CVE-2026-33634 供应链事件警告；新增 `KALI_TOOLS_BASELINE_2026_08.md`. See [RELEASE-v0.2.3.1.md](docs/releases/RELEASE-v0.2.3.1.md) |
+| v0.2.3.2 | 2026-08-06 | **Defense Perspective 抽样审查** 🔍 | 6 个高频攻击类 SKILL 内容质量审查；平均 4.2/5；2 P1 + 3 P2 + 3 P3 findings（0 P0）. See [RELEASE-v0.2.3.2.md](docs/releases/RELEASE-v0.2.3.2.md) |
+| v0.2.3.3 | 2026-08-06 | **新 SKILL 候选评估** 🎯 | 5 候选方向评估；2 P0（EU AI Act 合规 + AI Agent 供应链）+ 2 P1 + 1 P2；不创建（留待 v0.2.4）. See [RELEASE-v0.2.3.3.md](docs/releases/RELEASE-v0.2.3.3.md) |
+| **v0.2.4** | **2026-08-08** | **Minor Release：3 阶段累积发布** 🚀 | 阶段 A（MAJOR 工具修复，21 文件）+ 阶段 B（P1/P2 findings 落地，4 文件）+ 阶段 C（2 个新 P0 SKILL：`eu-ai-act-compliance-redteam` + `ai-agent-supply-chain-attack`，8 文件）。SKILL 137 → **139**. See [RELEASE-v0.2.4.md](docs/releases/RELEASE-v0.2.4.md) |
+| **v0.2.5** | **2026-08-09** | **月度质量审查（A+B 范围）** 🔍 | 第 1 次 v0.2.4 后月度审查（提前至 8/9）：A.1 lint 全量（139/139）；A.2 2 个新 SKILL 抽样稳定；A.3 0 open Issues；B 关闭 v0.2.3.2 deferred 3 个 P3 ATT&CK 映射 findings. See [RELEASE-v0.2.5.md](docs/releases/RELEASE-v0.2.5.md) |
+| **v0.2.5.1** | **2026-08-12** | **ics-fieldbus-attack 实战改进** 🛠️ | 首个基于实战验证反馈的 SKILL 改进 patch：基于 2026-08-10 GRFICSv3 OpenPLC 实战验证的 4 个 findings（F-008 P0 openplc:openplc 默认凭据 + F-009/F-010/F-011）全部应用；payloads.md 新增 §21（+119 行）. See [RELEASE-v0.2.5.1.md](docs/releases/RELEASE-v0.2.5.1.md) |
+| **v0.2.5.2** | **2026-08-16** | **批量应用实战 findings** 🛠️ | 首个批量应用 patch：4 次实战验证的 14 个 findings 一次性应用到 blockchain-web3 + pam-privilege + automotive + embedded-rtos。含 P0 固件凭据提取 + PAM 后门 C 源码 + python-can 攻击脚本。18/18 实战 findings 全闭环 ✅. See [RELEASE-v0.2.5.2.md](docs/releases/RELEASE-v0.2.5.2.md) |
+| **v0.2.5.3** | **2026-08-17** | **Wave 1 findings 应用** 🛠️ | Wave 1 Batch 2（5 SKILL 评估 + 实战验证）发现的 11 个 findings 应用到 vulnerability-assessment + patch-to-poc + sase-sse + reverse-eng + gitops。累计 28 findings 闭环 ✅. See [RELEASE-v0.2.5.3.md](docs/releases/RELEASE-v0.2.5.3.md) |
+| **v0.2.5.4** | **2026-08-17** | **Wave 2 findings 应用** 🛠️ | Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）4 findings 应用。dns 补 ATT&CK + SIGRed CVE；blockchain-l2 补 7 桥攻击事件；quantum 补 Kyber 勒索软件。累计 32 findings 闭环 ✅. See [RELEASE-v0.2.5.4.md](docs/releases/RELEASE-v0.2.5.4.md) |
+| **v0.2.5.5** | **2026-08-19** | **批量补 ATT&CK 映射** 🛠️ | Wave 3 的 5 个 P1（0 ATT&CK T-codes）修复：deep-research + deception-honeypot + social-intelligence + cloud-security + ai-security 各新增 5-7 行映射。累计 37 findings 闭环 ✅. See [RELEASE-v0.2.5.5.md](docs/releases/RELEASE-v0.2.5.5.md) |
+| **v0.2.6** | **2026-08-29** | **第 2 次月度审查** 🔍 | 验证 v0.2.5.x 系列 5 patch 稳定性：lint 0/0/139 无回归；新 SKILL 稳定；0 Issues；35/139 评估；37 findings 0 回归 ✅. See [RELEASE-v0.2.6.md](docs/releases/RELEASE-v0.2.6.md) |
+| **v0.2.7** | **2026-09-04** | **评估项目收尾** 🏁 | Wave 4-7 一次性完成（104 SKILL 批量评估）→ 139/139 闭环；46 P1/P2 findings 应用（37 ATT&CK 映射 + 9 参考扩充）；mitre frontmatter 139/139（+45）；sase-sse/vuln-assess TC 15/15；文档清理；lint 0/0/139 ✅. See [RELEASE-v0.2.7.md](docs/releases/RELEASE-v0.2.7.md) |
+| **v0.3.0** | **2026-09-04** | **PQC 实现层攻击域** 🆕 | 新域 pqc-implementation-attack（77/100 出厂，0 P1/P2）：KyberSlash 时序/单迹 SCA/故障注入/RNG 缺陷/Kyber 勒索软件分诊；退役 59 分薄壳 quantum-cryptography-transition（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账；SKILL 数 139 不变 ✅. See [RELEASE-v0.3.0.md](docs/releases/RELEASE-v0.3.0.md) |
+| **v0.3.1** | **2026-09-05** | **Poor 技能清偿** 📈 | P3 首批：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77 —— Poor 清零；pqi TC 5→10；两个薄 payloads 重建（87→347 / 86→313，占位垃圾清除）；20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）；lint 0/0/139 ✅. See [RELEASE-v0.3.1.md](docs/releases/RELEASE-v0.3.1.md) |
+| **v0.3.2** | **2026-09-07** | **0-CVE 批量清偿** 📦 | 62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展剔除关键词噪声）、14 个 meta 域策略关闭；61 技能重评，仓库均分 74.4→**81.1**，无 Poor；Wave 1-3 评估文档统一现行格式；lint 0/0/139 ✅. See [RELEASE-v0.3.2.md](docs/releases/RELEASE-v0.3.2.md) |
+| **v0.3.3** | **2026-09-08** | **TC 清偿 & backlog 归零** 🧪🏁 | 88 条新 TC（34 技能补齐至 10 + command-injection 计数修复 + council 修正）；9 豁免 meta 策略关闭；全仓 139 评估文档 truth-sync 重算（清除 ~85 行陈旧 finding）——**非策略 open findings = 0**；lint 0/0/139 ✅. See [RELEASE-v0.3.3.md](docs/releases/RELEASE-v0.3.3.md) |
+| **v0.3.4** | **2026-09-09** | **Q4 工具基线提前** 🧰 | KALI_TOOLS_BASELINE_2026_09（0 新 MAJOR、上次 6 个复查 0 回归、11 MINOR/PATCH）；Trivy 行动项关闭（3 处 @master 固定，CVE-2026-33634）；新增 validation/check-tool-versions.py（08 改进项 #1）；lint 0/0/139 ✅. See [RELEASE-v0.3.4.md](docs/releases/RELEASE-v0.3.4.md) |
+| **v0.3.5** | **2026-09-09** | **全量验证与完整性排序** 🏅 | 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；Top30 公网链接抽查（死链 5 入报告）；排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md；lint 0/0/139 ✅. See [RELEASE-v0.3.5.md](docs/releases/RELEASE-v0.3.5.md) |
+| **v0.3.6** | **2026-11-09** | **第 4 次月度审查** 🧹 | 逾期补做（原定 10-05）：lint 0/0/139 + validators 0 错 + TC 1,841 无回归；pqi 9 周稳定；R3-1 死链 5→0（新链 5/5 活性 200）；SKILL_HANDBOOK/INDEX 重建（139 技能/83 域，gen-skill-handbook.py 可复跑）；删除冗余 skills.zip ✅. See [RELEASE-v0.3.6.md](docs/releases/RELEASE-v0.3.6.md) |
+| **v0.3.7** | **2026-11-09** | **Bottom 技术孪生加深** 📈 | DLP-bypass / edge-computing-security 双双 65→78（Good）：payloads 109→319 / 88→245 行重建、CVE 0→6 / 3→8（NVD 核验）、TC 去重规范化 13/13、MITRE 1→8 / 1→7；bash -n 门 0 错；lint 0/0/139 ✅. See [RELEASE-v0.3.7.md](docs/releases/RELEASE-v0.3.7.md) |
+| **v0.3.8** | **2026-11-10** | **验证器沉淀 + 排名基线** 🛠️ | /tmp 三轴验证器正式沉淀为 validation/check-skill-usability.py（块级分类 payload/mixed/tolerated、注释剥离防假阳性、TOC 白名单、--ranking 报告生成）；新基线 docs/SKILL_VALIDATION_RANKING_2026-11-10.md：均分 89.8（无 Fair/Poor）、Usability 125/1/13、过时 0；新 findings 16 语法残留 + 77 freshness ✅. See [RELEASE-v0.3.8.md](docs/releases/RELEASE-v0.3.8.md) |
+| **v0.3.9** | **2026-11-16** | **P1 清偿：三轴全绿** 🧽 | F-1 语法残留 16→0（SESSION_PREFIX_RE 真 bug 修复 + 9 relabel + 2 重组 + 1 真缺陷）；F-2 freshness 90→0（truth-sync 2026-11-16）；验证器 exit 0 历史首次；新基线 2026-11-16：均分 91.1、Usability 138/1/0、Reliability 139A ✅. See [RELEASE-v0.3.9.md](docs/releases/RELEASE-v0.3.9.md) |
+| **v0.3.9.1** | **2026-11-16** | **F-4 清偿：Usability 139A** 🏁 | automotive 占位符 15→0：DBC `XXX` sender 字段 12 处误报修正（验证器 DBC 感知）+ 4 真实占位修复（包名通配、3 伪 CVE 改类别描述）；全绿矩阵 bash/outdated/placeholder/stale=0，Usability+Reliability 双 139A ✅. See [RELEASE-v0.3.9.1.md](docs/releases/RELEASE-v0.3.9.1.md) |
+| **v0.4.0** | **2026-11-19** | **域归并 83 → 22** 🗂️ | taxonomy v2：139 技能显式映射至 22 主题域（消除 47 个单技能域，最小域 3 技能）；gen-skill-handbook 扩展三产物（INDEX/HANDBOOK/**DOMAIN_MATRIX 自动生成**）；QUICK_REFERENCE 标记 SUPERSEDED；SKILL 内容零改动；lint 0/0/139 + 双 139A 保持 ✅. See [RELEASE-v0.4.0.md](docs/releases/RELEASE-v0.4.0.md) |
+| **v0.4.1** | **2026-11-27** | **Cadence 首周闭环 + live validation** 🎯 | NVD 首扫 88 findings / 13 CVE 吸收；identity-provider-attack 72.3→90.3；CyberGym TEST0001 生成 292B PoC 并触发 FreeType CFF2 ASan UAF（PASS）；新增本地 CyberGym runbook；周基线 91.1→91.3、最低 72.3→75.7 ✅. See [RELEASE-v0.4.1.md](docs/releases/RELEASE-v0.4.1.md) |
 
 ### Current Quality Snapshot (v0.2.3 — Phase 2 Track 1 月度审查完成) 🛡️
 
@@ -459,18 +460,18 @@ TOOLS.md:
 
 | Version | Date | Description |
 |---------|------|-------------|
-| **[v0.2.1](RELEASE-v0.2.1.md)** | **2026-07-30** | **Phase 1 全部完成 — Stable Release 🎯** |
-| [v0.2.0.8](RELEASE-v0.2.0.8.md) | 2026-07-29 | Task 1.3 完成 (7 新 SKILL, 总 137) |
-| [v0.2.0.7](RELEASE-v0.2.0.7.md) | 2026-07-28 | Phase 2 全部完成 (130/130) |
-| [v0.2.0.6](RELEASE-v0.2.0.6.md) | 2026-07-27 | Phase 2 半程 (50%) |
-| [v0.2.0.5](RELEASE-v0.2.0.5.md) | 2026-07-26 | Phase 2 Batch 1-2 + 文档基线 |
-| [v0.2.0.4](RELEASE-v0.2.0.4.md) | 2026-07-24 | Phase 1 Task 1.2 第一阶段完成 (15/15 SKILLs = 100%) — 里程碑版本 |
-| [v0.2.0.3](RELEASE-v0.2.0.3.md) | 2026-07-21 | Phase 1 Day 3 完成 (12/15 = 80%) |
-| [v0.2.0.2](RELEASE-v0.2.0.2.md) | 2026-07-19 | Phase 1 Day 1-2 完成 (8 SKILLs) |
-| [v0.2.0.1](RELEASE-v0.2.0.1.md) | 2026-07-16 | 战略定位：SKILL 库维护者 |
-| [v0.1.47.1-analysis](RELEASE-v0.1.47.1-analysis.md) | 2026-07-10 | CyberGym 完整评估分析 |
-| [v0.1.47](RELEASE-v0.1.47.md) | 2026-07-08 | +3 exploitation SKILLs |
-| [v0.1.46](RELEASE-v0.1.46.md) | 2026-07-08 | Closed-book CyberGym 校准 |
+| **[v0.2.1](docs/releases/RELEASE-v0.2.1.md)** | **2026-07-30** | **Phase 1 全部完成 — Stable Release 🎯** |
+| [v0.2.0.8](docs/releases/RELEASE-v0.2.0.8.md) | 2026-07-29 | Task 1.3 完成 (7 新 SKILL, 总 137) |
+| [v0.2.0.7](docs/releases/RELEASE-v0.2.0.7.md) | 2026-07-28 | Phase 2 全部完成 (130/130) |
+| [v0.2.0.6](docs/releases/RELEASE-v0.2.0.6.md) | 2026-07-27 | Phase 2 半程 (50%) |
+| [v0.2.0.5](docs/releases/RELEASE-v0.2.0.5.md) | 2026-07-26 | Phase 2 Batch 1-2 + 文档基线 |
+| [v0.2.0.4](docs/releases/RELEASE-v0.2.0.4.md) | 2026-07-24 | Phase 1 Task 1.2 第一阶段完成 (15/15 SKILLs = 100%) — 里程碑版本 |
+| [v0.2.0.3](docs/releases/RELEASE-v0.2.0.3.md) | 2026-07-21 | Phase 1 Day 3 完成 (12/15 = 80%) |
+| [v0.2.0.2](docs/releases/RELEASE-v0.2.0.2.md) | 2026-07-19 | Phase 1 Day 1-2 完成 (8 SKILLs) |
+| [v0.2.0.1](docs/releases/RELEASE-v0.2.0.1.md) | 2026-07-16 | 战略定位：SKILL 库维护者 |
+| [v0.1.47.1-analysis](docs/releases/RELEASE-v0.1.47.1-analysis.md) | 2026-07-10 | CyberGym 完整评估分析 |
+| [v0.1.47](docs/releases/RELEASE-v0.1.47.md) | 2026-07-08 | +3 exploitation SKILLs |
+| [v0.1.46](docs/releases/RELEASE-v0.1.46.md) | 2026-07-08 | Closed-book CyberGym 校准 |
 
 ---
 

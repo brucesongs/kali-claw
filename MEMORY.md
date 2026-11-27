@@ -138,21 +138,21 @@ As of 2026-07-26: **35/130 SKILLs (27%) at v0.2.0.2 standard**.
 - New xAgent project will transform SKILLs into deliverable agents (Phase 2/3 of broader strategy)
 - Wave 9-12 expansion completed: 111 → 127 skill domains
 - CyberGym evaluation (v0.1.47.1): 635/1508 instances, 1 PASS
-- See [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) for strategic rationale
+- See [RELEASE-v0.2.0.1.md](docs/releases/RELEASE-v0.2.0.1.md) for strategic rationale
 
 ### 2026-07-19: Phase 1 Day 1-2 — Defense Triple Rollout (v0.2.0.2)
 - Started Phase 1 Task 1.2 Phase 1: 15 P0/P1 SKILLs深度优化
 - Day 1-2 completed 8 SKILLs (network-pentest, post-exploitation, web-xss, web-sqli, web-ssrf, web-auth-bypass, api-security, password-attack)
 - Established **Defense Triple Standard**: Defense Perspective + Detection Methods + Defense Evasion Techniques
 - Version baseline correction: 0.1.50 → 0.2.0.2 (kali-claw switched to v0.2.x scheme)
-- See [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md)
+- See [RELEASE-v0.2.0.2.md](docs/releases/RELEASE-v0.2.0.2.md)
 
 ### 2026-07-21-24: Phase 1 Day 3-4 — 100% Phase 1 Milestone (v0.2.0.3 → v0.2.0.4)
 - Day 3 (v0.2.0.3): +4 P1 SKILLs (privilege-escalation, social-engineering, osint, cloud-security)
 - Day 4 (v0.2.0.4): Final 3 P1 SKILLs (container-security, binary-reverse, exploit-development)
 - **Milestone: 15/15 P0+P1 SKILLs at v0.2.0.2 (100%)**
 - Translation residue cleaned to 0 across all v0.2.0.2 SKILLs
-- See [RELEASE-v0.2.0.3.md](RELEASE-v0.2.0.3.md) and [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+- See [RELEASE-v0.2.0.3.md](docs/releases/RELEASE-v0.2.0.3.md) and [RELEASE-v0.2.0.4.md](docs/releases/RELEASE-v0.2.0.4.md)
 
 ### 2026-07-26: Phase 2 Standardization + Repo Cleanup
 - Phase 2 Batch 1-2 completed: 20/100 standard SKILLs at v0.2.0.2 (e.g., 5g-telecom-attack, ad-cs-abuse, blockchain-*, etc.)

@@ -3,7 +3,7 @@
 > **报告版本**：v1.0 · 2026-07-07
 > **校准 ID**：v0.1.45-smoke + historical
 > **状态**：smoke test 已验证 / 30-instance 完整校准推迟到 v0.1.45.1
-> **关联**：[Wave 12 commit `774b47a`](#) · [D2 commit `7e78303`](#) · [sampling doc](docs/cybergym-sampling-v0.1.45.md) · [integration guide](docs/cybergym-v0.1.45-integration-guide.md)
+> **关联**：[Wave 12 commit `774b47a`](#) · [D2 commit `7e78303`](#) · [sampling doc](../../docs/cybergym-sampling-v0.1.45.md) · [integration guide](../../docs/cybergym-v0.1.45-integration-guide.md)
 
 ---
 
@@ -310,10 +310,10 @@ validation/evidence/cybergym/v0.1.45/traces/
 ## 附录 C：参考
 
 - [CyberGym paper (arXiv:2506.02548)](https://arxiv.org/abs/2506.02548)
-- [kali-claw MopMonk 调研报告](docs/mopmonk-research-and-kali-claw-plan.md)
-- [SCEN-008 Patch-Diff Vulnerability Reproduction](validation/scenarios/SCEN-008.md)
-- [SCEN-MEMORY-SCHEMA foundation](validation/scenarios/SCEN-MEMORY-SCHEMA.md)
-- [Wave 12 skill: patch-to-poc-pipeline](skills/patch-to-poc-pipeline/SKILL.md)
-- [Wave 12 skill: multi-agent-runtime-engineering](skills/multi-agent-runtime-engineering/SKILL.md)
-- [CyberGym × kali-claw 集成指南](docs/cybergym-v0.1.45-integration-guide.md)
-- [v0.1.45 抽样方案](docs/cybergym-sampling-v0.1.45.md)
+- [kali-claw MopMonk 调研报告](../../docs/mopmonk-research-and-kali-claw-plan.md)
+- [SCEN-008 Patch-Diff Vulnerability Reproduction](../../validation/scenarios/SCEN-008.md)
+- [SCEN-MEMORY-SCHEMA foundation](../../validation/scenarios/SCEN-MEMORY-SCHEMA.md)
+- [Wave 12 skill: patch-to-poc-pipeline](../../skills/patch-to-poc-pipeline/SKILL.md)
+- [Wave 12 skill: multi-agent-runtime-engineering](../../skills/multi-agent-runtime-engineering/SKILL.md)
+- [CyberGym × kali-claw 集成指南](../../docs/cybergym-v0.1.45-integration-guide.md)
+- [v0.1.45 抽样方案](../../docs/cybergym-sampling-v0.1.45.md)

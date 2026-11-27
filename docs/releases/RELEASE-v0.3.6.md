@@ -23,7 +23,7 @@
 | v0.2.4 双子 | ✅ 稳定 |
 | GitHub Issues/PRs | ⚠️ 执行环境不通 github.com，未核验 |
 
-详见 [chronicle/2026-11/v0.3.6-monthly-review-2026-11-09.md](chronicle/2026-11/v0.3.6-monthly-review-2026-11-09.md)。
+详见 [chronicle/2026-11/v0.3.6-monthly-review-2026-11-09.md](../../chronicle/2026-11/v0.3.6-monthly-review-2026-11-09.md)。
 
 ## 三、死链清偿（R3-1 → 0）
 

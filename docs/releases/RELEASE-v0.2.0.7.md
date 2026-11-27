@@ -194,11 +194,11 @@ kali-claw/
 
 | 平台 | 指南 |
 |------|------|
-| OpenClaw | [GUIDE-OPENCLAW-zh.md](GUIDE-OPENCLAW-zh.md) / [en](GUIDE-OPENCLAW-en.md) |
-| Claude Code | [GUIDE-CLAUDECODE-zh.md](GUIDE-CLAUDECODE-zh.md) / [en](GUIDE-CLAUDECODE-en.md) |
-| OpenAI Codex | [GUIDE-CODEX-zh.md](GUIDE-CODEX-zh.md) / [en](GUIDE-CODEX-en.md) |
-| Hermes Agent | [GUIDE-HERMES-zh.md](GUIDE-HERMES-zh.md) / [en](GUIDE-HERMES-en.md) |
-| OpenCode | [GUIDE-OPENCODE-zh.md](GUIDE-OPENCODE-zh.md) / [en](GUIDE-OPENCODE-en.md) |
+| OpenClaw | [GUIDE-OPENCLAW-zh.md](../../GUIDE-OPENCLAW-zh.md) / [en](../../GUIDE-OPENCLAW-en.md) |
+| Claude Code | [GUIDE-CLAUDECODE-zh.md](../../GUIDE-CLAUDECODE-zh.md) / [en](../../GUIDE-CLAUDECODE-en.md) |
+| OpenAI Codex | [GUIDE-CODEX-zh.md](../../GUIDE-CODEX-zh.md) / [en](../../GUIDE-CODEX-en.md) |
+| Hermes Agent | [GUIDE-HERMES-zh.md](../../GUIDE-HERMES-zh.md) / [en](../../GUIDE-HERMES-en.md) |
+| OpenCode | [GUIDE-OPENCODE-zh.md](../../GUIDE-OPENCODE-zh.md) / [en](../../GUIDE-OPENCODE-en.md) |
 
 ---
 
@@ -334,9 +334,9 @@ Claude Code：扫描分析、内容生成、验证执行
 ### 相关文档
 
 - [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) ~ [RELEASE-v0.2.0.6.md](RELEASE-v0.2.0.6.md) — 全部历史版本
-- [CLAUDE.md](CLAUDE.md) — 项目结构与开发指南
-- [CHANGELOG.md](CHANGELOG.md) — 完整变更日志
-- [PHASE2_PROGRESS.md](PHASE2_PROGRESS.md) — Phase 2 标准化进度（100%）
+- [CLAUDE.md](../../CLAUDE.md) — 项目结构与开发指南
+- [CHANGELOG.md](../../CHANGELOG.md) — 完整变更日志
+- [PHASE2_PROGRESS.md](../../PHASE2_PROGRESS.md) — Phase 2 标准化进度（100%）
 
 ---
 

@@ -9,7 +9,7 @@
 > - **5 个自动化脚本**：skill-lint.py、validate-payloads.py、validate-testcases.py、GitHub Actions CI/CD、update-skill-standard.py
 > - **v0.2.4 关键变化**：MAJOR 工具升级修复（frida 17 / hashcat 7 / docker 29）；Defense Perspective 内容质量改进；2 个新 SKILL 落地
 > - **skill-lint 0 errors / 0 warnings, 139/139 clean pass**（v0.2.3 起）
-> - 详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)
+> - 详见 [RELEASE-v0.2.4.md](docs/releases/RELEASE-v0.2.4.md)（最新）；历史：[RELEASE-v0.2.1.md](docs/releases/RELEASE-v0.2.1.md)
 >
 > 本指南中关于 agent 工具的命令和配置步骤仍然准确，仅更新了 kali-claw 侧的元数据。
 
@@ -295,7 +295,7 @@ USER.md           LICENSE           VERSION
 skills/           validation/       memory/
 chronicle/        docs/             bak/
 GUIDE-OPENCLAW-zh.md   GUIDE-OPENCLAW-en.md
-RELEASE-v0.1.X.md（每个版本一份发布说明）
+docs/releases/RELEASE-v0.1.X.md（每个版本一份发布说明）
 ```
 
 ### 3.4 首次配置（4 个文件必须修改）
@@ -1411,7 +1411,7 @@ JSON 中包含 4 个组件的明细分（skill_md / payloads_md / test_cases_md 
 | `memory/` | 每日记忆日志（YYYY-MM-DD.md） | 一般不手动修改 |
 | `chronicle/` | 月度里程碑记录 | 一般不手动修改 |
 | `docs/` | 长篇设计文档与规划 | 重大架构变更时 |
-| `RELEASE-v0.1.X.md` | 每个版本的发布公告 | 一般不手动修改 |
+| `docs/releases/RELEASE-v0.1.X.md` | 每个版本的发布公告 | 一般不手动修改 |
 
 **首次使用只需修改 4 个文件**：USER.md、SOUL.md、IDENTITY.md、AGENTS.md（见第三章第 4 节）。
 

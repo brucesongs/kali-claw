@@ -339,8 +339,8 @@ Claude Code：扫描分析、内容生成、验证执行
 ### 相关文档
 
 - [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) ~ [RELEASE-v0.2.0.7.md](RELEASE-v0.2.0.7.md) — 全部历史版本
-- [CLAUDE.md](CLAUDE.md) — 项目结构与开发指南
-- [CHANGELOG.md](CHANGELOG.md) — 完整变更日志
+- [CLAUDE.md](../../CLAUDE.md) — 项目结构与开发指南
+- [CHANGELOG.md](../../CHANGELOG.md) — 完整变更日志
 
 ---
 

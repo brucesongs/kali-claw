@@ -7,7 +7,7 @@
 139 技能三轴验证：完整性均分 81.1（无 Poor）；bash 语法错误块 102→0、占位 3→0、过时 6→0；
 公网链接抽查发现 5 个真死链（入报告）。排名报告 docs/SKILL_VALIDATION_RANKING_2026-09-09.md ✅
 
-详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)
+详见 [RELEASE-v0.3.5.md](docs/releases/RELEASE-v0.3.5.md)
 
 ---
 
@@ -20,7 +20,7 @@
 2026_09 基线：0 新 MAJOR、11 MINOR/PATCH、上次 6 个 MAJOR 复查 0 回归；Trivy 行动项关闭（3 处 @master 固定）；
 新增 validation/check-tool-versions.py（在线探测/离线清单/--json）。lint 0/0/139 ✅
 
-详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)
+详见 [RELEASE-v0.3.4.md](docs/releases/RELEASE-v0.3.4.md)
 
 ---
 
@@ -34,7 +34,7 @@
 全仓 139 个评估文档 truth-sync 重算 —— **非策略 open findings = 0，评估 backlog 归零** 🏁
 lint 0/0/139 ✅
 
-详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)
+详见 [RELEASE-v0.3.3.md](docs/releases/RELEASE-v0.3.3.md)
 
 ---
 
@@ -47,7 +47,7 @@ lint 0/0/139 ✅
 62 个 0-CVE 技能一次性处理：47 个补入 208 个 NVD 核验 CVE（人工策展），14 个 meta 域策略关闭。
 61 技能重评，仓库均分 74.4 → 81.1，无 Poor。lint 0/0/139 ✅
 
-详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)
+详见 [RELEASE-v0.3.2.md](docs/releases/RELEASE-v0.3.2.md)
 
 ---
 
@@ -60,7 +60,7 @@ lint 0/0/139 ✅
 3 个 Poor 技能清零：voip 56→74、5g-6g 59→80（Excellent）、hardware 59→77；pqi TC 5→10。
 20 个新增 CVE 全部 NVD 核验（核验门剔除 1 个错误候选）。lint 0/0/139 无回归 ✅
 
-详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)
+详见 [RELEASE-v0.3.1.md](docs/releases/RELEASE-v0.3.1.md)
 
 ---
 
@@ -72,7 +72,7 @@ lint 0/0/139 ✅
 
 新域 `pqc-implementation-attack`（77/100 出厂）落地两个 P1 候选（实现层攻击 + Kyber 勒索软件）；退役薄壳 `quantum-cryptography-transition`（并入 post-quantum-migration-attack）；SKILL_INDEX.json 修复至 139 条对账。SKILL 数 139 不变，lint 0/0/139 ✅
 
-详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)
+详见 [RELEASE-v0.3.0.md](docs/releases/RELEASE-v0.3.0.md)
 
 ---
 
@@ -85,7 +85,7 @@ lint 0/0/139 ✅
 Wave 4-7 一次性完成（104 SKILL）→ 评估项目 **139/139 闭环** ✅
 mitre frontmatter 139/139 覆盖（+45）；sase-sse / vuln-assess TC 补充；文档清理；lint 0/0/139 无回归。
 
-详见 [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md)
+详见 [RELEASE-v0.2.7.md](docs/releases/RELEASE-v0.2.7.md)
 
 ---
 
@@ -97,7 +97,7 @@ mitre frontmatter 139/139 覆盖（+45）；sase-sse / vuln-assess TC 补充；�
 
 v0.2.5.x 系列 5 个 patch 后稳定性验证：0 回归 ✅
 
-详见 [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md)
+详见 [RELEASE-v0.2.6.md](docs/releases/RELEASE-v0.2.6.md)
 
 ---
 
@@ -109,7 +109,7 @@ v0.2.5.x 系列 5 个 patch 后稳定性验证：0 回归 ✅
 
 Wave 3 的 5 个 P1（0 ATT&CK T-codes）全部修复。累计 37 findings 闭环。
 
-详见 [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md)
+详见 [RELEASE-v0.2.5.5.md](docs/releases/RELEASE-v0.2.5.5.md)
 
 ---
 
@@ -123,7 +123,7 @@ Wave 3 的 5 个 P1（0 ATT&CK T-codes）全部修复。累计 37 findings 闭�
 
 Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）的 4 个 findings 全部应用。累计 32 findings 闭环。
 
-详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)
+详见 [RELEASE-v0.2.5.4.md](docs/releases/RELEASE-v0.2.5.4.md)
 
 ---
 
@@ -147,7 +147,7 @@ Wave 2（blockchain-l2 + quantum-crypto + dns-attacks）的 4 个 findings 全�
 
 ### 实战 findings 累计关闭：28
 
-详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md) + [CHANGELOG.md](CHANGELOG.md)
+详见 [RELEASE-v0.2.5.3.md](docs/releases/RELEASE-v0.2.5.3.md) + [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -174,7 +174,7 @@ v0.2.5.2 是 kali-claw **首个批量应用实战 findings 的 patch**。将 4 �
 v0.2.5.1（4 findings）+ v0.2.5.2（14 findings）= 18/18 ✅
 ```
 
-详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md) + [CHANGELOG.md](CHANGELOG.md)
+详见 [RELEASE-v0.2.5.2.md](docs/releases/RELEASE-v0.2.5.2.md) + [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -219,7 +219,7 @@ v0.2.5.1 是 kali-claw **首个基于"实战验证反馈"的 SKILL 内容改进 
 承接 v0.2.5（月度审查 A+B 范围）+ 2026-08-10 GRFICSv3 实战验证（commit 9c04aca + 3b5c3ef）。本次 patch 关闭实战验证产生的全部 4 个 findings（F-008 ~ F-011）。
 
 详见：
-- [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)（完整发布说明）
+- [RELEASE-v0.2.5.1.md](docs/releases/RELEASE-v0.2.5.1.md)（完整发布说明）
 - [CHANGELOG.md](CHANGELOG.md)（变更日志）
 - [skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md](skills/ics-fieldbus-attack/guides/validation-walkthrough-zh.md)（验证来源）
 
@@ -262,7 +262,7 @@ v0.2.5 是 v0.2.4 minor 后第 1 次月度质量审查（提前至 2026-08-09，
 承接 v0.2.4（Minor Release）后的稳定状态。本次审查关闭了 v0.2.3.2 的 3 个 P3 findings，无新 findings。
 
 详见：
-- [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md)（完整发布说明）
+- [RELEASE-v0.2.5.md](docs/releases/RELEASE-v0.2.5.md)（完整发布说明）
 - [chronicle/2026-09/skill-review-2026-08-09.md](chronicle/2026-09/skill-review-2026-08-09.md)（月度审查记录）
 - [CHANGELOG.md](CHANGELOG.md)（变更日志）
 
@@ -309,7 +309,7 @@ v0.2.4 是 kali-claw **首个 minor release**，整合 3 阶段累积工作（4 
 承接 v0.2.3.x 三个 patch（v0.2.3.1 工具基线 / v0.2.3.2 Defense Perspective 审查 / v0.2.3.3 新 SKILL 候选评估），落地所有累积 findings 与 P0 候选。
 
 详见：
-- [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)（完整发布说明）
+- [RELEASE-v0.2.4.md](docs/releases/RELEASE-v0.2.4.md)（完整发布说明）
 - [CHANGELOG.md](CHANGELOG.md)（变更日志）
 
 ---
@@ -347,7 +347,7 @@ v0.2.1 是 Phase 1 SKILL 库完善项目的**稳定版本**。5 大任务全部�
 - validate-payloads: **137/137 existing** (0 errors)
 - validate-testcases: **137/137 existing, 1761 TCs** (0 errors)
 
-详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
+详见 [RELEASE-v0.2.1.md](docs/releases/RELEASE-v0.2.1.md)。
 
 ---
 
@@ -365,7 +365,7 @@ v0.2.0.4 是 kali-claw Phase 1 SKILL 库完善项目的第四个迭代版本。�
 
 Day 4 完成 3 个 P1 SKILL：container-security、binary-reverse、exploit-development。
 
-详细发布说明：[RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)
+详细发布说明：[RELEASE-v0.2.0.4.md](docs/releases/RELEASE-v0.2.0.4.md)
 
 ---
 

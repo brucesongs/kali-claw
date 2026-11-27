@@ -448,7 +448,7 @@ Claude Code：扫描分析、内容生成、验证执行
 - [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) — 项目战略定位与长远规划
 - [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md) — v0.2.0.2 版本说明
 - [RELEASE-v0.2.0.3.md](RELEASE-v0.2.0.3.md) — v0.2.0.3 版本说明
-- [CLAUDE.md](CLAUDE.md) — 项目结构与开发指南
+- [CLAUDE.md](../../CLAUDE.md) — 项目结构与开发指南
 
 ---
 

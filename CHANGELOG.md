@@ -11,7 +11,7 @@ All notable changes to kali-claw are documented in this file.
 - **CyberGym 首次 live PASS**：`TEST0001 / arvo:368` 生成 292 字节 CFF2 PoC，本地 CyberGym server 判定 `exit_code=1` 并触发 FreeType `cff_parse_num` ASan heap-use-after-free；证据与本地运行手册归档
 - **周基线**：均分 **91.1 → 91.3**，最低分 **72.3 → 75.7**，Excellent 135→136；lint 0/0/139，Usability+Reliability 保持双 139A
 
-详见 [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md)
+详见 [RELEASE-v0.4.1.md](docs/releases/RELEASE-v0.4.1.md)
 
 ---
 
@@ -25,7 +25,7 @@ All notable changes to kali-claw are documented in this file.
 - 顺带：5 个技能 last_reviewed 跨 90 天线 → truth-sync 2026-11-19
 - 质量保持：lint 0/0/139；验证器 exit 0；**Usability+Reliability 双 139A**；均分 91.1 不变
 
-详见 [RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)
+详见 [RELEASE-v0.4.0.md](docs/releases/RELEASE-v0.4.0.md)
 
 ---
 
@@ -34,7 +34,7 @@ All notable changes to kali-claw are documented in this file.
 - automotive-vehicle-security 占位符 **15→0**：12 处为 DBC `XXX` sender 字段误报（验证器新增 DBC 语法感知）；4 处真实修复（Toyota 包名通配、3 个伪 CVE 改类别描述——CVE 纪律：不确定的不编号）
 - **Usability 139/139 A（满分，历史首次）** + Reliability 139A；bash/outdated/placeholder/stale 全 0；验证器 exit 0
 
-详见 [RELEASE-v0.3.9.1.md](RELEASE-v0.3.9.1.md)
+详见 [RELEASE-v0.3.9.1.md](docs/releases/RELEASE-v0.3.9.1.md)
 
 ---
 
@@ -47,7 +47,7 @@ All notable changes to kali-claw are documented in this file.
 - **三轴全绿**：bash 0 / outdated 0 / stale 0 —— 验证器 exit 0 历史首次；Usability 138A/1B/0C，Reliability 139A
 - 新基线 `docs/SKILL_VALIDATION_RANKING_2026-11-16.md`：均分 **91.1**，Excellent 135 / Good 4 / 0 Fair/Poor
 
-详见 [RELEASE-v0.3.9.md](RELEASE-v0.3.9.md)
+详见 [RELEASE-v0.3.9.md](docs/releases/RELEASE-v0.3.9.md)
 
 ---
 
@@ -61,7 +61,7 @@ All notable changes to kali-claw are documented in this file.
 - 新 findings：F-1 语法残留 16 块/13 技能；F-2 freshness 落后 >90d 77 技能；F-3 relabel 候选 179 块（信息级）；F-4 automotive 占位符 15（信息级）
 - 第 5 次月度审查自此可一条命令复跑
 
-详见 [RELEASE-v0.3.8.md](RELEASE-v0.3.8.md)
+详见 [RELEASE-v0.3.8.md](docs/releases/RELEASE-v0.3.8.md)
 
 ---
 
@@ -73,7 +73,7 @@ All notable changes to kali-claw are documented in this file.
 - edge-computing-security：payloads 88→245 行（14 节：边缘指纹/源站发现/直连绕过/WAF/缓存投毒/缓存欺骗/h2 走私/边缘函数/shield DoS/控制面/检测）；CVE 3→8（+ATS×3/Envoy/Varnish，NVD 核验）；TC 去重 13；MITRE 1→7；重评 **78（Good）**
 - 新增 bash -n 门验证（重建 payloads 全部 bash 块 0 错误）；lint 0/0/139 保持
 
-详见 [RELEASE-v0.3.7.md](RELEASE-v0.3.7.md)
+详见 [RELEASE-v0.3.7.md](docs/releases/RELEASE-v0.3.7.md)
 
 ---
 
@@ -88,7 +88,7 @@ All notable changes to kali-claw are documented in this file.
 - 新增 `validation/gen-skill-handbook.py`（`--check` drift gate，建议入月度审查 SOP）
 - 工作区清理：删除 `skills.zip`（tracked 9MB 冗余快照）+ `skills/5g-6g-telecom-attack-advanced.zip`（含 __MACOSX 垃圾），均 trash 可恢复
 
-详见 [RELEASE-v0.3.6.md](RELEASE-v0.3.6.md)
+详见 [RELEASE-v0.3.6.md](docs/releases/RELEASE-v0.3.6.md)
 
 ---
 
@@ -102,7 +102,7 @@ All notable changes to kali-claw are documented in this file.
 - 报告：`docs/SKILL_VALIDATION_RANKING_2026-09-09.md`（全 139 排名表 + findings register）
 - lint 0/0/139 全程无回归
 
-详见 [RELEASE-v0.3.5.md](RELEASE-v0.3.5.md)
+详见 [RELEASE-v0.3.5.md](docs/releases/RELEASE-v0.3.5.md)
 
 ---
 
@@ -115,7 +115,7 @@ All notable changes to kali-claw are documented in this file.
 - 新增 `validation/check-tool-versions.py`（08 改进项 #1 落地）：在线 apt/--version 探测 + 离线清单 + --json
 - 文档型 patch（v0.2.3.1 先例）：SKILL 修改仅 3 行；lint 0/0/139
 
-详见 [RELEASE-v0.3.4.md](RELEASE-v0.3.4.md)
+详见 [RELEASE-v0.3.4.md](docs/releases/RELEASE-v0.3.4.md)
 
 ---
 
@@ -129,7 +129,7 @@ All notable changes to kali-claw are documented in this file.
 - Truth-sync：DoD 验证发现 ~85 行陈旧/失真 finding 残留 → 139 个评估文档全部按活体指标重算
 - **评估 backlog（P1/P2/P3 非策略）全仓归零**；lint 0/0/139；testcase warning 17→16
 
-详见 [RELEASE-v0.3.3.md](RELEASE-v0.3.3.md)
+详见 [RELEASE-v0.3.3.md](docs/releases/RELEASE-v0.3.3.md)
 
 ---
 
@@ -144,7 +144,7 @@ All notable changes to kali-claw are documented in this file.
 - Wave 1-3 时期评估文档统一为现行标准格式（旧 evidence 保留）
 - lint 0/0/139 无回归
 
-详见 [RELEASE-v0.3.2.md](RELEASE-v0.3.2.md)
+详见 [RELEASE-v0.3.2.md](docs/releases/RELEASE-v0.3.2.md)
 
 ---
 
@@ -159,7 +159,7 @@ All notable changes to kali-claw are documented in this file.
 - 20 个新增 CVE 全部 NVD API 逐个核验；核验门剔除 1 个错误候选（CVE-2018-11091 实为其他产品）
 - lint 保持 0/0/139 无回归
 
-详见 [RELEASE-v0.3.1.md](RELEASE-v0.3.1.md)
+详见 [RELEASE-v0.3.1.md](docs/releases/RELEASE-v0.3.1.md)
 
 ---
 
@@ -173,7 +173,7 @@ All notable changes to kali-claw are documented in this file.
 - 内置 CVE 纪律：payloads §2.3 强制 NVD 核验门（不引不可核验编号）
 - skill-lint 0/0/139；新技能四件套验证全绿
 
-详见 [RELEASE-v0.3.0.md](RELEASE-v0.3.0.md)
+详见 [RELEASE-v0.3.0.md](docs/releases/RELEASE-v0.3.0.md)
 
 ---
 
@@ -189,7 +189,7 @@ All notable changes to kali-claw are documented in this file.
 - 文档清理：HEARTBEAT 计数 130→139、PHASE2_PROGRESS 废弃头、WORKPLAN 状态回填
 - 第 3 次月度审查并入：lint 0/0/139 无回归；NO_GUIDES 6→0
 
-详见 [RELEASE-v0.2.7.md](RELEASE-v0.2.7.md)
+详见 [RELEASE-v0.2.7.md](docs/releases/RELEASE-v0.2.7.md)
 
 ---
 
@@ -203,7 +203,7 @@ All notable changes to kali-claw are documented in this file.
 - A.4 评估进度: 35/139（25%）, 37 findings applied
 - A.5 v0.2.5.x: 5 patches 37 findings 0 回归 ✅
 
-详见 [RELEASE-v0.2.6.md](RELEASE-v0.2.6.md)
+详见 [RELEASE-v0.2.6.md](docs/releases/RELEASE-v0.2.6.md)
 
 ---
 
@@ -219,7 +219,7 @@ All notable changes to kali-claw are documented in this file.
 | cloud-security | 7 行（T1580/T1078.004/T1530/T1552.005/T1496/T1610/T1555.006）|
 | ai-security | 6 行（T1592.005/T1190/T1562.001/T1557/T1195.001/T1005）|
 
-详见 [RELEASE-v0.2.5.5.md](RELEASE-v0.2.5.5.md)
+详见 [RELEASE-v0.2.5.5.md](docs/releases/RELEASE-v0.2.5.5.md)
 
 ---
 
@@ -239,7 +239,7 @@ All notable changes to kali-claw are documented in this file.
 - blockchain-l2：7 个重大桥攻击事件（Ronin/Poly/Wormhole/Nomad 等）
 - quantum-crypto：Kyber 勒索软件 2026-03 事件 + 密钥对比 + SNDL 时间线
 
-详见 [RELEASE-v0.2.5.4.md](RELEASE-v0.2.5.4.md)
+详见 [RELEASE-v0.2.5.4.md](docs/releases/RELEASE-v0.2.5.4.md)
 
 ---
 
@@ -263,7 +263,7 @@ All notable changes to kali-claw are documented in this file.
 - reverse-eng：Ghidra 内置脚本清单 + 5 个 RE CVE
 - gitops：gitleaks + detect-secrets + Kyverno + OPA/conftest
 
-详见 [RELEASE-v0.2.5.3.md](RELEASE-v0.2.5.3.md)
+详见 [RELEASE-v0.2.5.3.md](docs/releases/RELEASE-v0.2.5.3.md)
 
 ---
 
@@ -299,7 +299,7 @@ All notable changes to kali-claw are documented in this file.
 | skill-lint | 0/0/139 | 0/0/139 |
 | 实战 findings 累计关闭 | 4/18 | **18/18** ✅ |
 
-详见 [RELEASE-v0.2.5.2.md](RELEASE-v0.2.5.2.md)
+详见 [RELEASE-v0.2.5.2.md](docs/releases/RELEASE-v0.2.5.2.md)
 
 ---
 
@@ -332,7 +332,7 @@ All notable changes to kali-claw are documented in this file.
 | payloads.md 总行数 | 2853 | **2972** (+119) |
 | 实战 findings 关闭数 | 0/4 | **4/4** ✅ |
 
-详见 [RELEASE-v0.2.5.1.md](RELEASE-v0.2.5.1.md)
+详见 [RELEASE-v0.2.5.1.md](docs/releases/RELEASE-v0.2.5.1.md)
 
 ---
 
@@ -361,7 +361,7 @@ All notable changes to kali-claw are documented in this file.
 | skill-lint | 0/0/139 | 0/0/139（保持） |
 | P3 findings 关闭数 | 0/3 | **3/3** ✅ |
 
-详见 [RELEASE-v0.2.5.md](RELEASE-v0.2.5.md) + [chronicle/2026-09/skill-review-2026-08-09.md](chronicle/2026-09/skill-review-2026-08-09.md)
+详见 [RELEASE-v0.2.5.md](docs/releases/RELEASE-v0.2.5.md) + [chronicle/2026-09/skill-review-2026-08-09.md](chronicle/2026-09/skill-review-2026-08-09.md)
 
 ---
 
@@ -402,7 +402,7 @@ All notable changes to kali-claw are documented in this file.
 | AI 类 SKILL | 6 | **8** |
 | skill-lint | 0/0/137 | **0/0/139** |
 
-详见 [RELEASE-v0.2.4.md](RELEASE-v0.2.4.md)
+详见 [RELEASE-v0.2.4.md](docs/releases/RELEASE-v0.2.4.md)
 
 ---
 
@@ -420,7 +420,7 @@ All notable changes to kali-claw are documented in this file.
 | ~~CPU side-channel 2026~~ | 2 | ❌ 不推荐 |
 | ~~6G RF 物理层~~ | 12 | ❌ 不推荐（已覆盖）|
 
-详见 [RELEASE-v0.2.3.3.md](RELEASE-v0.2.3.3.md)
+详见 [RELEASE-v0.2.3.3.md](docs/releases/RELEASE-v0.2.3.3.md)
 
 ---
 
@@ -439,7 +439,7 @@ All notable changes to kali-claw are documented in this file.
 
 **平均 4.2/5；0 P0 critical；2 P1 + 3 P2 + 3 P3 findings**
 
-详见 [RELEASE-v0.2.3.2.md](RELEASE-v0.2.3.2.md)
+详见 [RELEASE-v0.2.3.2.md](docs/releases/RELEASE-v0.2.3.2.md)
 
 ---
 
@@ -453,7 +453,7 @@ All notable changes to kali-claw are documented in this file.
 
 - CVE-2026-33634（2026-03-19）：恶意 trivy v0.69.4 + 75+ trivy-action tags
 
-详见 [RELEASE-v0.2.3.1.md](RELEASE-v0.2.3.1.md) + `KALI_TOOLS_BASELINE_2026_08.md`
+详见 [RELEASE-v0.2.3.1.md](docs/releases/RELEASE-v0.2.3.1.md) + `KALI_TOOLS_BASELINE_2026_08.md`
 
 ---
 
@@ -465,7 +465,7 @@ All notable changes to kali-claw are documented in this file.
 - 56 → 0 warnings
 - 5 个攻击类 SKILL 补 Core Tools / Practical Steps
 
-详见 [RELEASE-v0.2.3.md](RELEASE-v0.2.3.md)
+详见 [RELEASE-v0.2.3.md](docs/releases/RELEASE-v0.2.3.md)
 
 ---
 
@@ -477,7 +477,7 @@ All notable changes to kali-claw are documented in this file.
 - 修复 v0.2.1 声称的 "100% Defense Triple 覆盖" 实际只有 54% 严格匹配的问题
 - 45 个 H2→H3 层级修复 + 4 个字面打字错误 + 2 个攻击类补写 + 1 个翻译残留清零
 
-详见 [RELEASE-v0.2.2.md](RELEASE-v0.2.2.md)
+详见 [RELEASE-v0.2.2.md](docs/releases/RELEASE-v0.2.2.md)
 
 ---
 
@@ -503,7 +503,7 @@ All notable changes to kali-claw are documented in this file.
 | `.git/` 大小 | 3.7 GB | **19 MB** |
 | 实际工时 | - | **~45h** (vs 计划 80-100h) |
 
-详见 [RELEASE-v0.2.1.md](RELEASE-v0.2.1.md)。
+详见 [RELEASE-v0.2.1.md](docs/releases/RELEASE-v0.2.1.md)。
 
 ---
 
@@ -511,7 +511,7 @@ All notable changes to kali-claw are documented in this file.
 
 7 个新战略 SKILL 创建：ai-safety-redteam-advanced、identity-provider-attack、data-loss-prevention-bypass、edge-computing-security、quantum-cryptography-transition、hardware-side-channel-advanced、5g-6g-telecom-attack-advanced。SKILL 总数 130 → 137。
 
-详见 [RELEASE-v0.2.0.8.md](RELEASE-v0.2.0.8.md)。
+详见 [RELEASE-v0.2.0.8.md](docs/releases/RELEASE-v0.2.0.8.md)。
 
 ---
 
@@ -519,7 +519,7 @@ All notable changes to kali-claw are documented in this file.
 
 Phase 2 Batch 6-10 完成。**全部 130 个 SKILL 达到 v0.2.0.2 Defense Triple 标准 (100%)**。
 
-详见 [RELEASE-v0.2.0.7.md](RELEASE-v0.2.0.7.md)。
+详见 [RELEASE-v0.2.0.7.md](docs/releases/RELEASE-v0.2.0.7.md)。
 
 ---
 
@@ -527,7 +527,7 @@ Phase 2 Batch 6-10 完成。**全部 130 个 SKILL 达到 v0.2.0.2 Defense Tripl
 
 Phase 2 Batch 3-5 完成 (30 SKILLs)。累计 65/130 (50%)。
 
-详见 [RELEASE-v0.2.0.6.md](RELEASE-v0.2.0.6.md)。
+详见 [RELEASE-v0.2.0.6.md](docs/releases/RELEASE-v0.2.0.6.md)。
 
 ---
 
@@ -535,7 +535,7 @@ Phase 2 Batch 3-5 完成 (30 SKILLs)。累计 65/130 (50%)。
 
 Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心文档对齐 v0.2.0.4。
 
-详见 [RELEASE-v0.2.0.5.md](RELEASE-v0.2.0.5.md)。
+详见 [RELEASE-v0.2.0.5.md](docs/releases/RELEASE-v0.2.0.5.md)。
 
 ---
 
@@ -570,7 +570,7 @@ Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心�
 
 ### 详细说明
 
-详见 [RELEASE-v0.2.0.4.md](RELEASE-v0.2.0.4.md)（正式中文发布版本）。
+详见 [RELEASE-v0.2.0.4.md](docs/releases/RELEASE-v0.2.0.4.md)（正式中文发布版本）。
 
 ---
 
@@ -583,7 +583,7 @@ Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心�
 - **osint**: 新增 Detection (5 类，含 Canary tokens/蜜罐识别) + Evasion (7 类)
 - **cloud-security**: 新增 Detection (6 类) + Evasion (6 类，含 CloudTrail evasion/STS 链)
 
-详见 [RELEASE-v0.2.0.3.md](RELEASE-v0.2.0.3.md)（已重写为正式对外发布的中文版本）。
+详见 [RELEASE-v0.2.0.3.md](docs/releases/RELEASE-v0.2.0.3.md)（已重写为正式对外发布的中文版本）。
 
 ---
 
@@ -607,7 +607,7 @@ Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心�
 
 - **版本基线统一** (commit `8d4613f6`): 修正 0.1.50 → **v0.2.0.2**（用户澄清 kali-claw 已切换到 v0.2.x 编号体系）
 
-详见 [RELEASE-v0.2.0.2.md](RELEASE-v0.2.0.2.md)。
+详见 [RELEASE-v0.2.0.2.md](docs/releases/RELEASE-v0.2.0.2.md)。
 
 ---
 
@@ -622,7 +622,7 @@ Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心�
 - kali-claw：已有 SKILL 的升级维护 + 持续增加新 SKILL + 持续更新使用指南
 - xAgent：将 SKILLs 转变为各种单一工种的智能体 + 探索多智能体协作场景
 
-详见 [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md)。
+详见 [RELEASE-v0.2.0.1.md](docs/releases/RELEASE-v0.2.0.1.md)。
 
 ---
 
@@ -648,7 +648,7 @@ Phase 2 Batch 1-2 (20 SKILLs) + 仓库瘦身 (3.7 GB → 19 MB) + 全部核心�
 - 基础设施改进：closed-book isolation, auto permission mode, mirror fallback
 - Binary mode 切换：352+ instances/hour (88-100x faster)
 
-详见 [RELEASE-v0.1.47.1-analysis.md](RELEASE-v0.1.47.1-analysis.md) 与 [docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md](docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md)。
+详见 [RELEASE-v0.1.47.1-analysis.md](docs/releases/RELEASE-v0.1.47.1-analysis.md) 与 [docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md](docs/legacy-reports/RELEASE-v0.1.47.1-final-report.md)。
 
 ---
 

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repo is the agent's workspace — a structured knowledge base and configuration system with automation scripts for validation, orchestration, and reporting.
 
-> **Current Version**: v0.4.1 (Cadence week closure — IdP skill 72.3→90.3, first live CyberGym PASS, lint 0/0/139, dual 139A, average score 91.3). See [RELEASE-v0.4.1.md](RELEASE-v0.4.1.md) for the latest milestone.
+> **Current Version**: v0.4.1 (Cadence week closure — IdP skill 72.3→90.3, first live CyberGym PASS, lint 0/0/139, dual 139A, average score 91.3). See [RELEASE-v0.4.1.md](docs/releases/RELEASE-v0.4.1.md) for the latest milestone.
 
 ## Architecture
 
@@ -25,11 +25,11 @@ This repo is the agent's workspace — a structured knowledge base and configura
 | `HEARTBEAT.md` | Automated health checks and maintenance schedule |
 | `TEMPLATE.md` | Template for creating new OpenClaw agent workspaces |
 
-### Phase 1 Project Artifacts (root level)
+### Historical Project Artifacts
 
 | File | Purpose |
 |---------|---------|
-| `RELEASE-v0.2.0.{1-8}.md + RELEASE-v0.2.{1,2,3}.md` | Phase 1 + Phase 2 Track 1 release notes |
+| `docs/releases/RELEASE-v0.2.0.{1-8}.md + docs/releases/RELEASE-v0.2.{1,2,3}.md` | Phase 1 + Phase 2 Track 1 release notes |
 | `PHASE1_{LAUNCH,EXECUTION,QUICK_START}.md` | Phase 1 planning documents |
 | `PHASE2_PROGRESS.md` | Phase 2 standardization batch tracker (10 batches × 10 SKILLs) |
 | `HIGH_PRIORITY_WORKPLAN.md` | 15 P0/P1 SKILL detailed improvement plan |

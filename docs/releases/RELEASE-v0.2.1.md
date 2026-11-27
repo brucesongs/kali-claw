@@ -200,11 +200,11 @@ claude
 
 | 平台 | 指南 |
 |------|------|
-| OpenClaw | [GUIDE-OPENCLAW-zh.md](GUIDE-OPENCLAW-zh.md) / [en](GUIDE-OPENCLAW-en.md) |
-| Claude Code | [GUIDE-CLAUDECODE-zh.md](GUIDE-CLAUDECODE-zh.md) / [en](GUIDE-CLAUDECODE-en.md) |
-| OpenAI Codex | [GUIDE-CODEX-zh.md](GUIDE-CODEX-zh.md) / [en](GUIDE-CODEX-en.md) |
-| Hermes Agent | [GUIDE-HERMES-zh.md](GUIDE-HERMES-zh.md) / [en](GUIDE-HERMES-en.md) |
-| OpenCode | [GUIDE-OPENCODE-zh.md](GUIDE-OPENCODE-zh.md) / [en](GUIDE-OPENCODE-en.md) |
+| OpenClaw | [GUIDE-OPENCLAW-zh.md](../../GUIDE-OPENCLAW-zh.md) / [en](../../GUIDE-OPENCLAW-en.md) |
+| Claude Code | [GUIDE-CLAUDECODE-zh.md](../../GUIDE-CLAUDECODE-zh.md) / [en](../../GUIDE-CLAUDECODE-en.md) |
+| OpenAI Codex | [GUIDE-CODEX-zh.md](../../GUIDE-CODEX-zh.md) / [en](../../GUIDE-CODEX-en.md) |
+| Hermes Agent | [GUIDE-HERMES-zh.md](../../GUIDE-HERMES-zh.md) / [en](../../GUIDE-HERMES-en.md) |
+| OpenCode | [GUIDE-OPENCODE-zh.md](../../GUIDE-OPENCODE-zh.md) / [en](../../GUIDE-OPENCODE-en.md) |
 
 ### 验证工具
 
@@ -288,10 +288,10 @@ Claude Code：扫描分析、内容生成、验证执行
 ### 相关文档
 
 - [RELEASE-v0.2.0.1.md](RELEASE-v0.2.0.1.md) ~ [RELEASE-v0.2.0.8.md](RELEASE-v0.2.0.8.md) — 全部历史版本
-- [CLAUDE.md](CLAUDE.md) — 项目结构与开发指南
-- [CHANGELOG.md](CHANGELOG.md) — 完整变更日志
-- [docs/SKILL_HANDBOOK.md](docs/SKILL_HANDBOOK.md) — 完整使用手册
-- [docs/SKILL_MAINTENANCE.md](docs/SKILL_MAINTENANCE.md) — 维护指南
+- [CLAUDE.md](../../CLAUDE.md) — 项目结构与开发指南
+- [CHANGELOG.md](../../CHANGELOG.md) — 完整变更日志
+- [docs/SKILL_HANDBOOK.md](../../docs/SKILL_HANDBOOK.md) — 完整使用手册
+- [docs/SKILL_MAINTENANCE.md](../../docs/SKILL_MAINTENANCE.md) — 维护指南
 
 ---
 
